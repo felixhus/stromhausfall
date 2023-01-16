@@ -14,5 +14,5 @@ Dies ist der aktuelle Stand der Webapp meiner Masterthesis. Folgende Funktionen 
 Fragen und Anregungen gern an mich [per Mail](mailto:felix.husemann@tum.de)
 ~~~
 Stand: 17.01.2023
-© Felix Husemann
+© Felix Husemann, TUM
 ~~~
