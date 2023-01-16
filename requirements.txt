@@ -1,7 +1,6 @@
 alabaster==0.7.12
 altgraph==0.17.3
 anaconda-client
-anaconda-project
 anyio==3.5.0
 appdirs==1.4.4
 argon2-cffi==21.3.0
