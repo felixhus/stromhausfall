@@ -1,8 +1,6 @@
-import os
-
 import dash_bootstrap_components as dbc
 import source.stylesheets as stylesheets
-from dash import html
+from dash import dcc, html
 
 
 def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
@@ -20,3 +18,9 @@ def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
     else:
         children = name
     return dbc.Button(id=object_id, children=children, style=stylesheets.button_add_components_style)
+
+
+def readme_content():
+    with open('readme.md', encoding='UTF-8') as file:
+        content = file.read()
+    return dcc.Markdown(content)

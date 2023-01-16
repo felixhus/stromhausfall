@@ -57,7 +57,7 @@ app.layout = dbc.Container([
                 dbc.Row(dash_components.add_grid_object_button(object_id=house_objects[i][0],
                                                                name=house_objects[i][1]))
                 for i in range(len(house_objects))
-            ], id='house_buttons', style={'display': 'none'})
+            ], id='house_buttons', style={'display': 'none'}),
         ], width='auto'),
         dbc.Col([
             cyto.Cytoscape(
@@ -77,6 +77,9 @@ app.layout = dbc.Container([
     ]),
     dbc.Row([
         dbc.Col([
+            dbc.Button("README", id='button_readme', n_clicks=0, style={'margin_right': '10px', 'margin_top': '10px'})
+        ], width=2),
+        dbc.Col([
             dbc.Stack([
                 html.P("Grid elements", style={'margin-right': '10px', 'margin-top': '27px'}),
                 daq.BooleanSwitch(id='menu_switch', on=False, style={'margin-top': '15px'}),
@@ -88,7 +91,7 @@ app.layout = dbc.Container([
                 daq.BooleanSwitch(id='mode_switch', on=False, style={'margin-top': '15px'}),
                 dbc.Spinner(html.P("Calculate", id='calculate', style={'margin-left': '10px', 'margin-top': '27px'}))],
                 direction='horizontal'),
-        ], width=5)
+        ], width=5),
     ], justify='evenly'),
     dbc.Modal([
         dbc.ModalHeader(dbc.ModalTitle("Header")),
@@ -100,6 +103,13 @@ app.layout = dbc.Container([
         ),
     ],
         id="modal",
+        is_open=False,
+    ),
+    dbc.Modal([
+        dbc.ModalHeader(dbc.ModalTitle("Readme")),
+        dbc.ModalBody(dash_components.readme_content(), id="modal_readme_body")
+    ],
+        id="modal_readme",
         is_open=False,
     ),
     dcc.Store(id='start_of_line'),
@@ -221,6 +231,13 @@ def switch_mode(mode_switch, menu_switch, state_grid, state_house, state_graph, 
             return {'display': 'block'}, state_house, {'display': 'none'}, "Calculate"
     else:
         raise PreventUpdate
+
+
+@app.callback(Output('modal_readme', 'is_open'),
+              Input('button_readme', 'n_clicks'),
+              prevent_initial_call=True)
+def open_readme(btn):
+    return True
 
 
 def get_last_id(elements):
