@@ -10,7 +10,7 @@ from dash import Dash, Input, Output, State, ctx, dcc, html
 from dash.exceptions import PreventUpdate
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
-
+server = app.server
 df = px.data.iris()
 fig = px.scatter(df, x='sepal_width', y='sepal_length')
 
