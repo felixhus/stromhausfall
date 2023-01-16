@@ -79,8 +79,6 @@ entrypoints @ file:///C:/ci/entrypoints_1649926621128/work
 et-xmlfile==1.1.0
 exceptiongroup==1.0.4
 fastjsonschema @ file:///C:/Users/BUILDE~1/AppData/Local/Temp/abs_ebruxzvd08/croots/recipe/python-fastjsonschema_1661376484940/work
-# Editable install with no version control (fh-mypackage==0.1.0)
--e c:\users\felix\documents\home\uni\02_master\05_masterthesis\02_code\mypackage
 filelock @ file:///opt/conda/conda-bld/filelock_1647002191454/work
 flake8 @ file:///opt/conda/conda-bld/flake8_1648129545443/work
 Flask @ file:///home/ktietz/src/ci/flask_1611932660458/work
