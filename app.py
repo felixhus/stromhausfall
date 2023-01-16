@@ -232,4 +232,4 @@ def get_last_id(elements):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
