@@ -1,4 +1,5 @@
 import time
+import os
 
 import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
@@ -14,7 +15,7 @@ server = app.server
 df = px.data.iris()
 fig = px.scatter(df, x='sepal_width', y='sepal_length')
 
-with open('readme.md', encoding='UTF-8') as file:
+with open('README.md', encoding='UTF-8') as file:
     content_readme = file.read()
 
 menu_objects = [
