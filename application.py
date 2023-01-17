@@ -14,6 +14,9 @@ server = app.server
 df = px.data.iris()
 fig = px.scatter(df, x='sepal_width', y='sepal_length')
 
+with open('readme.md', encoding='UTF-8') as file:
+    content_readme = file.read()
+
 menu_objects = [
     ['button_house', 'icon_house2.png'],
     ['button_transformer', 'icon_transformer.png'],
@@ -107,7 +110,7 @@ app.layout = dbc.Container([
     ),
     dbc.Modal([
         dbc.ModalHeader(dbc.ModalTitle("Readme")),
-        dbc.ModalBody(dash_components.readme_content(), id="modal_readme_body")
+        dbc.ModalBody(dcc.Markdown(content_readme), id="modal_readme_body")
     ],
         id="modal_readme",
         is_open=False,

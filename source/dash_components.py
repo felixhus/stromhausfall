@@ -20,7 +20,7 @@ def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
     return dbc.Button(id=object_id, children=children, style=stylesheets.button_add_components_style)
 
 
-def readme_content():
-    with open('readme.md', encoding='UTF-8') as file:
-        content = file.read()
-    return dcc.Markdown(content)
+# def readme_content():
+#     with open('readme.md', encoding='UTF-8') as file:
+#         content = file.read()
+#     return dcc.Markdown(content)
