@@ -2,11 +2,11 @@ import time
 import os
 
 import dash_bootstrap_components as dbc
-import dash_cytoscape as cyto
 import dash_daq as daq
 import plotly.express as px
 import source.dash_components as dash_components
 import source.stylesheets as stylesheets
+import dash_cytoscape as cyto
 from dash import Dash, Input, Output, State, ctx, dcc, html
 from dash.exceptions import PreventUpdate
 
@@ -14,9 +14,6 @@ app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_
 server = app.server
 df = px.data.iris()
 fig = px.scatter(df, x='sepal_width', y='sepal_length')
-
-with open('README.md', encoding='UTF-8') as file:
-    content_readme = file.read()
 
 menu_objects = [
     ['button_house', 'icon_house2.png'],
@@ -36,18 +33,8 @@ house_objects = [
     ['button_tv', "TV"],
 ]
 
-nodes = [
-    # {'data': {'id': 'node1', 'label': ''},
-    #  'position': {'x': 50, 'y': 50},
-    #  'classes': 'node_house'},
-    # {'data': {'id': 'node2', 'label': ''},
-    #  'position': {'x': 200, 'y': 200},
-    #  'classes': 'node_style'},
-]
-
-edges = [
-    # {'data': {'source': 'node1', 'target': 'node2', 'label': 'Edge1'}, 'classes': 'line_style'}
-]
+nodes = []
+edges = []
 
 app.layout = dbc.Container([
     dbc.Row([
@@ -64,14 +51,7 @@ app.layout = dbc.Container([
             ], id='house_buttons', style={'display': 'none'}),
         ], width='auto'),
         dbc.Col([
-            cyto.Cytoscape(
-                id='cyto1',
-                layout={'name': 'preset'},
-                autoRefreshLayout=False,
-                style={'width': '800px', 'height': '100%', 'background': '#e6ecf2', 'frame': 'blue'},
-                elements=edges + nodes,
-                stylesheet=stylesheets.cyto_stylesheet
-            )
+            dash_components.add_cytoscape_grid(nodes, edges)
         ]),
         dbc.Col([
             html.Div(id='graph', style={'display': 'none'}, children=[
@@ -97,28 +77,10 @@ app.layout = dbc.Container([
                 direction='horizontal'),
         ], width=5),
     ], justify='evenly'),
-    dbc.Modal([
-        dbc.ModalHeader(dbc.ModalTitle("Header")),
-        dbc.ModalBody("Edit grid element here", id="modal_body"),
-        dbc.ModalFooter(
-            dbc.Button(
-                "Close", id="close_modal", className="ms-auto", n_clicks=0
-            )
-        ),
-    ],
-        id="modal",
-        is_open=False,
-    ),
-    dbc.Modal([
-        dbc.ModalHeader(dbc.ModalTitle("Readme")),
-        dbc.ModalBody(dcc.Markdown(content_readme), id="modal_readme_body")
-    ],
-        id="modal_readme",
-        is_open=False,
-    ),
-    dcc.Store(id='start_of_line'),
-    dcc.Store(id='store_add_node')
-    # dbc.Tooltip("test tooltip", id='tooltip_node', target='button_add', trigger='hover')
+    dash_components.add_modal_edit(),
+    dash_components.add_modal_readme(),
+    dash_components.add_storage_variables(),
+    html.P(id='dummy')
 ])
 
 
@@ -252,5 +214,12 @@ def get_last_id(elements):
     return last_id
 
 
+@app.callback(Output('dummy', 'children'),
+              Input('cyto1', 'cxttap'))
+def dummy_callback(input):
+    print("success")
+    return ""
+
+
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
