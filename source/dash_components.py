@@ -2,6 +2,7 @@ import dash_bootstrap_components as dbc
 import source.stylesheets as stylesheets
 from dash import dcc, html
 import dash_cytoscape as cyto
+import dash_mantine_components as dmc
 
 
 def add_storage_variables():
@@ -22,7 +23,7 @@ def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
         children = html.Img(src=icon, height=str(stylesheets.button_add_components_style['icon_width']))
     else:
         children = name
-    return dbc.Button(id=object_id, children=children, style=stylesheets.button_add_components_style)
+    return dmc.Button(id=object_id, children=children, style=stylesheets.button_add_components_style)
 
 
 def add_cytoscape_grid(nodes, edges):
@@ -39,12 +40,13 @@ def add_cytoscape_grid(nodes, edges):
 def add_modal_readme():
     with open('README.md', encoding='UTF-8') as file:
         content_readme = file.read()
-    return dbc.Modal([
-        dbc.ModalHeader(dbc.ModalTitle("Readme")),
-        dbc.ModalBody(dcc.Markdown(content_readme), id="modal_readme_body")
-    ],
+    return dmc.Modal(
+        title="Readme",
         id="modal_readme",
-        is_open=False,
+        children=dcc.Markdown(content_readme),
+        opened=False
+        # dbc.ModalHeader(dbc.ModalTitle("Readme")),
+        # dbc.ModalBody(dcc.Markdown(content_readme), id="modal_readme_body")
     )
 
 
@@ -61,6 +63,14 @@ def add_modal_edit():
         id="modal",
         is_open=False,
     )
+
+
+def add_node_click_menu():
+    button_group = dbc.ButtonGroup([
+        dbc.Button("Bearbeiten", id='button_node_edit'),
+        dbc.Button("Löschen", id='button_node_delete')
+    ], vertical=True, style={'display': 'None',})
+    return button_group
 
 # def readme_content():
 #     with open('readme.md', encoding='UTF-8') as file:

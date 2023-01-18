@@ -5,6 +5,8 @@ import dash_bootstrap_components as dbc
 import dash_daq as daq
 import plotly.express as px
 import source.dash_components as dash_components
+import dash_mantine_components as dmc
+from dash_iconify import DashIconify
 import source.stylesheets as stylesheets
 import dash_cytoscape as cyto
 from dash import Dash, Input, Output, State, ctx, dcc, html
@@ -61,25 +63,29 @@ app.layout = dbc.Container([
     ]),
     dbc.Row([
         dbc.Col([
-            dbc.Button("README", id='button_readme', n_clicks=0, style={'margin_right': '10px', 'margin_top': '10px'})
+            dmc.Button("README", id='button_readme', n_clicks=0, style={'margin_right': '10px', 'margin_top': '10px'},
+                       leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient')
         ], width=2),
         dbc.Col([
             dbc.Stack([
                 html.P("Grid elements", style={'margin-right': '10px', 'margin-top': '27px'}),
-                daq.BooleanSwitch(id='menu_switch', on=False, style={'margin-top': '15px'}),
+                daq.BooleanSwitch(id='menu_switch', style={'margin-top': '15px'}),
                 html.P("House elements", style={'margin-left': '10px', 'margin-top': '27px'})], direction='horizontal')
         ], width=5),
         dbc.Col([
             dbc.Stack([
-                html.P("Edit Grid", style={'margin-right': '10px', 'margin-top': '27px'}),
-                daq.BooleanSwitch(id='mode_switch', on=False, style={'margin-top': '15px'}),
-                dbc.Spinner(html.P("Calculate", id='calculate', style={'margin-left': '10px', 'margin-top': '27px'}))],
+                html.P("Netz bearbeiten", style={'margin-right': '10px', 'margin-top': '27px'}),
+                dmc.Switch(id='mode_switch', style={'margin-top': '15px'}, size="lg",
+                           offLabel=DashIconify(icon="material-symbols:edit-outline"),
+                           onLabel=DashIconify(icon="material-symbols:calculate-outline")),
+                dbc.Spinner(html.P("Berechnen", id='calculate', style={'margin-left': '10px', 'margin-top': '27px'}))],
                 direction='horizontal'),
         ], width=5),
     ], justify='evenly'),
     dash_components.add_modal_edit(),
     dash_components.add_modal_readme(),
     dash_components.add_storage_variables(),
+    dash_components.add_node_click_menu(),
     html.P(id='dummy')
 ])
 
@@ -199,7 +205,7 @@ def switch_mode(mode_switch, menu_switch, state_grid, state_house, state_graph, 
         raise PreventUpdate
 
 
-@app.callback(Output('modal_readme', 'is_open'),
+@app.callback(Output('modal_readme', 'opened'),
               Input('button_readme', 'n_clicks'),
               prevent_initial_call=True)
 def open_readme(btn):
