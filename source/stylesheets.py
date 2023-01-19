@@ -55,8 +55,6 @@ button_add_components_style = {
     'width': '80px',
     'height': '80px',
     'icon_width': '60px',
-    # 'background': 'red',
-    # 'border': 'red',
     'margin-top': '5px',
     'margin-bottom': '5px',
 }

@@ -8,6 +8,7 @@ Dies ist der aktuelle Stand der Webapp meiner Masterthesis. Folgende Funktionen 
   - Auf das Freileitungssymbol unten links klicken.
   - Nacheinander die zu verbindenden Elemente anklicken.
   - Leitungsmodus durch erneutes Klicken auf das Freileitungssymbol beenden.
+  - Es wird überprüft, ob die beiden Elemente miteinander verbunden werden dürfen. Wenn nicht, wird eine Fehlermeldung angezeigt.
 - Durch Klicken auf ein Netzelement oder Kabel öffnet sich ein Fenster. In diesem wird man das Element später bearbeiten können.
 - Die Netzelemente und Kabel können im Bearbeitungs-Dialog wieder gelöscht werden. Wird ein Netzelement gelöscht, werden auch die verbundenen Kabel entfernt.
 - Die Schiebeschalter können bisher nur andere Menüs/Diagramme anzeigen, diese haben noch keine Funktion.
