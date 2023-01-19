@@ -222,26 +222,28 @@ def button_add_pressed(*args):
               Output('house_buttons', 'style'),
               Output('graph', 'style'),
               Output('calculate', 'children'),
-              Input('mode_switch', 'on'),
+              Output('cyto1', 'layout'),
+              Input('mode_switch', 'checked'),
               Input('menu_switch', 'on'),
               State('grid_buttons', 'style'),
               State('house_buttons', 'style'),
               State('graph', 'style'),
               State('calculate', 'children'),
+              State('cyto1', 'layout'),
               prevent_initial_call=True)
-def switch_mode(mode_switch, menu_switch, state_grid, state_house, state_graph, state_spinner):
+def switch_mode(mode_switch, menu_switch, state_grid, state_house, state_graph, state_spinner, state_layout):
     triggered_id = ctx.triggered_id
     if triggered_id == 'menu_switch':
         if menu_switch:
-            return {'display': 'none'}, {'display': 'block'}, state_graph, state_spinner
+            return {'display': 'none'}, {'display': 'block'}, state_graph, state_spinner, state_layout
         else:
-            return {'display': 'block'}, {'display': 'none'}, state_graph, state_spinner
+            return {'display': 'block'}, {'display': 'none'}, state_graph, state_spinner, state_layout
     elif triggered_id == 'mode_switch':
         if mode_switch:
             time.sleep(2)
-            return {'display': 'none'}, {'display': 'none'}, {'display': 'block'}, "Calculated"
+            return {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, "Calculated", {'name': 'breadthfirst', 'roots': '#node2'}
         else:
-            return {'display': 'block'}, state_house, {'display': 'none'}, "Calculate"
+            return {'display': 'block'}, state_house, {'display': 'none'}, "Calculate", {'name', 'preset'}
     else:
         raise PreventUpdate
 

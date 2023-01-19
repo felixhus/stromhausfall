@@ -31,7 +31,7 @@ class TransformerObject(GridObject):
     object_type = "transformer"
     icon = "icon_transformer.png"
     ui_color = '#9cb6ca'
-    allowed_types_to_connect = ["house", "switch_cabinet", "battery", "pv", "smart_meter"]
+    allowed_types_to_connect = ["house", "switch_cabinet", "battery", "pv", "smart_meter", "externalgrid"]
 
 
 class LineObject(GridObject):
