@@ -5,6 +5,7 @@ import dash_bootstrap_components as dbc
 import dash_daq as daq
 import plotly.express as px
 import source.dash_components as dash_components
+from source.modules import *
 import dash_mantine_components as dmc
 from dash_iconify import DashIconify
 import source.stylesheets as stylesheets
@@ -24,6 +25,7 @@ menu_objects = [
     ['button_pv', 'icon_pv.png'],
     ['button_battery', 'icon_battery.png'],
     ['button_smartmeter', 'icon_meter.png'],
+    ['button_switch_cabinet', 'icon_switch_cabinet.png'],
     ['button_line', 'icon_line_lv.png'],
 ]
 
@@ -118,12 +120,13 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements, btn_line_active, st
     triggered_id = ctx.triggered_id
     if triggered_id == 'button_line':
         return elements, None, False
-    if triggered_id == 'button_add':  # # Add node to grid
-        last_id = get_last_id(elements)
-        new_element = {'data': {'id': 'node' + str(last_id + 1), 'label': 'Node ' + str(last_id + 1)},
-                       'position': {'x': 50, 'y': 50}}
-        elements.append(new_element)
-        return elements, start_of_line, False
+    # if triggered_id == 'button_add':  # # Add node to grid
+    #     last_id = get_last_id(elements)
+    #     new_element = {'data': {'id': 'node' + str(last_id + 1), 'label': 'Node ' + str(last_id + 1)},
+    #                    'position': {'x': 50, 'y': 50}}
+    #     elements.append(new_element)
+    #     new_gridObject = generate_grid_object()
+    #     return elements, start_of_line, False
     elif triggered_id == 'store_add_node':
         last_id = get_last_id(elements)
         for button in menu_objects:
@@ -132,7 +135,6 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements, btn_line_active, st
         new_element = {'data': {'id': 'node' + str(last_id[0] + 1)}, 'position': {'x': 50, 'y': 50},
                        'classes': 'node_style', 'style': {'background-image': image_src}}
         elements.append(new_element)
-        # return elements, node, False
         return elements, None, False
     elif triggered_id == 'cyto1':  # # Node was clicked
         if not node == []:
@@ -256,27 +258,6 @@ def open_readme(btn):
               State('start_of_line', 'data'))
 def debug(btn, elements, start_of_line):
     return None
-
-
-def get_last_id(elements):
-    last_id = [0, 0]
-    for ele in elements:
-        if 'source' not in ele['data']:
-            last_id[0] = int(ele['data']['id'][4:])
-    for ele in elements:
-        if 'source' in ele['data']:
-            last_id[1] = int(ele['data']['id'][4:])
-    return last_id
-
-
-def get_connected_edges(elements, selected_element):
-    id_element = selected_element['data']['id']
-    result = []
-    for ele in elements:
-        if 'source' in ele['data']:
-            if ele['data']['source'] == id_element or ele['data']['target'] == id_element:
-                result.append(ele)
-    return result
 
 
 if __name__ == '__main__':
