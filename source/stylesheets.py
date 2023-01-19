@@ -20,6 +20,18 @@ cyto_stylesheet = [
         }
     },
     {
+        'selector': '.node_style_selected',
+        'style': {
+            'background-color': '#blue',
+            'shape': 'roundrectangle',
+            'width': 50,
+            'height': 50,
+            'background-image': ['/assets/Icons/icon_house.png'],
+            'background-width': 40,
+            'background-height': 40,
+        }
+    },
+    {
         'selector': '.node_house',
         'style': {
             'background-color': '#6a93b0',

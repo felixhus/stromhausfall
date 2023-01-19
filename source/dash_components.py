@@ -3,10 +3,12 @@ import source.stylesheets as stylesheets
 from dash import dcc, html
 import dash_cytoscape as cyto
 import dash_mantine_components as dmc
+from dash_iconify import DashIconify
 
 
 def add_storage_variables():
-    return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node')])
+    return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
+                     dcc.Store(id='line_edit_active')])
 
 
 def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
@@ -27,7 +29,7 @@ def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
 
 
 def add_cytoscape_grid(nodes, edges):
-    return cyto.Cytoscape(
+    cytoscape = cyto.Cytoscape(
         id='cyto1',
         layout={'name': 'preset'},
         autoRefreshLayout=False,
@@ -35,6 +37,7 @@ def add_cytoscape_grid(nodes, edges):
         elements=edges + nodes,
         stylesheet=stylesheets.cyto_stylesheet
     )
+    return cytoscape
 
 
 def add_modal_readme():
@@ -51,26 +54,32 @@ def add_modal_readme():
 
 
 def add_modal_edit():
-    return dbc.Modal([
-        dbc.ModalHeader(dbc.ModalTitle("Header")),
-        dbc.ModalBody("Edit grid element here", id="modal_body"),
-        dbc.ModalFooter(
-            dbc.Button(
-                "Close", id="close_modal", className="ms-auto", n_clicks=0
-            )
-        ),
-    ],
-        id="modal",
-        is_open=False,
+    return dmc.Modal(
+        title="Edit",
+        id='modal_edit',
+        children=[
+            dmc.Text("", id='modal_text'),
+            dmc.Space(h=20),
+            dmc.Group([
+                dmc.Button("Löschen", color='red', variant='outline', id='modal_edit_delete_button',
+                           leftIcon=DashIconify(icon="material-symbols:delete-outline")),
+                dmc.Button("Schließen", variant='outline', id='modal_edit_close_button')
+            ], position='right')
+        ]
     )
+    # return dbc.Modal([
+    #     dbc.ModalHeader(dbc.ModalTitle("Header")),
+    #     dbc.ModalBody("Edit grid element here", id="modal_body"),
+    #     dbc.ModalFooter(
+    #         dbc.Button(
+    #             "Close", id="close_modal", className="ms-auto", n_clicks=0
+    #         )
+    #     ),
+    # ],
+    #     id="modal",
+    #     is_open=False,
+    # )
 
-
-def add_node_click_menu():
-    button_group = dbc.ButtonGroup([
-        dbc.Button("Bearbeiten", id='button_node_edit'),
-        dbc.Button("Löschen", id='button_node_delete')
-    ], vertical=True, style={'display': 'None',})
-    return button_group
 
 # def readme_content():
 #     with open('readme.md', encoding='UTF-8') as file:

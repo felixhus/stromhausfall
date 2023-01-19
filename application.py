@@ -53,7 +53,7 @@ app.layout = dbc.Container([
             ], id='house_buttons', style={'display': 'none'}),
         ], width='auto'),
         dbc.Col([
-            dash_components.add_cytoscape_grid(nodes, edges)
+            dash_components.add_cytoscape_grid(nodes, edges),
         ]),
         dbc.Col([
             html.Div(id='graph', style={'display': 'none'}, children=[
@@ -85,22 +85,21 @@ app.layout = dbc.Container([
     dash_components.add_modal_edit(),
     dash_components.add_modal_readme(),
     dash_components.add_storage_variables(),
-    dash_components.add_node_click_menu(),
-    html.P(id='dummy')
-])
+    html.P(id='dummy'),
+], id='main_container')
 
 
 @app.callback(Output('cyto1', 'autoungrabify'),  # Callback to make Node ungrabbable when adding lines
-              Output('button_line', 'active'),
-              Output('button_line', 'color'),
+              Output('line_edit_active', 'data'),
+              Output('button_line', 'variant'),
               Input('button_line', 'n_clicks'),
-              State('button_line', 'active'),
+              State('line_edit_active', 'data'),
               prevent_initial_call=True)
 def edit_mode(btn_line, btn_active):
     if not btn_active:
-        return True, True, 'info'
+        return True, True, 'light'
     else:
-        return False, False, 'primary'
+        return False, False, 'filled'
 
 
 @app.callback(Output('cyto1', 'elements'),  # Callback to change elements of cyto
@@ -108,7 +107,7 @@ def edit_mode(btn_line, btn_active):
               Input('store_add_node', 'data'),
               Input('cyto1', 'selectedNodeData'),
               State('cyto1', 'elements'),
-              State('button_line', 'active'),
+              State('line_edit_active', 'data'),
               State('start_of_line', 'data'))
 def edit_grid(btn_add, node, elements, btn_line_active, start_of_line):
     triggered_id = ctx.triggered_id
@@ -144,24 +143,30 @@ def edit_grid(btn_add, node, elements, btn_line_active, start_of_line):
         raise PreventUpdate
 
 
-@app.callback(Output('modal', 'is_open'),
-              Output('modal_body', 'children'),
-              Input('cyto1', 'selectedNodeData'),
-              Input('close_modal', 'n_clicks'),
-              State('button_line', 'active'))
-def edit_grid_element(node, btn_close, btn_line_active):
+@app.callback(Output('modal_edit', 'opened'),
+              Output('modal_text', 'children'),
+              Output('cyto1', 'tapNodeData'),
+              Output('cyto1', 'tapEdgeData'),
+              Input('cyto1', 'tapNodeData'),
+              Input('cyto1', 'tapEdgeData'),
+              Input('modal_edit_close_button', 'n_clicks'),
+              State('line_edit_active', 'data'))
+def edit_grid_element(node, edge, btn_close, btn_line_active):
     triggered_id = ctx.triggered_id
     if triggered_id == 'cyto1':
-        if not node == []:
+        if node is not None and edge is None:
             if not btn_line_active:
-                body_text = "Edit settings of " + node[0]['id'] + " here."
-                return True, body_text
+                body_text = "Edit settings of " + node['id'] + " here."
+                return True, body_text, None, None
             else:
                 raise PreventUpdate
+        elif node is None and edge is not None:
+            body_text = "Edit settings of " + edge['label'] + " here."
+            return True, body_text, None, None
         else:
-            raise PreventUpdate
-    elif triggered_id == 'close_modal':
-        return False, ""
+            return False, None, None, None
+    elif triggered_id == 'modal_edit_close_button':
+        return False, "", None, None
     else:
         raise PreventUpdate
 
@@ -218,13 +223,6 @@ def get_last_id(elements):
         if 'source' not in ele['data']:
             last_id = int(ele['data']['id'][4:])
     return last_id
-
-
-@app.callback(Output('dummy', 'children'),
-              Input('cyto1', 'cxttap'))
-def dummy_callback(input):
-    print("success")
-    return ""
 
 
 if __name__ == '__main__':
