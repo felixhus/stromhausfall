@@ -65,7 +65,7 @@ app.layout = dbc.Container([
         dbc.Col([
             dmc.Button("README", id='button_readme', n_clicks=0, style={'margin_right': '10px', 'margin_top': '10px'},
                        leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
-            dmc.Button("Debug", id='debug_button')
+            # dmc.Button("Debug", id='debug_button')
         ], width=2),
         dbc.Col([
             dbc.Stack([
