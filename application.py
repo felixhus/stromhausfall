@@ -41,7 +41,7 @@ nodes = []
 edges = []
 gridObject_list = []
 
-app.layout = dbc.Container([
+app.layout = dmc.NotificationsProvider(dbc.Container([
     dbc.Row([
         dbc.Col([
             html.Div([
@@ -90,7 +90,8 @@ app.layout = dbc.Container([
     dash_components.add_modal_readme(),
     dash_components.add_storage_variables(),
     html.P(id='dummy'),
-], id='main_container')
+    html.Div(id='notification_container')
+], id='main_container'))
 
 
 @app.callback(Output('cyto1', 'autoungrabify'),  # Callback to make Node ungrabbable when adding lines
@@ -109,6 +110,7 @@ def edit_mode(btn_line, btn_active):
 @app.callback(Output('cyto1', 'elements'),  # Callback to change elements of cyto
               Output('start_of_line', 'data'),
               Output('element_deleted', 'data'),
+              Output('store_notification', 'data'),
               Input('store_add_node', 'data'),
               Input('cyto1', 'selectedNodeData'),
               Input('modal_edit_delete_button', 'n_clicks'),
@@ -120,28 +122,32 @@ def edit_mode(btn_line, btn_active):
 def edit_grid(btn_add, node, btn_delete, btn_line, elements, btn_line_active, start_of_line, selected_element):
     triggered_id = ctx.triggered_id
     if triggered_id == 'button_line':
-        return elements, None, False
+        return elements, None, False, None
     elif triggered_id == 'store_add_node':
         last_id = get_last_id(elements)
-        new_gridobject = generate_grid_object(btn_add, "dummy", 'node' + str(last_id[0] + 1))
+        new_gridobject = generate_grid_object(btn_add, 'node' + str(last_id[0] + 1), 'node' + str(last_id[0] + 1))
+        test = new_gridobject.get_id()
         image_src = app.get_asset_url('Icons/' + new_gridobject.icon)
         gridObject_list.append(new_gridobject)
         new_element = {'data': {'id': 'node' + str(last_id[0] + 1)}, 'position': {'x': 50, 'y': 50},
                        'classes': 'node_style', 'style': {'background-image': image_src,
                                                           'background-color': new_gridobject.ui_color}}
         elements.append(new_element)
-        return elements, None, False
+        return elements, None, False, None
     elif triggered_id == 'cyto1':  # # Node was clicked
         if not node == []:
             if btn_line_active:  # Add-line-mode is on
                 if start_of_line is not None:
-                    last_id = get_last_id(elements)
-                    new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
-                                         'id': 'edge' + str(last_id[1]+1)}}
-                    elements.append(new_edge)
-                    return elements, None, False
+                    if connection_allowed(start_of_line[0]['id'], node[0]['id'], gridObject_list):
+                        last_id = get_last_id(elements)
+                        new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
+                                             'id': 'edge' + str(last_id[1]+1)}}
+                        elements.append(new_edge)
+                        return elements, None, False, None
+                    else:
+                        return elements, None, False, "notification_false_connection"
                 else:
-                    return elements, node, False
+                    return elements, node, False, None
             else:  # Node is clicked in normal mode
                 raise PreventUpdate
         else:
@@ -157,7 +163,7 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements, btn_line_active, st
             for edge in connected_edges:
                 elements.pop(elements.index(edge))
         elements.pop(index)
-        return elements, None, True
+        return elements, None, True, None
     else:
         raise PreventUpdate
 
@@ -245,6 +251,24 @@ def switch_mode(mode_switch, menu_switch, state_grid, state_house, state_graph, 
               prevent_initial_call=True)
 def open_readme(btn):
     return True
+
+
+@app.callback(Output('notification_container', 'children'),
+              Input('store_notification', 'data'))
+def notification(data):
+    if data is None:
+        raise PreventUpdate
+    elif data == 'notification_false_connection':
+        notification_message = ["Kabelsalat!",
+                                "Zwischen diesen beiden Komponenten kannst du keine Leitung ziehen."]
+        icon = DashIconify(icon="mdi:connection")
+        color = 'red'
+    else:
+        raise PreventUpdate
+    return dmc.Notification(title=notification_message[0],
+                            message=notification_message[1],
+                            action='show', color=color,
+                            icon=icon, id='notification')
 
 
 @app.callback(Output('dummy', 'children'),

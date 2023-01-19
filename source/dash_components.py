@@ -9,7 +9,7 @@ from dash_iconify import DashIconify
 def add_storage_variables():
     return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
                      dcc.Store(id='line_edit_active'), dcc.Store(id='selected_element'),
-                     dcc.Store(id='element_deleted')])
+                     dcc.Store(id='element_deleted'), dcc.Store(id='store_notification')])
 
 
 def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):

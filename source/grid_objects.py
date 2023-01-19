@@ -10,6 +10,9 @@ class GridObject:
         self.connected_node = node_id
         self.id = object_id
 
+    def get_id(self):
+        return self.id
+
 
 class HouseObject(GridObject):
     """ A residential house as a node in the power grid """
@@ -83,7 +86,7 @@ class PV(GridObject):
 
 class SwitchCabinet(GridObject):
     """ Battery which can store electrical energy """
-    object_type = "Switch_Cabinet"
+    object_type = "switch_cabinet"
     name = "Switch Cabinet"
     icon = "icon_switch_cabinet.png"
     ui_color = '#9cb6ca'
