@@ -24,5 +24,17 @@ def get_connected_edges(elements, selected_element):
 def generate_grid_object(object_type, object_id, node_id):
     if object_type == "button_house":
         return grid_objects.HouseObject(node_id=node_id, object_id="Dummy")
+    elif object_type == "button_transformer":
+        return grid_objects.TransformerObject(node_id=node_id, object_id="Dummy")
+    elif object_type == "button_externalgrid":
+        return grid_objects.ExternalGrid(node_id=node_id, object_id="Dummy")
+    elif object_type == "button_pv":
+        return grid_objects.PV(node_id=node_id, object_id="Dummy")
+    elif object_type == "button_battery":
+        return grid_objects.Battery(node_id=node_id, object_id="Dummy")
+    elif object_type == "button_smartmeter":
+        return grid_objects.SmartMeter(node_id=node_id, object_id="Dummy")
+    elif object_type == "button_switch_cabinet":
+        return grid_objects.SwitchCabinet(node_id=node_id, object_id="Dummy")
     else:
         return None

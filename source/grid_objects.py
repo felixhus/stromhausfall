@@ -3,7 +3,7 @@ class GridObject:
 
     def __init__(self, node_id, object_id, voltage=0.4):
         self.voltageLevel = voltage
-        self.linkedNode = node
+        self.linkedNode = node_id
         self.parents = [None]
         self.children = [None]
         self.name = None
@@ -25,7 +25,7 @@ class HouseObject(GridObject):
 
 class TransformerObject(GridObject):
     """ A transformer, voltage 20kV to 0.4kV"""
-    object_type = "tranformer"
+    object_type = "transformer"
     icon = "icon_transformer.png"
     ui_color = '#9cb6ca'
     allowed_types_to_connect = ["house", "switch_cabinet", "battery", "pv", "smart_meter"]
@@ -43,6 +43,15 @@ class LineObject(GridObject):
             self.icon = "icon_line_lv.png"
         else:
             self.icon = "icon_line_hv.png"
+
+
+class SmartMeter(GridObject):
+    """ Object to show results of connected node """
+    object_type = "Smart Meter"
+    name = "Smart Meter"
+    icon = "icon_meter.png"
+    ui_color = '#83a4bd'
+    allowed_types_to_connect = ["transformer", "switch_cabinet", "externalgrid", "house", "pv", "battery"]
 
 
 class ExternalGrid(GridObject):
@@ -77,5 +86,5 @@ class SwitchCabinet(GridObject):
     object_type = "Switch_Cabinet"
     name = "Switch Cabinet"
     icon = "icon_switch_cabinet.png"
-    ui_color = '#b5c8d7'
+    ui_color = '#9cb6ca'
     allowed_types_to_connect = ["transformer", "house", "battery", "pv", "smart_meter"]

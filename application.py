@@ -39,6 +39,7 @@ house_objects = [
 
 nodes = []
 edges = []
+gridObject_list = []
 
 app.layout = dbc.Container([
     dbc.Row([
@@ -120,20 +121,14 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements, btn_line_active, st
     triggered_id = ctx.triggered_id
     if triggered_id == 'button_line':
         return elements, None, False
-    # if triggered_id == 'button_add':  # # Add node to grid
-    #     last_id = get_last_id(elements)
-    #     new_element = {'data': {'id': 'node' + str(last_id + 1), 'label': 'Node ' + str(last_id + 1)},
-    #                    'position': {'x': 50, 'y': 50}}
-    #     elements.append(new_element)
-    #     new_gridObject = generate_grid_object()
-    #     return elements, start_of_line, False
     elif triggered_id == 'store_add_node':
         last_id = get_last_id(elements)
-        for button in menu_objects:
-            if button[0] == btn_add:
-                image_src = app.get_asset_url('Icons/' + button[1])
+        new_gridobject = generate_grid_object(btn_add, "dummy", 'node' + str(last_id[0] + 1))
+        image_src = app.get_asset_url('Icons/' + new_gridobject.icon)
+        gridObject_list.append(new_gridobject)
         new_element = {'data': {'id': 'node' + str(last_id[0] + 1)}, 'position': {'x': 50, 'y': 50},
-                       'classes': 'node_style', 'style': {'background-image': image_src}}
+                       'classes': 'node_style', 'style': {'background-image': image_src,
+                                                          'background-color': new_gridobject.ui_color}}
         elements.append(new_element)
         return elements, None, False
     elif triggered_id == 'cyto1':  # # Node was clicked
@@ -159,8 +154,8 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements, btn_line_active, st
             index += 1
         if 'position' in elements[index]:   # Check if it is node
             connected_edges = get_connected_edges(elements, elements[index])
-        for edge in connected_edges:
-            elements.pop(elements.index(edge))
+            for edge in connected_edges:
+                elements.pop(elements.index(edge))
         elements.pop(index)
         return elements, None, True
     else:
@@ -194,7 +189,7 @@ def edit_grid_element(node, edge, btn_close, element_deleted, btn_line_active, e
                 raise PreventUpdate
         elif node is None and edge is not None:
             if not btn_line_active:
-                body_text = "Edit settings of " + edge['label'] + " here."
+                body_text = "Edit settings of " + edge['id'] + " here."
                 return True, body_text, edge['id'], None, None
             else:
                 raise PreventUpdate
