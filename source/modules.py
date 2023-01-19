@@ -1,4 +1,4 @@
-import grid_objects
+import source.grid_objects as grid_objects
 
 
 def get_last_id(elements):
