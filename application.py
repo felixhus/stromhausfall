@@ -5,7 +5,7 @@ import dash_bootstrap_components as dbc
 import dash_daq as daq
 import plotly.express as px
 import source.dash_components as dash_components
-from source.modules import *
+from source.modules import get_last_id, get_connected_edges, generate_grid_object, connection_allowed
 import dash_mantine_components as dmc
 from dash_iconify import DashIconify
 import source.stylesheets as stylesheets
