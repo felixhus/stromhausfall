@@ -129,7 +129,7 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements, btn_line_active, st
         for button in menu_objects:
             if button[0] == btn_add:
                 image_src = app.get_asset_url('Icons/' + button[1])
-        new_element = {'data': {'id': 'node' + str(last_id + 1)}, 'position': {'x': 50, 'y': 50},
+        new_element = {'data': {'id': 'node' + str(last_id[0] + 1)}, 'position': {'x': 50, 'y': 50},
                        'classes': 'node_style', 'style': {'background-image': image_src}}
         elements.append(new_element)
         # return elements, node, False
@@ -138,7 +138,9 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements, btn_line_active, st
         if not node == []:
             if btn_line_active:  # Add-line-mode is on
                 if start_of_line is not None:
-                    new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'], 'label': 'Edge1'}}
+                    last_id = get_last_id(elements)
+                    new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
+                                         'id': 'edge' + str(last_id[1]+1)}}
                     elements.append(new_edge)
                     return elements, None, False
                 else:
@@ -153,7 +155,10 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements, btn_line_active, st
             if ele['data']['id'] == selected_element:
                 break
             index += 1
-        print(index)
+        if 'position' in elements[index]:   # Check if it is node
+            connected_edges = get_connected_edges(elements, elements[index])
+        for edge in connected_edges:
+            elements.pop(elements.index(edge))
         elements.pop(index)
         return elements, None, True
     else:
@@ -254,15 +259,24 @@ def debug(btn, elements, start_of_line):
 
 
 def get_last_id(elements):
-    last_id = 0
+    last_id = [0, 0]
     for ele in elements:
         if 'source' not in ele['data']:
-            last_id = int(ele['data']['id'][4:])
+            last_id[0] = int(ele['data']['id'][4:])
+    for ele in elements:
+        if 'source' in ele['data']:
+            last_id[1] = int(ele['data']['id'][4:])
     return last_id
 
 
-def get_connected_edges(elements):
-    print("xc")
+def get_connected_edges(elements, selected_element):
+    id_element = selected_element['data']['id']
+    result = []
+    for ele in elements:
+        if 'source' in ele['data']:
+            if ele['data']['source'] == id_element or ele['data']['target'] == id_element:
+                result.append(ele)
+    return result
 
 
 if __name__ == '__main__':
