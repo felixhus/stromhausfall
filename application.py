@@ -42,22 +42,34 @@ edges = []
 gridObject_list = []
 
 app.layout = dmc.NotificationsProvider(dbc.Container([
-    dbc.Row([
-        dbc.Col([
-            html.Div([
-                dbc.Row(dash_components.add_grid_object_button(object_id=menu_objects[i][0],
-                                                               icon=app.get_asset_url('Icons/' + menu_objects[i][1])))
-                for i in range(len(menu_objects))
-            ], id='grid_buttons', style={'display': 'block'}),
-            html.Div([
-                dbc.Row(dash_components.add_grid_object_button(object_id=house_objects[i][0],
-                                                               name=house_objects[i][1]))
-                for i in range(len(house_objects))
-            ], id='house_buttons', style={'display': 'none'}),
-        ], width='auto'),
-        dbc.Col([
-            dash_components.add_cytoscape_grid(nodes, edges),
+    dbc.Col([
+        dbc.Row(
+            dash_components.dash_navbar(),
+        ),
+        dbc.Row([
+            dbc.Col([
+                html.Div([
+                    dbc.Row(dash_components.add_grid_object_button(object_id=menu_objects[i][0],
+                                                                   icon=app.get_asset_url('Icons/' + menu_objects[i][1])))
+                    for i in range(len(menu_objects))
+                ], id='grid_buttons', style={'display': 'block'}),
+                html.Div([
+                    dbc.Row(dash_components.add_grid_object_button(object_id=house_objects[i][0],
+                                                                   name=house_objects[i][1]))
+                    for i in range(len(house_objects))
+                ], id='house_buttons', style={'display': 'none'}),
+            ], width='auto'),
+            dbc.Col([
+                dash_components.add_cytoscape_grid(nodes, edges),
+            ]),
+            dbc.Col([
+                html.Div(id='graph', style={'display': 'none'}, children=[
+                    dcc.Graph(figure=fig)
+                ])
+            ], width='auto'),
+            dbc.Col(dash_components.card_side(), width='auto')
         ]),
+<<<<<<< HEAD
         dbc.Col([
             html.Div(id='graph', style={'display': 'none'}, children=[
                 dcc.Graph(figure=fig)
@@ -90,6 +102,35 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
     dash_components.add_modal_readme(),
     dash_components.add_storage_variables(),
     html.P(id='dummy'),
+=======
+        # ], justify='evenly'),
+        # dbc.Row([
+        #     dbc.Col([
+        #         dmc.Button("README", id='button_readme', n_clicks=0, style={'margin_right': '10px', 'margin_top': '10px'},
+        #                    leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
+        #         dmc.Button("Debug", id='debug_button')
+        #     ], width=2),
+        #     dbc.Col([
+        #         dbc.Stack([
+        #             html.P("Grid elements", style={'margin-right': '10px', 'margin-top': '27px'}),
+        #             daq.BooleanSwitch(id='menu_switch', style={'margin-top': '15px'}),
+        #             html.P("House elements", style={'margin-left': '10px', 'margin-top': '27px'})], direction='horizontal')
+        #     ], width=5),
+        #     dbc.Col([
+        #         dbc.Stack([
+        #             html.P("Netz bearbeiten", style={'margin-right': '10px', 'margin-top': '27px'}),
+        #             dmc.Switch(id='mode_switch', style={'margin-top': '15px'}, size="lg",
+        #                        offLabel=DashIconify(icon="material-symbols:edit-outline"),
+        #                        onLabel=DashIconify(icon="material-symbols:calculate-outline")),
+        #             dbc.Spinner(html.P("Berechnen", id='calculate', style={'margin-left': '10px', 'margin-top': '27px'}))],
+        #             direction='horizontal'),
+        #     ], width=5),
+        # ], justify='evenly'),
+        dash_components.add_modal_edit(),
+        dash_components.add_modal_readme(),
+        dash_components.add_storage_variables(),
+        html.P(id='dummy')], width=True),
+>>>>>>> working
     html.Div(id='notification_container')
 ], id='main_container'))
 
@@ -141,7 +182,7 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements, btn_line_active, st
                     if connection_allowed(start_of_line[0]['id'], node[0]['id'], gridObject_list):
                         last_id = get_last_id(elements)
                         new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
-                                             'id': 'edge' + str(last_id[1]+1)}}
+                                             'id': 'edge' + str(last_id[1]+1)}, 'classes': 'line_style'}
                         elements.append(new_edge)
                         return elements, None, False, None
                     else:
@@ -224,7 +265,7 @@ def button_add_pressed(*args):
               Output('calculate', 'children'),
               Output('cyto1', 'layout'),
               Input('mode_switch', 'checked'),
-              Input('menu_switch', 'on'),
+              Input('menu_switch', 'checked'),
               State('grid_buttons', 'style'),
               State('house_buttons', 'style'),
               State('graph', 'style'),

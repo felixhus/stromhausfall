@@ -34,7 +34,7 @@ def add_cytoscape_grid(nodes, edges):
         id='cyto1',
         layout={'name': 'preset'},
         autoRefreshLayout=False,
-        style={'width': '800px', 'height': '100%', 'background': '#e6ecf2', 'frame': 'blue'},
+        style={'width': '100%', 'height': '100%', 'background': '#e6ecf2', 'frame': 'blue'},
         elements=edges + nodes,
         stylesheet=stylesheets.cyto_stylesheet
     )
@@ -68,21 +68,75 @@ def add_modal_edit():
             ], position='right')
         ]
     )
-    # return dbc.Modal([
-    #     dbc.ModalHeader(dbc.ModalTitle("Header")),
-    #     dbc.ModalBody("Edit grid element here", id="modal_body"),
-    #     dbc.ModalFooter(
-    #         dbc.Button(
-    #             "Close", id="close_modal", className="ms-auto", n_clicks=0
-    #         )
-    #     ),
-    # ],
-    #     id="modal",
-    #     is_open=False,
-    # )
 
 
-# def readme_content():
-#     with open('readme.md', encoding='UTF-8') as file:
-#         content = file.read()
-#     return dcc.Markdown(content)
+def dash_navbar():
+    PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"
+    navbar = dbc.Navbar(
+        dbc.Container([
+            html.A(
+                # Use row and col to control vertical alignment of logo / brand
+                dbc.Row(
+                    [
+                        dbc.Col(html.Img(src=PLOTLY_LOGO, height="30px")),
+                        dbc.Col(dbc.NavbarBrand("PowerHouse", className="ms-2")),
+                    ],
+                    align="center",
+                    className="g-0",
+                ),
+                href="https://plotly.com",
+                style={"textDecoration": "none"},
+            ),
+            dbc.NavbarToggler(id="navbar-toggler", n_clicks=0),
+            dmc.Group([
+                dmc.Button("README", id='button_readme', n_clicks=0,
+                           leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
+                dmc.Button("Debug", id='debug_button')],
+                spacing=10
+            ),
+        ]), color="dark", dark=True
+    )
+    return navbar
+
+
+def card_side():
+    card = dmc.Card(
+        children=[
+            dmc.CardSection(
+                dmc.Image(
+                    src="https://images.unsplash.com/photo-1598528133401-228e74463adb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80",
+                    height=160,
+                )
+            ),
+            dmc.Group(
+                [
+                    dmc.Text("Power House Simulator", weight=500),
+                    dmc.Badge("Beta", color="blue", variant="light"),
+                ],
+                position="apart",
+                mt="md",
+                mb="xs",
+            ),
+            dmc.Text(
+                "Verstehe durch ausprobieren, was in deinem Haus und Stromnetz um dich herum wirklich passiert!",
+                size="sm",
+                color="dimmed",
+            ),
+            dbc.Stack([
+                # html.P("Grid elements", style={'margin-right': '10px', 'margin-top': '27px'}),
+                dmc.Switch(id='menu_switch', style={'margin-top': '0px'}),
+                html.P("House elements", style={'margin-left': '10px', 'margin-top': '27px'})], direction='horizontal'),
+            dbc.Stack([
+                # html.P("Netz bearbeiten", style={'margin-right': '10px', 'margin-top': '27px'}),
+                dmc.Switch(id='mode_switch', style={'margin-top': '0px'},
+                           offLabel=DashIconify(icon="material-symbols:edit-outline"),
+                           onLabel=DashIconify(icon="material-symbols:calculate-outline")),
+                dbc.Spinner(html.P("Berechnen", id='calculate', style={'margin-left': '10px', 'margin-top': '27px'}))],
+                direction='horizontal'),
+        ],
+        withBorder=True,
+        shadow="sm",
+        radius="md",
+        style={"width": 350, 'marginTop': 50},
+    )
+    return card

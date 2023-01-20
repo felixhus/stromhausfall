@@ -46,15 +46,16 @@ cyto_stylesheet = [
     {
         'selector': '.line_style',
         'style': {
-            'width': '2px'
+            'width': '2px',
+            'curve-style': 'bezier'
         }
     }
 ]
 
 button_add_components_style = {
-    'width': '80px',
-    'height': '80px',
-    'icon_width': '60px',
-    'margin-top': '5px',
-    'margin-bottom': '5px',
+    'width': '60px',
+    'height': '60px',
+    'icon_width': '40px',
+    'margin-top': '3px',
+    'margin-bottom': '3px',
 }
