@@ -62,75 +62,18 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
             dbc.Col([
                 dash_components.add_cytoscape_grid(nodes, edges),
             ]),
-            dbc.Col([
-                html.Div(id='graph', style={'display': 'none'}, children=[
-                    dcc.Graph(figure=fig)
-                ])
-            ], width='auto'),
             dbc.Col(dash_components.card_side(), width='auto')
         ]),
-<<<<<<< HEAD
         dbc.Col([
             html.Div(id='graph', style={'display': 'none'}, children=[
                 dcc.Graph(figure=fig)
             ])
         ], width='auto')
     ]),
-    dbc.Row([
-        dbc.Col([
-            dmc.Button("README", id='button_readme', n_clicks=0, style={'margin_right': '10px', 'margin_top': '10px'},
-                       leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
-            # dmc.Button("Debug", id='debug_button')
-        ], width=2),
-        dbc.Col([
-            dbc.Stack([
-                html.P("Grid elements", style={'margin-right': '10px', 'margin-top': '27px'}),
-                daq.BooleanSwitch(id='menu_switch', style={'margin-top': '15px'}),
-                html.P("House elements", style={'margin-left': '10px', 'margin-top': '27px'})], direction='horizontal')
-        ], width=5),
-        dbc.Col([
-            dbc.Stack([
-                html.P("Netz bearbeiten", style={'margin-right': '10px', 'margin-top': '27px'}),
-                dmc.Switch(id='mode_switch', style={'margin-top': '15px'}, size="lg",
-                           offLabel=DashIconify(icon="material-symbols:edit-outline"),
-                           onLabel=DashIconify(icon="material-symbols:calculate-outline")),
-                dbc.Spinner(html.P("Berechnen", id='calculate', style={'margin-left': '10px', 'margin-top': '27px'}))],
-                direction='horizontal'),
-        ], width=5),
-    ], justify='evenly'),
     dash_components.add_modal_edit(),
     dash_components.add_modal_readme(),
     dash_components.add_storage_variables(),
     html.P(id='dummy'),
-=======
-        # ], justify='evenly'),
-        # dbc.Row([
-        #     dbc.Col([
-        #         dmc.Button("README", id='button_readme', n_clicks=0, style={'margin_right': '10px', 'margin_top': '10px'},
-        #                    leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
-        #         dmc.Button("Debug", id='debug_button')
-        #     ], width=2),
-        #     dbc.Col([
-        #         dbc.Stack([
-        #             html.P("Grid elements", style={'margin-right': '10px', 'margin-top': '27px'}),
-        #             daq.BooleanSwitch(id='menu_switch', style={'margin-top': '15px'}),
-        #             html.P("House elements", style={'margin-left': '10px', 'margin-top': '27px'})], direction='horizontal')
-        #     ], width=5),
-        #     dbc.Col([
-        #         dbc.Stack([
-        #             html.P("Netz bearbeiten", style={'margin-right': '10px', 'margin-top': '27px'}),
-        #             dmc.Switch(id='mode_switch', style={'margin-top': '15px'}, size="lg",
-        #                        offLabel=DashIconify(icon="material-symbols:edit-outline"),
-        #                        onLabel=DashIconify(icon="material-symbols:calculate-outline")),
-        #             dbc.Spinner(html.P("Berechnen", id='calculate', style={'margin-left': '10px', 'margin-top': '27px'}))],
-        #             direction='horizontal'),
-        #     ], width=5),
-        # ], justify='evenly'),
-        dash_components.add_modal_edit(),
-        dash_components.add_modal_readme(),
-        dash_components.add_storage_variables(),
-        html.P(id='dummy')], width=True),
->>>>>>> working
     html.Div(id='notification_container')
 ], id='main_container'))
 

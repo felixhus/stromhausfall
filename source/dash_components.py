@@ -91,7 +91,8 @@ def dash_navbar():
             dmc.Group([
                 dmc.Button("README", id='button_readme', n_clicks=0,
                            leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
-                dmc.Button("Debug", id='debug_button')],
+                dmc.Button("Debug", id='debug_button', style={'display': 'None'})
+                ],
                 spacing=10
             ),
         ]), color="dark", dark=True
