@@ -5,7 +5,9 @@ import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 import dash_daq as daq
 import dash_mantine_components as dmc
+import matplotlib.pyplot as plt
 import modules
+import networkx as nx
 import plotly.express as px
 from dash import Dash, Input, Output, State, ctx, dcc, html
 from dash.exceptions import PreventUpdate
@@ -114,9 +116,9 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements, btn_line_active, st
         new_gridobject = generate_grid_object(btn_add, 'node' + str(last_id[0] + 1), 'node' + str(last_id[0] + 1))
         image_src = app.get_asset_url('Icons/' + new_gridobject.icon)
         gridObject_list.append(new_gridobject)
-        new_element = {'data': {'id': 'node' + str(last_id[0] + 1)}, 'position': {'x': 50, 'y': 50},
-                       'classes': 'node_style', 'style': {'background-image': image_src,
-                                                          'background-color': new_gridobject.ui_color}}
+        new_element = {'data': {'id': 'node' + str(last_id[0] + 1)},
+                       'position': {'x': 50, 'y': 50}, 'classes': 'node_style',
+                       'style': {'background-image': image_src, 'background-color': new_gridobject.ui_color}}
         elements.append(new_element)
         return elements, None, False, None
     elif triggered_id == 'cyto1':  # # Node was clicked
@@ -261,9 +263,13 @@ def notification(data):
 @app.callback(Output('dummy', 'children'),
               Input('debug_button', 'n_clicks'),
               State('cyto1', 'elements'),
-              State('start_of_line', 'data'))
+              State('start_of_line', 'data'),
+              prevent_initial_call=True)
 def debug(btn, elements, start_of_line):
     modules.calculate_power_flow(elements, gridObject_list)
+
+    import matplotlib.pyplot as plt
+    import networkx as nx
     return None
 
 

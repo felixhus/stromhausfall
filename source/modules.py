@@ -1,4 +1,5 @@
 import grid_objects
+import matplotlib.pyplot as plt
 import networkx as nx
 import pandas as pd
 
@@ -64,23 +65,45 @@ def generate_grid_dataframes(elements, grid_objects):
     :param grid_objects: List of all grid objects to link them to the nodes
     :return df_nodes: DataFrame containing all nodes of the grid; df_edges: DataFrame containing all edges of the grid.
     """
-    nodes = []
-    edges = []
-    for ele in elements:    # Divide elements into nodes and edges
-        if 'source' in ele['data']:
-            edges.append(ele['data'])   # Extract needed data from edges
-        else:
-            nodes.append(ele['data'])   # Extract needed data from nodes
-    df_nodes = pd.DataFrame(nodes)      # Generate DataFrames from extracted data, which describe the grid
-    df_edges = pd.DataFrame(edges)
-    return df_nodes, df_edges
+    try:
+        nodes = []
+        edges = []
+        for ele in elements:    # Divide elements into nodes and edges
+            if 'source' in ele['data']:
+                edges.append(ele['data'])   # Extract needed data from edges
+            else:
+                for go in grid_objects:     # Find grid object with the same id and link it to the node
+                    if go.id == ele['data']['id']:
+                        ele['data']['linkedObject'] = go
+                nodes.append(ele['data'])   # Extract needed data from nodes
+        df_nodes = pd.DataFrame(nodes)      # Generate DataFrames from extracted data, which describe the grid
+        df_edges = pd.DataFrame(edges)
+        return df_nodes, df_edges
+    except Exception as err:
+        handle_error(err)
 
 
 def generate_grid_graph(df_nodes, df_edges):
-    # graph = nx.Graph()
-    # for node in df_nodes:
-    #     graph.add_node()
-    return None
+    """
+    Generate a NetworkX graph from the given DataFrames for nodes and edges
+    :param df_nodes: DataFrame containing nodes with 'id' and 'linkedObject'
+    :param df_edges: DataFrame containing nodes with 'source', 'target' and 'id
+    :return: NetworkX graph of the given grid
+    """
+    try:
+        graph = nx.Graph()
+        graph.add_nodes_from(df_nodes['id'].tolist())
+        for idx in range(len(df_edges.index)):
+            if df_edges.loc[idx, 'source'] in graph.nodes \
+                    and df_edges.loc[idx, 'target'] in graph.nodes:   # Check if source and target node exist
+                graph.add_edge(df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'], id=df_edges.loc[idx, 'id'])
+            else:
+                raise Exception("Kante mit nicht existierendem Knoten")
+        nx.draw(graph)
+        plt.show()
+        return graph
+    except Exception as err:
+        handle_error(err)
 
 
 def calculate_power_flow(elements, grid_objects):
@@ -93,3 +116,5 @@ def calculate_power_flow(elements, grid_objects):
     grid_graph = generate_grid_graph(df_nodes, df_edges)
 
 
+def handle_error(err):
+    print(err)
