@@ -267,9 +267,6 @@ def notification(data):
               prevent_initial_call=True)
 def debug(btn, elements, start_of_line):
     modules.calculate_power_flow(elements, gridObject_list)
-
-    import matplotlib.pyplot as plt
-    import networkx as nx
     return None
 
 

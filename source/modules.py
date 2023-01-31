@@ -91,7 +91,7 @@ def generate_grid_graph(df_nodes, df_edges):
     :return: NetworkX graph of the given grid
     """
     try:
-        graph = nx.Graph()
+        graph = nx.MultiGraph()
         graph.add_nodes_from(df_nodes['id'].tolist())
         for idx in range(len(df_edges.index)):
             if df_edges.loc[idx, 'source'] in graph.nodes \
@@ -106,13 +106,14 @@ def generate_grid_graph(df_nodes, df_edges):
         handle_error(err)
 
 
-def calculate_power_flow(elements, grid_objects):
+def calculate_power_flow(elements, grid_object_list):
     """
     Main function to calculate the power flows in the created and configured grid
+    :param grid_object_list: List of objects in grid with id corresponding to node ids of cytoscape
     :param elements: Grid elements in form of cytoscape graph
     :return:
     """
-    df_nodes, df_edges = generate_grid_dataframes(elements, grid_objects)
+    df_nodes, df_edges = generate_grid_dataframes(elements, grid_object_list)
     grid_graph = generate_grid_graph(df_nodes, df_edges)
 
 
