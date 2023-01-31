@@ -1,4 +1,6 @@
 import grid_objects
+import networkx as nx
+import pandas as pd
 
 
 def get_last_id(elements):
@@ -53,4 +55,41 @@ def connection_allowed(source, target, object_list):
             if target_type in gridobject.allowed_types_to_connect:
                 return True
     return False
+
+
+def generate_grid_dataframes(elements, grid_objects):
+    """
+    Generate pandas DataFrames from given cytoscape elements.
+    :param elements: Cytoscape element list, nodes and edges
+    :param grid_objects: List of all grid objects to link them to the nodes
+    :return df_nodes: DataFrame containing all nodes of the grid; df_edges: DataFrame containing all edges of the grid.
+    """
+    nodes = []
+    edges = []
+    for ele in elements:    # Divide elements into nodes and edges
+        if 'source' in ele['data']:
+            edges.append(ele['data'])   # Extract needed data from edges
+        else:
+            nodes.append(ele['data'])   # Extract needed data from nodes
+    df_nodes = pd.DataFrame(nodes)      # Generate DataFrames from extracted data, which describe the grid
+    df_edges = pd.DataFrame(edges)
+    return df_nodes, df_edges
+
+
+def generate_grid_graph(df_nodes, df_edges):
+    # graph = nx.Graph()
+    # for node in df_nodes:
+    #     graph.add_node()
+    return None
+
+
+def calculate_power_flow(elements, grid_objects):
+    """
+    Main function to calculate the power flows in the created and configured grid
+    :param elements: Grid elements in form of cytoscape graph
+    :return:
+    """
+    df_nodes, df_edges = generate_grid_dataframes(elements, grid_objects)
+    grid_graph = generate_grid_graph(df_nodes, df_edges)
+
 

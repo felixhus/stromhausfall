@@ -5,6 +5,7 @@ import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 import dash_daq as daq
 import dash_mantine_components as dmc
+import modules
 import plotly.express as px
 from dash import Dash, Input, Output, State, ctx, dcc, html
 from dash.exceptions import PreventUpdate
@@ -262,6 +263,7 @@ def notification(data):
               State('cyto1', 'elements'),
               State('start_of_line', 'data'))
 def debug(btn, elements, start_of_line):
+    modules.calculate_power_flow(elements, gridObject_list)
     return None
 
 
