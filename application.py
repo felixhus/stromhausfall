@@ -1,17 +1,19 @@
-import time
 import os
+import time
 
 import dash_bootstrap_components as dbc
-import dash_daq as daq
-import plotly.express as px
-import source.dash_components as dash_components
-from source.modules import get_last_id, get_connected_edges, generate_grid_object, connection_allowed
-import dash_mantine_components as dmc
-from dash_iconify import DashIconify
-import source.stylesheets as stylesheets
 import dash_cytoscape as cyto
+import dash_daq as daq
+import dash_mantine_components as dmc
+import plotly.express as px
 from dash import Dash, Input, Output, State, ctx, dcc, html
 from dash.exceptions import PreventUpdate
+from dash_iconify import DashIconify
+
+import source.dash_components as dash_components
+import source.stylesheets as stylesheets
+from source.modules import (connection_allowed, generate_grid_object,
+                            get_connected_edges, get_last_id)
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
 server = app.server
@@ -69,29 +71,6 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
             ], width='auto'),
             dbc.Col(dash_components.card_side(), width='auto')
         ]),
-        # ], justify='evenly'),
-        # dbc.Row([
-        #     dbc.Col([
-        #         dmc.Button("README", id='button_readme', n_clicks=0, style={'margin_right': '10px', 'margin_top': '10px'},
-        #                    leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
-        #         dmc.Button("Debug", id='debug_button')
-        #     ], width=2),
-        #     dbc.Col([
-        #         dbc.Stack([
-        #             html.P("Grid elements", style={'margin-right': '10px', 'margin-top': '27px'}),
-        #             daq.BooleanSwitch(id='menu_switch', style={'margin-top': '15px'}),
-        #             html.P("House elements", style={'margin-left': '10px', 'margin-top': '27px'})], direction='horizontal')
-        #     ], width=5),
-        #     dbc.Col([
-        #         dbc.Stack([
-        #             html.P("Netz bearbeiten", style={'margin-right': '10px', 'margin-top': '27px'}),
-        #             dmc.Switch(id='mode_switch', style={'margin-top': '15px'}, size="lg",
-        #                        offLabel=DashIconify(icon="material-symbols:edit-outline"),
-        #                        onLabel=DashIconify(icon="material-symbols:calculate-outline")),
-        #             dbc.Spinner(html.P("Berechnen", id='calculate', style={'margin-left': '10px', 'margin-top': '27px'}))],
-        #             direction='horizontal'),
-        #     ], width=5),
-        # ], justify='evenly'),
         dash_components.add_modal_edit(),
         dash_components.add_modal_readme(),
         dash_components.add_storage_variables(),
@@ -132,7 +111,6 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements, btn_line_active, st
     elif triggered_id == 'store_add_node':
         last_id = get_last_id(elements)
         new_gridobject = generate_grid_object(btn_add, 'node' + str(last_id[0] + 1), 'node' + str(last_id[0] + 1))
-        test = new_gridobject.get_id()
         image_src = app.get_asset_url('Icons/' + new_gridobject.icon)
         gridObject_list.append(new_gridobject)
         new_element = {'data': {'id': 'node' + str(last_id[0] + 1)}, 'position': {'x': 50, 'y': 50},
