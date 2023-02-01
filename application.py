@@ -5,9 +5,7 @@ import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 import dash_daq as daq
 import dash_mantine_components as dmc
-import matplotlib.pyplot as plt
-import modules
-import networkx as nx
+# import modules
 import plotly.express as px
 from dash import Dash, Input, Output, State, ctx, dcc, html
 from dash.exceptions import PreventUpdate
@@ -15,8 +13,9 @@ from dash_iconify import DashIconify
 
 import source.dash_components as dash_components
 import source.stylesheets as stylesheets
-from source.modules import (connection_allowed, generate_grid_object,
-                            get_connected_edges, get_last_id)
+from source.modules import (calculate_power_flow, connection_allowed,
+                            generate_grid_object, get_connected_edges,
+                            get_last_id)
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
 server = app.server
@@ -266,7 +265,7 @@ def notification(data):
               State('start_of_line', 'data'),
               prevent_initial_call=True)
 def debug(btn, elements, start_of_line):
-    modules.calculate_power_flow(elements, gridObject_list)
+    calculate_power_flow(elements, gridObject_list)
     return None
 
 

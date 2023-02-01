@@ -1,7 +1,10 @@
+import warnings
+
 import grid_objects
 import matplotlib.pyplot as plt
 import networkx as nx
 import pandas as pd
+import plot
 
 
 def get_last_id(elements):
@@ -68,15 +71,15 @@ def generate_grid_dataframes(elements, grid_objects):
     try:
         nodes = []
         edges = []
-        for ele in elements:    # Divide elements into nodes and edges
+        for ele in elements:  # Divide elements into nodes and edges
             if 'source' in ele['data']:
-                edges.append(ele['data'])   # Extract needed data from edges
+                edges.append(ele['data'])  # Extract needed data from edges
             else:
-                for go in grid_objects:     # Find grid object with the same id and link it to the node
+                for go in grid_objects:  # Find grid object with the same id and link it to the node
                     if go.id == ele['data']['id']:
                         ele['data']['linkedObject'] = go
-                nodes.append(ele['data'])   # Extract needed data from nodes
-        df_nodes = pd.DataFrame(nodes)      # Generate DataFrames from extracted data, which describe the grid
+                nodes.append(ele['data'])  # Extract needed data from nodes
+        df_nodes = pd.DataFrame(nodes)  # Generate DataFrames from extracted data, which describe the grid
         df_edges = pd.DataFrame(edges)
         return df_nodes, df_edges
     except Exception as err:
@@ -95,15 +98,18 @@ def generate_grid_graph(df_nodes, df_edges):
         graph.add_nodes_from(df_nodes['id'].tolist())
         for idx in range(len(df_edges.index)):
             if df_edges.loc[idx, 'source'] in graph.nodes \
-                    and df_edges.loc[idx, 'target'] in graph.nodes:   # Check if source and target node exist
+                    and df_edges.loc[idx, 'target'] in graph.nodes:  # Check if source and target node exist
                 graph.add_edge(df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'], id=df_edges.loc[idx, 'id'])
             else:
                 raise Exception("Kante mit nicht existierendem Knoten")
-        nx.draw(graph)
-        plt.show()
-        return graph
+        # nx.draw(graph)
+        # plt.show()
+        # return graph
+        plot.plot_graph(graph)
     except Exception as err:
         handle_error(err)
+    finally:
+        return graph
 
 
 def calculate_power_flow(elements, grid_object_list):
@@ -113,9 +119,11 @@ def calculate_power_flow(elements, grid_object_list):
     :param elements: Grid elements in form of cytoscape graph
     :return:
     """
-    df_nodes, df_edges = generate_grid_dataframes(elements, grid_object_list)
-    grid_graph = generate_grid_graph(df_nodes, df_edges)
+    df_nodes, df_edges = generate_grid_dataframes(elements, grid_object_list)  # Generate DataFrames
+    grid_graph = generate_grid_graph(df_nodes, df_edges)  # Generate NetworkX Graph
+    if nx.number_of_isolates(grid_graph) > 0:  # Check if there are isolated (not connected) nodes
+        warnings.warn("Es gibt Knoten, die nicht mit dem Netz verbunden sind!")
 
 
 def handle_error(err):
-    print(err)
+    print("Error: ", err)
