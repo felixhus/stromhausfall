@@ -115,24 +115,29 @@ def generate_grid_graph(df_nodes, df_edges):
         return graph
 
 
-def swap_edge_direction(graph_in, edge):
-    graph_in.add_edge(edge[1], edge[0], edge[2])
-
-
 def generate_directed_graph(graph):
     try:
         number_of_ext_grids = 0
+        graph_dir = nx.MultiDiGraph()
+        graph_dir.add_nodes_from(graph)
         for node in graph.nodes(data=True):
             if node[1]['object'].object_type == "externalgrid":
                 number_of_ext_grids += 1
+                source_node = node[0]
         if number_of_ext_grids > 1:
             raise Exception("Es sind mehr als ein externes Netz vorhanden.")
         elif number_of_ext_grids < 1:
             raise Exception("Es ist kein externes Netz vorhanden.")
+        for edge in nx.edge_bfs(graph, source_node, orientation="ignore"):
+            print(edge[3])
+            if edge[3] == 'reverse':
+                graph_dir.add_edge(edge[1], edge[0])
+            else:
+                graph_dir.add_edge(edge[0], edge[1])
     except Exception as err:
         handle_error(err)
     finally:
-        return graph
+        return graph_dir
 
 
 def calculate_power_flow(elements, grid_object_list):
@@ -147,6 +152,12 @@ def calculate_power_flow(elements, grid_object_list):
     if nx.number_of_isolates(grid_graph) > 0:  # Check if there are isolated (not connected) nodes
         warnings.warn("Es gibt Knoten, die nicht mit dem Netz verbunden sind!")
     grid_graph = generate_directed_graph(grid_graph)
+
+    pos = nx.planar_layout(grid_graph)
+    nx.draw_networkx_nodes(grid_graph, pos)
+    nx.draw_networkx_edges(grid_graph, pos, arrowstyle='->')
+    nx.draw_networkx_labels(grid_graph, pos)
+    plt.show()
 
 
 def handle_error(err):
