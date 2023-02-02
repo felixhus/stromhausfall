@@ -140,6 +140,20 @@ def generate_directed_graph(graph):
         return graph_dir
 
 
+def add_transformer_edges(graph):
+    try:
+        number_of_transformers = 0
+        for node in graph.nodes(data=True):
+            if node[1]['object'].object_type == "transformer":
+                number_of_transformers += 1
+                graph.add_node("transformer" + str(number_of_transformers))
+                graph.add_edge("transformer" + str(number_of_transformers), node[1])
+    except Exception as err:
+        handle_error(err)
+    finally:
+        return graph
+
+
 def calculate_power_flow(elements, grid_object_list):
     """
     Main function to calculate the power flows in the created and configured grid
@@ -151,7 +165,8 @@ def calculate_power_flow(elements, grid_object_list):
     grid_graph = generate_grid_graph(df_nodes, df_edges)  # Generate NetworkX Graph
     if nx.number_of_isolates(grid_graph) > 0:  # Check if there are isolated (not connected) nodes
         warnings.warn("Es gibt Knoten, die nicht mit dem Netz verbunden sind!")
-    grid_graph = generate_directed_graph(grid_graph)
+    grid_graph = generate_directed_graph(grid_graph)    # Give graph edges directions, starting at external grid
+    grid_graph = add_transformer_edges(grid_graph)
 
     pos = nx.planar_layout(grid_graph)
     nx.draw_networkx_nodes(grid_graph, pos)
