@@ -96,16 +96,39 @@ def generate_grid_graph(df_nodes, df_edges):
     try:
         graph = nx.MultiGraph()
         graph.add_nodes_from(df_nodes['id'].tolist())
+        nx.set_node_attributes(graph, pd.Series(df_nodes.linkedObject.values, index=df_nodes.id).to_dict(),
+                               name="object")
         for idx in range(len(df_edges.index)):
             if df_edges.loc[idx, 'source'] in graph.nodes \
                     and df_edges.loc[idx, 'target'] in graph.nodes:  # Check if source and target node exist
                 graph.add_edge(df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'], id=df_edges.loc[idx, 'id'])
             else:
                 raise Exception("Kante mit nicht existierendem Knoten")
-        # nx.draw(graph)
-        # plt.show()
+        nx.draw(graph)
+        plt.show()
+        x = graph.nodes["node1"]["object"]
         # return graph
-        plot.plot_graph(graph)
+        # plot.plot_graph(graph)
+    except Exception as err:
+        handle_error(err)
+    finally:
+        return graph
+
+
+def swap_edge_direction(graph_in, edge):
+    graph_in.add_edge(edge[1], edge[0], edge[2])
+
+
+def generate_directed_graph(graph):
+    try:
+        number_of_ext_grids = 0
+        for node in graph.nodes(data=True):
+            if node[1]['object'].object_type == "externalgrid":
+                number_of_ext_grids += 1
+        if number_of_ext_grids > 1:
+            raise Exception("Es sind mehr als ein externes Netz vorhanden.")
+        elif number_of_ext_grids < 1:
+            raise Exception("Es ist kein externes Netz vorhanden.")
     except Exception as err:
         handle_error(err)
     finally:
@@ -123,6 +146,7 @@ def calculate_power_flow(elements, grid_object_list):
     grid_graph = generate_grid_graph(df_nodes, df_edges)  # Generate NetworkX Graph
     if nx.number_of_isolates(grid_graph) > 0:  # Check if there are isolated (not connected) nodes
         warnings.warn("Es gibt Knoten, die nicht mit dem Netz verbunden sind!")
+    grid_graph = generate_directed_graph(grid_graph)
 
 
 def handle_error(err):

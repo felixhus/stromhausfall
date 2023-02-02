@@ -50,7 +50,7 @@ class LineObject(GridObject):
 
 class SmartMeter(GridObject):
     """ Object to show results of connected node """
-    object_type = "Smart Meter"
+    object_type = "smartmeter"
     name = "Smart Meter"
     icon = "icon_meter.png"
     ui_color = '#83a4bd'
