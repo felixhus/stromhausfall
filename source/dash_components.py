@@ -1,9 +1,10 @@
 import dash_bootstrap_components as dbc
-import source.stylesheets as stylesheets
-from dash import dcc, html
 import dash_cytoscape as cyto
 import dash_mantine_components as dmc
+from dash import dcc, html
 from dash_iconify import DashIconify
+
+import source.stylesheets as stylesheets
 
 
 def add_storage_variables():
@@ -66,6 +67,17 @@ def add_modal_edit():
                            leftIcon=DashIconify(icon="material-symbols:delete-outline")),
                 dmc.Button("Schließen", variant='outline', id='modal_edit_close_button')
             ], position='right')
+        ]
+    )
+
+
+def add_modal_voltage_level():
+    return dmc.Modal(
+        title="Spannungsebene auswählen",
+        id='modal_voltage',
+        children=[
+            dmc.Text("Möchtest du das Element mit der Ober- oder Unterspannungsseite des Transformators verbinden (20kV oder 400V)?"),
+            
         ]
     )
 

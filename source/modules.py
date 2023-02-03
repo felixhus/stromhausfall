@@ -1,3 +1,4 @@
+import copy
 import warnings
 
 import grid_objects
@@ -30,15 +31,15 @@ def get_connected_edges(elements, selected_element):
 
 def generate_grid_object(object_type, object_id, node_id):
     if object_type == "button_house":
-        return grid_objects.HouseObject(node_id=node_id, object_id=object_id)
+        return grid_objects.HouseObject(node_id=node_id, object_id=object_id, voltage=400)
     elif object_type == "button_transformer":
         return grid_objects.TransformerObject(node_id=node_id, object_id=object_id)
     elif object_type == "button_externalgrid":
-        return grid_objects.ExternalGrid(node_id=node_id, object_id=object_id)
+        return grid_objects.ExternalGrid(node_id=node_id, object_id=object_id, voltage=20000)
     elif object_type == "button_pv":
         return grid_objects.PV(node_id=node_id, object_id=object_id)
     elif object_type == "button_battery":
-        return grid_objects.Battery(node_id=node_id, object_id=object_id)
+        return grid_objects.Battery(node_id=node_id, object_id=object_id, voltage=400)
     elif object_type == "button_smartmeter":
         return grid_objects.SmartMeter(node_id=node_id, object_id=object_id)
     elif object_type == "button_switch_cabinet":
@@ -54,7 +55,6 @@ def connection_allowed(source, target, object_list):
             target_type = gridobject.object_type
             break
     for gridobject in object_list:
-        grabbed_id = gridobject.get_id()
         if gridobject.get_id() == source:
             if target_type in gridobject.allowed_types_to_connect:
                 return True
@@ -80,6 +80,19 @@ def generate_grid_dataframes(elements, grid_objects):
                         ele['data']['linkedObject'] = go
                 nodes.append(ele['data'])  # Extract needed data from nodes
         df_nodes = pd.DataFrame(nodes)  # Generate DataFrames from extracted data, which describe the grid
+        for edge in edges:
+            source_voltage = df_nodes.loc[df_nodes['id'] == edge['source']]['linkedObject'].values[0].voltage
+            target_voltage = df_nodes.loc[df_nodes['id'] == edge['target']]['linkedObject'].values[0].voltage
+            if source_voltage is None and target_voltage is None:
+                warnings.warn("Keine Spannungsebene für Leitung durch Knoten definiert!")
+            if source_voltage is None:
+                edge['voltage'] = target_voltage
+            elif target_voltage is None:
+                edge['voltage'] = source_voltage
+            elif source_voltage == target_voltage:
+                edge['voltage'] = target_voltage
+            else:
+                raise Exception("Die Knoten dieser Leitung haben unterschiedliche Spannungsebenen!")
         df_edges = pd.DataFrame(edges)
         return df_nodes, df_edges
     except Exception as err:
@@ -98,17 +111,37 @@ def generate_grid_graph(df_nodes, df_edges):
         graph.add_nodes_from(df_nodes['id'].tolist())
         nx.set_node_attributes(graph, pd.Series(df_nodes.linkedObject.values, index=df_nodes.id).to_dict(),
                                name="object")
+        # number_of_transformers = 0
+        nodes = copy.deepcopy(graph.nodes(data=True))
+        for node in nodes:
+            if node[1]['object'].object_type == 'transformer':
+                # number_of_transformers += 1
+                # node_id = "transformer" + str(number_of_transformers)
+                node_id = "transformer_" + node[0]
+                node_object = grid_objects.TransformerHelperNode()
+                graph.add_node(node_id, object=node_object)
+                graph.add_edge(node[0], node_id, impedance=12)
         for idx in range(len(df_edges.index)):
             if df_edges.loc[idx, 'source'] in graph.nodes \
                     and df_edges.loc[idx, 'target'] in graph.nodes:  # Check if source and target node exist
-                graph.add_edge(df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'], id=df_edges.loc[idx, 'id'])
+                if graph.nodes(data=True)[df_edges.loc[idx, 'source']]['object'].object_type == 'transformer':
+                    if df_edges.loc[idx, 'voltage'] == 400:
+                        graph.add_edge("transformer_" + df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'],
+                                       id=df_edges.loc[idx, 'id'])
+                    else:
+                        graph.add_edge(df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'],
+                                       id=df_edges.loc[idx, 'id'])
+                elif graph.nodes(data=True)[df_edges.loc[idx, 'target']]['object'].object_type == 'transformer':
+                    if df_edges.loc[idx, 'voltage'] == 400:
+                        graph.add_edge(df_edges.loc[idx, 'source'], "transformer_" + df_edges.loc[idx, 'target'],
+                                       id=df_edges.loc[idx, 'id'])
+                    else:
+                        graph.add_edge(df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'],
+                                       id=df_edges.loc[idx, 'id'])
+                else:
+                    graph.add_edge(df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'], id=df_edges.loc[idx, 'id'])
             else:
                 raise Exception("Kante mit nicht existierendem Knoten")
-        nx.draw(graph)
-        plt.show()
-        x = graph.nodes["node1"]["object"]
-        # return graph
-        # plot.plot_graph(graph)
     except Exception as err:
         handle_error(err)
     finally:
@@ -166,7 +199,7 @@ def calculate_power_flow(elements, grid_object_list):
     if nx.number_of_isolates(grid_graph) > 0:  # Check if there are isolated (not connected) nodes
         warnings.warn("Es gibt Knoten, die nicht mit dem Netz verbunden sind!")
     grid_graph = generate_directed_graph(grid_graph)    # Give graph edges directions, starting at external grid
-    grid_graph = add_transformer_edges(grid_graph)
+    # grid_graph = add_transformer_edges(grid_graph)
 
     pos = nx.planar_layout(grid_graph)
     nx.draw_networkx_nodes(grid_graph, pos)

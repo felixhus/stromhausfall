@@ -126,6 +126,7 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements, btn_line_active, st
                 if start_of_line is not None:
                     if connection_allowed(start_of_line[0]['id'], node[0]['id'], gridObject_list):
                         last_id = get_last_id(elements)
+
                         new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
                                              'id': 'edge' + str(last_id[1]+1)}, 'classes': 'line_style'}
                         elements.append(new_edge)

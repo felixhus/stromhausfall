@@ -1,8 +1,8 @@
 class GridObject:
     """ The structure to store information of a grid object """
 
-    def __init__(self, node_id, object_id, voltage=0.4):
-        self.voltageLevel = voltage
+    def __init__(self, node_id, object_id, voltage=None):
+        self.voltage = voltage
         self.linkedNode = node_id
         self.parents = [None]
         self.children = [None]
@@ -32,6 +32,10 @@ class TransformerObject(GridObject):
     icon = "icon_transformer.png"
     ui_color = '#9cb6ca'
     allowed_types_to_connect = ["house", "switch_cabinet", "battery", "pv", "smart_meter", "externalgrid"]
+
+    def __init__(self, impedance=1, *args, **kwargs):
+        super(TransformerObject, self).__init__(*args, **kwargs)
+        self.impedance = impedance
 
 
 class LineObject(GridObject):
@@ -91,3 +95,8 @@ class SwitchCabinet(GridObject):
     icon = "icon_switch_cabinet.png"
     ui_color = '#9cb6ca'
     allowed_types_to_connect = ["transformer", "house", "battery", "pv", "smart_meter"]
+
+
+class TransformerHelperNode:
+    object_type = "transformer_helper"
+
