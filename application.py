@@ -157,6 +157,12 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements,
             for edge in connected_edges:
                 elements.pop(elements.index(edge))
         elements.pop(index)
+        index = 0
+        for obj in gridObject_list:         # Remove element from grid object list
+            if obj.id == selected_element:
+                break
+            index += 1
+        gridObject_list.pop(index)
         return elements, None, True, None, no_update
     else:
         raise PreventUpdate
