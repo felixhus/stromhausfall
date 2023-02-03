@@ -50,9 +50,8 @@ def add_modal_readme():
         title="Readme",
         id="modal_readme",
         children=dcc.Markdown(content_readme),
-        opened=False
-        # dbc.ModalHeader(dbc.ModalTitle("Readme")),
-        # dbc.ModalBody(dcc.Markdown(content_readme), id="modal_readme_body")
+        opened=False,
+        size='55%'
     )
 
 
@@ -156,4 +155,18 @@ def card_side():
         radius="md",
         style={"width": 350, 'marginTop': 50},
     )
+    return card
+
+
+def card_plot_graph():
+    card = dmc.Card(
+        id='card_graph',
+        children=[
+            dmc.Text("Gerichteter Graph des erstellten Netzes:"),
+            dmc.Image(id='graph_image', src='assets/temp/graph.png', width=350, withPlaceholder=True)
+        ],
+        withBorder=True,
+        shadow="sm",
+        radius="md",
+        style={"width": 350, 'marginTop': 50, 'display': 'none'})
     return card

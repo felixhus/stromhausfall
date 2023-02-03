@@ -71,7 +71,8 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
                     dcc.Graph(figure=fig)
                 ])
             ], width='auto'),
-            dbc.Col(dash_components.card_side(), width='auto')
+            dbc.Col([dash_components.card_side(),
+                     dash_components.card_plot_graph()], width='auto')
         ]),
         dash_components.add_modal_edit(),
         dash_components.add_modal_readme(),
@@ -220,9 +221,10 @@ def button_add_pressed(*args):
 
 @app.callback(Output('grid_buttons', 'style'),
               Output('house_buttons', 'style'),
-              Output('graph', 'style'),
+              # Output('graph', 'style'),
               Output('calculate', 'children'),
-              Output('cyto1', 'layout'),
+              Output('card_graph', 'style'),
+              # Output('cyto1', 'layout'),
               Input('mode_switch', 'checked'),
               Input('menu_switch', 'checked'),
               State('grid_buttons', 'style'),
@@ -235,15 +237,15 @@ def switch_mode(mode_switch, menu_switch, state_grid, state_house, state_graph, 
     triggered_id = ctx.triggered_id
     if triggered_id == 'menu_switch':
         if menu_switch:
-            return {'display': 'none'}, {'display': 'block'}, state_graph, state_spinner, state_layout
+            return {'display': 'none'}, {'display': 'block'}, no_update, no_update
         else:
-            return {'display': 'block'}, {'display': 'none'}, state_graph, state_spinner, state_layout
+            return {'display': 'block'}, {'display': 'none'}, no_update, no_update
     elif triggered_id == 'mode_switch':
         if mode_switch:
             time.sleep(2)
-            return {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, "Calculated", {'name': 'breadthfirst', 'roots': '#node2'}
+            return {'display': 'none'}, {'display': 'none'}, "Calculated", {'display': 'block'}
         else:
-            return {'display': 'block'}, state_house, {'display': 'none'}, "Calculate", {'name', 'preset'}
+            return {'display': 'block'}, {'display': 'none'}, "Calculate", {'display': 'none'}
     else:
         raise PreventUpdate
 

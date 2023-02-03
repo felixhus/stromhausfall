@@ -1,11 +1,12 @@
+import base64
 import copy
 import warnings
+from io import BytesIO
 
 import grid_objects
 import matplotlib.pyplot as plt
 import networkx as nx
 import pandas as pd
-import plot
 
 
 def get_last_id(elements):
@@ -212,6 +213,12 @@ def calculate_power_flow(elements, grid_object_list):
     nx.draw_networkx_nodes(grid_graph, pos)
     nx.draw_networkx_edges(grid_graph, pos, arrowstyle='->')
     nx.draw_networkx_labels(grid_graph, pos)
+    # fig = plt.figure(plt.get_fignums()[0])
+    # tempfile = BytesIO()
+    # fig.savefig(tempfile, format='png')
+    # encoded = base64.b64encode(tempfile.getvalue()).decode('utf-8')
+    # html = '<img src=\'data:image/png;base64,{}\'>'.format(encoded)
+    plt.savefig("assets/temp/graph.png")
     plt.show()
 
 
