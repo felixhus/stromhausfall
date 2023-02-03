@@ -19,6 +19,13 @@ def get_last_id(elements):
     return last_id
 
 
+def get_object_from_id(node_id, objects):
+    for obj in objects:
+        if obj.id == node_id:
+            return obj
+    return None
+
+
 def get_connected_edges(elements, selected_element):
     id_element = selected_element['data']['id']
     result = []
@@ -37,13 +44,13 @@ def generate_grid_object(object_type, object_id, node_id):
     elif object_type == "button_externalgrid":
         return grid_objects.ExternalGrid(node_id=node_id, object_id=object_id, voltage=20000)
     elif object_type == "button_pv":
-        return grid_objects.PV(node_id=node_id, object_id=object_id)
+        return grid_objects.PV(node_id=node_id, object_id=object_id, voltage=20000)
     elif object_type == "button_battery":
         return grid_objects.Battery(node_id=node_id, object_id=object_id, voltage=400)
     elif object_type == "button_smartmeter":
         return grid_objects.SmartMeter(node_id=node_id, object_id=object_id)
     elif object_type == "button_switch_cabinet":
-        return grid_objects.SwitchCabinet(node_id=node_id, object_id=object_id)
+        return grid_objects.SwitchCabinet(node_id=node_id, object_id=object_id, voltage=400)
     else:
         return None
 

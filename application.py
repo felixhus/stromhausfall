@@ -15,7 +15,7 @@ import source.dash_components as dash_components
 import source.stylesheets as stylesheets
 from source.modules import (calculate_power_flow, connection_allowed,
                             generate_grid_object, get_connected_edges,
-                            get_last_id)
+                            get_last_id, get_object_from_id)
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
 server = app.server
@@ -75,6 +75,7 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
         ]),
         dash_components.add_modal_edit(),
         dash_components.add_modal_readme(),
+        dash_components.add_modal_voltage_level(),
         dash_components.add_storage_variables(),
         html.P(id='dummy')], width=True),
     html.Div(id='notification_container')
@@ -126,7 +127,10 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements, btn_line_active, st
                 if start_of_line is not None:
                     if connection_allowed(start_of_line[0]['id'], node[0]['id'], gridObject_list):
                         last_id = get_last_id(elements)
-
+                        start_object = get_object_from_id(start_of_line[0]['id'], gridObject_list)
+                        end_object = get_object_from_id(node[0]['id'], gridObject_list)
+                        if start_object.voltage is None and end_object.voltage is None: # Check if voltage level of connection is defined through one of the components
+                            # Open modal to define voltage of connection
                         new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
                                              'id': 'edge' + str(last_id[1]+1)}, 'classes': 'line_style'}
                         elements.append(new_edge)
@@ -258,6 +262,28 @@ def notification(data):
                             message=notification_message[1],
                             action='show', color=color,
                             icon=icon, id='notification')
+
+
+@app.callback(Output('cyto1', 'elements'),
+              Output('modal_voltage', 'opened'),
+              Input('store_get_voltage', 'data'),
+              Input('button_voltage_hv', 'n_clicks'),
+              Input('button_voltage_lv', 'n_clicks'),
+              State('cyto1', 'elements'),
+              prevent_initial_call=True
+              )
+def modal_voltage(node_id, button_hv, button_lv, elements):
+    triggered_id = ctx.triggered_id
+    if triggered_id == 'store_get_voltage':
+        return elements, True
+    elif triggered_id == 'button_voltage_hv':
+        print("Oberspannung")
+        raise PreventUpdate
+    elif triggered_id == 'button_voltage_lv':
+        print("Unterspannung")
+        raise PreventUpdate
+    else:
+        raise PreventUpdate
 
 
 @app.callback(Output('dummy', 'children'),

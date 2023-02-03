@@ -10,7 +10,8 @@ import source.stylesheets as stylesheets
 def add_storage_variables():
     return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
                      dcc.Store(id='line_edit_active'), dcc.Store(id='selected_element'),
-                     dcc.Store(id='element_deleted'), dcc.Store(id='store_notification')])
+                     dcc.Store(id='element_deleted'), dcc.Store(id='store_notification'),
+                     dcc.Store(id='store_get_voltage')])
 
 
 def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
@@ -77,7 +78,10 @@ def add_modal_voltage_level():
         id='modal_voltage',
         children=[
             dmc.Text("Möchtest du das Element mit der Ober- oder Unterspannungsseite des Transformators verbinden (20kV oder 400V)?"),
-            
+            dmc.ButtonGroup([
+                dmc.Button("20 kV", id='button_voltage_hv', variant='outline', leftIcon=DashIconify(icon="ph:arrow-fat-lines-up")),
+                dmc.Button("400 V", id='button_voltage_lv', variant='outline', leftIcon=DashIconify(icon="ph:arrow-fat-lines-down"))
+            ])
         ]
     )
 
