@@ -44,7 +44,7 @@ def generate_grid_object(object_type, object_id, node_id):
     elif object_type == "button_externalgrid":
         return grid_objects.ExternalGrid(node_id=node_id, object_id=object_id, voltage=20000)
     elif object_type == "button_pv":
-        return grid_objects.PV(node_id=node_id, object_id=object_id, voltage=20000)
+        return grid_objects.PV(node_id=node_id, object_id=object_id)
     elif object_type == "button_battery":
         return grid_objects.Battery(node_id=node_id, object_id=object_id, voltage=400)
     elif object_type == "button_smartmeter":

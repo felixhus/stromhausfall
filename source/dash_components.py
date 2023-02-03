@@ -78,9 +78,10 @@ def add_modal_voltage_level():
         id='modal_voltage',
         children=[
             dmc.Text("Möchtest du das Element mit der Ober- oder Unterspannungsseite des Transformators verbinden (20kV oder 400V)?"),
+            dmc.Space(h=20),
             dmc.ButtonGroup([
                 dmc.Button("20 kV", id='button_voltage_hv', variant='outline', leftIcon=DashIconify(icon="ph:arrow-fat-lines-up")),
-                dmc.Button("400 V", id='button_voltage_lv', variant='outline', leftIcon=DashIconify(icon="ph:arrow-fat-lines-down"))
+                dmc.Button("400 V", id='button_voltage_lv', variant='outline', rightIcon=DashIconify(icon="ph:arrow-fat-lines-down"))
             ])
         ]
     )

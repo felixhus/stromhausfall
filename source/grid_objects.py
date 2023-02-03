@@ -31,7 +31,7 @@ class TransformerObject(GridObject):
     object_type = "transformer"
     icon = "icon_transformer.png"
     ui_color = '#9cb6ca'
-    allowed_types_to_connect = ["house", "switch_cabinet", "battery", "pv", "smart_meter", "externalgrid"]
+    allowed_types_to_connect = ["house", "switch_cabinet", "battery", "pv", "smartmeter", "externalgrid"]
 
     def __init__(self, impedance=1, *args, **kwargs):
         super(TransformerObject, self).__init__(*args, **kwargs)
@@ -67,7 +67,7 @@ class ExternalGrid(GridObject):
     name = "Ext. Netz"
     icon = "icon_powerplant.png"
     ui_color = '#b5c8d7'
-    allowed_types_to_connect = ["transformer", "externalgrid", "smart_meter"]
+    allowed_types_to_connect = ["transformer", "externalgrid", "smartmeter"]
 
 
 class Battery(GridObject):
@@ -76,7 +76,7 @@ class Battery(GridObject):
     name = "Battery"
     icon = "icon_battery.png"
     ui_color = '#b5c8d7'
-    allowed_types_to_connect = ["transformer", "switch_cabinet", "house", "pv", "smart_meter"]
+    allowed_types_to_connect = ["transformer", "switch_cabinet", "house", "pv", "smartmeter"]
 
 
 class PV(GridObject):
@@ -85,7 +85,7 @@ class PV(GridObject):
     name = "PV"
     icon = "icon_pv.png"
     ui_color = '#b5c8d7'
-    allowed_types_to_connect = ["transformer", "switch_cabinet", "battery", "pv", "smart_meter"]
+    allowed_types_to_connect = ["transformer", "switch_cabinet", "battery", "pv", "smartmeter"]
 
 
 class SwitchCabinet(GridObject):
@@ -94,7 +94,7 @@ class SwitchCabinet(GridObject):
     name = "Switch Cabinet"
     icon = "icon_switch_cabinet.png"
     ui_color = '#9cb6ca'
-    allowed_types_to_connect = ["transformer", "house", "battery", "pv", "smart_meter"]
+    allowed_types_to_connect = ["transformer", "house", "battery", "pv", "smartmeter"]
 
 
 class TransformerHelperNode:

@@ -7,7 +7,7 @@ import dash_daq as daq
 import dash_mantine_components as dmc
 # import modules
 import plotly.express as px
-from dash import Dash, Input, Output, State, ctx, dcc, html
+from dash import Dash, Input, Output, State, ctx, dcc, html, no_update
 from dash.exceptions import PreventUpdate
 from dash_iconify import DashIconify
 
@@ -99,6 +99,7 @@ def edit_mode(btn_line, btn_active):
               Output('start_of_line', 'data'),
               Output('element_deleted', 'data'),
               Output('store_notification', 'data'),
+              Output('store_get_voltage', 'data'),
               Input('store_add_node', 'data'),
               Input('cyto1', 'selectedNodeData'),
               Input('modal_edit_delete_button', 'n_clicks'),
@@ -107,10 +108,11 @@ def edit_mode(btn_line, btn_active):
               State('line_edit_active', 'data'),
               State('start_of_line', 'data'),
               State('selected_element', 'data'))
-def edit_grid(btn_add, node, btn_delete, btn_line, elements, btn_line_active, start_of_line, selected_element):
+def edit_grid(btn_add, node, btn_delete, btn_line, elements,
+              btn_line_active, start_of_line, selected_element):
     triggered_id = ctx.triggered_id
     if triggered_id == 'button_line':
-        return elements, None, False, None
+        return elements, None, False, None, no_update
     elif triggered_id == 'store_add_node':
         last_id = get_last_id(elements)
         new_gridobject = generate_grid_object(btn_add, 'node' + str(last_id[0] + 1), 'node' + str(last_id[0] + 1))
@@ -120,25 +122,26 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements, btn_line_active, st
                        'position': {'x': 50, 'y': 50}, 'classes': 'node_style',
                        'style': {'background-image': image_src, 'background-color': new_gridobject.ui_color}}
         elements.append(new_element)
-        return elements, None, False, None
+        return elements, None, False, None, no_update
     elif triggered_id == 'cyto1':  # # Node was clicked
         if not node == []:
             if btn_line_active:  # Add-line-mode is on
                 if start_of_line is not None:
                     if connection_allowed(start_of_line[0]['id'], node[0]['id'], gridObject_list):
                         last_id = get_last_id(elements)
+                        return_temp = no_update
                         start_object = get_object_from_id(start_of_line[0]['id'], gridObject_list)
                         end_object = get_object_from_id(node[0]['id'], gridObject_list)
                         if start_object.voltage is None and end_object.voltage is None: # Check if voltage level of connection is defined through one of the components
-                            # Open modal to define voltage of connection
+                            return_temp = [start_object.id, end_object.id]
                         new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
                                              'id': 'edge' + str(last_id[1]+1)}, 'classes': 'line_style'}
                         elements.append(new_edge)
-                        return elements, None, False, None
+                        return elements, None, False, None, return_temp
                     else:
-                        return elements, None, False, "notification_false_connection"
+                        return elements, None, False, "notification_false_connection", no_update
                 else:
-                    return elements, node, False, None
+                    return elements, node, False, None, no_update
             else:  # Node is clicked in normal mode
                 raise PreventUpdate
         else:
@@ -154,7 +157,7 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements, btn_line_active, st
             for edge in connected_edges:
                 elements.pop(elements.index(edge))
         elements.pop(index)
-        return elements, None, True, None
+        return elements, None, True, None, no_update
     else:
         raise PreventUpdate
 
@@ -246,6 +249,37 @@ def open_readme(btn):
     return True
 
 
+@app.callback(Output('modal_voltage', 'opened'),
+              Input('store_get_voltage', 'data'),
+              Input('button_voltage_hv', 'n_clicks'),
+              Input('button_voltage_lv', 'n_clicks'),
+              State('cyto1', 'elements'),
+              prevent_initial_call=True
+              )
+def modal_voltage(node_ids, button_hv, button_lv, elements):
+    triggered_id = ctx.triggered_id
+    if triggered_id == 'store_get_voltage':
+        if node_ids is None:
+            raise PreventUpdate
+        return True
+    elif triggered_id == 'button_voltage_hv':
+        print("Oberspannung")
+        for node_id in node_ids:
+            obj = get_object_from_id(node_id, gridObject_list)
+            if obj.object_type != "transformer":
+                obj.voltage = 20000
+        return False
+    elif triggered_id == 'button_voltage_lv':
+        print("Unterspannung")
+        for node_id in node_ids:
+            obj = get_object_from_id(node_id, gridObject_list)
+            if obj.object_type != "transformer":
+                obj.voltage = 400
+        return False
+    else:
+        raise PreventUpdate
+
+
 @app.callback(Output('notification_container', 'children'),
               Input('store_notification', 'data'))
 def notification(data):
@@ -262,28 +296,6 @@ def notification(data):
                             message=notification_message[1],
                             action='show', color=color,
                             icon=icon, id='notification')
-
-
-@app.callback(Output('cyto1', 'elements'),
-              Output('modal_voltage', 'opened'),
-              Input('store_get_voltage', 'data'),
-              Input('button_voltage_hv', 'n_clicks'),
-              Input('button_voltage_lv', 'n_clicks'),
-              State('cyto1', 'elements'),
-              prevent_initial_call=True
-              )
-def modal_voltage(node_id, button_hv, button_lv, elements):
-    triggered_id = ctx.triggered_id
-    if triggered_id == 'store_get_voltage':
-        return elements, True
-    elif triggered_id == 'button_voltage_hv':
-        print("Oberspannung")
-        raise PreventUpdate
-    elif triggered_id == 'button_voltage_lv':
-        print("Unterspannung")
-        raise PreventUpdate
-    else:
-        raise PreventUpdate
 
 
 @app.callback(Output('dummy', 'children'),
