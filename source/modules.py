@@ -3,10 +3,11 @@ import copy
 import io
 import warnings
 
-import grid_objects
 import matplotlib.pyplot as plt
 import networkx as nx
 import pandas as pd
+
+import source.grid_objects as grid_objects
 
 
 def get_last_id(elements):
