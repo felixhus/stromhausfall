@@ -149,6 +149,10 @@ def card_side():
                            onLabel=DashIconify(icon="material-symbols:calculate-outline")),
                 dbc.Spinner(html.P("Berechnen", id='calculate', style={'margin-left': '10px', 'margin-top': '27px'}))],
                 direction='horizontal'),
+            dmc.CardSection(
+                dmc.Image(id='graph_image', src='assets/temp/graph.png', withPlaceholder=True,
+                          style={'display': 'none'})
+            ),
         ],
         withBorder=True,
         shadow="sm",
@@ -162,8 +166,10 @@ def card_plot_graph():
     card = dmc.Card(
         id='card_graph',
         children=[
-            dmc.Text("Gerichteter Graph des erstellten Netzes:"),
-            dmc.Image(id='graph_image', src='assets/temp/graph.png', width=350, withPlaceholder=True)
+            # dmc.CardSection(
+            #     dmc.Image(id='graph_image', src='assets/temp/graph.png', withPlaceholder=True)
+            # ),
+            dmc.Text("Gerichteter Graph des erstellten Netzes:")
         ],
         withBorder=True,
         shadow="sm",

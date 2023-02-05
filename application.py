@@ -221,31 +221,27 @@ def button_add_pressed(*args):
 
 @app.callback(Output('grid_buttons', 'style'),
               Output('house_buttons', 'style'),
-              # Output('graph', 'style'),
               Output('calculate', 'children'),
-              Output('card_graph', 'style'),
-              # Output('cyto1', 'layout'),
+              Output('graph_image', 'style'),
+              Output('graph_image', 'src'),
               Input('mode_switch', 'checked'),
               Input('menu_switch', 'checked'),
-              State('grid_buttons', 'style'),
-              State('house_buttons', 'style'),
-              State('graph', 'style'),
-              State('calculate', 'children'),
-              State('cyto1', 'layout'),
+              State('cyto1', 'elements'),
               prevent_initial_call=True)
-def switch_mode(mode_switch, menu_switch, state_grid, state_house, state_graph, state_spinner, state_layout):
+def switch_mode(mode_switch, menu_switch, elements):
     triggered_id = ctx.triggered_id
     if triggered_id == 'menu_switch':
         if menu_switch:
-            return {'display': 'none'}, {'display': 'block'}, no_update, no_update
+            return {'display': 'none'}, {'display': 'block'}, no_update, no_update, no_update
         else:
-            return {'display': 'block'}, {'display': 'none'}, no_update, no_update
+            return {'display': 'block'}, {'display': 'none'}, no_update, no_update, no_update
     elif triggered_id == 'mode_switch':
         if mode_switch:
-            time.sleep(2)
-            return {'display': 'none'}, {'display': 'none'}, "Calculated", {'display': 'block'}
+            format_img_src = calculate_power_flow(elements, gridObject_list)
+            img_src = 'data:image/png;base64,{}'.format(format_img_src)
+            return no_update, no_update, "Calculated", {'display': 'block'}, img_src
         else:
-            return {'display': 'block'}, {'display': 'none'}, "Calculate", {'display': 'none'}
+            return {'display': 'block'}, {'display': 'none'}, "Calculate", {'display': 'none'}, no_update
     else:
         raise PreventUpdate
 

@@ -1,7 +1,7 @@
 import base64
 import copy
+import io
 import warnings
-from io import BytesIO
 
 import grid_objects
 import matplotlib.pyplot as plt
@@ -181,18 +181,23 @@ def generate_directed_graph(graph):
         return graph_dir
 
 
-def add_transformer_edges(graph):
-    try:
-        number_of_transformers = 0
-        for node in graph.nodes(data=True):
-            if node[1]['object'].object_type == "transformer":
-                number_of_transformers += 1
-                graph.add_node("transformer" + str(number_of_transformers))
-                graph.add_edge("transformer" + str(number_of_transformers), node[1])
-    except Exception as err:
-        handle_error(err)
-    finally:
-        return graph
+def plot_graph(graph):
+    pos = nx.planar_layout(graph)
+    nx.draw_networkx_nodes(graph, pos)
+    nx.draw_networkx_edges(graph, pos, arrowstyle='->')
+    nx.draw_networkx_labels(graph, pos)
+    fig = plt.figure(plt.get_fignums()[0])
+
+    # Convert Matplotlib figure to PNG image
+    png_output = io.BytesIO()
+    fig.savefig(png_output, format='png')
+    png_output.seek(0)
+
+    # Encode PNG image to base64 string
+    base64_encoded = base64.b64encode(png_output.getvalue()).decode('utf-8')
+
+    plt.show()
+    return base64_encoded
 
 
 def calculate_power_flow(elements, grid_object_list):
@@ -207,19 +212,7 @@ def calculate_power_flow(elements, grid_object_list):
     if nx.number_of_isolates(grid_graph) > 0:  # Check if there are isolated (not connected) nodes
         warnings.warn("Es gibt Knoten, die nicht mit dem Netz verbunden sind!")
     grid_graph = generate_directed_graph(grid_graph)    # Give graph edges directions, starting at external grid
-    # grid_graph = add_transformer_edges(grid_graph)
-
-    pos = nx.planar_layout(grid_graph)
-    nx.draw_networkx_nodes(grid_graph, pos)
-    nx.draw_networkx_edges(grid_graph, pos, arrowstyle='->')
-    nx.draw_networkx_labels(grid_graph, pos)
-    # fig = plt.figure(plt.get_fignums()[0])
-    # tempfile = BytesIO()
-    # fig.savefig(tempfile, format='png')
-    # encoded = base64.b64encode(tempfile.getvalue()).decode('utf-8')
-    # html = '<img src=\'data:image/png;base64,{}\'>'.format(encoded)
-    plt.savefig("assets/temp/graph.png")
-    plt.show()
+    return plot_graph(grid_graph)
 
 
 def handle_error(err):
