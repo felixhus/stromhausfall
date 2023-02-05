@@ -302,15 +302,15 @@ def notification(data):
                             icon=icon, id='notification')
 
 
-@app.callback(Output('dummy', 'children'),
-              Input('debug_button', 'n_clicks'),
-              State('cyto1', 'elements'),
-              State('start_of_line', 'data'),
-              prevent_initial_call=True)
-def debug(btn, elements, start_of_line):
-    calculate_power_flow(elements, gridObject_list)
-    return None
+# @app.callback(Output('dummy', 'children'),
+#               Input('debug_button', 'n_clicks'),
+#               State('cyto1', 'elements'),
+#               State('start_of_line', 'data'),
+#               prevent_initial_call=True)
+# def debug(btn, elements, start_of_line):
+#     calculate_power_flow(elements, gridObject_list)
+#     return None
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
