@@ -1,8 +1,8 @@
 class GridObject:
     """ The structure to store information of a grid object """
 
-    def __init__(self, node_id, object_id, voltage=0.4):
-        self.voltageLevel = voltage
+    def __init__(self, node_id, object_id, voltage=None):
+        self.voltage = voltage
         self.linkedNode = node_id
         self.parents = [None]
         self.children = [None]
@@ -31,7 +31,11 @@ class TransformerObject(GridObject):
     object_type = "transformer"
     icon = "icon_transformer.png"
     ui_color = '#9cb6ca'
-    allowed_types_to_connect = ["house", "switch_cabinet", "battery", "pv", "smart_meter", "externalgrid"]
+    allowed_types_to_connect = ["house", "switch_cabinet", "battery", "pv", "smartmeter", "externalgrid"]
+
+    def __init__(self, impedance=1, *args, **kwargs):
+        super(TransformerObject, self).__init__(*args, **kwargs)
+        self.impedance = impedance
 
 
 class LineObject(GridObject):
@@ -50,7 +54,7 @@ class LineObject(GridObject):
 
 class SmartMeter(GridObject):
     """ Object to show results of connected node """
-    object_type = "Smart Meter"
+    object_type = "smartmeter"
     name = "Smart Meter"
     icon = "icon_meter.png"
     ui_color = '#83a4bd'
@@ -63,7 +67,7 @@ class ExternalGrid(GridObject):
     name = "Ext. Netz"
     icon = "icon_powerplant.png"
     ui_color = '#b5c8d7'
-    allowed_types_to_connect = ["transformer", "externalgrid", "smart_meter"]
+    allowed_types_to_connect = ["transformer", "externalgrid", "smartmeter"]
 
 
 class Battery(GridObject):
@@ -72,7 +76,7 @@ class Battery(GridObject):
     name = "Battery"
     icon = "icon_battery.png"
     ui_color = '#b5c8d7'
-    allowed_types_to_connect = ["transformer", "switch_cabinet", "house", "pv", "smart_meter"]
+    allowed_types_to_connect = ["transformer", "switch_cabinet", "house", "pv", "smartmeter"]
 
 
 class PV(GridObject):
@@ -81,7 +85,7 @@ class PV(GridObject):
     name = "PV"
     icon = "icon_pv.png"
     ui_color = '#b5c8d7'
-    allowed_types_to_connect = ["transformer", "switch_cabinet", "battery", "pv", "smart_meter"]
+    allowed_types_to_connect = ["transformer", "switch_cabinet", "battery", "pv", "smartmeter"]
 
 
 class SwitchCabinet(GridObject):
@@ -90,4 +94,9 @@ class SwitchCabinet(GridObject):
     name = "Switch Cabinet"
     icon = "icon_switch_cabinet.png"
     ui_color = '#9cb6ca'
-    allowed_types_to_connect = ["transformer", "house", "battery", "pv", "smart_meter"]
+    allowed_types_to_connect = ["transformer", "house", "battery", "pv", "smartmeter"]
+
+
+class TransformerHelperNode:
+    object_type = "transformer_helper"
+

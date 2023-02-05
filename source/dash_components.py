@@ -1,15 +1,17 @@
 import dash_bootstrap_components as dbc
-import source.stylesheets as stylesheets
-from dash import dcc, html
 import dash_cytoscape as cyto
 import dash_mantine_components as dmc
+from dash import dcc, html
 from dash_iconify import DashIconify
+
+import source.stylesheets as stylesheets
 
 
 def add_storage_variables():
     return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
                      dcc.Store(id='line_edit_active'), dcc.Store(id='selected_element'),
-                     dcc.Store(id='element_deleted'), dcc.Store(id='store_notification')])
+                     dcc.Store(id='element_deleted'), dcc.Store(id='store_notification'),
+                     dcc.Store(id='store_get_voltage')])
 
 
 def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
@@ -48,9 +50,8 @@ def add_modal_readme():
         title="Readme",
         id="modal_readme",
         children=dcc.Markdown(content_readme),
-        opened=False
-        # dbc.ModalHeader(dbc.ModalTitle("Readme")),
-        # dbc.ModalBody(dcc.Markdown(content_readme), id="modal_readme_body")
+        opened=False,
+        size='55%'
     )
 
 
@@ -66,6 +67,21 @@ def add_modal_edit():
                            leftIcon=DashIconify(icon="material-symbols:delete-outline")),
                 dmc.Button("Schließen", variant='outline', id='modal_edit_close_button')
             ], position='right')
+        ]
+    )
+
+
+def add_modal_voltage_level():
+    return dmc.Modal(
+        title="Spannungsebene auswählen",
+        id='modal_voltage',
+        children=[
+            dmc.Text("Möchtest du das Element mit der Ober- oder Unterspannungsseite des Transformators verbinden (20kV oder 400V)?"),
+            dmc.Space(h=20),
+            dmc.ButtonGroup([
+                dmc.Button("20 kV", id='button_voltage_hv', variant='outline', leftIcon=DashIconify(icon="ph:arrow-fat-lines-up")),
+                dmc.Button("400 V", id='button_voltage_lv', variant='outline', rightIcon=DashIconify(icon="ph:arrow-fat-lines-down"))
+            ])
         ]
     )
 
@@ -134,10 +150,30 @@ def card_side():
                            onLabel=DashIconify(icon="material-symbols:calculate-outline")),
                 dbc.Spinner(html.P("Berechnen", id='calculate', style={'margin-left': '10px', 'margin-top': '27px'}))],
                 direction='horizontal'),
+            dmc.CardSection(
+                dmc.Image(id='graph_image', src='assets/temp/graph.png', withPlaceholder=True,
+                          style={'display': 'none'})
+            ),
         ],
         withBorder=True,
         shadow="sm",
         radius="md",
         style={"width": 350, 'marginTop': 50},
     )
+    return card
+
+
+def card_plot_graph():
+    card = dmc.Card(
+        id='card_graph',
+        children=[
+            # dmc.CardSection(
+            #     dmc.Image(id='graph_image', src='assets/temp/graph.png', withPlaceholder=True)
+            # ),
+            dmc.Text("Gerichteter Graph des erstellten Netzes:")
+        ],
+        withBorder=True,
+        shadow="sm",
+        radius="md",
+        style={"width": 350, 'marginTop': 50, 'display': 'none'})
     return card
