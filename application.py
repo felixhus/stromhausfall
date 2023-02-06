@@ -177,10 +177,14 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements,
               Input('cyto1', 'tapNodeData'),
               Input('cyto1', 'tapEdgeData'),
               Input('modal_edit_close_button', 'n_clicks'),
+              Input('modal_edit_save_button', 'n_clicks'),
               Input('element_deleted', 'data'),
+              State('selected_element','data'),
               State('line_edit_active', 'data'),
-              State('cyto1', 'elements'))
-def edit_grid_element(node, edge, btn_close, element_deleted, btn_line_active, elements):
+              State('cyto1', 'elements'),
+              State('chips_type', 'value'))
+def edit_grid_element(node, edge, btn_close, btn_save, element_deleted, selected_element,
+                      btn_line_active, elements, set_type):
     triggered_id = ctx.triggered_id
     if triggered_id == 'element_deleted':
         if element_deleted:
@@ -202,8 +206,20 @@ def edit_grid_element(node, edge, btn_close, element_deleted, btn_line_active, e
                 raise PreventUpdate
         else:
             return False, None, None, None, None
+    elif triggered_id == 'modal_edit_save_button':
+        if selected_element[:4] == "node":
+            if set_type == "Last":
+                direction = 1
+            else:
+                direction = -1
+            obj = get_object_from_id(selected_element, gridObject_list)
+            raise PreventUpdate
+        elif selected_element[:4] == "edge":
+            raise PreventUpdate
+        else:
+            raise PreventUpdate
     elif triggered_id == 'modal_edit_close_button':
-        return False, None, None, None, None
+        return False, no_update, no_update, no_update, no_update
     else:
         raise PreventUpdate
 
@@ -300,6 +316,18 @@ def notification(data):
                             message=notification_message[1],
                             action='show', color=color,
                             icon=icon, id='notification')
+
+
+@app.callback(Output("power_input", "icon"),
+              Input("chips_type", "value"),
+              prevent_initial_call=True)
+def chips_type(value):
+    if value == "Last":
+        return DashIconify(icon="material-symbols:download")
+    elif value == "Einspeisung":
+        return DashIconify(icon="material-symbols:upload")
+    else:
+        raise PreventUpdate
 
 
 @app.callback(Output('dummy', 'children'),
