@@ -89,6 +89,40 @@ def add_modal_edit():
     )
 
 
+# def add_modal_edit_node():
+#     return dmc.Modal(
+#         title="Edit",
+#         id='modal_edit',
+#         children=[
+#             dmc.Text("", id='modal_text'),
+#             dmc.Space(h=20),
+#             dmc.ChipGroup([
+#                 dmc.Chip(x, value=x) for x in ["Last", "Einspeisung"]], value="Last", id='chips_type'
+#             ),
+#             dmc.Space(h=20),
+#             dmc.NumberInput(
+#                 id='power_input',
+#                 label="Leistung dieses Elements in kW:",
+#                 # description="From 0 to infinity, in steps of 5",
+#                 value=0,
+#                 min=0,
+#                 step=0.1, precision=1,
+#                 stepHoldDelay=500, stepHoldInterval=100,
+#                 icon=DashIconify(icon="material-symbols:download"),
+#                 style={"width": 250},
+#             ),
+#             dmc.Space(h=20),
+#             dmc.Group([
+#                 dmc.Button("Löschen", color='red', variant='outline', id='modal_edit_delete_button',
+#                            leftIcon=DashIconify(icon="material-symbols:delete-outline")),
+#                 dmc.Button("Speichern", color='green', variant='outline', id='modal_edit_save_button',
+#                            leftIcon=DashIconify(icon="material-symbols:save-outline")),
+#                 dmc.Button("Schließen", variant='outline', id='modal_edit_close_button')
+#             ], position='right')
+#         ]
+#     )
+
+
 def add_modal_voltage_level():
     return dmc.Modal(
         title="Spannungsebene auswählen",

@@ -179,12 +179,13 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements,
               Input('modal_edit_close_button', 'n_clicks'),
               Input('modal_edit_save_button', 'n_clicks'),
               Input('element_deleted', 'data'),
-              State('selected_element','data'),
+              State('selected_element', 'data'),
               State('line_edit_active', 'data'),
               State('cyto1', 'elements'),
-              State('chips_type', 'value'))
+              State('chips_type', 'value'),
+              State('power_input', 'value'))
 def edit_grid_element(node, edge, btn_close, btn_save, element_deleted, selected_element,
-                      btn_line_active, elements, set_type):
+                      btn_line_active, elements, set_type, power_in):
     triggered_id = ctx.triggered_id
     if triggered_id == 'element_deleted':
         if element_deleted:
@@ -213,7 +214,8 @@ def edit_grid_element(node, edge, btn_close, btn_save, element_deleted, selected
             else:
                 direction = -1
             obj = get_object_from_id(selected_element, gridObject_list)
-            raise PreventUpdate
+            obj.power = direction * power_in
+            return False, no_update, None, no_update, no_update
         elif selected_element[:4] == "edge":
             raise PreventUpdate
         else:

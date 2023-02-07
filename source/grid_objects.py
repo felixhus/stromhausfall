@@ -9,6 +9,7 @@ class GridObject:
         self.name = None
         self.connected_node = node_id
         self.id = object_id
+        self.power = 0
 
     def get_id(self):
         return self.id
@@ -38,18 +39,18 @@ class TransformerObject(GridObject):
         self.impedance = impedance
 
 
-class LineObject(GridObject):
-    """ An electrical line to connect Grid Objects """
-    object_type = "line"
-    name = "Leitung"
-    ui_color = '#cddae4'
-
-    def __init__(self, *args, **kwargs):
-        super(LineObject, self).__init__(*args, **kwargs)
-        if self.voltageLevel == 0.4:
-            self.icon = "icon_line_lv.png"
-        else:
-            self.icon = "icon_line_hv.png"
+# class LineObject(GridObject):
+#     """ An electrical line to connect Grid Objects """
+#     object_type = "line"
+#     name = "Leitung"
+#     ui_color = '#cddae4'
+#
+#     def __init__(self, *args, **kwargs):
+#         super(LineObject, self).__init__(*args, **kwargs)
+#         if self.voltageLevel == 0.4:
+#             self.icon = "icon_line_lv.png"
+#         else:
+#             self.icon = "icon_line_hv.png"
 
 
 class SmartMeter(GridObject):
@@ -97,6 +98,10 @@ class SwitchCabinet(GridObject):
     allowed_types_to_connect = ["transformer", "house", "battery", "pv", "smartmeter"]
 
 
+# class LineObject():
+
+
 class TransformerHelperNode:
     object_type = "transformer_helper"
+    power = 0
 

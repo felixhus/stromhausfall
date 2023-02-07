@@ -6,6 +6,7 @@ import warnings
 import grid_objects
 import matplotlib.pyplot as plt
 import networkx as nx
+import numpy as np
 import pandas as pd
 
 
@@ -119,7 +120,6 @@ def generate_grid_graph(df_nodes, df_edges):
         graph.add_nodes_from(df_nodes['id'].tolist())
         nx.set_node_attributes(graph, pd.Series(df_nodes.linkedObject.values, index=df_nodes.id).to_dict(),
                                name="object")
-        # number_of_transformers = 0
         nodes = copy.deepcopy(graph.nodes(data=True))
         for node in nodes:
             if node[1]['object'].object_type == 'transformer':
@@ -160,7 +160,8 @@ def generate_directed_graph(graph):
     try:
         number_of_ext_grids = 0
         graph_dir = nx.MultiDiGraph()
-        graph_dir.add_nodes_from(graph)
+        nodes_and_attributes = [(n, d) for n, d in graph.nodes(data=True)]
+        graph_dir.add_nodes_from(nodes_and_attributes)
         for node in graph.nodes(data=True):
             if node[1]['object'].object_type == "externalgrid":
                 number_of_ext_grids += 1
@@ -179,6 +180,39 @@ def generate_directed_graph(graph):
         handle_error(err)
     finally:
         return graph_dir
+
+
+def generate_equations(graph):
+    try:
+        inc = nx.incidence_matrix(graph, oriented=True).toarray()
+        idx = 0
+        t, s = np.zeros(len(graph.nodes)), np.zeros(len(graph.nodes))
+        for node in graph.nodes(data=True):
+            if node[1]['object'].power > 0:
+                t[idx] = node[1]['object'].power
+            elif node[1]['object'].power < 0:
+                s[idx] = node[1]['object'].power
+            if node[1]['object'].object_type == 'externalgrid':
+                idx_ext = idx
+            idx += 1
+        b = s + t
+        new_column = np.array([np.zeros(np.shape(inc)[0])])
+        new_column[0][idx_ext] = 1
+        # inc = np.insert(inc, np.shape(inc)[1], new_column, axis=1)
+        inc = np.append(inc, np.transpose(new_column), axis=1)
+        # diff = np.sum(b)
+        # b[idx_ext] = -diff
+        return inc, b
+    except Exception as err:
+        handle_error(err)
+
+
+def solve_flow(A, b):
+    try:
+        flow = np.linalg.lstsq(A, b)
+        return flow
+    except Exception as err:
+        handle_error(err)
 
 
 def plot_graph(graph):
@@ -212,6 +246,8 @@ def calculate_power_flow(elements, grid_object_list):
     if nx.number_of_isolates(grid_graph) > 0:  # Check if there are isolated (not connected) nodes
         warnings.warn("Es gibt Knoten, die nicht mit dem Netz verbunden sind!")
     grid_graph = generate_directed_graph(grid_graph)    # Give graph edges directions, starting at external grid
+    A, b = generate_equations(grid_graph)
+    flow = solve_flow(A, b)
     return plot_graph(grid_graph)
 
 
