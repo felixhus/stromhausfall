@@ -5,6 +5,7 @@ import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 import dash_daq as daq
 import dash_mantine_components as dmc
+import example_grids
 # import modules
 import plotly.express as px
 from dash import Dash, Input, Output, State, ctx, dcc, html, no_update
@@ -12,6 +13,7 @@ from dash.exceptions import PreventUpdate
 from dash_iconify import DashIconify
 
 import source.dash_components as dash_components
+import source.example_grids
 import source.stylesheets as stylesheets
 from source.modules import (calculate_power_flow, connection_allowed,
                             generate_grid_object, get_connected_edges,
@@ -105,11 +107,12 @@ def edit_mode(btn_line, btn_active):
               Input('cyto1', 'selectedNodeData'),
               Input('modal_edit_delete_button', 'n_clicks'),
               Input('button_line', 'n_clicks'),
+              Input('example_button', 'n_clicks'),
               State('cyto1', 'elements'),
               State('line_edit_active', 'data'),
               State('start_of_line', 'data'),
               State('selected_element', 'data'))
-def edit_grid(btn_add, node, btn_delete, btn_line, elements,
+def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, elements,
               btn_line_active, start_of_line, selected_element):
     triggered_id = ctx.triggered_id
     if triggered_id == 'button_line':
@@ -165,6 +168,11 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements,
             index += 1
         gridObject_list.pop(index)
         return elements, None, True, None, no_update
+    elif triggered_id == 'example_button':
+        ele, temp = example_grids.simple_grid(app)
+        for element in temp:
+            gridObject_list.append(element)
+        return ele, no_update, no_update, no_update, no_update
     else:
         raise PreventUpdate
 
@@ -331,6 +339,13 @@ def chips_type(value):
     else:
         raise PreventUpdate
 
+
+@app.callback(Output('cyto1', 'layout'),
+              Output('example_button', 'disabled'),
+              Input('example_button', 'n_clicks'),
+              prevent_initial_call=True)
+def activate_example(btn):
+    return {'name': 'cose'}, True
 
 @app.callback(Output('dummy', 'children'),
               Input('debug_button', 'n_clicks'),

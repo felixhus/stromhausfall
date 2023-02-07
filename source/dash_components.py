@@ -128,11 +128,14 @@ def add_modal_voltage_level():
         title="Spannungsebene auswählen",
         id='modal_voltage',
         children=[
-            dmc.Text("Möchtest du das Element mit der Ober- oder Unterspannungsseite des Transformators verbinden (20kV oder 400V)?"),
+            dmc.Text(
+                "Möchtest du das Element mit der Ober- oder Unterspannungsseite des Transformators verbinden (20kV oder 400V)?"),
             dmc.Space(h=20),
             dmc.ButtonGroup([
-                dmc.Button("20 kV", id='button_voltage_hv', variant='outline', leftIcon=DashIconify(icon="ph:arrow-fat-lines-up")),
-                dmc.Button("400 V", id='button_voltage_lv', variant='outline', rightIcon=DashIconify(icon="ph:arrow-fat-lines-down"))
+                dmc.Button("20 kV", id='button_voltage_hv', variant='outline',
+                           leftIcon=DashIconify(icon="ph:arrow-fat-lines-up")),
+                dmc.Button("400 V", id='button_voltage_lv', variant='outline',
+                           rightIcon=DashIconify(icon="ph:arrow-fat-lines-down"))
             ])
         ]
     )
@@ -157,10 +160,12 @@ def dash_navbar():
             ),
             dbc.NavbarToggler(id="navbar-toggler", n_clicks=0),
             dmc.Group([
+                dmc.Button("Beispielnetz", id='example_button', n_clicks=0, variant='gradient',
+                           gradient={"from": "teal", "to": "blue", "deg": 60}),
                 dmc.Button("README", id='button_readme', n_clicks=0,
                            leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
-                dmc.Button("Debug", id='debug_button')],
-                spacing=10
+                dmc.Button("Debug", id='debug_button', variant="gradient",
+                           gradient={"from": "grape", "to": "pink", "deg": 35})], spacing=10
             ),
         ]), color="dark", dark=True
     )
