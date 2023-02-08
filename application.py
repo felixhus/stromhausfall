@@ -184,6 +184,7 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, elements,
               Output('cyto1', 'tapNodeData'),
               Output('cyto1', 'tapEdgeData'),
               Output('power_input', 'value'),
+              Output('chips_type', 'value'),
               Input('cyto1', 'tapNodeData'),
               Input('cyto1', 'tapEdgeData'),
               Input('modal_edit_close_button', 'n_clicks'),
@@ -199,25 +200,30 @@ def edit_grid_element(node, edge, btn_close, btn_save, element_deleted, selected
     triggered_id = ctx.triggered_id
     if triggered_id == 'element_deleted':
         if element_deleted:
-            return False, None, None, None, None, no_update
+            return False, None, None, None, None, no_update, no_update
         else:
             raise PreventUpdate
     elif triggered_id == 'cyto1':
         if node is not None and edge is None:
             if not btn_line_active:
                 body_text = "Edit settings of " + node['id'] + " here."
-                value = get_object_from_id(node['id'], gridObject_list).power
-                return True, body_text, node['id'], None, None, value
+                power = get_object_from_id(node['id'], gridObject_list).power
+                value = abs(power)
+                if power < 0:
+                    chip = 'Einspeisung'
+                else:
+                    chip = 'Last'
+                return True, body_text, node['id'], None, None, value, chip
             else:
                 raise PreventUpdate
         elif node is None and edge is not None:
             if not btn_line_active:
                 body_text = "Edit settings of " + edge['id'] + " here."
-                return True, body_text, edge['id'], None, None, no_update
+                return True, body_text, edge['id'], None, None, no_update, no_update
             else:
                 raise PreventUpdate
         else:
-            return False, None, None, None, None, no_update
+            return False, None, None, None, None, no_update, no_update
     elif triggered_id == 'modal_edit_save_button':
         if selected_element[:4] == "node":
             if set_type == "Last":
@@ -226,13 +232,13 @@ def edit_grid_element(node, edge, btn_close, btn_save, element_deleted, selected
                 direction = -1
             obj = get_object_from_id(selected_element, gridObject_list)
             obj.power = direction * power_in
-            return False, no_update, None, no_update, no_update, no_update
+            return False, no_update, None, no_update, no_update, no_update, no_update
         elif selected_element[:4] == "edge":
             raise PreventUpdate
         else:
             raise PreventUpdate
     elif triggered_id == 'modal_edit_close_button':
-        return False, no_update, no_update, no_update, no_update, no_update
+        return False, no_update, no_update, no_update, no_update, no_update, no_update
     else:
         raise PreventUpdate
 
@@ -371,6 +377,7 @@ def chips_type(value):
               Input('example_button', 'n_clicks'),
               prevent_initial_call=True)
 def activate_example(btn):
+    time.sleep(0.1)
     return {'name': 'cose'}, True
 
 

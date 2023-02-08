@@ -8,16 +8,19 @@ def simple_grid(app):
     nodes_to_add = ['button_externalgrid', 'button_transformer', 'button_switch_cabinet', 'button_house', 'button_house',
               'button_house', 'button_pv']
     lines_to_add = [['node1', 'node2'], ['node2', 'node3'], ['node3', 'node5'], ['node3', 'node6'], ['node2', 'node4'], ['node2', 'node7']]
-    power_list = [0, 0, 0, 1, 3, 4, -1]
+    power_list = [0, 0, 0, 1, 3, 4, -2]
+    idx = 0
     for element in nodes_to_add:
         last_id = get_last_id(elements)
         new_gridobject = generate_grid_object(element, 'node' + str(last_id[0] + 1), 'node' + str(last_id[0] + 1))
         image_src = app.get_asset_url('Icons/' + new_gridobject.icon)
         gridObject_list.append(new_gridobject)
+        new_gridobject.power = power_list[idx]
         new_element = {'data': {'id': 'node' + str(last_id[0] + 1)},
                        'position': {'x': 50, 'y': 50}, 'classes': 'node_style',
                        'style': {'background-image': image_src, 'background-color': new_gridobject.ui_color}}
         elements.append(new_element)
+        idx += 1
         # -------------------
     for line in lines_to_add:
         last_id = get_last_id(elements)

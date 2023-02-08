@@ -128,7 +128,7 @@ def generate_grid_graph(df_nodes, df_edges):
             node_id = "transformer_" + node[0]
             node_object = grid_objects.TransformerHelperNode()
             graph.add_node(node_id, object=node_object)
-            graph.add_edge(node[0], node_id, impedance=12)
+            graph.add_edge(node[0], node_id, impedance=12, id='transformer_edge_' + node_id[16:])
     for idx in range(len(df_edges.index)):
         if df_edges.loc[idx, 'source'] in graph.nodes \
                 and df_edges.loc[idx, 'target'] in graph.nodes:  # Check if source and target node exist
@@ -148,6 +148,8 @@ def generate_grid_graph(df_nodes, df_edges):
                                    id=df_edges.loc[idx, 'id'])
             else:
                 graph.add_edge(df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'], id=df_edges.loc[idx, 'id'])
+                edge_id = graph.edges[(df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'], 0)]
+                print(edge_id)
         else:
             raise Exception("Kante mit nicht existierendem Knoten")
     return graph
@@ -171,12 +173,18 @@ def generate_directed_graph(graph):
         raise Exception("Es sind mehr als ein externes Netz vorhanden.")
     elif number_of_ext_grids < 1:
         raise Exception("Es ist kein externes Netz vorhanden.")
+    bfs = nx.edge_bfs(graph, source_node, orientation="ignore")
     for edge in nx.edge_bfs(graph, source_node, orientation="ignore"):
-        print(edge[3])
+        edge_id = 'edge'
+        for edge_undir in graph.edges:
+            if (edge[0] == edge_undir[0] and edge[1] == edge_undir[1] and edge[2] == edge_undir[2]) or \
+                    (edge[0] == edge_undir[1] and edge[1] == edge_undir[0] and edge[2] == edge_undir[2]):
+                edge_id = graph.edges[edge_undir]['id']
+                break
         if edge[3] == 'reverse':
-            graph_dir.add_edge(edge[1], edge[0])
+            graph_dir.add_edge(edge[1], edge[0], id=edge_id)
         else:
-            graph_dir.add_edge(edge[0], edge[1])
+            graph_dir.add_edge(edge[0], edge[1], id=edge_id)
     return graph_dir
     # except Exception as err:
     #     handle_error(err)
@@ -199,11 +207,8 @@ def generate_equations(graph):
         idx += 1
     b = s + t
     new_column = np.array([np.zeros(np.shape(inc)[0])])
-    new_column[0][idx_ext] = 1
-    # inc = np.insert(inc, np.shape(inc)[1], new_column, axis=1)
+    new_column[0][idx_ext] = -1
     inc = np.append(inc, np.transpose(new_column), axis=1)
-    # diff = np.sum(b)
-    # b[idx_ext] = -diff
     return inc, b
     # except Exception as err:
     #     handle_error(err)
@@ -221,10 +226,15 @@ def solve_flow(A, b):
 
 
 def plot_graph(graph):
+    edge_labels = {}
+    for edge in graph.edges:
+        edge_labels[edge[0:2]] = graph.edges[edge]['id']
+
     pos = nx.planar_layout(graph)
     nx.draw_networkx_nodes(graph, pos)
     nx.draw_networkx_edges(graph, pos, arrowstyle='->')
     nx.draw_networkx_labels(graph, pos)
+    nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_labels)
     fig = plt.figure(plt.get_fignums()[0])
 
     # Convert Matplotlib figure to PNG image
@@ -243,7 +253,8 @@ def power_flow_statemachine(state, data):
     if state == 'init':
         return 'gen_dataframes', data, False
     elif state == 'gen_dataframes':
-        data['df_nodes'], data['df_edges'] = generate_grid_dataframes(data['elements'], data['grid_objects'])  # Generate DataFrames
+        data['df_nodes'], data['df_edges'] = generate_grid_dataframes(data['elements'],
+                                                                      data['grid_objects'])  # Generate DataFrames
         return 'gen_grid_graph', data, False
     elif state == 'gen_grid_graph':
         data['grid_graph'] = generate_grid_graph(data['df_nodes'], data['df_edges'])  # Generate NetworkX Graph
@@ -258,7 +269,8 @@ def power_flow_statemachine(state, data):
             raise Exception('notification_cycles')
         return 'gen_directed_graph', data, False
     elif state == 'gen_directed_graph':
-        data['grid_graph'] = generate_directed_graph(data['grid_graph'])    # Give graph edges directions, starting at external grid
+        data['grid_graph'] = generate_directed_graph(
+            data['grid_graph'])  # Give graph edges directions, starting at external grid
         return 'gen_equations', data, False
     elif state == 'gen_equations':
         data['A'], data['b'] = generate_equations(data['grid_graph'])
@@ -280,6 +292,8 @@ def calculate_power_flow(elements, grid_object_list):
     data = {'elements': elements, 'grid_objects': grid_object_list}
     while not ready:
         state, data, ready = power_flow_statemachine(state, data)
+    df_flow = pd.DataFrame(data['flow'][np.newaxis],
+                           index=['step1'], columns=[list(data['grid_graph'].nodes)])
     return plot_graph(data['grid_graph'])
 
 
