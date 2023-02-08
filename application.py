@@ -101,7 +101,7 @@ def edit_mode(btn_line, btn_active):
 @app.callback(Output('cyto1', 'elements'),  # Callback to change elements of cyto
               Output('start_of_line', 'data'),
               Output('element_deleted', 'data'),
-              Output('store_notification', 'data'),
+              Output('store_notification1', 'data'),
               Output('store_get_voltage', 'data'),
               Input('store_add_node', 'data'),
               Input('cyto1', 'selectedNodeData'),
@@ -250,26 +250,30 @@ def button_add_pressed(*args):
               Output('calculate', 'children'),
               Output('graph_image', 'style'),
               Output('graph_image', 'src'),
+              Output('store_notification2', 'data'),
               Input('mode_switch', 'checked'),
               Input('menu_switch', 'checked'),
               State('cyto1', 'elements'),
               prevent_initial_call=True)
 def switch_mode(mode_switch, menu_switch, elements):
-    triggered_id = ctx.triggered_id
-    if triggered_id == 'menu_switch':
-        if menu_switch:
-            return {'display': 'none'}, {'display': 'block'}, no_update, no_update, no_update
+    try:
+        triggered_id = ctx.triggered_id
+        if triggered_id == 'menu_switch':
+            if menu_switch:
+                return {'display': 'none'}, {'display': 'block'}, no_update, no_update, no_update, no_update
+            else:
+                return {'display': 'block'}, {'display': 'none'}, no_update, no_update, no_update, no_update
+        elif triggered_id == 'mode_switch':
+            if mode_switch:
+                format_img_src = calculate_power_flow(elements, gridObject_list)
+                img_src = 'data:image/png;base64,{}'.format(format_img_src)
+                return no_update, no_update, "Calculated", {'display': 'block'}, img_src, no_update
+            else:
+                return {'display': 'block'}, {'display': 'none'}, "Calculate", {'display': 'none'}, no_update, no_update
         else:
-            return {'display': 'block'}, {'display': 'none'}, no_update, no_update, no_update
-    elif triggered_id == 'mode_switch':
-        if mode_switch:
-            format_img_src = calculate_power_flow(elements, gridObject_list)
-            img_src = 'data:image/png;base64,{}'.format(format_img_src)
-            return no_update, no_update, "Calculated", {'display': 'block'}, img_src
-        else:
-            return {'display': 'block'}, {'display': 'none'}, "Calculate", {'display': 'none'}, no_update
-    else:
-        raise PreventUpdate
+            raise PreventUpdate
+    except Exception as err:
+        return no_update, no_update, no_update, no_update, no_update, err.args[0]
 
 
 @app.callback(Output('modal_readme', 'opened'),
@@ -311,15 +315,27 @@ def modal_voltage(node_ids, button_hv, button_lv, elements):
 
 
 @app.callback(Output('notification_container', 'children'),
-              Input('store_notification', 'data'))
-def notification(data):
+              Input('store_notification1', 'data'),
+              Input('store_notification2', 'data'))
+def notification(data1, data2):
+    triggered_id = ctx.triggered_id
+    if triggered_id == 'store_notification1':
+        data = data1
+    elif triggered_id == 'store_notification2':
+        data = data2
+    else:
+        raise PreventUpdate
     if data is None:
         raise PreventUpdate
     elif data == 'notification_false_connection':
         notification_message = ["Kabelsalat!",
                                 "Zwischen diesen beiden Komponenten kannst du keine Leitung ziehen."]
         icon = DashIconify(icon="mdi:connection")
-        color = 'red'
+        color = 'yellow'
+    elif data == 'notification_test':
+        notification_message = ["Testnachricht", ""]
+        icon = DashIconify(icon="mdi:connection")
+        color = 'blue'
     else:
         raise PreventUpdate
     return dmc.Notification(title=notification_message[0],
@@ -346,6 +362,7 @@ def chips_type(value):
               prevent_initial_call=True)
 def activate_example(btn):
     return {'name': 'cose'}, True
+
 
 @app.callback(Output('dummy', 'children'),
               Input('debug_button', 'n_clicks'),
