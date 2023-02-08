@@ -251,6 +251,11 @@ def power_flow_statemachine(state, data):
     elif state == 'check_isolates':
         if nx.number_of_isolates(data['grid_graph']) > 0:  # Check if there are isolated (not connected) nodes
             raise Exception('notification_isolates')
+        return 'check_tree', data, False
+    elif state == 'check_tree':
+        min_spanning_tree = nx.minimum_spanning_tree(data['grid_graph'])
+        if data['grid_graph'].number_of_edges() != min_spanning_tree.number_of_edges():
+            raise Exception('notification_cycles')
         return 'gen_directed_graph', data, False
     elif state == 'gen_directed_graph':
         data['grid_graph'] = generate_directed_graph(data['grid_graph'])    # Give graph edges directions, starting at external grid

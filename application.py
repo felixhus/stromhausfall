@@ -56,7 +56,8 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
             dbc.Col([
                 html.Div([
                     dbc.Row(dash_components.add_grid_object_button(object_id=menu_objects[i][0],
-                                                                   icon=app.get_asset_url('Icons/' + menu_objects[i][1])))
+                                                                   icon=app.get_asset_url(
+                                                                       'Icons/' + menu_objects[i][1])))
                     for i in range(len(menu_objects))
                 ], id='grid_buttons', style={'display': 'block'}),
                 html.Div([
@@ -136,10 +137,10 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, elements,
                         return_temp = no_update
                         start_object = get_object_from_id(start_of_line[0]['id'], gridObject_list)
                         end_object = get_object_from_id(node[0]['id'], gridObject_list)
-                        if start_object.voltage is None and end_object.voltage is None: # Check if voltage level of connection is defined through one of the components
+                        if start_object.voltage is None and end_object.voltage is None:  # Check if voltage level of connection is defined through one of the components
                             return_temp = [start_object.id, end_object.id]
                         new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
-                                             'id': 'edge' + str(last_id[1]+1)}, 'classes': 'line_style'}
+                                             'id': 'edge' + str(last_id[1] + 1)}, 'classes': 'line_style'}
                         elements.append(new_edge)
                         return elements, None, False, None, return_temp
                     else:
@@ -150,19 +151,19 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, elements,
                 raise PreventUpdate
         else:
             raise PreventUpdate
-    elif triggered_id == 'modal_edit_delete_button':     # Delete Object
+    elif triggered_id == 'modal_edit_delete_button':  # Delete Object
         index = 0
         for ele in elements:
             if ele['data']['id'] == selected_element:
                 break
             index += 1
-        if 'position' in elements[index]:   # Check if it is node
+        if 'position' in elements[index]:  # Check if it is node
             connected_edges = get_connected_edges(elements, elements[index])
             for edge in connected_edges:
                 elements.pop(elements.index(edge))
         elements.pop(index)
         index = 0
-        for obj in gridObject_list:         # Remove element from grid object list
+        for obj in gridObject_list:  # Remove element from grid object list
             if obj.id == selected_element:
                 break
             index += 1
@@ -182,6 +183,7 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, elements,
               Output('selected_element', 'data'),
               Output('cyto1', 'tapNodeData'),
               Output('cyto1', 'tapEdgeData'),
+              Output('power_input', 'value'),
               Input('cyto1', 'tapNodeData'),
               Input('cyto1', 'tapEdgeData'),
               Input('modal_edit_close_button', 'n_clicks'),
@@ -197,24 +199,25 @@ def edit_grid_element(node, edge, btn_close, btn_save, element_deleted, selected
     triggered_id = ctx.triggered_id
     if triggered_id == 'element_deleted':
         if element_deleted:
-            return False, None, None, None, None
+            return False, None, None, None, None, no_update
         else:
             raise PreventUpdate
     elif triggered_id == 'cyto1':
         if node is not None and edge is None:
             if not btn_line_active:
                 body_text = "Edit settings of " + node['id'] + " here."
-                return True, body_text, node['id'], None, None
+                value = get_object_from_id(node['id'], gridObject_list).power
+                return True, body_text, node['id'], None, None, value
             else:
                 raise PreventUpdate
         elif node is None and edge is not None:
             if not btn_line_active:
                 body_text = "Edit settings of " + edge['id'] + " here."
-                return True, body_text, edge['id'], None, None
+                return True, body_text, edge['id'], None, None, no_update
             else:
                 raise PreventUpdate
         else:
-            return False, None, None, None, None
+            return False, None, None, None, None, no_update
     elif triggered_id == 'modal_edit_save_button':
         if selected_element[:4] == "node":
             if set_type == "Last":
@@ -223,13 +226,13 @@ def edit_grid_element(node, edge, btn_close, btn_save, element_deleted, selected
                 direction = -1
             obj = get_object_from_id(selected_element, gridObject_list)
             obj.power = direction * power_in
-            return False, no_update, None, no_update, no_update
+            return False, no_update, None, no_update, no_update, no_update
         elif selected_element[:4] == "edge":
             raise PreventUpdate
         else:
             raise PreventUpdate
     elif triggered_id == 'modal_edit_close_button':
-        return False, no_update, no_update, no_update, no_update
+        return False, no_update, no_update, no_update, no_update, no_update
     else:
         raise PreventUpdate
 
@@ -336,11 +339,18 @@ def notification(data1, data2):
         notification_message = ["Kein Netz!", "Es gibt Knoten, die nicht mit dem Netz verbunden sind!"]
         icon = DashIconify(icon="material-symbols:group-work-outline")
         color = 'red'
+    elif data == 'notification_cycles':
+        notification_message = ["Achtung (kein) Baum!", "Das Netz beinhaltet parallele Leitungen oder Zyklen, "
+                                                        "dies ist leider noch nicht unterstützt."]
+        icon = DashIconify(icon="ph:tree")
+        color = 'red'
     else:
-        raise PreventUpdate
+        notification_message = ["Fehler!", data]
+        icon = DashIconify(icon="material-symbols:warning-outline-rounded")
+        color = 'red'
     return dmc.Notification(title=notification_message[0],
                             message=notification_message[1],
-                            action='show', color=color,
+                            action='show', color=color, autoClose=5000,
                             icon=icon, id='notification')
 
 
