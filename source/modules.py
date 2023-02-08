@@ -239,7 +239,28 @@ def plot_graph(graph):
     return base64_encoded
 
 
-# def power_flow_statemachine(state, elements, grid_object_list)
+def power_flow_statemachine(state, data):
+    if state == 'init':
+        return 'gen_dataframes', data, False
+    elif state == 'gen_dataframes':
+        data['df_nodes'], data['df_edges'] = generate_grid_dataframes(data['elements'], data['grid_objects'])  # Generate DataFrames
+        return 'gen_grid_graph', data, False
+    elif state == 'gen_grid_graph':
+        data['grid_graph'] = generate_grid_graph(data['df_nodes'], data['df_edges'])  # Generate NetworkX Graph
+        return 'check_isolates', data, False
+    elif state == 'check_isolates':
+        if nx.number_of_isolates(data['grid_graph']) > 0:  # Check if there are isolated (not connected) nodes
+            raise Exception('notification_isolates')
+        return 'gen_directed_graph', data, False
+    elif state == 'gen_directed_graph':
+        data['grid_graph'] = generate_directed_graph(data['grid_graph'])    # Give graph edges directions, starting at external grid
+        return 'gen_equations', data, False
+    elif state == 'gen_equations':
+        data['A'], data['b'] = generate_equations(data['grid_graph'])
+        return 'calc_flow', data, False
+    elif state == 'calc_flow':
+        data['flow'] = solve_flow(data['A'], data['b'])
+        return None, data, True
 
 
 def calculate_power_flow(elements, grid_object_list):
@@ -249,18 +270,12 @@ def calculate_power_flow(elements, grid_object_list):
     :param elements: Grid elements in form of cytoscape graph
     :return:
     """
-    # state = "init"
-    # ready = False
-    # while not ready:
-    #     ready = power_flow_statemachine(state, elements, grid_object_list)
-    df_nodes, df_edges = generate_grid_dataframes(elements, grid_object_list)  # Generate DataFrames
-    grid_graph = generate_grid_graph(df_nodes, df_edges)  # Generate NetworkX Graph
-    if nx.number_of_isolates(grid_graph) > 0:  # Check if there are isolated (not connected) nodes
-        warnings.warn("Es gibt Knoten, die nicht mit dem Netz verbunden sind!")
-    grid_graph = generate_directed_graph(grid_graph)    # Give graph edges directions, starting at external grid
-    A, b = generate_equations(grid_graph)
-    flow = solve_flow(A, b)
-    return plot_graph(grid_graph)
+    state = 'init'
+    ready = False
+    data = {'elements': elements, 'grid_objects': grid_object_list}
+    while not ready:
+        state, data, ready = power_flow_statemachine(state, data)
+    return plot_graph(data['grid_graph'])
 
 
 def handle_error(err):

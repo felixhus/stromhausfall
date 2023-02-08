@@ -332,10 +332,10 @@ def notification(data1, data2):
                                 "Zwischen diesen beiden Komponenten kannst du keine Leitung ziehen."]
         icon = DashIconify(icon="mdi:connection")
         color = 'yellow'
-    elif data == 'notification_test':
-        notification_message = ["Testnachricht", ""]
-        icon = DashIconify(icon="mdi:connection")
-        color = 'blue'
+    elif data == 'notification_isolates':
+        notification_message = ["Kein Netz!", "Es gibt Knoten, die nicht mit dem Netz verbunden sind!"]
+        icon = DashIconify(icon="material-symbols:group-work-outline")
+        color = 'red'
     else:
         raise PreventUpdate
     return dmc.Notification(title=notification_message[0],
