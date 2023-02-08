@@ -10,8 +10,8 @@ import source.stylesheets as stylesheets
 def add_storage_variables():
     return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
                      dcc.Store(id='line_edit_active'), dcc.Store(id='selected_element'),
-                     dcc.Store(id='element_deleted'), dcc.Store(id='store_notification'),
-                     dcc.Store(id='store_get_voltage')])
+                     dcc.Store(id='element_deleted'), dcc.Store(id='store_notification1'),
+                     dcc.Store(id='store_notification2'), dcc.Store(id='store_get_voltage')])
 
 
 def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
@@ -62,13 +62,65 @@ def add_modal_edit():
         children=[
             dmc.Text("", id='modal_text'),
             dmc.Space(h=20),
+            dmc.ChipGroup([
+                dmc.Chip(x, value=x) for x in ["Last", "Einspeisung"]], value="Last", id='chips_type'
+            ),
+            dmc.Space(h=20),
+            dmc.NumberInput(
+                id='power_input',
+                label="Leistung dieses Elements in kW:",
+                # description="From 0 to infinity, in steps of 5",
+                value=0,
+                min=0,
+                step=0.1, precision=1,
+                stepHoldDelay=500, stepHoldInterval=100,
+                icon=DashIconify(icon="material-symbols:download"),
+                style={"width": 250},
+            ),
+            dmc.Space(h=20),
             dmc.Group([
                 dmc.Button("Löschen", color='red', variant='outline', id='modal_edit_delete_button',
                            leftIcon=DashIconify(icon="material-symbols:delete-outline")),
+                dmc.Button("Speichern", color='green', variant='outline', id='modal_edit_save_button',
+                           leftIcon=DashIconify(icon="material-symbols:save-outline")),
                 dmc.Button("Schließen", variant='outline', id='modal_edit_close_button')
             ], position='right')
         ]
     )
+
+
+# def add_modal_edit_node():
+#     return dmc.Modal(
+#         title="Edit",
+#         id='modal_edit',
+#         children=[
+#             dmc.Text("", id='modal_text'),
+#             dmc.Space(h=20),
+#             dmc.ChipGroup([
+#                 dmc.Chip(x, value=x) for x in ["Last", "Einspeisung"]], value="Last", id='chips_type'
+#             ),
+#             dmc.Space(h=20),
+#             dmc.NumberInput(
+#                 id='power_input',
+#                 label="Leistung dieses Elements in kW:",
+#                 # description="From 0 to infinity, in steps of 5",
+#                 value=0,
+#                 min=0,
+#                 step=0.1, precision=1,
+#                 stepHoldDelay=500, stepHoldInterval=100,
+#                 icon=DashIconify(icon="material-symbols:download"),
+#                 style={"width": 250},
+#             ),
+#             dmc.Space(h=20),
+#             dmc.Group([
+#                 dmc.Button("Löschen", color='red', variant='outline', id='modal_edit_delete_button',
+#                            leftIcon=DashIconify(icon="material-symbols:delete-outline")),
+#                 dmc.Button("Speichern", color='green', variant='outline', id='modal_edit_save_button',
+#                            leftIcon=DashIconify(icon="material-symbols:save-outline")),
+#                 dmc.Button("Schließen", variant='outline', id='modal_edit_close_button')
+#             ], position='right')
+#         ]
+#     )
 
 
 def add_modal_voltage_level():
@@ -76,11 +128,14 @@ def add_modal_voltage_level():
         title="Spannungsebene auswählen",
         id='modal_voltage',
         children=[
-            dmc.Text("Möchtest du das Element mit der Ober- oder Unterspannungsseite des Transformators verbinden (20kV oder 400V)?"),
+            dmc.Text(
+                "Möchtest du das Element mit der Ober- oder Unterspannungsseite des Transformators verbinden (20kV oder 400V)?"),
             dmc.Space(h=20),
             dmc.ButtonGroup([
-                dmc.Button("20 kV", id='button_voltage_hv', variant='outline', leftIcon=DashIconify(icon="ph:arrow-fat-lines-up")),
-                dmc.Button("400 V", id='button_voltage_lv', variant='outline', rightIcon=DashIconify(icon="ph:arrow-fat-lines-down"))
+                dmc.Button("20 kV", id='button_voltage_hv', variant='outline',
+                           leftIcon=DashIconify(icon="ph:arrow-fat-lines-up")),
+                dmc.Button("400 V", id='button_voltage_lv', variant='outline',
+                           rightIcon=DashIconify(icon="ph:arrow-fat-lines-down"))
             ])
         ]
     )
@@ -105,11 +160,12 @@ def dash_navbar():
             ),
             dbc.NavbarToggler(id="navbar-toggler", n_clicks=0),
             dmc.Group([
+                dmc.Button("Beispielnetz", id='example_button', n_clicks=0, variant='gradient',
+                           gradient={"from": "teal", "to": "blue", "deg": 60}),
                 dmc.Button("README", id='button_readme', n_clicks=0,
                            leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
-                # dmc.Button("Debug", id='debug_button', style={'display': 'None'})
-                ],
-                spacing=10
+                dmc.Button("Debug", id='debug_button', variant="gradient",
+                           gradient={"from": "grape", "to": "pink", "deg": 35})], spacing=10
             ),
         ]), color="dark", dark=True
     )

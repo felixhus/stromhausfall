@@ -5,6 +5,7 @@ import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 import dash_daq as daq
 import dash_mantine_components as dmc
+import example_grids
 # import modules
 import plotly.express as px
 from dash import Dash, Input, Output, State, ctx, dcc, html, no_update
@@ -12,6 +13,7 @@ from dash.exceptions import PreventUpdate
 from dash_iconify import DashIconify
 
 import source.dash_components as dash_components
+import source.example_grids
 import source.stylesheets as stylesheets
 from source.modules import (calculate_power_flow, connection_allowed,
                             generate_grid_object, get_connected_edges,
@@ -54,7 +56,8 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
             dbc.Col([
                 html.Div([
                     dbc.Row(dash_components.add_grid_object_button(object_id=menu_objects[i][0],
-                                                                   icon=app.get_asset_url('Icons/' + menu_objects[i][1])))
+                                                                   icon=app.get_asset_url(
+                                                                       'Icons/' + menu_objects[i][1])))
                     for i in range(len(menu_objects))
                 ], id='grid_buttons', style={'display': 'block'}),
                 html.Div([
@@ -99,17 +102,18 @@ def edit_mode(btn_line, btn_active):
 @app.callback(Output('cyto1', 'elements'),  # Callback to change elements of cyto
               Output('start_of_line', 'data'),
               Output('element_deleted', 'data'),
-              Output('store_notification', 'data'),
+              Output('store_notification1', 'data'),
               Output('store_get_voltage', 'data'),
               Input('store_add_node', 'data'),
               Input('cyto1', 'selectedNodeData'),
               Input('modal_edit_delete_button', 'n_clicks'),
               Input('button_line', 'n_clicks'),
+              Input('example_button', 'n_clicks'),
               State('cyto1', 'elements'),
               State('line_edit_active', 'data'),
               State('start_of_line', 'data'),
               State('selected_element', 'data'))
-def edit_grid(btn_add, node, btn_delete, btn_line, elements,
+def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, elements,
               btn_line_active, start_of_line, selected_element):
     triggered_id = ctx.triggered_id
     if triggered_id == 'button_line':
@@ -133,10 +137,10 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements,
                         return_temp = no_update
                         start_object = get_object_from_id(start_of_line[0]['id'], gridObject_list)
                         end_object = get_object_from_id(node[0]['id'], gridObject_list)
-                        if start_object.voltage is None and end_object.voltage is None: # Check if voltage level of connection is defined through one of the components
+                        if start_object.voltage is None and end_object.voltage is None:  # Check if voltage level of connection is defined through one of the components
                             return_temp = [start_object.id, end_object.id]
                         new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
-                                             'id': 'edge' + str(last_id[1]+1)}, 'classes': 'line_style'}
+                                             'id': 'edge' + str(last_id[1] + 1)}, 'classes': 'line_style'}
                         elements.append(new_edge)
                         return elements, None, False, None, return_temp
                     else:
@@ -147,24 +151,29 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements,
                 raise PreventUpdate
         else:
             raise PreventUpdate
-    elif triggered_id == 'modal_edit_delete_button':     # Delete Object
+    elif triggered_id == 'modal_edit_delete_button':  # Delete Object
         index = 0
         for ele in elements:
             if ele['data']['id'] == selected_element:
                 break
             index += 1
-        if 'position' in elements[index]:   # Check if it is node
+        if 'position' in elements[index]:  # Check if it is node
             connected_edges = get_connected_edges(elements, elements[index])
             for edge in connected_edges:
                 elements.pop(elements.index(edge))
         elements.pop(index)
         index = 0
-        for obj in gridObject_list:         # Remove element from grid object list
+        for obj in gridObject_list:  # Remove element from grid object list
             if obj.id == selected_element:
                 break
             index += 1
         gridObject_list.pop(index)
         return elements, None, True, None, no_update
+    elif triggered_id == 'example_button':
+        ele, temp = example_grids.simple_grid(app)
+        for element in temp:
+            gridObject_list.append(element)
+        return ele, no_update, no_update, no_update, no_update
     else:
         raise PreventUpdate
 
@@ -174,36 +183,62 @@ def edit_grid(btn_add, node, btn_delete, btn_line, elements,
               Output('selected_element', 'data'),
               Output('cyto1', 'tapNodeData'),
               Output('cyto1', 'tapEdgeData'),
+              Output('power_input', 'value'),
+              Output('chips_type', 'value'),
               Input('cyto1', 'tapNodeData'),
               Input('cyto1', 'tapEdgeData'),
               Input('modal_edit_close_button', 'n_clicks'),
+              Input('modal_edit_save_button', 'n_clicks'),
               Input('element_deleted', 'data'),
+              State('selected_element', 'data'),
               State('line_edit_active', 'data'),
-              State('cyto1', 'elements'))
-def edit_grid_element(node, edge, btn_close, element_deleted, btn_line_active, elements):
+              State('cyto1', 'elements'),
+              State('chips_type', 'value'),
+              State('power_input', 'value'))
+def edit_grid_element(node, edge, btn_close, btn_save, element_deleted, selected_element,
+                      btn_line_active, elements, set_type, power_in):
     triggered_id = ctx.triggered_id
     if triggered_id == 'element_deleted':
         if element_deleted:
-            return False, None, None, None, None
+            return False, None, None, None, None, no_update, no_update
         else:
             raise PreventUpdate
     elif triggered_id == 'cyto1':
         if node is not None and edge is None:
             if not btn_line_active:
                 body_text = "Edit settings of " + node['id'] + " here."
-                return True, body_text, node['id'], None, None
+                power = get_object_from_id(node['id'], gridObject_list).power
+                value = abs(power)
+                if power < 0:
+                    chip = 'Einspeisung'
+                else:
+                    chip = 'Last'
+                return True, body_text, node['id'], None, None, value, chip
             else:
                 raise PreventUpdate
         elif node is None and edge is not None:
             if not btn_line_active:
                 body_text = "Edit settings of " + edge['id'] + " here."
-                return True, body_text, edge['id'], None, None
+                return True, body_text, edge['id'], None, None, no_update, no_update
             else:
                 raise PreventUpdate
         else:
-            return False, None, None, None, None
+            return False, None, None, None, None, no_update, no_update
+    elif triggered_id == 'modal_edit_save_button':
+        if selected_element[:4] == "node":
+            if set_type == "Last":
+                direction = 1
+            else:
+                direction = -1
+            obj = get_object_from_id(selected_element, gridObject_list)
+            obj.power = direction * power_in
+            return False, no_update, None, no_update, no_update, no_update, no_update
+        elif selected_element[:4] == "edge":
+            raise PreventUpdate
+        else:
+            raise PreventUpdate
     elif triggered_id == 'modal_edit_close_button':
-        return False, None, None, None, None
+        return False, no_update, no_update, no_update, no_update, no_update, no_update
     else:
         raise PreventUpdate
 
@@ -224,26 +259,30 @@ def button_add_pressed(*args):
               Output('calculate', 'children'),
               Output('graph_image', 'style'),
               Output('graph_image', 'src'),
+              Output('store_notification2', 'data'),
               Input('mode_switch', 'checked'),
               Input('menu_switch', 'checked'),
               State('cyto1', 'elements'),
               prevent_initial_call=True)
 def switch_mode(mode_switch, menu_switch, elements):
-    triggered_id = ctx.triggered_id
-    if triggered_id == 'menu_switch':
-        if menu_switch:
-            return {'display': 'none'}, {'display': 'block'}, no_update, no_update, no_update
+    try:
+        triggered_id = ctx.triggered_id
+        if triggered_id == 'menu_switch':
+            if menu_switch:
+                return {'display': 'none'}, {'display': 'block'}, no_update, no_update, no_update, no_update
+            else:
+                return {'display': 'block'}, {'display': 'none'}, no_update, no_update, no_update, no_update
+        elif triggered_id == 'mode_switch':
+            if mode_switch:
+                format_img_src = calculate_power_flow(elements, gridObject_list)
+                img_src = 'data:image/png;base64,{}'.format(format_img_src)
+                return no_update, no_update, "Calculated", {'display': 'block'}, img_src, no_update
+            else:
+                return {'display': 'block'}, {'display': 'none'}, "Calculate", {'display': 'none'}, no_update, no_update
         else:
-            return {'display': 'block'}, {'display': 'none'}, no_update, no_update, no_update
-    elif triggered_id == 'mode_switch':
-        if mode_switch:
-            format_img_src = calculate_power_flow(elements, gridObject_list)
-            img_src = 'data:image/png;base64,{}'.format(format_img_src)
-            return no_update, no_update, "Calculated", {'display': 'block'}, img_src
-        else:
-            return {'display': 'block'}, {'display': 'none'}, "Calculate", {'display': 'none'}, no_update
-    else:
-        raise PreventUpdate
+            raise PreventUpdate
+    except Exception as err:
+        return no_update, no_update, no_update, no_update, no_update, err.args[0]
 
 
 @app.callback(Output('modal_readme', 'opened'),
@@ -285,32 +324,72 @@ def modal_voltage(node_ids, button_hv, button_lv, elements):
 
 
 @app.callback(Output('notification_container', 'children'),
-              Input('store_notification', 'data'))
-def notification(data):
+              Input('store_notification1', 'data'),
+              Input('store_notification2', 'data'))
+def notification(data1, data2):
+    triggered_id = ctx.triggered_id
+    if triggered_id == 'store_notification1':
+        data = data1
+    elif triggered_id == 'store_notification2':
+        data = data2
+    else:
+        raise PreventUpdate
     if data is None:
         raise PreventUpdate
     elif data == 'notification_false_connection':
         notification_message = ["Kabelsalat!",
                                 "Zwischen diesen beiden Komponenten kannst du keine Leitung ziehen."]
         icon = DashIconify(icon="mdi:connection")
+        color = 'yellow'
+    elif data == 'notification_isolates':
+        notification_message = ["Kein Netz!", "Es gibt Knoten, die nicht mit dem Netz verbunden sind!"]
+        icon = DashIconify(icon="material-symbols:group-work-outline")
+        color = 'red'
+    elif data == 'notification_cycles':
+        notification_message = ["Achtung (kein) Baum!", "Das Netz beinhaltet parallele Leitungen oder Zyklen, "
+                                                        "dies ist leider noch nicht unterstützt."]
+        icon = DashIconify(icon="ph:tree")
         color = 'red'
     else:
-        raise PreventUpdate
+        notification_message = ["Fehler!", data]
+        icon = DashIconify(icon="material-symbols:warning-outline-rounded")
+        color = 'red'
     return dmc.Notification(title=notification_message[0],
                             message=notification_message[1],
-                            action='show', color=color,
+                            action='show', color=color, autoClose=5000,
                             icon=icon, id='notification')
 
 
-# @app.callback(Output('dummy', 'children'),
-#               Input('debug_button', 'n_clicks'),
-#               State('cyto1', 'elements'),
-#               State('start_of_line', 'data'),
-#               prevent_initial_call=True)
-# def debug(btn, elements, start_of_line):
-#     calculate_power_flow(elements, gridObject_list)
-#     return None
+@app.callback(Output("power_input", "icon"),
+              Input("chips_type", "value"),
+              prevent_initial_call=True)
+def chips_type(value):
+    if value == "Last":
+        return DashIconify(icon="material-symbols:download")
+    elif value == "Einspeisung":
+        return DashIconify(icon="material-symbols:upload")
+    else:
+        raise PreventUpdate
+
+
+@app.callback(Output('cyto1', 'layout'),
+              Output('example_button', 'disabled'),
+              Input('example_button', 'n_clicks'),
+              prevent_initial_call=True)
+def activate_example(btn):
+    time.sleep(0.1)
+    return {'name': 'cose'}, True
+
+
+@app.callback(Output('dummy', 'children'),
+              Input('debug_button', 'n_clicks'),
+              State('cyto1', 'elements'),
+              State('start_of_line', 'data'),
+              prevent_initial_call=True)
+def debug(btn, elements, start_of_line):
+    calculate_power_flow(elements, gridObject_list)
+    return None
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
