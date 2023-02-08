@@ -164,8 +164,8 @@ def dash_navbar():
                            gradient={"from": "teal", "to": "blue", "deg": 60}),
                 dmc.Button("README", id='button_readme', n_clicks=0,
                            leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
-                dmc.Button("Debug", id='debug_button', variant="gradient",
-                           gradient={"from": "grape", "to": "pink", "deg": 35})], spacing=10
+                # dmc.Button("Debug", id='debug_button', variant="gradient",
+                #            gradient={"from": "grape", "to": "pink", "deg": 35})], spacing=10
             ),
         ]), color="dark", dark=True
     )

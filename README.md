@@ -22,7 +22,7 @@ Details zur Berechnung des Graphen: Siehe unten
 
 ### Funktionen: ###
 - Netzelemente können über die Buttons links hinzugefügt werden.
-- Netzelemente können aunf der Arbeitsfläche per Drag&Drop verschoben werden.
+- Netzelemente können auf der Arbeitsfläche per Drag&Drop verschoben werden.
 - Zwischen zwei Netzelementen kann wie folgt ein Kabel gezogen werden:
   - Auf das Freileitungssymbol unten links klicken.
   - Nacheinander die zu verbindenden Elemente anklicken.
