@@ -5,7 +5,6 @@ import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 import dash_daq as daq
 import dash_mantine_components as dmc
-import example_grids
 # import modules
 import plotly.express as px
 from dash import Dash, Input, Output, State, ctx, dcc, html, no_update
@@ -13,7 +12,7 @@ from dash.exceptions import PreventUpdate
 from dash_iconify import DashIconify
 
 import source.dash_components as dash_components
-import source.example_grids
+import source.example_grids as example_grids
 import source.stylesheets as stylesheets
 from source.modules import (calculate_power_flow, connection_allowed,
                             generate_grid_object, get_connected_edges,
