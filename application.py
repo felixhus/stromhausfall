@@ -54,29 +54,22 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
         ),
         dbc.Row([
             dbc.Col([
-                html.Div([
+                dmc.Card([
                     dbc.Row(dash_components.add_grid_object_button(object_id=menu_objects[i][0],
                                                                    icon=app.get_asset_url(
                                                                        'Icons/' + menu_objects[i][1])))
                     for i in range(len(menu_objects))
-                ], id='grid_buttons', style={'display': 'block'}),
+                ], id='grid_buttons', style={'display': 'block'}, withBorder=True, shadow="sm", radius="md"),
                 html.Div([
                     dbc.Row(dash_components.add_grid_object_button(object_id=house_objects[i][0],
                                                                    name=house_objects[i][1]))
                     for i in range(len(house_objects))
                 ], id='house_buttons', style={'display': 'none'}),
-            ], width='auto'),
+            ], width=1),
             dbc.Col([
                 dash_components.add_cytoscape_grid(nodes, edges),
-            ]),
-            dbc.Col([
-                html.Div(id='graph', style={'display': 'none'}, children=[
-                    dcc.Graph(figure=fig)
-                ])
-            ], width='auto'),
-            dbc.Col([dash_components.card_side(),
-                     # dash_components.card_plot_graph()
-                     ], width='auto')
+            ], width=6),
+            dbc.Col([dash_components.card_side()], width=True)
         ]),
         dash_components.add_modal_edit(),
         dash_components.add_modal_readme(),

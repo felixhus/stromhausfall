@@ -32,20 +32,18 @@ def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
 
 
 def add_cytoscape_grid(nodes, edges):
-    cytoscape = cyto.Cytoscape(
-        id='cyto1',
-        layout={'name': 'preset'},
-        autoRefreshLayout=False,
-        style={'width': '100%', 'height': '100%', 'background': '#e6ecf2', 'frame': 'blue'},
-        elements=edges + nodes,
-        # edgeLabels={
-        #     'selector': 'edge',
-        #     'label': 'data(label)',
-        #     'fontSize': 20,
-        #     'textMaxWidth': 80
-        # },
-        stylesheet=stylesheets.cyto_stylesheet
-    )
+    cytoscape = dmc.Card(
+        children=[cyto.Cytoscape(
+            id='cyto1',
+            layout={'name': 'preset'},
+            autoRefreshLayout=False,
+            style={'width': '100%', 'height': '100%', 'background': '#e6ecf2', 'frame': 'blue'},
+            elements=edges + nodes,
+            stylesheet=stylesheets.cyto_stylesheet)],
+        withBorder=True,
+        shadow="sm",
+        radius="md",
+        style={"height": '100%'})
     return cytoscape
 
 
@@ -162,7 +160,7 @@ def card_side():
             dmc.CardSection(
                 dmc.Image(
                     src="https://images.unsplash.com/photo-1598528133401-228e74463adb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80",
-                    height=160,
+                    # height=160,
                 )
             ),
             dmc.Group(
@@ -180,11 +178,9 @@ def card_side():
                 color="dimmed",
             ),
             dbc.Stack([
-                # html.P("Grid elements", style={'margin-right': '10px', 'margin-top': '27px'}),
                 dmc.Switch(id='menu_switch', style={'margin-top': '0px'}),
                 html.P("House elements", style={'margin-left': '10px', 'margin-top': '27px'})], direction='horizontal'),
             dbc.Stack([
-                # html.P("Netz bearbeiten", style={'margin-right': '10px', 'margin-top': '27px'}),
                 dmc.Switch(id='mode_switch', style={'margin-top': '0px'},
                            offLabel=DashIconify(icon="material-symbols:edit-outline"),
                            onLabel=DashIconify(icon="material-symbols:calculate-outline")),
@@ -199,7 +195,7 @@ def card_side():
         withBorder=True,
         shadow="sm",
         radius="md",
-        style={"width": 350, 'marginTop': 50},
+        style={"height": '100%'},
     )
     return card
 
