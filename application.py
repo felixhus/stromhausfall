@@ -339,6 +339,10 @@ def notification(data1, data2, notif_list):
         notification_message = ["Kein Netz!", "Es gibt Knoten, die nicht mit dem Netz verbunden sind!"]
         icon = DashIconify(icon="material-symbols:group-work-outline")
         color = 'red'
+    elif data == 'notification_emptygrid':
+        notification_message = ["Blackout!", "Hier muss erst noch ein Netz gebaut werden!"]
+        icon = DashIconify(icon="uil:desert")
+        color = 'yellow'
     elif data == 'notification_cycles':
         notification_message = ["Achtung (kein) Baum!", "Das Netz beinhaltet parallele Leitungen oder Zyklen, "
                                                         "dies ist leider noch nicht unterstützt."]

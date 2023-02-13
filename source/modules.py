@@ -77,7 +77,6 @@ def generate_grid_dataframes(elements, grid_objects):
     :param grid_objects: List of all grid objects to link them to the nodes
     :return df_nodes: DataFrame containing all nodes of the grid; df_edges: DataFrame containing all edges of the grid.
     """
-    # try:
     nodes = []
     edges = []
     for ele in elements:  # Divide elements into nodes and edges
@@ -104,8 +103,6 @@ def generate_grid_dataframes(elements, grid_objects):
             raise Exception("Die Knoten dieser Leitung haben unterschiedliche Spannungsebenen!")
     df_edges = pd.DataFrame(edges)
     return df_nodes, df_edges
-    # except Exception as err:
-    #     handle_error(err)
 
 
 def generate_grid_graph(df_nodes, df_edges):
@@ -115,7 +112,6 @@ def generate_grid_graph(df_nodes, df_edges):
     :param df_edges: DataFrame containing nodes with 'source', 'target' and 'id
     :return: NetworkX graph of the given grid
     """
-    # try:
     graph = nx.MultiGraph()
     graph.add_nodes_from(df_nodes['id'].tolist())
     nx.set_node_attributes(graph, pd.Series(df_nodes.linkedObject.values, index=df_nodes.id).to_dict(),
@@ -153,14 +149,9 @@ def generate_grid_graph(df_nodes, df_edges):
         else:
             raise Exception("Kante mit nicht existierendem Knoten")
     return graph
-    # except Exception as err:
-    #     handle_error(err)
-    # finally:
-    #     return graph
 
 
 def generate_directed_graph(graph):
-    # try:
     number_of_ext_grids = 0
     graph_dir = nx.MultiDiGraph()
     nodes_and_attributes = [(n, d) for n, d in graph.nodes(data=True)]
@@ -186,14 +177,9 @@ def generate_directed_graph(graph):
         else:
             graph_dir.add_edge(edge[0], edge[1], id=edge_id)
     return graph_dir
-    # except Exception as err:
-    #     handle_error(err)
-    # finally:
-    #     return graph_dir
 
 
 def generate_equations(graph):
-    # try:
     inc = nx.incidence_matrix(graph, oriented=True).toarray()
     idx = 0
     t, s = np.zeros(len(graph.nodes)), np.zeros(len(graph.nodes))
@@ -210,19 +196,14 @@ def generate_equations(graph):
     new_column[0][idx_ext] = -1
     inc = np.append(inc, np.transpose(new_column), axis=1)
     return inc, b
-    # except Exception as err:
-    #     handle_error(err)
 
 
 def solve_flow(A, b):
-    # try:
     if np.shape(A)[0] != np.shape(A)[1]:
         raise Exception("Inzidenzmatrix ist nicht quadratisch!")
     flow = np.linalg.solve(A, b)
     print(flow)
     return flow
-    # except Exception as err:
-    #     handle_error(err)
 
 
 def plot_graph(graph):
@@ -251,6 +232,8 @@ def plot_graph(graph):
 
 def power_flow_statemachine(state, data):
     if state == 'init':
+        if len(data['elements']) == 0:  # Check if there are any elements in the grid
+            raise Exception('notification_emptygrid')
         return 'gen_dataframes', data, False
     elif state == 'gen_dataframes':
         data['df_nodes'], data['df_edges'] = generate_grid_dataframes(data['elements'],
