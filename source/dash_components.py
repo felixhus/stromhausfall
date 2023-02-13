@@ -142,20 +142,32 @@ def add_modal_voltage_level():
 
 
 def dash_navbar():
-    PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"
     navbar = dbc.Navbar(
         dbc.Container([
             html.A(
                 # Use row and col to control vertical alignment of logo / brand
                 dbc.Row(
                     [
-                        dbc.Col(html.Img(src=PLOTLY_LOGO, height="30px")),
-                        dbc.Col(dbc.NavbarBrand("PowerHouse", className="ms-2")),
+                        dbc.Col(dmc.Button(
+                            [
+                                "Notifications",
+                                dbc.Badge(
+                                    id='bade_notifications',
+                                    color="danger",
+                                    pill=True,
+                                    text_color="white",
+                                    className="position-absolute top-0 start-100 translate-middle",
+                                ),
+                            ],
+                            id='button_notifications',
+                            color="primary",
+                            className="position-relative",
+                        )),
+                        dbc.Col(dbc.NavbarBrand("PowerHouse", className="ms-2"))
                     ],
                     align="center",
                     className="g-0",
                 ),
-                href="https://plotly.com",
                 style={"textDecoration": "none"},
             ),
             dbc.NavbarToggler(id="navbar-toggler", n_clicks=0),
@@ -206,6 +218,7 @@ def card_side():
                            onLabel=DashIconify(icon="material-symbols:calculate-outline")),
                 dbc.Spinner(html.P("Berechnen", id='calculate', style={'margin-left': '10px', 'margin-top': '27px'}))],
                 direction='horizontal'),
+            dmc.Alert(children="", id="alert_externalgrid", color='primary', hide=True),
             dmc.CardSection(
                 dmc.Image(id='graph_image', src='assets/temp/graph.png', withPlaceholder=True,
                           style={'display': 'none'})
@@ -219,17 +232,20 @@ def card_side():
     return card
 
 
-def card_plot_graph():
-    card = dmc.Card(
-        id='card_graph',
-        children=[
-            # dmc.CardSection(
-            #     dmc.Image(id='graph_image', src='assets/temp/graph.png', withPlaceholder=True)
-            # ),
-            dmc.Text("Gerichteter Graph des erstellten Netzes:")
-        ],
-        withBorder=True,
-        shadow="sm",
-        radius="md",
-        style={"width": 350, 'marginTop': 50, 'display': 'none'})
-    return card
+def add_drawer_notifications():
+    return dmc.Drawer(title="Nachrichten:", id='drawer_notifications', padding="md", children=[])
+
+# def card_plot_graph():
+#     card = dmc.Card(
+#         id='card_graph',
+#         children=[
+#             # dmc.CardSection(
+#             #     dmc.Image(id='graph_image', src='assets/temp/graph.png', withPlaceholder=True)
+#             # ),
+#             dmc.Text("Gerichteter Graph des erstellten Netzes:")
+#         ],
+#         withBorder=True,
+#         shadow="sm",
+#         radius="md",
+#         style={"width": 350, 'marginTop': 50, 'display': 'none'})
+#     return card

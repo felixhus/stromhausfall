@@ -294,7 +294,7 @@ def calculate_power_flow(elements, grid_object_list):
         state, data, ready = power_flow_statemachine(state, data)
     df_flow = pd.DataFrame(data['flow'][np.newaxis],
                            index=['step1'], columns=[list(data['grid_graph'].nodes)])
-    return plot_graph(data['grid_graph'])
+    return df_flow, plot_graph(data['grid_graph'])
 
 
 def handle_error(err):

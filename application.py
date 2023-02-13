@@ -75,10 +75,12 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
                 ])
             ], width='auto'),
             dbc.Col([dash_components.card_side(),
-                     dash_components.card_plot_graph()], width='auto')
+                     # dash_components.card_plot_graph()
+                     ], width='auto')
         ]),
         dash_components.add_modal_edit(),
         dash_components.add_modal_readme(),
+        dash_components.add_drawer_notifications(),
         dash_components.add_modal_voltage_level(),
         dash_components.add_storage_variables(),
         html.P(id='dummy')], width=True),
@@ -259,6 +261,8 @@ def button_add_pressed(*args):
               Output('calculate', 'children'),
               Output('graph_image', 'style'),
               Output('graph_image', 'src'),
+              Output('alert_externalgrid', 'children'),
+              Output('alert_externalgrid', 'hide'),
               Output('store_notification2', 'data'),
               Input('mode_switch', 'checked'),
               Input('menu_switch', 'checked'),
@@ -269,20 +273,24 @@ def switch_mode(mode_switch, menu_switch, elements):
         triggered_id = ctx.triggered_id
         if triggered_id == 'menu_switch':
             if menu_switch:
-                return {'display': 'none'}, {'display': 'block'}, no_update, no_update, no_update, no_update
+                return {'display': 'none'}, {'display': 'block'}, no_update, no_update, no_update, no_update, no_update, no_update
             else:
-                return {'display': 'block'}, {'display': 'none'}, no_update, no_update, no_update, no_update
+                return {'display': 'block'}, {'display': 'none'}, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'mode_switch':
             if mode_switch:
-                format_img_src = calculate_power_flow(elements, gridObject_list)
+                flow, format_img_src = calculate_power_flow(elements, gridObject_list)
                 img_src = 'data:image/png;base64,{}'.format(format_img_src)
-                return no_update, no_update, "Calculated", {'display': 'block'}, img_src, no_update
+                if flow[len(flow)-1] > 0:
+                    text_alert = "Es werden" + str(flow[len(flow) - 1]) + "kWh an das Netz abgegeben."
+                else:
+                    text_alert = "Es werden" + str(flow[len(flow) - 1]) + "kWh aus dem Netz bezogen."
+                return no_update, no_update, "Berechnet", {'display': 'block'}, img_src, text_alert, True, no_update
             else:
-                return {'display': 'block'}, {'display': 'none'}, "Calculate", {'display': 'none'}, no_update, no_update
+                return {'display': 'block'}, {'display': 'none'}, "Berechnen", {'display': 'none'}, no_update, no_update, no_update, no_update
         else:
             raise PreventUpdate
     except Exception as err:
-        return no_update, no_update, no_update, no_update, no_update, err.args[0]
+        return no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
 
 @app.callback(Output('modal_readme', 'opened'),
@@ -324,9 +332,12 @@ def modal_voltage(node_ids, button_hv, button_lv, elements):
 
 
 @app.callback(Output('notification_container', 'children'),
+              Output('drawer_notifications', 'children'),
+              Output('bade_notifications', 'children'),
               Input('store_notification1', 'data'),
-              Input('store_notification2', 'data'))
-def notification(data1, data2):
+              Input('store_notification2', 'data'),
+              State('drawer_notifications', 'children'))
+def notification(data1, data2, notif_list):
     triggered_id = ctx.triggered_id
     if triggered_id == 'store_notification1':
         data = data1
@@ -354,10 +365,12 @@ def notification(data1, data2):
         notification_message = ["Fehler!", data]
         icon = DashIconify(icon="material-symbols:warning-outline-rounded")
         color = 'red'
+    notif_list.append(dmc.Alert(notification_message[1], title=notification_message[0], color=color,
+                                withCloseButton=True))
     return dmc.Notification(title=notification_message[0],
                             message=notification_message[1],
                             action='show', color=color, autoClose=5000,
-                            icon=icon, id='notification')
+                            icon=icon, id='notification'), notif_list, len(notif_list)
 
 
 @app.callback(Output("power_input", "icon"),
@@ -379,6 +392,13 @@ def chips_type(value):
 def activate_example(btn):
     time.sleep(0.1)
     return {'name': 'cose'}, True
+
+
+@app.callback(Output('drawer_notifications', 'opened'),
+              Input('button_notifications', 'n_clicks'))
+def open_drawer_notifications(btn):
+    if btn is not None:
+        return True
 
 
 @app.callback(Output('dummy', 'children'),
