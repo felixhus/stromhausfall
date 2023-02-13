@@ -142,7 +142,7 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, elements,
                         if start_object.voltage is None and end_object.voltage is None:  # Check if voltage level of connection is defined through one of the components
                             return_temp = [start_object.id, end_object.id]
                         new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
-                                             'id': 'edge' + str(last_id[1] + 1)}, 'classes': 'line_style'}
+                                             'id': 'edge' + str(last_id[1] + 1), 'label': '42'}, 'classes': 'line_style'}
                         elements.append(new_edge)
                         return elements, None, False, None, return_temp
                     else:
@@ -263,6 +263,7 @@ def button_add_pressed(*args):
               Output('graph_image', 'src'),
               Output('alert_externalgrid', 'children'),
               Output('alert_externalgrid', 'hide'),
+              Output('cyto1', 'stylesheet'),
               Output('store_notification2', 'data'),
               Input('mode_switch', 'checked'),
               Input('menu_switch', 'checked'),
@@ -273,24 +274,24 @@ def switch_mode(mode_switch, menu_switch, elements):
         triggered_id = ctx.triggered_id
         if triggered_id == 'menu_switch':
             if menu_switch:
-                return {'display': 'none'}, {'display': 'block'}, no_update, no_update, no_update, no_update, no_update, no_update
+                return {'display': 'none'}, {'display': 'block'}, no_update, no_update, no_update, no_update, no_update, no_update, no_update
             else:
-                return {'display': 'block'}, {'display': 'none'}, no_update, no_update, no_update, no_update, no_update, no_update
+                return {'display': 'block'}, {'display': 'none'}, no_update, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'mode_switch':
             if mode_switch:
                 flow, format_img_src = calculate_power_flow(elements, gridObject_list)
                 img_src = 'data:image/png;base64,{}'.format(format_img_src)
                 if flow.loc['step1', 'external_grid'].item() > 0:
-                    text_alert = "Es werden " + str(abs(flow.loc['step1', 'external_grid'].item())) + " kWh an das Netz abgegeben."
+                    text_alert = "Es werden " + str(abs(flow.loc['step1', 'external_grid'].item())) + " kW an das Netz abgegeben."
                 else:
-                    text_alert = "Es werden " + str(abs(flow.loc['step1', 'external_grid'].item())) + " kWh aus dem Netz bezogen."
-                return no_update, no_update, "Berechnet", {'display': 'block'}, img_src, text_alert, False, no_update
+                    text_alert = "Es werden " + str(abs(flow.loc['step1', 'external_grid'].item())) + " kW aus dem Netz bezogen."
+                return no_update, no_update, "Berechnet", {'display': 'block'}, img_src, text_alert, False, stylesheets.cyto_stylesheet_calculated, no_update
             else:
-                return {'display': 'block'}, {'display': 'none'}, "Berechnen", {'display': 'none'}, no_update, no_update, no_update, no_update
+                return {'display': 'block'}, {'display': 'none'}, "Berechnen", {'display': 'none'}, no_update, no_update, no_update, stylesheets.cyto_stylesheet, no_update
         else:
             raise PreventUpdate
     except Exception as err:
-        return no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
+        return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
 
 @app.callback(Output('modal_readme', 'opened'),
