@@ -154,7 +154,7 @@ def dash_navbar():
     return navbar
 
 
-def card_side():
+def card_start():
     card = dmc.Card(
         children=[
             dmc.CardSection(
@@ -177,27 +177,63 @@ def card_side():
                 size="sm",
                 color="dimmed",
             ),
-            dbc.Stack([
-                dmc.Switch(id='menu_switch', style={'margin-top': '0px'}),
-                html.P("House elements", style={'margin-left': '10px', 'margin-top': '27px'})], direction='horizontal'),
-            dbc.Stack([
-                dmc.Switch(id='mode_switch', style={'margin-top': '0px'},
-                           offLabel=DashIconify(icon="material-symbols:edit-outline"),
-                           onLabel=DashIconify(icon="material-symbols:calculate-outline")),
-                dbc.Spinner(html.P("Berechnen", id='calculate', style={'margin-left': '10px', 'margin-top': '27px'}))],
-                direction='horizontal'),
-            dmc.Alert(children="", id="alert_externalgrid", color='primary', hide=True),
-            dmc.CardSection(
-                dmc.Image(id='graph_image', src='assets/temp/graph.png', withPlaceholder=True,
-                          style={'display': 'none'})
-            ),
+            dmc.Space(h=20),
+            dmc.Button("Start", leftIcon=DashIconify(icon='material-symbols:play-arrow-outline-rounded'),
+                       id='button_start')
         ],
         withBorder=True,
         shadow="sm",
         radius="md",
         style={"height": '100%'},
     )
-    return card
+    return html.Div([card], id='card_start')
+
+
+def card_menu():
+    card = dmc.Card(
+        children=[
+            dmc.Tabs(
+                [
+                    dmc.TabsList(
+                        [
+                            dmc.Tab("Bearbeiten", value="edit",
+                                    icon=DashIconify(icon="material-symbols:edit-square-outline")),
+                            dmc.Tab("Ergebnisse", value="results", icon=DashIconify(icon="fluent:poll-16-regular")),
+                        ]
+                    ),
+                    dmc.TabsPanel(children=[
+                        dbc.Stack([
+                            dmc.Switch(id='menu_switch', style={'margin-top': '0px'}),
+                            html.P("House elements", style={'margin-left': '10px', 'margin-top': '27px'})],
+                            direction='horizontal'),
+                        dbc.Stack([
+                            dmc.Switch(id='mode_switch', style={'margin-top': '0px'},
+                                       offLabel=DashIconify(icon="material-symbols:edit-outline"),
+                                       onLabel=DashIconify(icon="material-symbols:calculate-outline")),
+                            dbc.Spinner(html.P("Berechnen", id='calculate',
+                                               style={'margin-left': '10px', 'margin-top': '27px'}))],
+                            direction='horizontal')],
+                        value="edit"),
+                    dmc.TabsPanel(children=[
+                        dmc.Space(h=20),
+                        dmc.Alert(children="", id="alert_externalgrid", color='primary', hide=True),
+                        dmc.CardSection(
+                            dmc.Image(id='graph_image', src='assets/temp/graph.png', withPlaceholder=True,
+                                      style={'display': 'none'})
+                        ),
+                    ], value="results"),
+                ],
+                value='edit',
+                color="blue",
+                orientation="horizontal",
+            )
+        ],
+        withBorder=True,
+        shadow="sm",
+        radius="md",
+        style={"height": '100%'},
+    )
+    return html.Div([card], id='card_menu', style={'display': 'none'})
 
 
 def add_drawer_notifications():

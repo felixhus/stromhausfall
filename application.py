@@ -68,8 +68,8 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
             ], width=1),
             dbc.Col([
                 dash_components.add_cytoscape_grid(nodes, edges),
-            ], width=6),
-            dbc.Col([dash_components.card_side()], width=True)
+            ], width=7),
+            dbc.Col([dash_components.card_start(), dash_components.card_menu()], width=True)
         ]),
         dash_components.add_modal_edit(),
         dash_components.add_modal_readme(),
@@ -393,6 +393,18 @@ def activate_example(btn):
 def open_drawer_notifications(btn):
     if btn is not None:
         return True
+    else:
+        raise PreventUpdate
+
+
+@app.callback(Output('card_start', 'style'),
+              Output('card_menu', 'style'),
+              Input('button_start', 'n_clicks'))
+def open_drawer_notifications(btn):
+    if btn is not None:
+        return {'display': 'none'}, {'display': 'block'}
+    else:
+        raise PreventUpdate
 
 
 @app.callback(Output('dummy', 'children'),
