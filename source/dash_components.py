@@ -191,7 +191,7 @@ def card_start():
 
 def card_menu():
     card = dmc.Card(
-        children=[
+        children=[dmc.LoadingOverlay(
             dmc.Tabs(
                 [
                     dmc.TabsList(
@@ -202,17 +202,8 @@ def card_menu():
                         ]
                     ),
                     dmc.TabsPanel(children=[
-                        dbc.Stack([
-                            dmc.Switch(id='menu_switch', style={'margin-top': '0px'}),
-                            html.P("House elements", style={'margin-left': '10px', 'margin-top': '27px'})],
-                            direction='horizontal'),
-                        dbc.Stack([
-                            dmc.Switch(id='mode_switch', style={'margin-top': '0px'},
-                                       offLabel=DashIconify(icon="material-symbols:edit-outline"),
-                                       onLabel=DashIconify(icon="material-symbols:calculate-outline")),
-                            dbc.Spinner(html.P("Berechnen", id='calculate',
-                                               style={'margin-left': '10px', 'margin-top': '27px'}))],
-                            direction='horizontal')],
+                        dmc.Space(h=20),
+                        dmc.Button("Berechnen", id='button_calculate', rightIcon=DashIconify(icon="ph:gear-light"))],
                         value="edit"),
                     dmc.TabsPanel(children=[
                         dmc.Space(h=20),
@@ -223,10 +214,8 @@ def card_menu():
                         ),
                     ], value="results"),
                 ],
-                value='edit',
-                color="blue",
-                orientation="horizontal",
-            )
+                id='tabs', value='edit', color="blue", orientation="horizontal",
+            ), loaderProps={"variant": "bars", "color": "blue", "size": "lg"})
         ],
         withBorder=True,
         shadow="sm",

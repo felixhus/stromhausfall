@@ -249,42 +249,31 @@ def button_add_pressed(*args):
         return triggered_id
 
 
-@app.callback(Output('grid_buttons', 'style'),
-              Output('house_buttons', 'style'),
-              Output('calculate', 'children'),
-              Output('graph_image', 'style'),
+@app.callback(Output('graph_image', 'style'),
               Output('graph_image', 'src'),
               Output('alert_externalgrid', 'children'),
               Output('alert_externalgrid', 'hide'),
+              Output('tabs', 'value'),
               Output('cyto1', 'stylesheet'),
               Output('store_notification2', 'data'),
-              Input('mode_switch', 'checked'),
-              Input('menu_switch', 'checked'),
+              Input('button_calculate', 'n_clicks'),
               State('cyto1', 'elements'),
               prevent_initial_call=True)
-def switch_mode(mode_switch, menu_switch, elements):
+def start_calculation(btn, elements):
     try:
-        triggered_id = ctx.triggered_id
-        if triggered_id == 'menu_switch':
-            if menu_switch:
-                return {'display': 'none'}, {'display': 'block'}, no_update, no_update, no_update, no_update, no_update, no_update, no_update
+        if btn is not None:
+            flow, format_img_src = calculate_power_flow(elements, gridObject_list)
+            time.sleep(4)
+            img_src = 'data:image/png;base64,{}'.format(format_img_src)
+            if flow.loc['step1', 'external_grid'].item() > 0:
+                text_alert = "Es werden " + str(abs(flow.loc['step1', 'external_grid'].item())) + " kW an das Netz abgegeben."
             else:
-                return {'display': 'block'}, {'display': 'none'}, no_update, no_update, no_update, no_update, no_update, no_update, no_update
-        elif triggered_id == 'mode_switch':
-            if mode_switch:
-                flow, format_img_src = calculate_power_flow(elements, gridObject_list)
-                img_src = 'data:image/png;base64,{}'.format(format_img_src)
-                if flow.loc['step1', 'external_grid'].item() > 0:
-                    text_alert = "Es werden " + str(abs(flow.loc['step1', 'external_grid'].item())) + " kW an das Netz abgegeben."
-                else:
-                    text_alert = "Es werden " + str(abs(flow.loc['step1', 'external_grid'].item())) + " kW aus dem Netz bezogen."
-                return no_update, no_update, "Berechnet", {'display': 'block'}, img_src, text_alert, False, stylesheets.cyto_stylesheet_calculated, no_update
-            else:
-                return {'display': 'block'}, {'display': 'none'}, "Berechnen", {'display': 'none'}, no_update, no_update, no_update, stylesheets.cyto_stylesheet, no_update
+                text_alert = "Es werden " + str(abs(flow.loc['step1', 'external_grid'].item())) + " kW aus dem Netz bezogen."
+            return {'display': 'block'}, img_src, text_alert, False, 'results', stylesheets.cyto_stylesheet_calculated, no_update
         else:
             raise PreventUpdate
     except Exception as err:
-        return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
+        return no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
 
 @app.callback(Output('modal_readme', 'opened'),
