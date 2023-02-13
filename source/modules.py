@@ -292,8 +292,12 @@ def calculate_power_flow(elements, grid_object_list):
     data = {'elements': elements, 'grid_objects': grid_object_list}
     while not ready:
         state, data, ready = power_flow_statemachine(state, data)
+    edge_labels = []
+    for edge in data['grid_graph'].edges:
+        edge_labels.append(data['grid_graph'].edges[edge]['id'])
+    edge_labels.append("external_grid")
     df_flow = pd.DataFrame(data['flow'][np.newaxis],
-                           index=['step1'], columns=[list(data['grid_graph'].nodes)])
+                           index=['step1'], columns=[edge_labels])
     return df_flow, plot_graph(data['grid_graph'])
 
 

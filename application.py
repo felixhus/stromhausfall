@@ -280,11 +280,11 @@ def switch_mode(mode_switch, menu_switch, elements):
             if mode_switch:
                 flow, format_img_src = calculate_power_flow(elements, gridObject_list)
                 img_src = 'data:image/png;base64,{}'.format(format_img_src)
-                if flow[len(flow)-1] > 0:
-                    text_alert = "Es werden" + str(flow[len(flow) - 1]) + "kWh an das Netz abgegeben."
+                if flow.loc['step1', 'external_grid'].item() > 0:
+                    text_alert = "Es werden " + str(abs(flow.loc['step1', 'external_grid'].item())) + " kWh an das Netz abgegeben."
                 else:
-                    text_alert = "Es werden" + str(flow[len(flow) - 1]) + "kWh aus dem Netz bezogen."
-                return no_update, no_update, "Berechnet", {'display': 'block'}, img_src, text_alert, True, no_update
+                    text_alert = "Es werden " + str(abs(flow.loc['step1', 'external_grid'].item())) + " kWh aus dem Netz bezogen."
+                return no_update, no_update, "Berechnet", {'display': 'block'}, img_src, text_alert, False, no_update
             else:
                 return {'display': 'block'}, {'display': 'none'}, "Berechnen", {'display': 'none'}, no_update, no_update, no_update, no_update
         else:
