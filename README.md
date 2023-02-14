@@ -42,6 +42,6 @@ Jedes Element des gezeichneten Netzes wird in einen Graphenknoten mit seinen Eig
 
 Fragen und Anregungen gern an mich [per Mail](mailto:felix.husemann@tum.de)
 ~~~
-Stand: 08.02.2023
+Stand: 14.02.2023
 © Felix Husemann, TUM
 ~~~
