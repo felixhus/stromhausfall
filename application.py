@@ -104,12 +104,13 @@ def edit_mode(btn_line, btn_active):
               Input('modal_edit_delete_button', 'n_clicks'),
               Input('button_line', 'n_clicks'),
               Input('example_button', 'n_clicks'),
+              Input('store_edge_labels', 'data'),
               State('cyto1', 'elements'),
               State('line_edit_active', 'data'),
               State('start_of_line', 'data'),
               State('selected_element', 'data'))
 def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, elements,
-              btn_line_active, start_of_line, selected_element):
+              btn_line_active, start_of_line, selected_element, labels):
     triggered_id = ctx.triggered_id
     if triggered_id == 'button_line':
         return elements, None, False, None, no_update
@@ -169,6 +170,8 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, elements,
         for element in temp:
             gridObject_list.append(element)
         return ele, no_update, no_update, no_update, no_update
+    elif triggered_id == 'store_add_labels':    # Set labels of edges with power values
+        return no_update, no_update, no_update, no_update, no_update
     else:
         raise PreventUpdate
 

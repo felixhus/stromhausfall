@@ -260,6 +260,14 @@ def power_flow_statemachine(state, data):
         return 'calc_flow', data, False
     elif state == 'calc_flow':
         data['flow'] = solve_flow(data['A'], data['b'])
+        edge_labels = []
+        for edge in data['grid_graph'].edges:
+            edge_labels.append(data['grid_graph'].edges[edge]['id'])
+        edge_labels.append("external_grid")
+        data['df_flow'] = pd.DataFrame(data['flow'][np.newaxis], index=['step1'], columns=[edge_labels])
+        return 'set_edge_labels', data, False
+    elif state == 'set_edge_labels':
+
         return None, data, True
 
 
@@ -275,13 +283,7 @@ def calculate_power_flow(elements, grid_object_list):
     data = {'elements': elements, 'grid_objects': grid_object_list}
     while not ready:
         state, data, ready = power_flow_statemachine(state, data)
-    edge_labels = []
-    for edge in data['grid_graph'].edges:
-        edge_labels.append(data['grid_graph'].edges[edge]['id'])
-    edge_labels.append("external_grid")
-    df_flow = pd.DataFrame(data['flow'][np.newaxis],
-                           index=['step1'], columns=[edge_labels])
-    return df_flow, plot_graph(data['grid_graph'])
+    return data['df_flow'], plot_graph(data['grid_graph'])
 
 
 def handle_error(err):
