@@ -78,7 +78,6 @@ def generate_grid_dataframes(elements, grid_objects):
     :param grid_objects: List of all grid objects to link them to the nodes
     :return df_nodes: DataFrame containing all nodes of the grid; df_edges: DataFrame containing all edges of the grid.
     """
-    # try:
     nodes = []
     edges = []
     for ele in elements:  # Divide elements into nodes and edges
@@ -105,8 +104,6 @@ def generate_grid_dataframes(elements, grid_objects):
             raise Exception("Die Knoten dieser Leitung haben unterschiedliche Spannungsebenen!")
     df_edges = pd.DataFrame(edges)
     return df_nodes, df_edges
-    # except Exception as err:
-    #     handle_error(err)
 
 
 def generate_grid_graph(df_nodes, df_edges):
@@ -116,7 +113,6 @@ def generate_grid_graph(df_nodes, df_edges):
     :param df_edges: DataFrame containing nodes with 'source', 'target' and 'id
     :return: NetworkX graph of the given grid
     """
-    # try:
     graph = nx.MultiGraph()
     graph.add_nodes_from(df_nodes['id'].tolist())
     nx.set_node_attributes(graph, pd.Series(df_nodes.linkedObject.values, index=df_nodes.id).to_dict(),
@@ -124,8 +120,6 @@ def generate_grid_graph(df_nodes, df_edges):
     nodes = copy.deepcopy(graph.nodes(data=True))
     for node in nodes:
         if node[1]['object'].object_type == 'transformer':
-            # number_of_transformers += 1
-            # node_id = "transformer" + str(number_of_transformers)
             node_id = "transformer_" + node[0]
             node_object = grid_objects.TransformerHelperNode()
             graph.add_node(node_id, object=node_object)
@@ -150,18 +144,12 @@ def generate_grid_graph(df_nodes, df_edges):
             else:
                 graph.add_edge(df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'], id=df_edges.loc[idx, 'id'])
                 edge_id = graph.edges[(df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'], 0)]
-                print(edge_id)
         else:
             raise Exception("Kante mit nicht existierendem Knoten")
     return graph
-    # except Exception as err:
-    #     handle_error(err)
-    # finally:
-    #     return graph
 
 
 def generate_directed_graph(graph):
-    # try:
     number_of_ext_grids = 0
     graph_dir = nx.MultiDiGraph()
     nodes_and_attributes = [(n, d) for n, d in graph.nodes(data=True)]
@@ -187,14 +175,9 @@ def generate_directed_graph(graph):
         else:
             graph_dir.add_edge(edge[0], edge[1], id=edge_id)
     return graph_dir
-    # except Exception as err:
-    #     handle_error(err)
-    # finally:
-    #     return graph_dir
 
 
 def generate_equations(graph):
-    # try:
     inc = nx.incidence_matrix(graph, oriented=True).toarray()
     idx = 0
     t, s = np.zeros(len(graph.nodes)), np.zeros(len(graph.nodes))
@@ -211,19 +194,14 @@ def generate_equations(graph):
     new_column[0][idx_ext] = -1
     inc = np.append(inc, np.transpose(new_column), axis=1)
     return inc, b
-    # except Exception as err:
-    #     handle_error(err)
 
 
 def solve_flow(A, b):
-    # try:
     if np.shape(A)[0] != np.shape(A)[1]:
         raise Exception("Inzidenzmatrix ist nicht quadratisch!")
     flow = np.linalg.solve(A, b)
     print(flow)
     return flow
-    # except Exception as err:
-    #     handle_error(err)
 
 
 def plot_graph(graph):
@@ -252,6 +230,8 @@ def plot_graph(graph):
 
 def power_flow_statemachine(state, data):
     if state == 'init':
+        if len(data['elements']) == 0:  # Check if there are any elements in the grid
+            raise Exception('notification_emptygrid')
         return 'gen_dataframes', data, False
     elif state == 'gen_dataframes':
         data['df_nodes'], data['df_edges'] = generate_grid_dataframes(data['elements'],
@@ -278,6 +258,15 @@ def power_flow_statemachine(state, data):
         return 'calc_flow', data, False
     elif state == 'calc_flow':
         data['flow'] = solve_flow(data['A'], data['b'])
+        edge_labels = []
+        for edge in data['grid_graph'].edges:
+            edge_labels.append(data['grid_graph'].edges[edge]['id'])
+        edge_labels.append("external_grid")
+        data['df_flow'] = pd.DataFrame(data['flow'][np.newaxis], index=['step1'], columns=[edge_labels])
+        return 'set_edge_labels', data, False
+    elif state == 'set_edge_labels':
+        data['labels'] = data['df_flow'].loc['step1'].to_dict()
+        data['labels'] = {str(key[0]): value for key, value in data['labels'].items()}
         return None, data, True
 
 
@@ -292,10 +281,10 @@ def calculate_power_flow(elements, grid_object_list):
     ready = False
     data = {'elements': elements, 'grid_objects': grid_object_list}
     while not ready:
+        print(state)
         state, data, ready = power_flow_statemachine(state, data)
-    df_flow = pd.DataFrame(data['flow'][np.newaxis],
-                           index=['step1'], columns=[list(data['grid_graph'].nodes)])
-    return plot_graph(data['grid_graph'])
+        print("Done")
+    return data['df_flow'], data['labels'], plot_graph(data['grid_graph'])
 
 
 def handle_error(err):

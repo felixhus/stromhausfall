@@ -31,23 +31,79 @@ cyto_stylesheet = [
             'background-height': 40,
         }
     },
-    {
-        'selector': '.node_house',
-        'style': {
-            'background-color': '#6a93b0',
-            'shape': 'roundrectangle',
-            'width': 25,
-            'height': 25,
-            'background-image': ['/assets/Icons/icon_house.png'],
-            'background-width': 25,
-            'background-height': 25,
-        }
-    },
+    # {
+    #     'selector': '.node_house',
+    #     'style': {
+    #         'background-color': '#6a93b0',
+    #         'shape': 'roundrectangle',
+    #         'width': 25,
+    #         'height': 25,
+    #         'background-image': ['/assets/Icons/icon_house.png'],
+    #         'background-width': 25,
+    #         'background-height': 25,
+    #     }
+    # },
     {
         'selector': '.line_style',
         'style': {
             'width': '2px',
-            'curve-style': 'bezier'
+            'curve-style': 'bezier',
+        }
+    }
+]
+
+cyto_stylesheet_calculated = [
+    # Group selectors
+    {
+        'selector': 'node',
+        'style': {
+            'content': 'data(label)'
+        }
+    },
+    # Class selectors
+    {
+        'selector': '.node_style',
+        'style': {
+            'background-color': '#6a93b0',
+            'shape': 'roundrectangle',
+            'width': 50,
+            'height': 50,
+            'background-image': ['/assets/Icons/icon_house.png'],
+            'background-width': 40,
+            'background-height': 40,
+        }
+    },
+    {
+        'selector': '.node_style_selected',
+        'style': {
+            'background-color': '#blue',
+            'shape': 'roundrectangle',
+            'width': 50,
+            'height': 50,
+            'background-image': ['/assets/Icons/icon_house.png'],
+            'background-width': 40,
+            'background-height': 40,
+        }
+    },
+    # {
+    #     'selector': '.node_house',
+    #     'style': {
+    #         'background-color': '#6a93b0',
+    #         'shape': 'roundrectangle',
+    #         'width': 25,
+    #         'height': 25,
+    #         'background-image': ['/assets/Icons/icon_house.png'],
+    #         'background-width': 25,
+    #         'background-height': 25,
+    #     }
+    # },
+    {
+        'selector': '.line_style',
+        'style': {
+            'width': '2px',
+            'curve-style': 'bezier',
+            'label': 'data(label)',
+            'target-arrow-shape': 'triangle'
         }
     }
 ]

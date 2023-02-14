@@ -5,20 +5,24 @@ Dies ist der aktuelle Stand der Webapp meiner Masterthesis. Folgende Funktionen 
 ### NEUE FUNKTIONEN 🎉 ###
 > - Mit einem Button in der Navigationsleiste kann ein Beispielnetz erstellt werden.
 > - Durch Klicken auf die Elemente kann Last/Einspeisung ausgewählt und die Leistung eingestellt werden.
-> - Durch Klicken auf "Calculate" wird aus dem Netz ein Graph mit gerichteten Kanten erstellt.
-> - Nach Erstellung wird dieser als Bild angezeigt.
+> - Mit dem Button "Berechnen" wird eine Leistungsflussberechnung durchgeführt und die Ergebnisse im Netz angezeigt.
 > - Wird ein Element mit einem Trafo verbunden, dessen Spannungsebene nicht klar definiert ist (z.B. PV), wird in einem Dialog die Spannungsebene abgefragt.
+
+⚠️Die Richtung der Pfeile auf den Leitungen im Netz stimmt nicht immer!
 
 Details zur Berechnung des Graphen: Siehe unten
 
 ### Aktueller Fortschritt: ###
 - [x]  Aus erstelltem Netz Graphenstruktur zur späteren Berechnung erstellen.
 - [x]  Transformatoren als zwei Knoten darstellen und Kanten richtig verbinden.
-- [ ]  Schleifen und Parallelschaltungen im Netz mit dem Graphen erkennen.
-- [ ]  Aus Inzidenzmatrix des Graphen lineares Gleichungssystem erstellen.
+- [x]  Schleifen und Parallelschaltungen im Netz mit dem Graphen erkennen.
+- [x]  Aus Inzidenzmatrix des Graphen lineares Gleichungssystem erstellen.
 - [ ]  Zusätzliche Gleichungen für Schleifen und parallele Leitungen zum Gleichungssystem hinzufügen.
-- [ ]  Lastgänge-/Einspeisungen in Elementen hinterlegen.
-- [ ]  Erste Flussberechnung durch Lösen des Gleichungssystems durchführen.
+- [x]  Lastgänge-/Einspeisungen in Elementen hinterlegen.
+- [x]  Erste Flussberechnung durch Lösen des Gleichungssystems durchführen.
+- [ ]  Richtung Leitungspfeile richtig anpassen.
+- [ ]  Last/Einspeisung als Zeitreihe hinterlegen.
+- [ ]  Leistungsfluss für Zeitreihen berechnen.
 
 ### Funktionen: ###
 - Netzelemente können über die Buttons links hinzugefügt werden.
@@ -30,7 +34,6 @@ Details zur Berechnung des Graphen: Siehe unten
   - Es wird überprüft, ob die beiden Elemente miteinander verbunden werden dürfen. Wenn nicht, wird eine Fehlermeldung angezeigt.
 - Durch Klicken auf ein Netzelement oder Kabel öffnet sich ein Fenster. In diesem wird man das Element später bearbeiten können.
 - Die Netzelemente und Kabel können im Bearbeitungs-Dialog wieder gelöscht werden. Wird ein Netzelement gelöscht, werden auch die verbundenen Kabel entfernt.
-- Der Schalter "House Elements" zeigt statt den Netzelementen Hausgeräte an
 
 #### Berechnung des Graphen: ####
 Jedes Element des gezeichneten Netzes wird in einen Graphenknoten mit seinen Eigenschaften übertragen. Für jeden Transformator wird ein weiterer Knoten erstellt. 

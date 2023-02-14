@@ -53,31 +53,26 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
         ),
         dbc.Row([
             dbc.Col([
-                html.Div([
+                dmc.Card([
                     dbc.Row(dash_components.add_grid_object_button(object_id=menu_objects[i][0],
                                                                    icon=app.get_asset_url(
                                                                        'Icons/' + menu_objects[i][1])))
                     for i in range(len(menu_objects))
-                ], id='grid_buttons', style={'display': 'block'}),
+                ], id='grid_buttons', style={'display': 'block'}, withBorder=True, shadow="sm", radius="md"),
                 html.Div([
                     dbc.Row(dash_components.add_grid_object_button(object_id=house_objects[i][0],
                                                                    name=house_objects[i][1]))
                     for i in range(len(house_objects))
                 ], id='house_buttons', style={'display': 'none'}),
-            ], width='auto'),
+            ], width=1),
             dbc.Col([
                 dash_components.add_cytoscape_grid(nodes, edges),
-            ]),
-            dbc.Col([
-                html.Div(id='graph', style={'display': 'none'}, children=[
-                    dcc.Graph(figure=fig)
-                ])
-            ], width='auto'),
-            dbc.Col([dash_components.card_side(),
-                     dash_components.card_plot_graph()], width='auto')
+            ], width=7),
+            dbc.Col([dash_components.card_start(), dash_components.card_menu()], width=True)
         ]),
         dash_components.add_modal_edit(),
         dash_components.add_modal_readme(),
+        dash_components.add_drawer_notifications(),
         dash_components.add_modal_voltage_level(),
         dash_components.add_storage_variables(),
         html.P(id='dummy')], width=True),
@@ -108,11 +103,12 @@ def edit_mode(btn_line, btn_active):
               Input('modal_edit_delete_button', 'n_clicks'),
               Input('button_line', 'n_clicks'),
               Input('example_button', 'n_clicks'),
+              Input('store_edge_labels', 'data'),
               State('cyto1', 'elements'),
               State('line_edit_active', 'data'),
               State('start_of_line', 'data'),
               State('selected_element', 'data'))
-def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, elements,
+def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, elements,
               btn_line_active, start_of_line, selected_element):
     triggered_id = ctx.triggered_id
     if triggered_id == 'button_line':
@@ -139,7 +135,7 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, elements,
                         if start_object.voltage is None and end_object.voltage is None:  # Check if voltage level of connection is defined through one of the components
                             return_temp = [start_object.id, end_object.id]
                         new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
-                                             'id': 'edge' + str(last_id[1] + 1)}, 'classes': 'line_style'}
+                                             'id': 'edge' + str(last_id[1] + 1), 'label': '42'}, 'classes': 'line_style'}
                         elements.append(new_edge)
                         return elements, None, False, None, return_temp
                     else:
@@ -173,6 +169,13 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, elements,
         for element in temp:
             gridObject_list.append(element)
         return ele, no_update, no_update, no_update, no_update
+    elif triggered_id == 'store_edge_labels':    # Set labels of edges with power values
+        for edge, label in labels.items():
+            for ele in elements:
+                if edge == ele['data']['id']:
+                    ele['data']['label'] = str(label)
+                    break
+        return elements, no_update, no_update, no_update, no_update
     else:
         raise PreventUpdate
 
@@ -253,35 +256,31 @@ def button_add_pressed(*args):
         return triggered_id
 
 
-@app.callback(Output('grid_buttons', 'style'),
-              Output('house_buttons', 'style'),
-              Output('calculate', 'children'),
-              Output('graph_image', 'style'),
+@app.callback(Output('graph_image', 'style'),
               Output('graph_image', 'src'),
+              Output('alert_externalgrid', 'children'),
+              Output('alert_externalgrid', 'hide'),
+              Output('tabs', 'value'),
+              Output('cyto1', 'stylesheet'),
+              Output('store_edge_labels', 'data'),
               Output('store_notification2', 'data'),
-              Input('mode_switch', 'checked'),
-              Input('menu_switch', 'checked'),
+              Input('button_calculate', 'n_clicks'),
               State('cyto1', 'elements'),
               prevent_initial_call=True)
-def switch_mode(mode_switch, menu_switch, elements):
+def start_calculation(btn, elements):
     try:
-        triggered_id = ctx.triggered_id
-        if triggered_id == 'menu_switch':
-            if menu_switch:
-                return {'display': 'none'}, {'display': 'block'}, no_update, no_update, no_update, no_update
+        if btn is not None:
+            df_flow, labels, format_img_src = calculate_power_flow(elements, gridObject_list)
+            img_src = 'data:image/png;base64,{}'.format(format_img_src)
+            if df_flow.loc['step1', 'external_grid'].item() > 0:
+                text_alert = "Es werden " + str(abs(df_flow.loc['step1', 'external_grid'].item())) + " kW an das Netz abgegeben."
             else:
-                return {'display': 'block'}, {'display': 'none'}, no_update, no_update, no_update, no_update
-        elif triggered_id == 'mode_switch':
-            if mode_switch:
-                format_img_src = calculate_power_flow(elements, gridObject_list)
-                img_src = 'data:image/png;base64,{}'.format(format_img_src)
-                return no_update, no_update, "Calculated", {'display': 'block'}, img_src, no_update
-            else:
-                return {'display': 'block'}, {'display': 'none'}, "Calculate", {'display': 'none'}, no_update, no_update
+                text_alert = "Es werden " + str(abs(df_flow.loc['step1', 'external_grid'].item())) + " kW aus dem Netz bezogen."
+            return {'display': 'block'}, img_src, text_alert, False, 'results', stylesheets.cyto_stylesheet_calculated, labels, no_update
         else:
             raise PreventUpdate
     except Exception as err:
-        return no_update, no_update, no_update, no_update, no_update, err.args[0]
+        return no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
 
 @app.callback(Output('modal_readme', 'opened'),
@@ -323,9 +322,12 @@ def modal_voltage(node_ids, button_hv, button_lv, elements):
 
 
 @app.callback(Output('notification_container', 'children'),
+              Output('drawer_notifications', 'children'),
+              Output('bade_notifications', 'children'),
               Input('store_notification1', 'data'),
-              Input('store_notification2', 'data'))
-def notification(data1, data2):
+              Input('store_notification2', 'data'),
+              State('drawer_notifications', 'children'))
+def notification(data1, data2, notif_list):
     triggered_id = ctx.triggered_id
     if triggered_id == 'store_notification1':
         data = data1
@@ -344,6 +346,10 @@ def notification(data1, data2):
         notification_message = ["Kein Netz!", "Es gibt Knoten, die nicht mit dem Netz verbunden sind!"]
         icon = DashIconify(icon="material-symbols:group-work-outline")
         color = 'red'
+    elif data == 'notification_emptygrid':
+        notification_message = ["Blackout!", "Hier muss erst noch ein Netz gebaut werden!"]
+        icon = DashIconify(icon="uil:desert")
+        color = 'yellow'
     elif data == 'notification_cycles':
         notification_message = ["Achtung (kein) Baum!", "Das Netz beinhaltet parallele Leitungen oder Zyklen, "
                                                         "dies ist leider noch nicht unterstützt."]
@@ -353,10 +359,12 @@ def notification(data1, data2):
         notification_message = ["Fehler!", data]
         icon = DashIconify(icon="material-symbols:warning-outline-rounded")
         color = 'red'
+    notif_list.append(dmc.Alert(notification_message[1], title=notification_message[0], color=color,
+                                withCloseButton=True))
     return dmc.Notification(title=notification_message[0],
                             message=notification_message[1],
                             action='show', color=color, autoClose=5000,
-                            icon=icon, id='notification')
+                            icon=icon, id='notification'), notif_list, len(notif_list)
 
 
 @app.callback(Output("power_input", "icon"),
@@ -378,6 +386,25 @@ def chips_type(value):
 def activate_example(btn):
     time.sleep(0.1)
     return {'name': 'cose'}, True
+
+
+@app.callback(Output('drawer_notifications', 'opened'),
+              Input('button_notifications', 'n_clicks'))
+def open_drawer_notifications(btn):
+    if btn is not None:
+        return True
+    else:
+        raise PreventUpdate
+
+
+@app.callback(Output('card_start', 'style'),
+              Output('card_menu', 'style'),
+              Input('button_start', 'n_clicks'))
+def open_drawer_notifications(btn):
+    if btn is not None:
+        return {'display': 'none'}, {'display': 'block'}
+    else:
+        raise PreventUpdate
 
 
 @app.callback(Output('dummy', 'children'),

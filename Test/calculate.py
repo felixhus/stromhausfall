@@ -1,5 +1,6 @@
 import networkx as nx
 import numpy as np
+import pandas as pd
 from ortools.graph.python import min_cost_flow
 
 # R = [0, 1, 0, 0, 0, 1, 0, 0, 2, 1]
@@ -70,13 +71,15 @@ from ortools.graph.python import min_cost_flow
 #     main()
 
 
-G = nx.Graph()
 
-G.add_edge(1, 2, weight=10)
-G.add_edge(2, 3, weight=20)
 
-edge = (1, 2)
 
-weight = G.edges[edge]['weight']
+# create a sample dataframe
+df = pd.DataFrame({'external': [1, 2, 3], 'external_grid': [4, 5, 6]})
+df.index = ['step1', 'step2', 'step3']
 
-print(weight)
+# access the value at the index "step1" and the column name "B" using df.at
+value = df.at['step1', 'external_grid']
+
+# the value should be 4
+print(value)

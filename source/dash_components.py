@@ -11,7 +11,8 @@ def add_storage_variables():
     return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
                      dcc.Store(id='line_edit_active'), dcc.Store(id='selected_element'),
                      dcc.Store(id='element_deleted'), dcc.Store(id='store_notification1'),
-                     dcc.Store(id='store_notification2'), dcc.Store(id='store_get_voltage')])
+                     dcc.Store(id='store_notification2'), dcc.Store(id='store_get_voltage'),
+                     dcc.Store(id='store_edge_labels')])
 
 
 def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
@@ -32,14 +33,18 @@ def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
 
 
 def add_cytoscape_grid(nodes, edges):
-    cytoscape = cyto.Cytoscape(
-        id='cyto1',
-        layout={'name': 'preset'},
-        autoRefreshLayout=False,
-        style={'width': '100%', 'height': '100%', 'background': '#e6ecf2', 'frame': 'blue'},
-        elements=edges + nodes,
-        stylesheet=stylesheets.cyto_stylesheet
-    )
+    cytoscape = dmc.Card(
+        children=[cyto.Cytoscape(
+            id='cyto1',
+            layout={'name': 'preset'},
+            autoRefreshLayout=False,
+            style={'width': '100%', 'height': '100%', 'background': '#e6ecf2', 'frame': 'blue'},
+            elements=edges + nodes,
+            stylesheet=stylesheets.cyto_stylesheet)],
+        withBorder=True,
+        shadow="sm",
+        radius="md",
+        style={"height": '100%'})
     return cytoscape
 
 
@@ -89,40 +94,6 @@ def add_modal_edit():
     )
 
 
-# def add_modal_edit_node():
-#     return dmc.Modal(
-#         title="Edit",
-#         id='modal_edit',
-#         children=[
-#             dmc.Text("", id='modal_text'),
-#             dmc.Space(h=20),
-#             dmc.ChipGroup([
-#                 dmc.Chip(x, value=x) for x in ["Last", "Einspeisung"]], value="Last", id='chips_type'
-#             ),
-#             dmc.Space(h=20),
-#             dmc.NumberInput(
-#                 id='power_input',
-#                 label="Leistung dieses Elements in kW:",
-#                 # description="From 0 to infinity, in steps of 5",
-#                 value=0,
-#                 min=0,
-#                 step=0.1, precision=1,
-#                 stepHoldDelay=500, stepHoldInterval=100,
-#                 icon=DashIconify(icon="material-symbols:download"),
-#                 style={"width": 250},
-#             ),
-#             dmc.Space(h=20),
-#             dmc.Group([
-#                 dmc.Button("Löschen", color='red', variant='outline', id='modal_edit_delete_button',
-#                            leftIcon=DashIconify(icon="material-symbols:delete-outline")),
-#                 dmc.Button("Speichern", color='green', variant='outline', id='modal_edit_save_button',
-#                            leftIcon=DashIconify(icon="material-symbols:save-outline")),
-#                 dmc.Button("Schließen", variant='outline', id='modal_edit_close_button')
-#             ], position='right')
-#         ]
-#     )
-
-
 def add_modal_voltage_level():
     return dmc.Modal(
         title="Spannungsebene auswählen",
@@ -142,20 +113,32 @@ def add_modal_voltage_level():
 
 
 def dash_navbar():
-    PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"
     navbar = dbc.Navbar(
         dbc.Container([
             html.A(
                 # Use row and col to control vertical alignment of logo / brand
                 dbc.Row(
                     [
-                        dbc.Col(html.Img(src=PLOTLY_LOGO, height="30px")),
-                        dbc.Col(dbc.NavbarBrand("PowerHouse", className="ms-2")),
+                        dbc.Col(dmc.Button(
+                            [
+                                "Notifications",
+                                dbc.Badge(
+                                    id='bade_notifications',
+                                    color="danger",
+                                    pill=True,
+                                    text_color="white",
+                                    className="position-absolute top-0 start-100 translate-middle",
+                                ),
+                            ],
+                            id='button_notifications',
+                            color="primary",
+                            className="position-relative",
+                        )),
+                        dbc.Col(dbc.NavbarBrand("PowerHouse", className="ms-2"))
                     ],
                     align="center",
                     className="g-0",
                 ),
-                href="https://plotly.com",
                 style={"textDecoration": "none"},
             ),
             dbc.NavbarToggler(id="navbar-toggler", n_clicks=0),
@@ -173,13 +156,13 @@ def dash_navbar():
     return navbar
 
 
-def card_side():
+def card_start():
     card = dmc.Card(
         children=[
             dmc.CardSection(
                 dmc.Image(
                     src="https://images.unsplash.com/photo-1598528133401-228e74463adb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80",
-                    height=160,
+                    # height=160,
                 )
             ),
             dmc.Group(
@@ -196,41 +179,68 @@ def card_side():
                 size="sm",
                 color="dimmed",
             ),
-            dbc.Stack([
-                # html.P("Grid elements", style={'margin-right': '10px', 'margin-top': '27px'}),
-                dmc.Switch(id='menu_switch', style={'margin-top': '0px'}),
-                html.P("House elements", style={'margin-left': '10px', 'margin-top': '27px'})], direction='horizontal'),
-            dbc.Stack([
-                # html.P("Netz bearbeiten", style={'margin-right': '10px', 'margin-top': '27px'}),
-                dmc.Switch(id='mode_switch', style={'margin-top': '0px'},
-                           offLabel=DashIconify(icon="material-symbols:edit-outline"),
-                           onLabel=DashIconify(icon="material-symbols:calculate-outline")),
-                dbc.Spinner(html.P("Berechnen", id='calculate', style={'margin-left': '10px', 'margin-top': '27px'}))],
-                direction='horizontal'),
-            dmc.CardSection(
-                dmc.Image(id='graph_image', src='assets/temp/graph.png', withPlaceholder=True,
-                          style={'display': 'none'})
-            ),
+            dmc.Space(h=20),
+            dmc.Button("Start", leftIcon=DashIconify(icon='material-symbols:play-arrow-outline-rounded'),
+                       id='button_start')
         ],
         withBorder=True,
         shadow="sm",
         radius="md",
-        style={"width": 350, 'marginTop': 50},
+        style={"height": '100%'},
     )
-    return card
+    return html.Div([card], id='card_start')
 
 
-def card_plot_graph():
+def card_menu():
     card = dmc.Card(
-        id='card_graph',
-        children=[
-            # dmc.CardSection(
-            #     dmc.Image(id='graph_image', src='assets/temp/graph.png', withPlaceholder=True)
-            # ),
-            dmc.Text("Gerichteter Graph des erstellten Netzes:")
+        children=[dmc.LoadingOverlay(
+            dmc.Tabs(
+                [
+                    dmc.TabsList(
+                        [
+                            dmc.Tab("Bearbeiten", value="edit",
+                                    icon=DashIconify(icon="material-symbols:edit-square-outline")),
+                            dmc.Tab("Ergebnisse", value="results", icon=DashIconify(icon="fluent:poll-16-regular")),
+                        ]
+                    ),
+                    dmc.TabsPanel(children=[
+                        dmc.Space(h=20),
+                        dmc.Button("Berechnen", id='button_calculate', rightIcon=DashIconify(icon="ph:gear-light"))],
+                        value="edit"),
+                    dmc.TabsPanel(children=[
+                        dmc.Space(h=20),
+                        dmc.Alert(children="", id="alert_externalgrid", color='primary', hide=True),
+                        dmc.CardSection(
+                            dmc.Image(id='graph_image', src='assets/temp/graph.png', withPlaceholder=True,
+                                      style={'display': 'none'})
+                        ),
+                    ], value="results"),
+                ],
+                id='tabs', value='edit', color="blue", orientation="horizontal",
+            ), loaderProps={"variant": "bars", "color": "blue", "size": "lg"})
         ],
         withBorder=True,
         shadow="sm",
         radius="md",
-        style={"width": 350, 'marginTop': 50, 'display': 'none'})
-    return card
+        style={"height": '100%'},
+    )
+    return html.Div([card], id='card_menu', style={'display': 'none'})
+
+
+def add_drawer_notifications():
+    return dmc.Drawer(title="Nachrichten:", id='drawer_notifications', padding="md", children=[])
+
+# def card_plot_graph():
+#     card = dmc.Card(
+#         id='card_graph',
+#         children=[
+#             # dmc.CardSection(
+#             #     dmc.Image(id='graph_image', src='assets/temp/graph.png', withPlaceholder=True)
+#             # ),
+#             dmc.Text("Gerichteter Graph des erstellten Netzes:")
+#         ],
+#         withBorder=True,
+#         shadow="sm",
+#         radius="md",
+#         style={"width": 350, 'marginTop': 50, 'display': 'none'})
+#     return card
