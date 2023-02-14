@@ -109,8 +109,8 @@ def edit_mode(btn_line, btn_active):
               State('line_edit_active', 'data'),
               State('start_of_line', 'data'),
               State('selected_element', 'data'))
-def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, elements,
-              btn_line_active, start_of_line, selected_element, labels):
+def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, elements,
+              btn_line_active, start_of_line, selected_element):
     triggered_id = ctx.triggered_id
     if triggered_id == 'button_line':
         return elements, None, False, None, no_update
@@ -170,8 +170,13 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, elements,
         for element in temp:
             gridObject_list.append(element)
         return ele, no_update, no_update, no_update, no_update
-    elif triggered_id == 'store_add_labels':    # Set labels of edges with power values
-        return no_update, no_update, no_update, no_update, no_update
+    elif triggered_id == 'store_edge_labels':    # Set labels of edges with power values
+        for edge, label in labels.items():
+            for ele in elements:
+                if edge == ele['data']['id']:
+                    ele['data']['label'] = str(label)
+                    break
+        return elements, no_update, no_update, no_update, no_update
     else:
         raise PreventUpdate
 
@@ -258,6 +263,7 @@ def button_add_pressed(*args):
               Output('alert_externalgrid', 'hide'),
               Output('tabs', 'value'),
               Output('cyto1', 'stylesheet'),
+              Output('store_edge_labels', 'data'),
               Output('store_notification2', 'data'),
               Input('button_calculate', 'n_clicks'),
               State('cyto1', 'elements'),
@@ -265,18 +271,17 @@ def button_add_pressed(*args):
 def start_calculation(btn, elements):
     try:
         if btn is not None:
-            flow, format_img_src = calculate_power_flow(elements, gridObject_list)
-            time.sleep(4)
+            df_flow, labels, format_img_src = calculate_power_flow(elements, gridObject_list)
             img_src = 'data:image/png;base64,{}'.format(format_img_src)
-            if flow.loc['step1', 'external_grid'].item() > 0:
-                text_alert = "Es werden " + str(abs(flow.loc['step1', 'external_grid'].item())) + " kW an das Netz abgegeben."
+            if df_flow.loc['step1', 'external_grid'].item() > 0:
+                text_alert = "Es werden " + str(abs(df_flow.loc['step1', 'external_grid'].item())) + " kW an das Netz abgegeben."
             else:
-                text_alert = "Es werden " + str(abs(flow.loc['step1', 'external_grid'].item())) + " kW aus dem Netz bezogen."
-            return {'display': 'block'}, img_src, text_alert, False, 'results', stylesheets.cyto_stylesheet_calculated, no_update
+                text_alert = "Es werden " + str(abs(df_flow.loc['step1', 'external_grid'].item())) + " kW aus dem Netz bezogen."
+            return {'display': 'block'}, img_src, text_alert, False, 'results', stylesheets.cyto_stylesheet_calculated, labels, no_update
         else:
             raise PreventUpdate
     except Exception as err:
-        return no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
+        return no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
 
 @app.callback(Output('modal_readme', 'opened'),

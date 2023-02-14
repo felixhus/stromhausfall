@@ -119,8 +119,6 @@ def generate_grid_graph(df_nodes, df_edges):
     nodes = copy.deepcopy(graph.nodes(data=True))
     for node in nodes:
         if node[1]['object'].object_type == 'transformer':
-            # number_of_transformers += 1
-            # node_id = "transformer" + str(number_of_transformers)
             node_id = "transformer_" + node[0]
             node_object = grid_objects.TransformerHelperNode()
             graph.add_node(node_id, object=node_object)
@@ -145,7 +143,6 @@ def generate_grid_graph(df_nodes, df_edges):
             else:
                 graph.add_edge(df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'], id=df_edges.loc[idx, 'id'])
                 edge_id = graph.edges[(df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'], 0)]
-                print(edge_id)
         else:
             raise Exception("Kante mit nicht existierendem Knoten")
     return graph
@@ -267,7 +264,8 @@ def power_flow_statemachine(state, data):
         data['df_flow'] = pd.DataFrame(data['flow'][np.newaxis], index=['step1'], columns=[edge_labels])
         return 'set_edge_labels', data, False
     elif state == 'set_edge_labels':
-
+        data['labels'] = data['df_flow'].loc['step1'].to_dict()
+        data['labels'] = {str(key[0]): value for key, value in data['labels'].items()}
         return None, data, True
 
 
@@ -282,8 +280,10 @@ def calculate_power_flow(elements, grid_object_list):
     ready = False
     data = {'elements': elements, 'grid_objects': grid_object_list}
     while not ready:
+        print(state)
         state, data, ready = power_flow_statemachine(state, data)
-    return data['df_flow'], plot_graph(data['grid_graph'])
+        print("Done")
+    return data['df_flow'], data['labels'], plot_graph(data['grid_graph'])
 
 
 def handle_error(err):
