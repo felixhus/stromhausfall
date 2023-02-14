@@ -166,7 +166,7 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, elements
         gridObject_list.pop(index)
         return elements, None, True, None, no_update
     elif triggered_id == 'example_button':
-        ele, temp = example_grids.simple_grid(app)
+        ele, temp = example_grids.simple_grid_timeseries_day(app)
         for element in temp:
             gridObject_list.append(element)
         return ele, no_update, no_update, no_update, no_update
@@ -385,7 +385,7 @@ def chips_type(value):
               Input('example_button', 'n_clicks'),
               prevent_initial_call=True)
 def activate_example(btn):
-    time.sleep(0.1)
+    time.sleep(0.25)
     return {'name': 'cose'}, True
 
 
@@ -401,7 +401,7 @@ def open_drawer_notifications(btn):
 @app.callback(Output('card_start', 'style'),
               Output('card_menu', 'style'),
               Input('button_start', 'n_clicks'))
-def open_drawer_notifications(btn):
+def open_menu_card(btn):
     if btn is not None:
         return {'display': 'none'}, {'display': 'block'}
     else:

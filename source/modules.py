@@ -177,22 +177,25 @@ def generate_directed_graph(graph):
 
 
 def generate_equations(graph):
+    df_power = pd.DataFrame()
+    for node in graph.nodes(data=True):
+        df_power[node[0]] = node[1]['object'].power
     inc = nx.incidence_matrix(graph, oriented=True).toarray()
     idx = 0
-    t, s = np.zeros(len(graph.nodes)), np.zeros(len(graph.nodes))
+    # t, s = np.zeros(len(graph.nodes)), np.zeros(len(graph.nodes))
     for node in graph.nodes(data=True):
-        if node[1]['object'].power > 0:
-            t[idx] = node[1]['object'].power
-        elif node[1]['object'].power < 0:
-            s[idx] = node[1]['object'].power
+        # if node[1]['object'].power > 0:
+        #     t[idx] = node[1]['object'].power
+        # elif node[1]['object'].power < 0:
+        #     s[idx] = node[1]['object'].power
         if node[1]['object'].object_type == 'externalgrid':
             idx_ext = idx
         idx += 1
-    b = s + t
+    # b = s + t
     new_column = np.array([np.zeros(np.shape(inc)[0])])
     new_column[0][idx_ext] = -1
     inc = np.append(inc, np.transpose(new_column), axis=1)
-    return inc, b
+    return inc, df_power
 
 
 def solve_flow(A, b):
@@ -253,15 +256,16 @@ def power_flow_statemachine(state, data):
             data['grid_graph'])  # Give graph edges directions, starting at external grid
         return 'gen_equations', data, False
     elif state == 'gen_equations':
-        data['A'], data['b'] = generate_equations(data['grid_graph'])
+        data['A'], data['df_power'] = generate_equations(data['grid_graph'])
         return 'calc_flow', data, False
     elif state == 'calc_flow':
-        data['flow'] = solve_flow(data['A'], data['b'])
-        edge_labels = []
+        column_names = []
         for edge in data['grid_graph'].edges:
-            edge_labels.append(data['grid_graph'].edges[edge]['id'])
-        edge_labels.append("external_grid")
-        data['df_flow'] = pd.DataFrame(data['flow'][np.newaxis], index=['step1'], columns=[edge_labels])
+            column_names.append(data['grid_graph'].edges[edge]['id'])
+        column_names.append("external_grid")
+        # for Schleife zum Berechnen aller Zeitschritte
+        data['flow'] = solve_flow(data['A'], data['df_power'])
+        data['df_flow'] = pd.DataFrame(data['flow'][np.newaxis], index=['step1'], columns=[column_names])
         return 'set_edge_labels', data, False
     elif state == 'set_edge_labels':
         data['labels'] = data['df_flow'].loc['step1'].to_dict()
