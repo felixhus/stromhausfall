@@ -262,7 +262,8 @@ def power_flow_statemachine(state, data):
         for edge in data['grid_graph'].edges:
             column_names.append(data['grid_graph'].edges[edge]['id'])
         column_names.append("external_grid")
-        df_flow = pd.DataFrame(columns=[column_names])
+        df_flow = pd.DataFrame(columns=column_names)
+        # df_flow = pd.DataFrame(columns=[column_names])
         for step, row in data['df_power'].iterrows():
             # df_flow.loc[step] = np.random.randint(0, 20, len(column_names))
             df_flow.loc[step] = solve_flow(data['A'], row)
@@ -271,7 +272,7 @@ def power_flow_statemachine(state, data):
         return 'set_edge_labels', data, False
     elif state == 'set_edge_labels':
         data['labels'] = data['df_flow'].loc[0].to_dict()
-        data['labels'] = {str(key[0]): value for key, value in data['labels'].items()}
+        # data['labels'] = {str(key[0]): value for key, value in data['labels'].items()}
         return None, data, True
 
 

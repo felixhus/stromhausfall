@@ -2,11 +2,9 @@ import os
 import time
 
 import dash_bootstrap_components as dbc
-import dash_cytoscape as cyto
-import dash_daq as daq
 import dash_mantine_components as dmc
 import example_grids
-# import modules
+import pandas as pd
 import plotly.express as px
 from dash import Dash, Input, Output, State, ctx, dcc, html, no_update
 from dash.exceptions import PreventUpdate
@@ -66,9 +64,8 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
                     for i in range(len(house_objects))
                 ], id='house_buttons', style={'display': 'none'}),
             ], width=1),
-            dbc.Col([
-                dash_components.add_cytoscape_grid(nodes, edges),
-            ], width=7),
+            dbc.Col([dash_components.add_cytoscape_grid(nodes, edges)
+                     ], width=7),
             dbc.Col([dash_components.card_start(), dash_components.card_menu()], width=True)
         ]),
         dash_components.add_modal_edit(),
@@ -136,7 +133,8 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, elements
                         if start_object.voltage is None and end_object.voltage is None:  # Check if voltage level of connection is defined through one of the components
                             return_temp = [start_object.id, end_object.id]
                         new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
-                                             'id': 'edge' + str(last_id[1] + 1), 'label': '42'}, 'classes': 'line_style'}
+                                             'id': 'edge' + str(last_id[1] + 1), 'label': '42'},
+                                    'classes': 'line_style'}
                         elements.append(new_edge)
                         return elements, None, False, None, return_temp
                     else:
@@ -166,11 +164,11 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, elements
         gridObject_list.pop(index)
         return elements, None, True, None, no_update
     elif triggered_id == 'example_button':
-        ele, temp = example_grids.simple_grid_timeseries_day(app, 2880)
+        ele, temp = example_grids.simple_grid_timeseries_day(app, 96)
         for element in temp:
             gridObject_list.append(element)
         return ele, no_update, no_update, no_update, no_update
-    elif triggered_id == 'store_edge_labels':    # Set labels of edges with power values
+    elif triggered_id == 'store_edge_labels':  # Set labels of edges with power values
         for edge, label in labels.items():
             for ele in elements:
                 if edge == ele['data']['id']:
@@ -257,7 +255,8 @@ def button_add_pressed(*args):
         return triggered_id
 
 
-@app.callback(Output('graph_image', 'style'),
+@app.callback(Output('store_flow_data', 'data'),
+              Output('graph_image', 'style'),
               Output('graph_image', 'src'),
               Output('alert_externalgrid', 'children'),
               Output('alert_externalgrid', 'hide'),
@@ -272,16 +271,18 @@ def start_calculation(btn, elements):
     try:
         if btn is not None:
             df_flow, labels, format_img_src = calculate_power_flow(elements, gridObject_list)
+            df_flow_json = df_flow.to_json(orient='index')
             img_src = 'data:image/png;base64,{}'.format(format_img_src)
-            if df_flow.loc['step1', 'external_grid'].item() > 0:
-                text_alert = "Es werden " + str(abs(df_flow.loc['step1', 'external_grid'].item())) + " kW an das Netz abgegeben."
-            else:
-                text_alert = "Es werden " + str(abs(df_flow.loc['step1', 'external_grid'].item())) + " kW aus dem Netz bezogen."
-            return {'display': 'block'}, img_src, text_alert, False, 'results', stylesheets.cyto_stylesheet_calculated, labels, no_update
+            text_alert = 'todo'
+            # if df_flow.loc['step1', 'external_grid'].item() > 0:
+            #     text_alert = "Es werden " + str(abs(df_flow.loc['step1', 'external_grid'].item())) + " kW an das Netz abgegeben."
+            # else:
+            #     text_alert = "Es werden " + str(abs(df_flow.loc['step1', 'external_grid'].item())) + " kW aus dem Netz bezogen."
+            return df_flow_json, {'display': 'block'}, img_src, text_alert, False, 'results', stylesheets.cyto_stylesheet_calculated, labels, no_update
         else:
             raise PreventUpdate
     except Exception as err:
-        return no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
+        return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
 
 @app.callback(Output('modal_readme', 'opened'),
@@ -376,6 +377,21 @@ def chips_type(value):
         return DashIconify(icon="material-symbols:download")
     elif value == "Einspeisung":
         return DashIconify(icon="material-symbols:upload")
+    else:
+        raise PreventUpdate
+
+
+@app.callback(Output('timestep_slider', 'max'),
+              Output('store_timestep', 'data'),
+              Input('timestep_slider', 'value'),
+              Input('store_flow_data', 'data'))
+def slider_timestep(slider, flow):
+    triggered_id = ctx.triggered_id
+    if triggered_id == 'timestep_slider':
+        return no_update, slider
+    elif triggered_id == 'store_flow_data':
+        df_flow = pd.read_json(flow, orient='index')
+        return len(flow.index), no_update
     else:
         raise PreventUpdate
 

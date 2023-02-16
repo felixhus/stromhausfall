@@ -12,7 +12,8 @@ def add_storage_variables():
                      dcc.Store(id='line_edit_active'), dcc.Store(id='selected_element'),
                      dcc.Store(id='element_deleted'), dcc.Store(id='store_notification1'),
                      dcc.Store(id='store_notification2'), dcc.Store(id='store_get_voltage'),
-                     dcc.Store(id='store_edge_labels')])
+                     dcc.Store(id='store_edge_labels'), dcc.Store(id='store_timestep'),
+                     dcc.Store(id='store_flow_data')])
 
 
 def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
@@ -33,17 +34,21 @@ def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
 
 
 def add_cytoscape_grid(nodes, edges):
-    cytoscape = dmc.Card(
-        children=[cyto.Cytoscape(
-            id='cyto1',
-            layout={'name': 'preset'},
-            autoRefreshLayout=False,
-            style={'width': '100%', 'height': '100%', 'background': '#e6ecf2', 'frame': 'blue'},
-            elements=edges + nodes,
-            stylesheet=stylesheets.cyto_stylesheet)],
-        withBorder=True,
-        shadow="sm",
-        radius="md",
+    cytoscape = dbc.Card(
+        children=[dbc.CardBody(
+            cyto.Cytoscape(
+                id='cyto1',
+                layout={'name': 'preset'},
+                autoRefreshLayout=False,
+                style={'width': '100%', 'height': '100%', 'background': '#e6ecf2', 'frame': 'blue'},
+                elements=edges + nodes,
+                stylesheet=stylesheets.cyto_stylesheet)),
+            dbc.CardFooter(dmc.Slider(
+                id='timestep_slider', value=0, updatemode='drag',
+                min=0, max=1000, step=1))],
+        # withBorder=True,
+        # shadow="sm",
+        # radius="md",
         style={"height": '100%'})
     return cytoscape
 
