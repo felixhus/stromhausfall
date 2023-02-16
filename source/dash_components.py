@@ -45,7 +45,7 @@ def add_cytoscape_grid(nodes, edges):
                 stylesheet=stylesheets.cyto_stylesheet)),
             dbc.CardFooter(dmc.Slider(
                 id='timestep_slider', value=0, updatemode='drag',
-                min=0, max=1000, step=1))],
+                min=1, max=10, step=1))],
         # withBorder=True,
         # shadow="sm",
         # radius="md",
