@@ -202,7 +202,6 @@ def solve_flow(A, b):
     if np.shape(A)[0] != np.shape(A)[1]:
         raise Exception("Inzidenzmatrix ist nicht quadratisch!")
     flow = np.linalg.solve(A, b)
-    print(flow)
     return flow
 
 
@@ -263,12 +262,15 @@ def power_flow_statemachine(state, data):
         for edge in data['grid_graph'].edges:
             column_names.append(data['grid_graph'].edges[edge]['id'])
         column_names.append("external_grid")
-        # for Schleife zum Berechnen aller Zeitschritte
-        data['flow'] = solve_flow(data['A'], data['df_power'])
-        data['df_flow'] = pd.DataFrame(data['flow'][np.newaxis], index=['step1'], columns=[column_names])
+        df_flow = pd.DataFrame(columns=[column_names])
+        for step, row in data['df_power'].iterrows():
+            # df_flow.loc[step] = np.random.randint(0, 20, len(column_names))
+            df_flow.loc[step] = solve_flow(data['A'], row)
+        # data['flow'] = solve_flow(data['A'], data['df_power'])
+        data['df_flow'] = df_flow
         return 'set_edge_labels', data, False
     elif state == 'set_edge_labels':
-        data['labels'] = data['df_flow'].loc['step1'].to_dict()
+        data['labels'] = data['df_flow'].loc[0].to_dict()
         data['labels'] = {str(key[0]): value for key, value in data['labels'].items()}
         return None, data, True
 

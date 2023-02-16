@@ -166,7 +166,7 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, elements
         gridObject_list.pop(index)
         return elements, None, True, None, no_update
     elif triggered_id == 'example_button':
-        ele, temp = example_grids.simple_grid_timeseries_day(app)
+        ele, temp = example_grids.simple_grid_timeseries_day(app, 2880)
         for element in temp:
             gridObject_list.append(element)
         return ele, no_update, no_update, no_update, no_update

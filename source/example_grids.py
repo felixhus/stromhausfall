@@ -41,13 +41,13 @@ def simple_grid(app):
     return elements, gridObject_list
 
 
-def simple_grid_timeseries_day(app):
+def simple_grid_timeseries_day(app, steps):
     elements = []
     gridObject_list = []
     nodes_to_add = ['button_externalgrid', 'button_transformer', 'button_switch_cabinet', 'button_house', 'button_house',
               'button_house', 'button_pv']
     lines_to_add = [['node1', 'node2'], ['node2', 'node3'], ['node3', 'node5'], ['node3', 'node6'], ['node2', 'node4'], ['node2', 'node7']]
-    power_list = [np.zeros(24), np.zeros(24), np.zeros(24), generate_random_series(24, 1), generate_random_series(24, 1), generate_random_series(24, 1), generate_random_series(24, -1)]
+    power_list = [np.zeros(steps), np.zeros(steps), np.zeros(steps), generate_random_series(steps, 1), generate_random_series(steps, 1), generate_random_series(steps, 1), generate_random_series(steps, -1)]
     idx = 0
     for element in nodes_to_add:
         last_id = get_last_id(elements)
