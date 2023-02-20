@@ -53,6 +53,79 @@ def add_cytoscape_grid(nodes, edges):
     return cytoscape
 
 
+def add_cytoscape_layout():
+    return dbc.Card(
+        children=[
+            dbc.CardBody(
+                dmc.Tabs([
+                    dmc.TabsList([
+                        dmc.Tab("Netz", value="grid", icon=DashIconify(icon="tabler:chart-grid-dots")),
+                        dmc.Tab("Haus 1", value="house1", icon=DashIconify(icon='material-symbols:house-siding-rounded'))
+                    ]),
+                    dmc.TabsPanel(children=[
+                        cyto.Cytoscape(
+                            id='cyto1',
+                            layout={'name': 'preset'},
+                            autoRefreshLayout=False,
+                            elements=[],
+                            style={'background': '#e6ecf2', 'frame': 'blue', 'height': '475px'},
+                            stylesheet=stylesheets.cyto_stylesheet)],
+                        value='grid'),
+                    dmc.TabsPanel(children=[
+                        dbc.Container([
+                            dbc.Row([
+                                dbc.Col([
+                                    cyto.Cytoscape(
+                                        id='cyto_house1',
+                                        layout={'name': 'preset'},
+                                        autoRefreshLayout=False,
+                                        elements=[],
+                                        style={'background': '#e6ecf2', 'frame': 'blue', 'height': '200px', },
+                                        stylesheet=stylesheets.cyto_stylesheet)
+                                ], width=6),
+                                dbc.Col([
+                                    cyto.Cytoscape(
+                                        id='cyto_house2',
+                                        layout={'name': 'preset'},
+                                        autoRefreshLayout=False,
+                                        elements=[],
+                                        style={'background': '#e6ecf2', 'frame': 'blue', 'height': '200px', },
+                                        stylesheet=stylesheets.cyto_stylesheet)
+                                ], width=6)
+                            ]),
+                            dmc.Space(h=20),
+                            dbc.Row([
+                                dbc.Col([
+                                    cyto.Cytoscape(
+                                        id='cyto_house3',
+                                        layout={'name': 'preset'},
+                                        autoRefreshLayout=False,
+                                        elements=[],
+                                        style={'background': '#e6ecf2', 'height': '200px'},
+                                        stylesheet=stylesheets.cyto_stylesheet)
+                                ], width=6),
+                                dbc.Col([
+                                    cyto.Cytoscape(
+                                        id='cyto_house4',
+                                        layout={'name': 'preset'},
+                                        autoRefreshLayout=False,
+                                        elements=[],
+                                        style={'background': '#e6ecf2', 'frame': 'blue', 'height': '200px', },
+                                        stylesheet=stylesheets.cyto_stylesheet)
+                                ], width=6)
+                            ]),
+                        ])
+                    ], value='house1')
+                ],
+                    id='tabs_main', value='grid', color="blue", orientation="horizontal")
+            ),
+            dbc.CardFooter(dmc.Slider(
+                id='timestep_slider', value=0, updatemode='drag',
+                min=1, max=10, step=1))
+        ], style={'height': '100%'}
+    )
+
+
 # def add_rooms(app):     ## Hier app übergeben entfernen, lieber url in roomobjects hinterlegen
 #     background_bath_url = 'url(' + str(app.get_asset_url('background_bath.svg')) + ')'
 #     cytoscape_room = dbc.Card(
@@ -82,6 +155,7 @@ def add_room(id_cyto, elements):
                 stylesheet=stylesheets.cyto_stylesheet)],
         style={'height': '100%'})
     return cytoscape_room
+
 
 def add_modal_readme():
     with open('README.md', encoding='UTF-8') as file:

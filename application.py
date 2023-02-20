@@ -67,10 +67,8 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
                     for i in range(len(house_objects))
                 ], id='house_buttons', style={'display': 'none'}),
             ], width=1),
-            html.Div(dbc.Col([
-                dash_components.add_cytoscape_grid(nodes, edges)], width=7), style={'display': 'none'}),
-            dbc.Col([
-                dash_components.add_rooms(app)], width=7),
+            # dbc.Col([dash_components.add_cytoscape_grid(nodes, edges)], width=7),
+            dbc.Col([dash_components.add_cytoscape_layout()], width=7),
             dbc.Col([dash_components.card_start(), dash_components.card_menu()], width=True)
         ]),
         dash_components.add_modal_edit(),
