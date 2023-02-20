@@ -6,9 +6,6 @@ from dash_iconify import DashIconify
 
 import source.stylesheets as stylesheets
 
-device_list = [
-
-]
 
 def add_storage_variables():
     return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
@@ -54,6 +51,28 @@ def add_cytoscape_grid(nodes, edges):
         # radius="md",
         style={'height': '100%'})
     return cytoscape
+
+
+def add_device_menu():
+    return dmc.Menu(
+        [
+            dmc.MenuTarget(html.Div(id='menu_target')),
+            dmc.MenuDropdown(
+                [
+                    dmc.MenuItem(
+                        "External Link",
+                        href="https://www.github.com/snehilvj",
+                        target="_blank",
+                        icon=DashIconify(icon="radix-icons:external-link"),
+                    ),
+                    dmc.MenuItem("Useless Button", n_clicks=0),
+                ]
+            ),
+        ],
+        id='menu_devices',
+        transition="rotate-right",
+        transitionDuration=150,
+    )
 
 
 def add_cytoscape_layout():

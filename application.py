@@ -75,6 +75,7 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
         dash_components.add_modal_readme(),
         dash_components.add_drawer_notifications(),
         dash_components.add_modal_voltage_level(),
+        dash_components.add_device_menu(),
         dash_components.add_storage_variables(),
         html.P(id='dummy')], width=True),
     html.Div(id='notification_container')
@@ -394,6 +395,8 @@ def notification(data1, data2, notif_list):
 
 
 @app.callback(Output('cyto_bathroom', 'elements'),
+              Output('menu_devices', 'style'),
+              Output('menu_devices', 'opened'),
               Input('cyto_bathroom', 'tapNode'),
               State('cyto_bathroom', 'elements'),
               prevent_initial_call=True)
@@ -408,7 +411,7 @@ def add_device_bathroom(node, elements):
         elements[3]['position'] = new_position_plus
         elements.append(new_socket)
         elements.append(new_edge)
-        return elements
+        return elements, {"position": "fixed", "top": 0, "right": 0}, True
     else:
         raise PreventUpdate
 
