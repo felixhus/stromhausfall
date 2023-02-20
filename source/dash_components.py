@@ -78,13 +78,7 @@ def add_device_menu():
 def add_menu_dropdown():
     return dmc.MenuDropdown(
         [
-            dmc.MenuItem(
-                "External Link",
-                href="https://www.github.com/snehilvj",
-                target="_blank",
-                icon=DashIconify(icon="radix-icons:external-link"),
-            ),
-            dmc.MenuItem("Useless Button", n_clicks=0),
+            dmc.MenuItem("Gerät hinzufügen", id='button_add_device', icon=DashIconify(icon='carbon:edge-device'))
         ]
     )
 
@@ -132,7 +126,7 @@ def add_cytoscape_layout():
                                     dmc.Menu([
                                         dmc.MenuTarget(html.Div(id='menu_target')),
                                         add_menu_dropdown()
-                                    ], id='menu_devices', position='left-start'),
+                                    ], id='menu_devices', position='left-start', withArrow=True),
                                     add_cytoscape('cyto_bathroom', elements)
                                 ], width=6),
                                 dbc.Col([

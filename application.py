@@ -281,19 +281,25 @@ def start_calculation(btn, slider, flow, elements):
             df_flow, labels, format_img_src = calculate_power_flow(elements, gridObject_list)
             df_flow_json = df_flow.to_json(orient='index')
             img_src = 'data:image/png;base64,{}'.format(format_img_src)
-            return df_flow_json, {'display': 'block'}, img_src, no_update, no_update, 'results', stylesheets.cyto_stylesheet_calculated, len(df_flow.index), labels, no_update
+            return df_flow_json, {
+                'display': 'block'}, img_src, no_update, no_update, 'results', stylesheets.cyto_stylesheet_calculated, len(
+                df_flow.index), labels, no_update
         elif triggered_id == 'timestep_slider':
             df_flow = pd.read_json(flow, orient='index')
-            labels = df_flow.loc[slider-1].to_dict()
-            if df_flow.loc[slider-1, 'external_grid'].item() > 0:
-                text_alert = "Es werden " + str(abs(df_flow.loc[slider-1, 'external_grid'].item())) + " kW an das Netz abgegeben."
+            labels = df_flow.loc[slider - 1].to_dict()
+            if df_flow.loc[slider - 1, 'external_grid'].item() > 0:
+                text_alert = "Es werden " + str(
+                    abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " kW an das Netz abgegeben."
             else:
-                text_alert = "Es werden " + str(abs(df_flow.loc[slider-1, 'external_grid'].item())) + " kW aus dem Netz bezogen."
+                text_alert = "Es werden " + str(
+                    abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " kW aus dem Netz bezogen."
             return no_update, no_update, no_update, text_alert, False, no_update, no_update, no_update, labels, no_update
         else:
             raise PreventUpdate
     except Exception as err:
-        return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
+        return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
+               err.args[0]
+
 
 # @app.callback(Output('timestep_slider', 'max'),
 #               Output('store_timestep', 'data'),
@@ -398,21 +404,33 @@ def notification(data1, data2, notif_list):
               Output('menu_devices', 'style'),
               Output('menu_devices', 'opened'),
               Input('cyto_bathroom', 'tapNode'),
+              Input('button_add_device', 'n_clicks'),
               State('cyto_bathroom', 'elements'),
               prevent_initial_call=True)
-def add_device_bathroom(node, elements):
-    if node['data']['id'] == 'plus':
+def add_device_bathroom(node, btn_add, elements):
+    triggered_id = ctx.triggered_id
+    if triggered_id == 'cyto_bathroom':
+        if node['data']['id'] == 'plus':
+            position = elements[3][
+                'position']  # !!!!!!!!!!! Muss noch angepasst werden, je nachdem wo Plus in Liste ist
+            return no_update, {"position": "relative", "top": position['y'], "left": position['x']}, True
+        else:
+            raise PreventUpdate
+    elif triggered_id == 'button_add_device':
         socket_id = "socket" + str((len(elements) - 2) / 3 + 1)[:1]
+        device_id = "device" + str((len(elements) - 2) / 3 + 1)[:1]
         position = elements[3]['position']
         new_position_plus = {'x': position['x'] + 40, 'y': position['y']}
         new_socket = {'data': {'id': socket_id, 'parent': 'power_strip'}, 'position': position,
                       'classes': 'socket_node_style'}
-        new_edge = {'data': {'source': socket_id, 'target': 'lamp'}}
+        new_element = {'data': {'id': device_id},
+                       'classes': 'room_node_style'}
+        new_edge = {'data': {'source': socket_id, 'target': device_id}}
         elements[3]['position'] = new_position_plus
         elements.append(new_socket)
+        elements.append(new_element)
         elements.append(new_edge)
-        return elements, {"position": "relative", "top": 175, "left": 165}, True
-        # return elements, no_update, True
+        return elements, no_update, False
     else:
         raise PreventUpdate
 
