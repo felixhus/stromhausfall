@@ -75,7 +75,7 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
         dash_components.add_modal_readme(),
         dash_components.add_drawer_notifications(),
         dash_components.add_modal_voltage_level(),
-        dash_components.add_device_menu(),
+        # dash_components.add_device_menu(),
         dash_components.add_storage_variables(),
         html.P(id='dummy')], width=True),
     html.Div(id='notification_container')

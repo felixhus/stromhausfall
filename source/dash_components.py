@@ -75,6 +75,30 @@ def add_device_menu():
     )
 
 
+def add_menu_dropdown():
+    return dmc.MenuDropdown(
+        [
+            dmc.MenuItem(
+                "External Link",
+                href="https://www.github.com/snehilvj",
+                target="_blank",
+                icon=DashIconify(icon="radix-icons:external-link"),
+            ),
+            dmc.MenuItem("Useless Button", n_clicks=0),
+        ]
+    )
+
+
+def add_cytoscape(cyto_id, elements):
+    return cyto.Cytoscape(
+        id=cyto_id,
+        layout={'name': 'preset'},
+        autoRefreshLayout=False,
+        elements=elements,
+        style={'background': '#e6ecf2', 'frame': 'blue', 'height': '200px', },
+        stylesheet=stylesheets.cyto_stylesheet)
+
+
 def add_cytoscape_layout():
     elements = [{'data': {'id': 'lamp'}, 'position': {'x': 125, 'y': 25}, 'classes': 'room_node_style',
                  'style': {'background-image': ['/assets/Icons/icon_bulb.png']}},
@@ -105,13 +129,10 @@ def add_cytoscape_layout():
                         dbc.Container([
                             dbc.Row([
                                 dbc.Col([
-                                    cyto.Cytoscape(
-                                        id='cyto_bathroom',
-                                        layout={'name': 'preset'},
-                                        autoRefreshLayout=False,
-                                        elements=elements,
-                                        style={'background': '#e6ecf2', 'frame': 'blue', 'height': '200px', },
-                                        stylesheet=stylesheets.cyto_stylesheet)
+                                    dmc.Menu([
+                                        dmc.MenuTarget(add_cytoscape('cyto_bathroom', elements)),
+                                        add_menu_dropdown()
+                                    ], id='menu_devices')
                                 ], width=6),
                                 dbc.Col([
                                     cyto.Cytoscape(
