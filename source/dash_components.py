@@ -90,13 +90,13 @@ def add_menu_dropdown():
 
 
 def add_cytoscape(cyto_id, elements):
-    return cyto.Cytoscape(
+    return html.Div(cyto.Cytoscape(
         id=cyto_id,
         layout={'name': 'preset'},
         autoRefreshLayout=False,
         elements=elements,
         style={'background': '#e6ecf2', 'frame': 'blue', 'height': '200px', },
-        stylesheet=stylesheets.cyto_stylesheet)
+        stylesheet=stylesheets.cyto_stylesheet))
 
 
 def add_cytoscape_layout():
@@ -130,9 +130,10 @@ def add_cytoscape_layout():
                             dbc.Row([
                                 dbc.Col([
                                     dmc.Menu([
-                                        dmc.MenuTarget(add_cytoscape('cyto_bathroom', elements)),
+                                        dmc.MenuTarget(html.Div(id='menu_target')),
                                         add_menu_dropdown()
-                                    ], id='menu_devices')
+                                    ], id='menu_devices', position='left-start'),
+                                    add_cytoscape('cyto_bathroom', elements)
                                 ], width=6),
                                 dbc.Col([
                                     cyto.Cytoscape(

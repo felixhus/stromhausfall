@@ -411,7 +411,8 @@ def add_device_bathroom(node, elements):
         elements[3]['position'] = new_position_plus
         elements.append(new_socket)
         elements.append(new_edge)
-        return elements, {"position": "fixed", "top": 0, "right": 0}, True
+        return elements, {"position": "relative", "top": 175, "left": 165}, True
+        # return elements, no_update, True
     else:
         raise PreventUpdate
 
