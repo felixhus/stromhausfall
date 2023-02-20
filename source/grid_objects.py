@@ -1,3 +1,6 @@
+import dash_components
+
+
 class GridObject:
     """ The structure to store information of a grid object """
 
@@ -13,6 +16,34 @@ class GridObject:
 
     def get_id(self):
         return self.id
+
+
+class RoomObject:
+    """ The structure to build a room in a house """
+
+    color_on = '#6a93b0'
+    color_off = '#9cb6ca'
+
+    def __init__(self):
+        self.name = None
+        self.power = 0
+
+    def add_room(self):
+        return self.cytoscape
+
+
+class BathroomObject(RoomObject):
+    name = "Badezimmer"
+
+    def __init__(self, *args, **kwargs):
+        super(RoomObject, self).__init__(*args, **kwargs)
+        self.nodes = [
+            {'data': {'id': 'node1'}, 'position': {'x': 0, 'y': 0}, 'classes': 'node_style',
+             'style': {'background-color': self.color_on}},
+            {'data': {'id': 'node2'}, 'position': {'x': 100, 'y': 0}, 'classes': 'node_style',
+             'style': {'background-color': self.color_on}}
+        ]
+        self.cyto = dash_components.add_room('cyto_bath', self.nodes)
 
 
 class HouseObject(GridObject):

@@ -103,7 +103,7 @@ cyto_stylesheet_calculated = [
             'width': '2px',
             'curve-style': 'bezier',
             'label': 'data(label)',
-            'target-arrow-shape': 'triangle'
+            # 'target-arrow-shape': 'triangle'
         }
     }
 ]

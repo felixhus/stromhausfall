@@ -4,6 +4,7 @@ import time
 import dash_bootstrap_components as dbc
 import dash_mantine_components as dmc
 import example_grids
+import grid_objects
 import pandas as pd
 import plotly.express as px
 from dash import Dash, Input, Output, State, ctx, dcc, html, no_update
@@ -12,6 +13,7 @@ from dash_iconify import DashIconify
 
 import source.dash_components as dash_components
 import source.example_grids
+import source.grid_objects
 import source.stylesheets as stylesheets
 from source.modules import (calculate_power_flow, connection_allowed,
                             generate_grid_object, get_connected_edges,
@@ -44,6 +46,7 @@ house_objects = [
 nodes = []
 edges = []
 gridObject_list = []
+bathroom = grid_objects.BathroomObject()
 
 app.layout = dmc.NotificationsProvider(dbc.Container([
     dbc.Col([
@@ -64,8 +67,10 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
                     for i in range(len(house_objects))
                 ], id='house_buttons', style={'display': 'none'}),
             ], width=1),
-            dbc.Col([dash_components.add_cytoscape_grid(nodes, edges)
-                     ], width=7),
+            html.Div(dbc.Col([
+                dash_components.add_cytoscape_grid(nodes, edges)], width=7), style={'display': 'none'}),
+            dbc.Col([
+                dash_components.add_rooms(app)], width=7),
             dbc.Col([dash_components.card_start(), dash_components.card_menu()], width=True)
         ]),
         dash_components.add_modal_edit(),

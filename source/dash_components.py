@@ -49,9 +49,39 @@ def add_cytoscape_grid(nodes, edges):
         # withBorder=True,
         # shadow="sm",
         # radius="md",
-        style={"height": '100%'})
+        style={'height': '100%'})
     return cytoscape
 
+
+# def add_rooms(app):     ## Hier app übergeben entfernen, lieber url in roomobjects hinterlegen
+#     background_bath_url = 'url(' + str(app.get_asset_url('background_bath.svg')) + ')'
+#     cytoscape_room = dbc.Card(
+#         children=[
+#             cyto.Cytoscape(
+#                 id='cyto_bathroom',
+#                 layout={'name': 'preset'},
+#                 autoRefreshLayout=False,
+#                 style={'width': '100%', 'height': '100%', 'background': '#e6ecf2', 'frame': 'blue',},
+#                        # 'background-image': background_bath_url},
+#                 # elements = edges + nodes,
+#                 stylesheet=stylesheets.cyto_stylesheet)],
+#         style={'height': '100%'})
+#     return cytoscape_room
+
+
+def add_room(id_cyto, elements):
+    cytoscape_room = dbc.Card(
+        children=[
+            cyto.Cytoscape(
+                id=id_cyto,
+                layout={'name': 'preset'},
+                autoRefreshLayout=False,
+                style={'width': '100%', 'height': '100%', 'background': '#e6ecf2', 'frame': 'blue', },
+                # 'background-image': background_bath_url},
+                elements=elements,
+                stylesheet=stylesheets.cyto_stylesheet)],
+        style={'height': '100%'})
+    return cytoscape_room
 
 def add_modal_readme():
     with open('README.md', encoding='UTF-8') as file:
