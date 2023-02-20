@@ -6,6 +6,9 @@ from dash_iconify import DashIconify
 
 import source.stylesheets as stylesheets
 
+device_list = [
+
+]
 
 def add_storage_variables():
     return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
@@ -54,12 +57,20 @@ def add_cytoscape_grid(nodes, edges):
 
 
 def add_cytoscape_layout():
+    elements = [{'data': {'id': 'lamp'}, 'position': {'x': 125, 'y': 25}, 'classes': 'room_node_style',
+                 'style': {'background-image': ['/assets/Icons/icon_bulb.png']}},
+                {'data': {'id': 'power_strip'}, 'classes': 'power_strip_style'},
+                {'data': {'id': 'socket1', 'parent': 'power_strip'}, 'position': {'x': 125, 'y': 175},
+                 'classes': 'socket_node_style'},
+                {'data': {'id': 'plus', 'parent': 'power_strip'}, 'position': {'x': 165, 'y': 175},
+                 'classes': 'room_node_style', 'style': {'background-image': ['/assets/Icons/icon_plus.png']}},
+                {'data': {'source': 'socket1', 'target': 'lamp'}}]
     return dbc.Card(
         children=[
             dbc.CardBody(
                 dmc.Tabs([
                     dmc.TabsList([
-                        dmc.Tab("Netz", value="grid", icon=DashIconify(icon="tabler:chart-grid-dots")),
+                        dmc.Tab("Netz", value="grid", icon=DashIconify(icon='tabler:chart-grid-dots')),
                         dmc.Tab("Haus 1", value="house1", icon=DashIconify(icon='material-symbols:house-siding-rounded'))
                     ]),
                     dmc.TabsPanel(children=[
@@ -76,10 +87,10 @@ def add_cytoscape_layout():
                             dbc.Row([
                                 dbc.Col([
                                     cyto.Cytoscape(
-                                        id='cyto_house1',
+                                        id='cyto_bathroom',
                                         layout={'name': 'preset'},
                                         autoRefreshLayout=False,
-                                        elements=[],
+                                        elements=elements,
                                         style={'background': '#e6ecf2', 'frame': 'blue', 'height': '200px', },
                                         stylesheet=stylesheets.cyto_stylesheet)
                                 ], width=6),

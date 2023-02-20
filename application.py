@@ -393,6 +393,26 @@ def notification(data1, data2, notif_list):
                             icon=icon, id='notification'), notif_list, len(notif_list)
 
 
+@app.callback(Output('cyto_bathroom', 'elements'),
+              Input('cyto_bathroom', 'tapNode'),
+              State('cyto_bathroom', 'elements'),
+              prevent_initial_call=True)
+def add_device_bathroom(node, elements):
+    if node['data']['id'] == 'plus':
+        socket_id = "socket" + str((len(elements) - 2) / 3 + 1)[:1]
+        position = elements[3]['position']
+        new_position_plus = {'x': position['x'] + 40, 'y': position['y']}
+        new_socket = {'data': {'id': socket_id, 'parent': 'power_strip'}, 'position': position,
+                      'classes': 'socket_node_style'}
+        new_edge = {'data': {'source': socket_id, 'target': 'lamp'}}
+        elements[3]['position'] = new_position_plus
+        elements.append(new_socket)
+        elements.append(new_edge)
+        return elements
+    else:
+        raise PreventUpdate
+
+
 @app.callback(Output("power_input", "icon"),
               Input("chips_type", "value"),
               prevent_initial_call=True)
