@@ -55,6 +55,30 @@ cyto_stylesheet = [
         }
     },
     {
+        'selector': '.socket_node_style_on',
+        'style': {
+            'background-color': 'green',
+            'shape': 'roundrectangle',
+            'width': 30,
+            'height': 30,
+            'background-image': ['/assets/Icons/icon_socket.png'],
+            'background-width': 20,
+            'background-height': 20,
+        }
+    },
+    {
+        'selector': '.socket_node_style_off',
+        'style': {
+            'background-color': 'red',
+            'shape': 'roundrectangle',
+            'width': 30,
+            'height': 30,
+            'background-image': ['/assets/Icons/icon_socket.png'],
+            'background-width': 20,
+            'background-height': 20,
+        }
+    },
+    {
         'selector': '.power_strip_style',
         'style': {
             'shape': 'roundrectangle',

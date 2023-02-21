@@ -391,34 +391,43 @@ def notification(data1, data2, notif_list):
               Input('button_close_menu', 'n_clicks'),
               [Input(device[1], 'n_clicks') for device in dash_components.devices['bathroom']],
               prevent_initial_call=True)
-def add_device_bathroom(elements, node, btn_close, *btn_add):
+def add_device_bathroom(elements, node, btn_close, *btn_add):       # Callback to handle Bathroom action
     triggered_id = ctx.triggered_id
     if triggered_id == 'cyto_bathroom':
-        if node['data']['id'] == 'plus':
+        if node['data']['id'] == 'plus':        # Open Menu with Devices to add
             position = elements[1]['position']
             return no_update, {"position": "relative", "top": position['y'], "left": position['x']}, True
+        elif node['data']['id'][:6] == "socket":        # A socket was clicked, switch this one on/off
+            for ele in elements:
+                if ele['data']['id'] == node['data']['id']:
+                    if ele['classes'] == 'socket_node_style_on':
+                        ele['classes'] = 'socket_node_style_off'
+                    else:
+                        ele['classes'] = 'socket_node_style_on'
+                    break
+            return elements, no_update, no_update
         else:
             raise PreventUpdate
-    elif triggered_id[:10] == 'button_add':
-        socket_id = "socket" + str((len(elements) - 2) / 3 + 1)[:1]
+    elif triggered_id[:10] == 'button_add':     # A button in the menu was clicked
+        socket_id = "socket" + str((len(elements) - 2) / 3 + 1)[:1]     # Get ids of new elements
         device_id = "device" + str((len(elements) - 2) / 3 + 1)[:1]
-        position = elements[1]['position']
-        new_position_plus = {'x': position['x'] + 40, 'y': position['y']}
-        new_socket = {'data': {'id': socket_id, 'parent': 'power_strip'}, 'position': position,
+        position = elements[1]['position']                              # Get Position of plus-node
+        new_position_plus = {'x': position['x'] + 40, 'y': position['y']}   # Calculate new position of plus-node
+        new_socket = {'data': {'id': socket_id, 'parent': 'power_strip'}, 'position': position, # Generate new socket
                       'classes': 'socket_node_style'}
         if len(elements) % 6 - 2 > 0:
-            position_node = {'x': position['x'], 'y': position['y'] - 80}
+            position_node = {'x': position['x'], 'y': position['y'] - 80}   # Get position of new device
         else:
             position_node = {'x': position['x'], 'y': position['y'] - 120}
-        new_node = {'data': {'id': device_id}, 'classes': 'room_node_style', 'position': position_node,
+        new_node = {'data': {'id': device_id}, 'classes': 'room_node_style', 'position': position_node,     #Generate new device
                        'style': {'background-image': ['/assets/Icons/icon_' + triggered_id[11:] + '.png']}}
-        new_edge = {'data': {'source': socket_id, 'target': device_id}}
+        new_edge = {'data': {'source': socket_id, 'target': device_id}}     # Connect new device with new socket
         elements[1]['position'] = new_position_plus
-        elements.append(new_socket)
+        elements.append(new_socket)     # Append new nodes and edges to cytoscape elements
         elements.append(new_node)
         elements.append(new_edge)
-        return elements, no_update, False
-    elif triggered_id == 'button_close_menu':
+        return elements, no_update, False   # Return elements and close menu
+    elif triggered_id == 'button_close_menu':   # The button "close" of the menu was clicked, close the menu
         return no_update, no_update, False
     else:
         raise PreventUpdate
