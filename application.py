@@ -67,7 +67,6 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
                     for i in range(len(house_objects))
                 ], id='house_buttons', style={'display': 'none'}),
             ], width=1),
-            # dbc.Col([dash_components.add_cytoscape_grid(nodes, edges)], width=7),
             dbc.Col([dash_components.add_cytoscape_layout()], width=7),
             dbc.Col([dash_components.card_start(), dash_components.card_menu()], width=True)
         ]),
@@ -75,7 +74,6 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
         dash_components.add_modal_readme(),
         dash_components.add_drawer_notifications(),
         dash_components.add_modal_voltage_level(),
-        # dash_components.add_device_menu(),
         dash_components.add_storage_variables(),
         html.P(id='dummy')], width=True),
     html.Div(id='notification_container')
@@ -301,21 +299,6 @@ def start_calculation(btn, slider, flow, elements):
                err.args[0]
 
 
-# @app.callback(Output('timestep_slider', 'max'),
-#               Output('store_timestep', 'data'),
-#               Input('timestep_slider', 'value'),
-#               Input('store_flow_data', 'data'))
-# def slider_timestep(slider, flow):
-#     triggered_id = ctx.triggered_id
-#     if triggered_id == 'timestep_slider':
-#         return no_update, slider
-#     elif triggered_id == 'store_flow_data':
-#         df_flow = pd.read_json(flow, orient='index')
-#         return len(df_flow.index), no_update
-#     else:
-#         raise PreventUpdate
-
-
 @app.callback(Output('modal_readme', 'opened'),
               Input('button_readme', 'n_clicks'),
               prevent_initial_call=True)
@@ -403,34 +386,40 @@ def notification(data1, data2, notif_list):
 @app.callback(Output('cyto_bathroom', 'elements'),
               Output('menu_devices', 'style'),
               Output('menu_devices', 'opened'),
-              Input('cyto_bathroom', 'tapNode'),
-              Input('button_add_device', 'n_clicks'),
               State('cyto_bathroom', 'elements'),
+              Input('cyto_bathroom', 'tapNode'),
+              Input('button_close_menu', 'n_clicks'),
+              [Input(device[1], 'n_clicks') for device in dash_components.devices['bathroom']],
               prevent_initial_call=True)
-def add_device_bathroom(node, btn_add, elements):
+def add_device_bathroom(elements, node, btn_close, *btn_add):
     triggered_id = ctx.triggered_id
     if triggered_id == 'cyto_bathroom':
         if node['data']['id'] == 'plus':
-            position = elements[3][
-                'position']  # !!!!!!!!!!! Muss noch angepasst werden, je nachdem wo Plus in Liste ist
+            position = elements[1]['position']
             return no_update, {"position": "relative", "top": position['y'], "left": position['x']}, True
         else:
             raise PreventUpdate
-    elif triggered_id == 'button_add_device':
+    elif triggered_id[:10] == 'button_add':
         socket_id = "socket" + str((len(elements) - 2) / 3 + 1)[:1]
         device_id = "device" + str((len(elements) - 2) / 3 + 1)[:1]
-        position = elements[3]['position']
+        position = elements[1]['position']
         new_position_plus = {'x': position['x'] + 40, 'y': position['y']}
         new_socket = {'data': {'id': socket_id, 'parent': 'power_strip'}, 'position': position,
                       'classes': 'socket_node_style'}
-        new_element = {'data': {'id': device_id},
-                       'classes': 'room_node_style'}
+        if len(elements) % 6 - 2 > 0:
+            position_node = {'x': position['x'], 'y': position['y'] - 80}
+        else:
+            position_node = {'x': position['x'], 'y': position['y'] - 120}
+        new_node = {'data': {'id': device_id}, 'classes': 'room_node_style', 'position': position_node,
+                       'style': {'background-image': ['/assets/Icons/icon_' + triggered_id[11:] + '.png']}}
         new_edge = {'data': {'source': socket_id, 'target': device_id}}
-        elements[3]['position'] = new_position_plus
+        elements[1]['position'] = new_position_plus
         elements.append(new_socket)
-        elements.append(new_element)
+        elements.append(new_node)
         elements.append(new_edge)
         return elements, no_update, False
+    elif triggered_id == 'button_close_menu':
+        return no_update, no_update, False
     else:
         raise PreventUpdate
 

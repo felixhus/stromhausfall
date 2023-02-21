@@ -6,6 +6,10 @@ from dash_iconify import DashIconify
 
 import source.stylesheets as stylesheets
 
+devices = {'bathroom': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hair-dryer'],
+                        ["Zahnbürste", 'button_add_toothbrush', 'mdi:toothbrush-electric'],
+                        ["Bügeleisen", 'button_add_iron', 'tabler:ironing-1']]}
+
 
 def add_storage_variables():
     return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
@@ -53,34 +57,15 @@ def add_cytoscape_grid(nodes, edges):
     return cytoscape
 
 
-def add_device_menu():
-    return dmc.Menu(
-        [
-            dmc.MenuTarget(html.Div(id='menu_target')),
-            dmc.MenuDropdown(
-                [
-                    dmc.MenuItem(
-                        "External Link",
-                        href="https://www.github.com/snehilvj",
-                        target="_blank",
-                        icon=DashIconify(icon="radix-icons:external-link"),
-                    ),
-                    dmc.MenuItem("Useless Button", n_clicks=0),
-                ]
-            ),
-        ],
-        id='menu_devices',
-        transition="rotate-right",
-        transitionDuration=150,
-    )
-
-
-def add_menu_dropdown():
-    return dmc.MenuDropdown(
-        [
-            dmc.MenuItem("Gerät hinzufügen", id='button_add_device', icon=DashIconify(icon='carbon:edge-device'))
-        ]
-    )
+def add_menu_dropdown(room_type):
+    item_list = []
+    for item in devices[room_type]:
+        item_list.append(dmc.MenuItem(item[0], id=item[1], icon=DashIconify(icon=item[2])))
+    item_list.append(dmc.MenuDivider())
+    item_list.append(
+        dmc.MenuItem("Schließen", id='button_close_menu', icon=DashIconify(icon='material-symbols:close-rounded'),
+                     color='red'))
+    return dmc.MenuDropdown(item_list)
 
 
 def add_cytoscape(cyto_id, elements):
@@ -89,26 +74,29 @@ def add_cytoscape(cyto_id, elements):
         layout={'name': 'preset'},
         autoRefreshLayout=False,
         elements=elements,
-        style={'background': '#e6ecf2', 'frame': 'blue', 'height': '200px', },
+        style={'background': '#e6ecf2', 'frame': 'blue', 'height': '200px'},
         stylesheet=stylesheets.cyto_stylesheet))
 
 
 def add_cytoscape_layout():
-    elements = [{'data': {'id': 'lamp'}, 'position': {'x': 125, 'y': 25}, 'classes': 'room_node_style',
-                 'style': {'background-image': ['/assets/Icons/icon_bulb.png']}},
-                {'data': {'id': 'power_strip'}, 'classes': 'power_strip_style'},
-                {'data': {'id': 'socket1', 'parent': 'power_strip'}, 'position': {'x': 125, 'y': 175},
-                 'classes': 'socket_node_style'},
-                {'data': {'id': 'plus', 'parent': 'power_strip'}, 'position': {'x': 165, 'y': 175},
-                 'classes': 'room_node_style', 'style': {'background-image': ['/assets/Icons/icon_plus.png']}},
-                {'data': {'source': 'socket1', 'target': 'lamp'}}]
+    elements = [
+        {'data': {'id': 'power_strip'}, 'classes': 'power_strip_style'},
+        {'data': {'id': 'plus', 'parent': 'power_strip'}, 'position': {'x': 75, 'y': 175},
+         'classes': 'room_node_style', 'style': {'background-image': ['/assets/Icons/icon_plus.png']}},
+        {'data': {'id': 'socket1', 'parent': 'power_strip'}, 'position': {'x': 35, 'y': 175},
+         'classes': 'socket_node_style'},
+        {'data': {'id': 'lamp'}, 'position': {'x': 35, 'y': 25}, 'classes': 'room_node_style',
+         'style': {'background-image': ['/assets/Icons/icon_bulb.png']}},
+        {'data': {'source': 'socket1', 'target': 'lamp'}}]
+
     return dbc.Card(
         children=[
             dbc.CardBody(
                 dmc.Tabs([
                     dmc.TabsList([
                         dmc.Tab("Netz", value="grid", icon=DashIconify(icon='tabler:chart-grid-dots')),
-                        dmc.Tab("Haus 1", value="house1", icon=DashIconify(icon='material-symbols:house-siding-rounded'))
+                        dmc.Tab("Haus 1", value="house1",
+                                icon=DashIconify(icon='material-symbols:house-siding-rounded'))
                     ]),
                     dmc.TabsPanel(children=[
                         cyto.Cytoscape(
@@ -125,7 +113,7 @@ def add_cytoscape_layout():
                                 dbc.Col([
                                     dmc.Menu([
                                         dmc.MenuTarget(html.Div(id='menu_target')),
-                                        add_menu_dropdown()
+                                        add_menu_dropdown('bathroom')
                                     ], id='menu_devices', position='left-start', withArrow=True),
                                     add_cytoscape('cyto_bathroom', elements)
                                 ], width=6),
@@ -302,7 +290,7 @@ def dash_navbar():
                            gradient={"from": "teal", "to": "blue", "deg": 60}),
                 dmc.Button("README", id='button_readme', n_clicks=0,
                            leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
-                dmc.Button("Debug", id='debug_button', variant="gradient",
+                dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
                            gradient={"from": "grape", "to": "pink", "deg": 35})], spacing=10
             ),
         ]), color="dark", dark=True
