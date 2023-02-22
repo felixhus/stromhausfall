@@ -58,16 +58,11 @@ def generate_grid_object(object_type, object_id, node_id):
         return None
 
 
-def connection_allowed(source, target, object_list):
-    target_type = None
-    for gridobject in object_list:
-        if gridobject.get_id() == target:
-            target_type = gridobject.object_type
-            break
-    for gridobject in object_list:
-        if gridobject.get_id() == source:
-            if target_type in gridobject.allowed_types_to_connect:
-                return True
+def connection_allowed(source, target, object_dict):
+    """ Check if the connection which is about to be added is allowed. """
+    target_type = object_dict[target]['object_type']
+    if target_type in object_dict[source]['allowed_types_to_connect']:
+        return True
     return False
 
 
