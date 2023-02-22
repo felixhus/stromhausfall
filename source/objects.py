@@ -95,3 +95,10 @@ def create_SwitchCabinetObject(object_id, node_id):
         'ui_color': '#9cb6ca',
         'allowed_types_to_connect': ["transformer", "house", "battery", "pv", "smartmeter", "switch_cabinet"],
     }
+
+
+def create_TransformerHelperNodeObject():
+    return {
+        'power': 0,
+        'object_type': 'transformer_helper',
+    }

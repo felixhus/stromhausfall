@@ -125,11 +125,11 @@ def edit_mode(btn_line, btn_active):
               State('line_edit_active', 'data'),
               State('start_of_line', 'data'),
               State('selected_element', 'data'),
-              State('store_get_voltage', 'data'),)
+              State('store_get_voltage', 'data'), )
 def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_hv, button_lv, elements, gridObject_dict,
               btn_line_active, start_of_line, selected_element, node_ids):
     triggered_id = ctx.triggered_id
-    if triggered_id == 'button_line':       # Start line edit mode, set 'start_of_line' as None
+    if triggered_id == 'button_line':  # Start line edit mode, set 'start_of_line' as None
         return no_update, no_update, None, no_update, no_update, no_update, no_update
     elif triggered_id == 'store_add_node':
         last_id = get_last_id(elements)
@@ -151,7 +151,8 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_h
                         modal_boolean = False
                         start_object = gridObject_dict[start_of_line[0]['id']]
                         end_object = gridObject_dict[node[0]['id']]
-                        if start_object['voltage'] is None and end_object['voltage'] is None:  # Check if voltage level of connection is defined through one of the components
+                        if start_object['voltage'] is None and end_object[
+                            'voltage'] is None:  # Check if voltage level of connection is defined through one of the components
                             return_temp = [start_object['id'], end_object['id']]
                             modal_boolean = True
                         new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
@@ -186,9 +187,7 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_h
         gridObject_dict.pop(index)
         return elements, gridObject_dict, no_update, True, no_update, no_update, no_update
     elif triggered_id == 'example_button':
-        ele, temp = example_grids.simple_grid_timeseries_day(app, 96)
-        for element in temp:
-            gridObject_dict.append(element)
+        ele, gridObject_dict = example_grids.simple_grid_timeseries_day(app, 96)
         return ele, gridObject_dict, no_update, no_update, no_update, no_update, no_update
     elif triggered_id == 'store_edge_labels':  # Set labels of edges with power values
         for edge, label in labels.items():
@@ -197,10 +196,6 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_h
                     ele['data']['label'] = str(label)
                     break
         return elements, no_update, no_update, no_update, no_update, no_update, no_update
-    elif triggered_id == 'store_get_voltage':
-        if node_ids is None:
-            raise PreventUpdate
-        return no_update, no_update, no_update, no_update, no_update, no_update, True
     elif triggered_id == 'button_voltage_hv':
         for node_id in node_ids:
             obj = gridObject_dict[node_id]
@@ -307,17 +302,17 @@ def button_add_pressed(*args):
               Input('timestep_slider', 'value'),
               State('store_flow_data', 'data'),
               State('cyto1', 'elements'),
+              State('store_grid_object_list', 'data'),
               prevent_initial_call=True)
-def start_calculation(btn, slider, flow, elements):
+def start_calculation(btn, slider, flow, elements, gridObject_dict):
     try:
         triggered_id = ctx.triggered_id
         if triggered_id == 'button_calculate':
-            df_flow, labels, format_img_src = calculate_power_flow(elements, gridObject_list)
+            df_flow, labels, format_img_src = calculate_power_flow(elements, gridObject_dict)
             df_flow_json = df_flow.to_json(orient='index')
             img_src = 'data:image/png;base64,{}'.format(format_img_src)
-            return df_flow_json, {
-                'display': 'block'}, img_src, no_update, no_update, 'results', stylesheets.cyto_stylesheet_calculated, len(
-                df_flow.index), labels, no_update
+            return df_flow_json, {'display': 'block'}, img_src, no_update, no_update, 'results', \
+                   stylesheets.cyto_stylesheet_calculated, len(df_flow.index), labels, no_update
         elif triggered_id == 'timestep_slider':
             df_flow = pd.read_json(flow, orient='index')
             labels = df_flow.loc[slider - 1].to_dict()
@@ -428,13 +423,13 @@ def notification(data1, data2, notif_list):
               Input('button_close_menu', 'n_clicks'),
               [Input(device[1], 'n_clicks') for device in dash_components.devices['bathroom']],
               prevent_initial_call=True)
-def manage_devices_bathroom(elements, node, btn_close, *btn_add):       # Callback to handle Bathroom action
+def manage_devices_bathroom(elements, node, btn_close, *btn_add):  # Callback to handle Bathroom action
     triggered_id = ctx.triggered_id
     if triggered_id == 'cyto_bathroom':
-        if node['data']['id'] == 'plus':        # Open Menu with Devices to add
+        if node['data']['id'] == 'plus':  # Open Menu with Devices to add
             position = elements[1]['position']
             return no_update, {"position": "relative", "top": position['y'], "left": position['x']}, True, no_update
-        elif node['data']['id'][:6] == "socket":        # A socket was clicked, switch this one on/off
+        elif node['data']['id'][:6] == "socket":  # A socket was clicked, switch this one on/off
             for ele in elements:
                 if ele['data']['id'] == node['data']['id']:
                     if ele['classes'] == 'socket_node_style_on':
@@ -449,26 +444,27 @@ def manage_devices_bathroom(elements, node, btn_close, *btn_add):       # Callba
             return no_update, no_update, no_update, 'lamp'
         else:
             raise PreventUpdate
-    elif triggered_id[:10] == 'button_add':     # A button in the menu was clicked
-        socket_id = "socket" + str((len(elements) - 2) / 3 + 1)[:1]     # Get ids of new elements
+    elif triggered_id[:10] == 'button_add':  # A button in the menu was clicked
+        socket_id = "socket" + str((len(elements) - 2) / 3 + 1)[:1]  # Get ids of new elements
         device_id = "device" + str((len(elements) - 2) / 3 + 1)[:1]
-        position = elements[1]['position']                              # Get Position of plus-node
-        new_position_plus = {'x': position['x'] + 40, 'y': position['y']}   # Calculate new position of plus-node
-        new_socket = {'data': {'id': socket_id, 'parent': 'power_strip'}, 'position': position, # Generate new socket
+        position = elements[1]['position']  # Get Position of plus-node
+        new_position_plus = {'x': position['x'] + 40, 'y': position['y']}  # Calculate new position of plus-node
+        new_socket = {'data': {'id': socket_id, 'parent': 'power_strip'}, 'position': position,  # Generate new socket
                       'classes': 'socket_node_style'}
         if len(elements) % 6 - 2 > 0:
-            position_node = {'x': position['x'], 'y': position['y'] - 80}   # Get position of new device
+            position_node = {'x': position['x'], 'y': position['y'] - 80}  # Get position of new device
         else:
             position_node = {'x': position['x'], 'y': position['y'] - 120}
-        new_node = {'data': {'id': device_id}, 'classes': 'room_node_style', 'position': position_node,     #Generate new device
-                       'style': {'background-image': ['/assets/Icons/icon_' + triggered_id[11:] + '.png']}}
-        new_edge = {'data': {'source': socket_id, 'target': device_id}}     # Connect new device with new socket
+        new_node = {'data': {'id': device_id}, 'classes': 'room_node_style', 'position': position_node,
+                    # Generate new device
+                    'style': {'background-image': ['/assets/Icons/icon_' + triggered_id[11:] + '.png']}}
+        new_edge = {'data': {'source': socket_id, 'target': device_id}}  # Connect new device with new socket
         elements[1]['position'] = new_position_plus
-        elements.append(new_socket)     # Append new nodes and edges to cytoscape elements
+        elements.append(new_socket)  # Append new nodes and edges to cytoscape elements
         elements.append(new_node)
         elements.append(new_edge)
-        return elements, no_update, False, no_update   # Return elements and close menu
-    elif triggered_id == 'button_close_menu':   # The button "close" of the menu was clicked, close the menu
+        return elements, no_update, False, no_update  # Return elements and close menu
+    elif triggered_id == 'button_close_menu':  # The button "close" of the menu was clicked, close the menu
         return no_update, no_update, False, no_update
     else:
         raise PreventUpdate
@@ -482,10 +478,10 @@ def manage_devices_bathroom(elements, node, btn_close, *btn_add):       # Callba
 def manage_menu_containers(tab_value, menu_children):
     triggered_id = ctx.triggered_id
     if triggered_id == 'store_menu_change_tab':
-        if any(ele['props']['value'] == tab_value for ele in menu_children):    # Check if tab already exists
-            return no_update, tab_value                                         # If it does, only open it
+        if any(ele['props']['value'] == tab_value for ele in menu_children):  # Check if tab already exists
+            return no_update, tab_value  # If it does, only open it
         else:
-            tab_id = str(random.randrange(1000))                                # If it does not, create and open it
+            tab_id = str(random.randrange(1000))  # If it does not, create and open it
             return menu_children + [dash_components.add_menu_tab_panel(tab_value)], tab_value
     else:
         raise PreventUpdate
