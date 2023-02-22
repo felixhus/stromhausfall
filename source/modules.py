@@ -3,7 +3,6 @@ import copy
 import io
 import warnings
 
-import grid_objects
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np

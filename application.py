@@ -81,9 +81,9 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
 ], id='main_container'))
 
 
-# @app.callback(Output('store_grid_object_list', 'data'),
+# @app.callback(Output('store_grid_object_dict', 'data'),
 #               Input('init', 'children'),
-#               State('store_grid_object_list', 'data'))
+#               State('store_grid_object_dict', 'data'))
 # def init_callback(init, grid_object_list):
 #     if grid_object_list is None:
 #         return []
@@ -105,7 +105,7 @@ def edit_mode(btn_line, btn_active):
 
 
 @app.callback(Output('cyto1', 'elements'),  # Callback to change elements of cyto
-              Output('store_grid_object_list', 'data'),
+              Output('store_grid_object_dict', 'data'),
               Output('start_of_line', 'data'),
               Output('element_deleted', 'data'),
               Output('store_notification1', 'data'),
@@ -117,11 +117,10 @@ def edit_mode(btn_line, btn_active):
               Input('button_line', 'n_clicks'),
               Input('example_button', 'n_clicks'),
               Input('store_edge_labels', 'data'),
-              # Input('store_get_voltage', 'data'),
               Input('button_voltage_hv', 'n_clicks'),
               Input('button_voltage_lv', 'n_clicks'),
               State('cyto1', 'elements'),
-              State('store_grid_object_list', 'data'),
+              State('store_grid_object_dict', 'data'),
               State('line_edit_active', 'data'),
               State('start_of_line', 'data'),
               State('selected_element', 'data'),
@@ -302,7 +301,7 @@ def button_add_pressed(*args):
               Input('timestep_slider', 'value'),
               State('store_flow_data', 'data'),
               State('cyto1', 'elements'),
-              State('store_grid_object_list', 'data'),
+              State('store_grid_object_dict', 'data'),
               prevent_initial_call=True)
 def start_calculation(btn, slider, flow, elements, gridObject_dict):
     try:
@@ -335,37 +334,6 @@ def start_calculation(btn, slider, flow, elements, gridObject_dict):
               prevent_initial_call=True)
 def open_readme(btn):
     return True
-
-
-# @app.callback(Output('modal_voltage', 'opened'),
-#               Output('store_grid_object_list', 'data'),
-#               Input('store_get_voltage', 'data'),
-#               Input('button_voltage_hv', 'n_clicks'),
-#               Input('button_voltage_lv', 'n_clicks'),
-#               State('cyto1', 'elements'),
-#               State('store_grid_object_list', 'data'),
-#               prevent_initial_call=True
-#               )
-# def modal_voltage(node_ids, button_hv, button_lv, elements, gridObject_dict):
-#     triggered_id = ctx.triggered_id
-#     if triggered_id == 'store_get_voltage':
-#         if node_ids is None:
-#             raise PreventUpdate
-#         return True, no_update
-#     elif triggered_id == 'button_voltage_hv':
-#         for node_id in node_ids:
-#             obj = gridObject_dict[node_id]
-#             if obj['object_type'] != "transformer":
-#                 obj['voltage'] = 20000
-#         return False, gridObject_dict
-#     elif triggered_id == 'button_voltage_lv':
-#         for node_id in node_ids:
-#             obj = gridObject_dict[node_id]
-#             if obj['object_type'] != "transformer":
-#                 obj['voltage'] = 400
-#         return False, gridObject_dict
-#     else:
-#         raise PreventUpdate
 
 
 @app.callback(Output('notification_container', 'children'),

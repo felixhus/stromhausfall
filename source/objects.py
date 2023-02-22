@@ -102,3 +102,16 @@ def create_TransformerHelperNodeObject():
         'power': 0,
         'object_type': 'transformer_helper',
     }
+
+
+def create_DeviceObject():
+    return {
+        'name': 'Gerät',
+        'type': 'device',
+        'power': None,
+        'power_options': {
+            'Klasse A': {'key': 'data_device_A', 'icon': 'tabler:hexagon-letter-a'},
+            'Klasse B': {'key': 'data_device_B', 'icon': 'tabler:hexagon-letter-b'},
+            'Klasse C': {'key': 'data_device_C', 'icon': 'tabler:hexagon-letter-c'},
+        }
+    }

@@ -129,9 +129,6 @@ class SwitchCabinet(GridObject):
     allowed_types_to_connect = ["transformer", "house", "battery", "pv", "smartmeter"]
 
 
-# class LineObject():
-
-
 class TransformerHelperNode:
     object_type = "transformer_helper"
     power = 0
