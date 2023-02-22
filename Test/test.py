@@ -1,20 +1,43 @@
+import numpy as np
 import plotly.graph_objs as go
 
-# create bar graph trace
-trace_bar = go.Bar(x=[1, 2, 3, 4], y=[10, 20, 30, 40])
+# Generate random data
+np.random.seed(1)
+y = np.random.randint(2500, size=96)
 
-# create draggable points trace
-trace_points = go.Scatter(x=[1, 2, 3, 4], y=[10, 20, 30, 40],
-                          mode='markers', marker=dict(symbol='circle', size=10),
-                          dragmode='xy')
+# Create the bar plot
+data = [
+    go.Bar(
+        x=list(range(96)),
+        y=y,
+        # marker=dict(
+            # color='rgb(50, 171, 96)',
+        #     line=dict(
+        #         color='rgb(0, 0, 0)',
+        #         width=1.5),
+        # ),
+        opacity=0.8,
+        width=1,
+    )
+]
 
-# create figure
-fig = go.Figure(data=[trace_bar, trace_points])
+# Set layout options
+layout = go.Layout(
+    title='24-Hour Power Usage',
+    xaxis=dict(
+        title='Timestep',
+        tickvals=list(range(96)),
+        ticktext=[f'{i:02d}:00' for i in range(24)]*4,
+    ),
+    yaxis=dict(
+        title='W',
+    ),
+    bargap=0,
+    template='seaborn',
+)
 
-# update layout
-fig.update_layout(title='Bar Graph with Draggable Points',
-                  xaxis_title='X Axis Title',
-                  yaxis_title='Y Axis Title')
+# Create the figure object
+fig = go.Figure(data=data, layout=layout)
 
-# show figure
+# Display the plot
 fig.show()

@@ -376,34 +376,15 @@ def card_menu():
 
 
 def add_menu_tab_panel(tab_value):
-    if tab_value == 'tab1':
+    if tab_value == 'device_bathroom':
         return dmc.TabsPanel(
-            dmc.Slider(
-                id="slider-callback",
-                value=26,
-                marks=[
-                    {"value": 20, "label": "20%"},
-                    {"value": 50, "label": "50%"},
-                    {"value": 80, "label": "80%"},
-                ],
-                mb=35,
-            ), value=tab_value
+            dmc.Text("Gerät Badezimmer"),
+            value=tab_value
         )
-    elif tab_value == 'tab2':
+    elif tab_value == 'lamp':
         return dmc.TabsPanel(
-            dmc.Select(
-                label="Select framework",
-                placeholder="Select one",
-                id="framework-select",
-                value="ng",
-                data=[
-                    {"value": "react", "label": "React"},
-                    {"value": "ng", "label": "Angular"},
-                    {"value": "svelte", "label": "Svelte"},
-                    {"value": "vue", "label": "Vue"},
-                ],
-                style={"width": 200, "marginBottom": 10},
-            ), value=tab_value
+            dmc.Text("Lampe"),
+            value=tab_value
         )
 
 

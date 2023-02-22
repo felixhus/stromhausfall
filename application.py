@@ -387,17 +387,18 @@ def notification(data1, data2, notif_list):
 @app.callback(Output('cyto_bathroom', 'elements'),
               Output('menu_devices', 'style'),
               Output('menu_devices', 'opened'),
+              Output('store_menu_change_tab', 'data'),
               State('cyto_bathroom', 'elements'),
               Input('cyto_bathroom', 'tapNode'),
               Input('button_close_menu', 'n_clicks'),
               [Input(device[1], 'n_clicks') for device in dash_components.devices['bathroom']],
               prevent_initial_call=True)
-def add_device_bathroom(elements, node, btn_close, *btn_add):       # Callback to handle Bathroom action
+def manage_devices_bathroom(elements, node, btn_close, *btn_add):       # Callback to handle Bathroom action
     triggered_id = ctx.triggered_id
     if triggered_id == 'cyto_bathroom':
         if node['data']['id'] == 'plus':        # Open Menu with Devices to add
             position = elements[1]['position']
-            return no_update, {"position": "relative", "top": position['y'], "left": position['x']}, True
+            return no_update, {"position": "relative", "top": position['y'], "left": position['x']}, True, no_update
         elif node['data']['id'][:6] == "socket":        # A socket was clicked, switch this one on/off
             for ele in elements:
                 if ele['data']['id'] == node['data']['id']:
@@ -406,7 +407,11 @@ def add_device_bathroom(elements, node, btn_close, *btn_add):       # Callback t
                     else:
                         ele['classes'] = 'socket_node_style_on'
                     break
-            return elements, no_update, no_update
+            return elements, no_update, no_update, no_update
+        elif node['data']['id'][:6] == "device":
+            return no_update, no_update, no_update, 'device_bathroom'
+        elif node['data']['id'][:4] == "lamp":
+            return no_update, no_update, no_update, 'lamp'
         else:
             raise PreventUpdate
     elif triggered_id[:10] == 'button_add':     # A button in the menu was clicked
@@ -427,9 +432,9 @@ def add_device_bathroom(elements, node, btn_close, *btn_add):       # Callback t
         elements.append(new_socket)     # Append new nodes and edges to cytoscape elements
         elements.append(new_node)
         elements.append(new_edge)
-        return elements, no_update, False   # Return elements and close menu
+        return elements, no_update, False, no_update   # Return elements and close menu
     elif triggered_id == 'button_close_menu':   # The button "close" of the menu was clicked, close the menu
-        return no_update, no_update, False
+        return no_update, no_update, False, no_update
     else:
         raise PreventUpdate
 
@@ -491,13 +496,13 @@ def open_menu_card(btn):
         raise PreventUpdate
 
 
-@app.callback(Output('store_menu_change_tab', 'data'),
-              Input('debug_button', 'n_clicks'),
-              State('menu_parent_tabs', 'children'),
-              prevent_initial_call=True)
-def debug(btn, children):
-    tab_id = str(random.randrange(1000))
-    return 'tab1'
+# @app.callback(Output('store_menu_change_tab', 'data'),
+#               Input('debug_button', 'n_clicks'),
+#               State('menu_parent_tabs', 'children'),
+#               prevent_initial_call=True)
+# def debug(btn, children):
+#     tab_id = str(random.randrange(1000))
+#     return 'tab1'
 
 
 if __name__ == '__main__':
