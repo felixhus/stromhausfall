@@ -110,22 +110,27 @@ def edit_mode(btn_line, btn_active):
               Output('element_deleted', 'data'),
               Output('store_notification1', 'data'),
               Output('store_get_voltage', 'data'),
+              Output('modal_voltage', 'opened'),
               Input('store_add_node', 'data'),
               Input('cyto1', 'selectedNodeData'),
               Input('modal_edit_delete_button', 'n_clicks'),
               Input('button_line', 'n_clicks'),
               Input('example_button', 'n_clicks'),
               Input('store_edge_labels', 'data'),
+              # Input('store_get_voltage', 'data'),
+              Input('button_voltage_hv', 'n_clicks'),
+              Input('button_voltage_lv', 'n_clicks'),
               State('cyto1', 'elements'),
               State('store_grid_object_list', 'data'),
               State('line_edit_active', 'data'),
               State('start_of_line', 'data'),
-              State('selected_element', 'data'))
-def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, elements, gridObject_dict,
-              btn_line_active, start_of_line, selected_element):
+              State('selected_element', 'data'),
+              State('store_get_voltage', 'data'),)
+def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_hv, button_lv, elements, gridObject_dict,
+              btn_line_active, start_of_line, selected_element, node_ids):
     triggered_id = ctx.triggered_id
     if triggered_id == 'button_line':       # Start line edit mode, set 'start_of_line' as None
-        return no_update, no_update, None, no_update, no_update, no_update
+        return no_update, no_update, None, no_update, no_update, no_update, no_update
     elif triggered_id == 'store_add_node':
         last_id = get_last_id(elements)
         new_gridobject = generate_grid_object(btn_add, 'node' + str(last_id[0] + 1), 'node' + str(last_id[0] + 1))
@@ -135,7 +140,7 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, elements
                        'position': {'x': 50, 'y': 50}, 'classes': 'node_style',
                        'style': {'background-image': image_src, 'background-color': new_gridobject['ui_color']}}
         elements.append(new_element)
-        return elements, gridObject_dict, no_update, no_update, no_update, no_update
+        return elements, gridObject_dict, no_update, no_update, no_update, no_update, no_update
     elif triggered_id == 'cyto1':  # # Node was clicked
         if not node == []:
             if btn_line_active:  # Add-line-mode is on
@@ -143,19 +148,21 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, elements
                     if connection_allowed(start_of_line[0]['id'], node[0]['id'], gridObject_dict):
                         last_id = get_last_id(elements)
                         return_temp = no_update
+                        modal_boolean = False
                         start_object = gridObject_dict[start_of_line[0]['id']]
                         end_object = gridObject_dict[node[0]['id']]
                         if start_object['voltage'] is None and end_object['voltage'] is None:  # Check if voltage level of connection is defined through one of the components
                             return_temp = [start_object['id'], end_object['id']]
+                            modal_boolean = True
                         new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
                                              'id': 'edge' + str(last_id[1] + 1), 'label': 'x'},
                                     'classes': 'line_style'}
                         elements.append(new_edge)
-                        return elements, no_update, None, no_update, no_update, return_temp
+                        return elements, no_update, None, no_update, no_update, return_temp, modal_boolean
                     else:
-                        return elements, no_update, None, no_update, "notification_false_connection", no_update
+                        return elements, no_update, None, no_update, "notification_false_connection", no_update, no_update
                 else:
-                    return elements, no_update, node, no_update, no_update, no_update
+                    return elements, no_update, node, no_update, no_update, no_update, no_update
             else:  # Node is clicked in normal mode
                 raise PreventUpdate
         else:
@@ -177,19 +184,35 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, elements
                 break
             index += 1
         gridObject_dict.pop(index)
-        return elements, gridObject_dict, no_update, True, no_update, no_update
+        return elements, gridObject_dict, no_update, True, no_update, no_update, no_update
     elif triggered_id == 'example_button':
         ele, temp = example_grids.simple_grid_timeseries_day(app, 96)
         for element in temp:
             gridObject_dict.append(element)
-        return ele, gridObject_dict, no_update, no_update, no_update, no_update
+        return ele, gridObject_dict, no_update, no_update, no_update, no_update, no_update
     elif triggered_id == 'store_edge_labels':  # Set labels of edges with power values
         for edge, label in labels.items():
             for ele in elements:
                 if edge == ele['data']['id']:
                     ele['data']['label'] = str(label)
                     break
-        return elements, no_update, no_update, no_update, no_update, no_update
+        return elements, no_update, no_update, no_update, no_update, no_update, no_update
+    elif triggered_id == 'store_get_voltage':
+        if node_ids is None:
+            raise PreventUpdate
+        return no_update, no_update, no_update, no_update, no_update, no_update, True
+    elif triggered_id == 'button_voltage_hv':
+        for node_id in node_ids:
+            obj = gridObject_dict[node_id]
+            if obj['object_type'] != "transformer":
+                obj['voltage'] = 20000
+        return no_update, gridObject_dict, no_update, no_update, no_update, no_update, False
+    elif triggered_id == 'button_voltage_lv':
+        for node_id in node_ids:
+            obj = gridObject_dict[node_id]
+            if obj['object_type'] != "transformer":
+                obj['voltage'] = 400
+        return no_update, gridObject_dict, no_update, no_update, no_update, no_update, False
     else:
         raise PreventUpdate
 
@@ -319,35 +342,35 @@ def open_readme(btn):
     return True
 
 
-@app.callback(Output('modal_voltage', 'opened'),
-              Output('store_grid_object_list', 'data'),
-              Input('store_get_voltage', 'data'),
-              Input('button_voltage_hv', 'n_clicks'),
-              Input('button_voltage_lv', 'n_clicks'),
-              State('cyto1', 'elements'),
-              State('store_grid_object_list', 'data'),
-              prevent_initial_call=True
-              )
-def modal_voltage(node_ids, button_hv, button_lv, elements, gridObject_dict):
-    triggered_id = ctx.triggered_id
-    if triggered_id == 'store_get_voltage':
-        if node_ids is None:
-            raise PreventUpdate
-        return True, no_update
-    elif triggered_id == 'button_voltage_hv':
-        for node_id in node_ids:
-            obj = gridObject_dict[node_id]
-            if obj['object_type'] != "transformer":
-                obj['voltage'] = 20000
-        return False, gridObject_dict
-    elif triggered_id == 'button_voltage_lv':
-        for node_id in node_ids:
-            obj = gridObject_dict[node_id]
-            if obj['object_type'] != "transformer":
-                obj['voltage'] = 400
-        return False, gridObject_dict
-    else:
-        raise PreventUpdate
+# @app.callback(Output('modal_voltage', 'opened'),
+#               Output('store_grid_object_list', 'data'),
+#               Input('store_get_voltage', 'data'),
+#               Input('button_voltage_hv', 'n_clicks'),
+#               Input('button_voltage_lv', 'n_clicks'),
+#               State('cyto1', 'elements'),
+#               State('store_grid_object_list', 'data'),
+#               prevent_initial_call=True
+#               )
+# def modal_voltage(node_ids, button_hv, button_lv, elements, gridObject_dict):
+#     triggered_id = ctx.triggered_id
+#     if triggered_id == 'store_get_voltage':
+#         if node_ids is None:
+#             raise PreventUpdate
+#         return True, no_update
+#     elif triggered_id == 'button_voltage_hv':
+#         for node_id in node_ids:
+#             obj = gridObject_dict[node_id]
+#             if obj['object_type'] != "transformer":
+#                 obj['voltage'] = 20000
+#         return False, gridObject_dict
+#     elif triggered_id == 'button_voltage_lv':
+#         for node_id in node_ids:
+#             obj = gridObject_dict[node_id]
+#             if obj['object_type'] != "transformer":
+#                 obj['voltage'] = 400
+#         return False, gridObject_dict
+#     else:
+#         raise PreventUpdate
 
 
 @app.callback(Output('notification_container', 'children'),
