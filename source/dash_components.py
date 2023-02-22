@@ -17,7 +17,8 @@ def add_storage_variables():
                      dcc.Store(id='element_deleted'), dcc.Store(id='store_notification1'),
                      dcc.Store(id='store_notification2'), dcc.Store(id='store_get_voltage'),
                      dcc.Store(id='store_edge_labels'), dcc.Store(id='store_timestep'),
-                     dcc.Store(id='store_flow_data'), dcc.Store(id='store_menu_change_tab')])
+                     dcc.Store(id='store_flow_data'), dcc.Store(id='store_menu_change_tab'),
+                     dcc.Store(id='store_grid_object_list', data=[])])
 
 
 def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
