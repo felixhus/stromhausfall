@@ -46,7 +46,7 @@ house_objects = [
 
 nodes = []
 edges = []
-# gridObject_list = []
+# gridObject_dict = []
 bathroom = grid_objects.BathroomObject()
 
 app.layout = dmc.NotificationsProvider(dbc.Container([
@@ -121,7 +121,7 @@ def edit_mode(btn_line, btn_active):
               State('line_edit_active', 'data'),
               State('start_of_line', 'data'),
               State('selected_element', 'data'))
-def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, elements, gridObject_list,
+def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, elements, gridObject_dict,
               btn_line_active, start_of_line, selected_element):
     triggered_id = ctx.triggered_id
     if triggered_id == 'button_line':       # Start line edit mode, set 'start_of_line' as None
@@ -129,22 +129,22 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, elements
     elif triggered_id == 'store_add_node':
         last_id = get_last_id(elements)
         new_gridobject = generate_grid_object(btn_add, 'node' + str(last_id[0] + 1), 'node' + str(last_id[0] + 1))
-        image_src = app.get_asset_url('Icons/' + new_gridobject.icon)
-        gridObject_list.append(new_gridobject)
+        image_src = app.get_asset_url('Icons/' + new_gridobject['icon'])
+        gridObject_dict[new_gridobject['id']] = new_gridobject
         new_element = {'data': {'id': 'node' + str(last_id[0] + 1)},
                        'position': {'x': 50, 'y': 50}, 'classes': 'node_style',
-                       'style': {'background-image': image_src, 'background-color': new_gridobject.ui_color}}
+                       'style': {'background-image': image_src, 'background-color': new_gridobject['ui_color']}}
         elements.append(new_element)
-        return elements, gridObject_list, no_update, no_update, no_update, no_update
+        return elements, gridObject_dict, no_update, no_update, no_update, no_update
     elif triggered_id == 'cyto1':  # # Node was clicked
         if not node == []:
             if btn_line_active:  # Add-line-mode is on
                 if start_of_line is not None:
-                    if connection_allowed(start_of_line[0]['id'], node[0]['id'], gridObject_list):
+                    if connection_allowed(start_of_line[0]['id'], node[0]['id'], gridObject_dict):
                         last_id = get_last_id(elements)
                         return_temp = no_update
-                        start_object = get_object_from_id(start_of_line[0]['id'], gridObject_list)
-                        end_object = get_object_from_id(node[0]['id'], gridObject_list)
+                        start_object = get_object_from_id(start_of_line[0]['id'], gridObject_dict)
+                        end_object = get_object_from_id(node[0]['id'], gridObject_dict)
                         if start_object.voltage is None and end_object.voltage is None:  # Check if voltage level of connection is defined through one of the components
                             return_temp = [start_object.id, end_object.id]
                         new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
@@ -172,17 +172,17 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, elements
                 elements.pop(elements.index(edge))
         elements.pop(index)
         index = 0
-        for obj in gridObject_list:  # Remove element from grid object list
+        for obj in gridObject_dict:  # Remove element from grid object list
             if obj.id == selected_element:
                 break
             index += 1
-        gridObject_list.pop(index)
-        return elements, gridObject_list, no_update, True, no_update, no_update
+        gridObject_dict.pop(index)
+        return elements, gridObject_dict, no_update, True, no_update, no_update
     elif triggered_id == 'example_button':
         ele, temp = example_grids.simple_grid_timeseries_day(app, 96)
         for element in temp:
-            gridObject_list.append(element)
-        return ele, gridObject_list, no_update, no_update, no_update, no_update
+            gridObject_dict.append(element)
+        return ele, gridObject_dict, no_update, no_update, no_update, no_update
     elif triggered_id == 'store_edge_labels':  # Set labels of edges with power values
         for edge, label in labels.items():
             for ele in elements:

@@ -7,6 +7,7 @@ import grid_objects
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+import objects
 import pandas as pd
 
 
@@ -40,19 +41,19 @@ def get_connected_edges(elements, selected_element):
 
 def generate_grid_object(object_type, object_id, node_id):
     if object_type == "button_house":
-        return grid_objects.HouseObject(node_id=node_id, object_id=object_id, voltage=400)
+        return objects.create_HouseObject(object_id, node_id)
     elif object_type == "button_transformer":
-        return grid_objects.TransformerObject(node_id=node_id, object_id=object_id)
+        return objects.create_TransformerObject(object_id, node_id)
     elif object_type == "button_externalgrid":
-        return grid_objects.ExternalGrid(node_id=node_id, object_id=object_id, voltage=20000)
+        return objects.create_ExternalGridObject(object_id, node_id)
     elif object_type == "button_pv":
-        return grid_objects.PV(node_id=node_id, object_id=object_id)
+        return objects.create_PVObject(object_id, node_id)
     elif object_type == "button_battery":
-        return grid_objects.Battery(node_id=node_id, object_id=object_id, voltage=400)
+        return objects.create_BatteryObject(object_id, node_id)
     elif object_type == "button_smartmeter":
-        return grid_objects.SmartMeter(node_id=node_id, object_id=object_id)
+        return objects.create_SmartMeterObject(object_id, node_id)
     elif object_type == "button_switch_cabinet":
-        return grid_objects.SwitchCabinet(node_id=node_id, object_id=object_id, voltage=400)
+        return objects.create_SwitchCabinetObject(object_id, node_id)
     else:
         return None
 
