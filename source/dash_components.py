@@ -17,7 +17,7 @@ def add_storage_variables():
                      dcc.Store(id='element_deleted'), dcc.Store(id='store_notification1'),
                      dcc.Store(id='store_notification2'), dcc.Store(id='store_get_voltage'),
                      dcc.Store(id='store_edge_labels'), dcc.Store(id='store_timestep'),
-                     dcc.Store(id='store_flow_data')])
+                     dcc.Store(id='store_flow_data'), dcc.Store(id='store_menu_change_tab')])
 
 
 def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
@@ -347,6 +347,12 @@ def card_menu():
                     ),
                     dmc.TabsPanel(children=[
                         dmc.Space(h=20),
+                        dmc.Tabs(children=[
+                            dmc.TabsPanel(value='empty')
+                        ], id='menu_parent_tabs'),
+                        # dmc.Container(id='menu_parent_container',
+                        #               children=[]),
+                        dmc.Space(h=20),
                         dmc.Button("Berechnen", id='button_calculate', rightIcon=DashIconify(icon="ph:gear-light"))],
                         value="edit"),
                     dmc.TabsPanel(children=[
@@ -367,6 +373,38 @@ def card_menu():
         style={"height": '100%'},
     )
     return html.Div([card], id='card_menu', style={'display': 'none'})
+
+
+def add_menu_tab_panel(tab_value):
+    if tab_value == 'tab1':
+        return dmc.TabsPanel(
+            dmc.Slider(
+                id="slider-callback",
+                value=26,
+                marks=[
+                    {"value": 20, "label": "20%"},
+                    {"value": 50, "label": "50%"},
+                    {"value": 80, "label": "80%"},
+                ],
+                mb=35,
+            ), value=tab_value
+        )
+    elif tab_value == 'tab2':
+        return dmc.TabsPanel(
+            dmc.Select(
+                label="Select framework",
+                placeholder="Select one",
+                id="framework-select",
+                value="ng",
+                data=[
+                    {"value": "react", "label": "React"},
+                    {"value": "ng", "label": "Angular"},
+                    {"value": "svelte", "label": "Svelte"},
+                    {"value": "vue", "label": "Vue"},
+                ],
+                style={"width": 200, "marginBottom": 10},
+            ), value=tab_value
+        )
 
 
 def add_drawer_notifications():

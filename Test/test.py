@@ -1,69 +1,20 @@
-import dash
-import dash_html_components as html
+import plotly.graph_objs as go
 
-app = dash.Dash(__name__)
+# create bar graph trace
+trace_bar = go.Bar(x=[1, 2, 3, 4], y=[10, 20, 30, 40])
 
-app.layout = html.Div([
-    html.Div('Right-click here', id='target-element', style={'position': 'relative'}),
-    html.Ul([
-        html.Li('Menu item 1'),
-        html.Li('Menu item 2'),
-        html.Li('Menu item 3'),
-    ], id='context-menu', style={'position': 'absolute', 'display': 'none'})
-])
+# create draggable points trace
+trace_points = go.Scatter(x=[1, 2, 3, 4], y=[10, 20, 30, 40],
+                          mode='markers', marker=dict(symbol='circle', size=10),
+                          dragmode='xy')
 
-app.clientside_callback(
-    """
-    function toggleContextMenu(display, x, y) {
-        const menu = document.getElementById('context-menu');
-        menu.style.display = display;
-        menu.style.left = x + 'px';
-        menu.style.top = y + 'px';
-    }
-    """,
-    dash.dependencies.Output('context-menu', 'style'),
-    dash.dependencies.Input('target-element', 'n_clicks'),
-    dash.dependencies.State('target-element', 'n_clicks_timestamp'),
-    dash.dependencies.State('target-element', 'clientHeight'),
-    dash.dependencies.State('target-element', 'clientWidth'),
-    dash.dependencies.State('context-menu', 'style')
-)
+# create figure
+fig = go.Figure(data=[trace_bar, trace_points])
 
-app.clientside_callback(
-    """
-    function hideContextMenu() {
-        const menu = document.getElementById('context-menu');
-        menu.style.display = 'none';
-    }
-    """,
-    dash.dependencies.Output('context-menu', 'style'),
-    dash.dependencies.Input('context-menu', 'n_clicks')
-)
+# update layout
+fig.update_layout(title='Bar Graph with Draggable Points',
+                  xaxis_title='X Axis Title',
+                  yaxis_title='Y Axis Title')
 
-app.clientside_callback(
-    """
-    function handleRightClick(n_clicks, timestamp, targetHeight, targetWidth) {
-        if (n_clicks === 0) {
-            return;
-        }
-
-        const menu = document.getElementById('context-menu');
-        const display = menu.style.display === 'none' ? 'block' : 'none';
-
-        const x = Math.min(timestamp, targetWidth - menu.offsetWidth);
-        const y = Math.min(targetHeight, window.innerHeight - menu.offsetHeight);
-
-        return [display, x, y];
-    }
-    """,
-    dash.dependencies.Output('context-menu', 'style'),
-    dash.dependencies.Output('context-menu', 'n_clicks'),
-    dash.dependencies.Input('target-element', 'n_clicks'),
-    dash.dependencies.State('target-element', 'n_clicks_timestamp'),
-    dash.dependencies.State('target-element', 'clientHeight'),
-    dash.dependencies.State('target-element', 'clientWidth'),
-    prevent_initial_call=True
-)
-
-if __name__ == '__main__':
-    app.run_server(debug=True)
+# show figure
+fig.show()

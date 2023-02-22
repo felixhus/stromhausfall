@@ -1,4 +1,5 @@
 import os
+import random
 import time
 
 import dash_bootstrap_components as dbc
@@ -433,6 +434,23 @@ def add_device_bathroom(elements, node, btn_close, *btn_add):       # Callback t
         raise PreventUpdate
 
 
+@app.callback(Output('menu_parent_tabs', 'children'),
+              Output('menu_parent_tabs', 'value'),
+              Input('store_menu_change_tab', 'data'),
+              State('menu_parent_tabs', 'children'),
+              prevent_initial_call=True)
+def manage_menu_containers(tab_value, menu_children):
+    triggered_id = ctx.triggered_id
+    if triggered_id == 'store_menu_change_tab':
+        if any(ele['props']['value'] == tab_value for ele in menu_children):    # Check if tab already exists
+            return no_update, tab_value                                         # If it does, only open it
+        else:
+            tab_id = str(random.randrange(1000))                                # If it does not, create and open it
+            return menu_children + [dash_components.add_menu_tab_panel(tab_value)], tab_value
+    else:
+        raise PreventUpdate
+
+
 @app.callback(Output("power_input", "icon"),
               Input("chips_type", "value"),
               prevent_initial_call=True)
@@ -473,14 +491,13 @@ def open_menu_card(btn):
         raise PreventUpdate
 
 
-@app.callback(Output('dummy', 'children'),
+@app.callback(Output('store_menu_change_tab', 'data'),
               Input('debug_button', 'n_clicks'),
-              State('cyto1', 'elements'),
-              State('start_of_line', 'data'),
+              State('menu_parent_tabs', 'children'),
               prevent_initial_call=True)
-def debug(btn, elements, start_of_line):
-    calculate_power_flow(elements, gridObject_list)
-    return None
+def debug(btn, children):
+    tab_id = str(random.randrange(1000))
+    return 'tab1'
 
 
 if __name__ == '__main__':
