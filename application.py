@@ -6,6 +6,7 @@ import dash_bootstrap_components as dbc
 import dash_mantine_components as dmc
 import example_grids
 import grid_objects
+import objects
 import pandas as pd
 import plotly.express as px
 from dash import Dash, Input, Output, State, ctx, dcc, html, no_update
@@ -14,7 +15,7 @@ from dash_iconify import DashIconify
 
 import source.dash_components as dash_components
 import source.example_grids
-import source.grid_objects
+import source.objects
 import source.stylesheets as stylesheets
 from source.modules import (calculate_power_flow, connection_allowed,
                             generate_grid_object, get_connected_edges,
@@ -92,10 +93,10 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
 
 
 @app.callback(Output('cyto1', 'autoungrabify'),  # Callback to make Node ungrabbable when adding lines
-              Output('line_edit_active', 'data'),
+              Output('store_line_edit_active', 'data'),
               Output('button_line', 'variant'),
               Input('button_line', 'n_clicks'),
-              State('line_edit_active', 'data'),
+              State('store_line_edit_active', 'data'),
               prevent_initial_call=True)
 def edit_mode(btn_line, btn_active):
     if not btn_active:
@@ -121,9 +122,9 @@ def edit_mode(btn_line, btn_active):
               Input('button_voltage_lv', 'n_clicks'),
               State('cyto1', 'elements'),
               State('store_grid_object_dict', 'data'),
-              State('line_edit_active', 'data'),
+              State('store_line_edit_active', 'data'),
               State('start_of_line', 'data'),
-              State('selected_element', 'data'),
+              State('store_selected_element', 'data'),
               State('store_get_voltage', 'data'), )
 def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_hv, button_lv, elements, gridObject_dict,
               btn_line_active, start_of_line, selected_element, node_ids):
@@ -157,8 +158,9 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_h
                         new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
                                              'id': 'edge' + str(last_id[1] + 1), 'label': 'x'},
                                     'classes': 'line_style'}
+                        gridObject_dict[new_edge['data']['id']] = objects.create_LineObject(new_edge['data']['id'], new_edge['data']['id'])
                         elements.append(new_edge)
-                        return elements, no_update, None, no_update, no_update, return_temp, modal_boolean
+                        return elements, gridObject_dict, None, no_update, no_update, return_temp, modal_boolean
                     else:
                         return elements, no_update, None, no_update, "notification_false_connection", no_update, no_update
                 else:
@@ -178,12 +180,7 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_h
             for edge in connected_edges:
                 elements.pop(elements.index(edge))
         elements.pop(index)
-        index = 0
-        for obj in gridObject_dict:  # Remove element from grid object list
-            if obj.id == selected_element:
-                break
-            index += 1
-        gridObject_dict.pop(index)
+        del gridObject_dict[selected_element]  # Remove element from grid object dict
         return elements, gridObject_dict, no_update, True, no_update, no_update, no_update
     elif triggered_id == 'example_button':
         ele, gridObject_dict = example_grids.simple_grid_timeseries_day(app, 96)
@@ -211,69 +208,92 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_h
         raise PreventUpdate
 
 
-@app.callback(Output('modal_edit', 'opened'),
-              Output('modal_text', 'children'),
-              Output('selected_element', 'data'),
+@app.callback(Output('store_menu_change_tab_grid', 'data'),
               Output('cyto1', 'tapNodeData'),
               Output('cyto1', 'tapEdgeData'),
-              Output('power_input', 'value'),
-              Output('chips_type', 'value'),
               Input('cyto1', 'tapNodeData'),
               Input('cyto1', 'tapEdgeData'),
-              Input('modal_edit_close_button', 'n_clicks'),
-              Input('modal_edit_save_button', 'n_clicks'),
-              Input('element_deleted', 'data'),
-              State('selected_element', 'data'),
-              State('line_edit_active', 'data'),
-              State('cyto1', 'elements'),
-              State('chips_type', 'value'),
-              State('power_input', 'value'))
-def edit_grid_element(node, edge, btn_close, btn_save, element_deleted, selected_element,
-                      btn_line_active, elements, set_type, power_in):
+              State('store_grid_object_dict', 'data'),
+              State('store_line_edit_active', 'data'))
+def edit_grid_objects(node, edge, gridObject_dict, btn_line_active):
     triggered_id = ctx.triggered_id
-    if triggered_id == 'element_deleted':
-        if element_deleted:
-            return False, None, None, None, None, no_update, no_update
-        else:
-            raise PreventUpdate
-    elif triggered_id == 'cyto1':
-        if node is not None and edge is None:
+    if triggered_id == 'cyto1':
+        if node is not None and edge is None:   # Node was clicked
             if not btn_line_active:
-                body_text = "Edit settings of " + node['id'] + " here."
-                power = get_object_from_id(node['id'], gridObject_list).power
-                value = abs(power)
-                if power < 0:
-                    chip = 'Einspeisung'
-                else:
-                    chip = 'Last'
-                return True, body_text, node['id'], None, None, value, chip
+                return gridObject_dict[node['id']]['object_type'], None, None   # Reset tapNodeData and tapEdgeData and return type of node for tab in menu
             else:
                 raise PreventUpdate
-        elif node is None and edge is not None:
-            if not btn_line_active:
-                body_text = "Edit settings of " + edge['id'] + " here."
-                return True, body_text, edge['id'], None, None, no_update, no_update
-            else:
-                raise PreventUpdate
-        else:
-            return False, None, None, None, None, no_update, no_update
-    elif triggered_id == 'modal_edit_save_button':
-        if selected_element[:4] == "node":
-            if set_type == "Last":
-                direction = 1
-            else:
-                direction = -1
-            obj = get_object_from_id(selected_element, gridObject_list)
-            obj.power = direction * power_in
-            return False, no_update, None, no_update, no_update, no_update, no_update
-        elif selected_element[:4] == "edge":
-            raise PreventUpdate
-        else:
-            raise PreventUpdate
-    elif triggered_id == 'modal_edit_close_button':
-        return False, no_update, no_update, no_update, no_update, no_update, no_update
+        elif node is None and edge is not None:     # Edge was clicked
+            return gridObject_dict[edge['id']]['object_type'], None, None   # Reset tapNodeData and tapEdgeData and return type of edge for tab in menu
     else:
         raise PreventUpdate
+
+
+# @app.callback(Output('modal_edit', 'opened'),
+#               Output('modal_text', 'children'),
+#               Output('store_selected_element', 'data'),
+#               Output('cyto1', 'tapNodeData'),
+#               Output('cyto1', 'tapEdgeData'),
+#               Output('power_input', 'value'),
+#               Output('chips_type', 'value'),
+#               Input('cyto1', 'tapNodeData'),
+#               Input('cyto1', 'tapEdgeData'),
+#               Input('modal_edit_close_button', 'n_clicks'),
+#               Input('modal_edit_save_button', 'n_clicks'),
+#               Input('element_deleted', 'data'),
+#               State('store_selected_element', 'data'),
+#               State('store_line_edit_active', 'data'),
+#               State('cyto1', 'elements'),
+#               State('chips_type', 'value'),
+#               State('power_input', 'value'),
+#               State('store_grid_object_dict', 'data'))
+# def edit_grid_element(node, edge, btn_close, btn_save, element_deleted, selected_element,
+#                       btn_line_active, elements, set_type, power_in, gridObject_dict):
+#     triggered_id = ctx.triggered_id
+#     if triggered_id == 'element_deleted':
+#         if element_deleted:
+#             return False, None, None, None, None, no_update, no_update
+#         else:
+#             raise PreventUpdate
+#     elif triggered_id == 'cyto1':
+#         if node is not None and edge is None:
+#             if not btn_line_active:
+#                 body_text = "Edit settings of " + node['id'] + " here."
+#                 power = gridObject_dict[node['id']]['power']
+#                 # power = get_object_from_id(node['id'], gridObject_list).power
+#                 value = abs(power)
+#                 if power < 0:
+#                     chip = 'Einspeisung'
+#                 else:
+#                     chip = 'Last'
+#                 return True, body_text, node['id'], None, None, value, chip
+#             else:
+#                 raise PreventUpdate
+#         elif node is None and edge is not None:
+#             if not btn_line_active:
+#                 body_text = "Edit settings of " + edge['id'] + " here."
+#                 return True, body_text, edge['id'], None, None, no_update, no_update
+#             else:
+#                 raise PreventUpdate
+#         else:
+#             return False, None, None, None, None, no_update, no_update
+#     elif triggered_id == 'modal_edit_save_button':
+#         if selected_element[:4] == "node":
+#             if set_type == "Last":
+#                 direction = 1
+#             else:
+#                 direction = -1
+#             obj = get_object_from_id(selected_element, gridObject_list)
+#             obj.power = direction * power_in
+#             return False, no_update, None, no_update, no_update, no_update, no_update
+#         elif selected_element[:4] == "edge":
+#             raise PreventUpdate
+#         else:
+#             raise PreventUpdate
+#     elif triggered_id == 'modal_edit_close_button':
+#         return False, no_update, no_update, no_update, no_update, no_update, no_update
+#     else:
+#         raise PreventUpdate
 
 
 @app.callback(Output('store_add_node', 'data'),
@@ -385,7 +405,7 @@ def notification(data1, data2, notif_list):
 @app.callback(Output('cyto_bathroom', 'elements'),
               Output('menu_devices', 'style'),
               Output('menu_devices', 'opened'),
-              Output('store_menu_change_tab', 'data'),
+              Output('store_menu_change_tab_house', 'data'),
               State('cyto_bathroom', 'elements'),
               Input('cyto_bathroom', 'tapNode'),
               Input('button_close_menu', 'n_clicks'),
@@ -440,19 +460,23 @@ def manage_devices_bathroom(elements, node, btn_close, *btn_add):  # Callback to
 
 @app.callback(Output('menu_parent_tabs', 'children'),
               Output('menu_parent_tabs', 'value'),
-              Input('store_menu_change_tab', 'data'),
+              Input('store_menu_change_tab_house', 'data'),
+              Input('store_menu_change_tab_grid', 'data'),
               State('menu_parent_tabs', 'children'),
               prevent_initial_call=True)
-def manage_menu_containers(tab_value, menu_children):
+def manage_menu_containers(tab_value_house, tab_value_grid, menu_children):
     triggered_id = ctx.triggered_id
-    if triggered_id == 'store_menu_change_tab':
-        if any(ele['props']['value'] == tab_value for ele in menu_children):  # Check if tab already exists
-            return no_update, tab_value  # If it does, only open it
-        else:
-            tab_id = str(random.randrange(1000))  # If it does not, create and open it
-            return menu_children + [dash_components.add_menu_tab_panel(tab_value)], tab_value
+    if triggered_id == 'store_menu_change_tab_house':
+        tab_value = tab_value_house
+    elif triggered_id == 'store_menu_change_tab_grid':
+        tab_value = tab_value_grid
     else:
         raise PreventUpdate
+    if any(ele['props']['value'] == tab_value for ele in menu_children):  # Check if tab already exists
+        return no_update, tab_value  # If it does, only open it
+    else:
+        # If it does not, create and open it
+        return menu_children + [dash_components.add_menu_tab_panel(tab_value)], tab_value
 
 
 @app.callback(Output("power_input", "icon"),

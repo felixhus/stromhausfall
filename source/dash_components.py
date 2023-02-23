@@ -13,11 +13,12 @@ devices = {'bathroom': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hai
 
 def add_storage_variables():
     return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
-                     dcc.Store(id='line_edit_active'), dcc.Store(id='selected_element'),
+                     dcc.Store(id='store_line_edit_active'), dcc.Store(id='store_selected_element'),
                      dcc.Store(id='element_deleted'), dcc.Store(id='store_notification1'),
                      dcc.Store(id='store_notification2'), dcc.Store(id='store_get_voltage'),
                      dcc.Store(id='store_edge_labels'), dcc.Store(id='store_timestep'),
-                     dcc.Store(id='store_flow_data'), dcc.Store(id='store_menu_change_tab'),
+                     dcc.Store(id='store_flow_data'), dcc.Store(id='store_menu_change_tab_grid'),
+                     dcc.Store(id='store_menu_change_tab_house'),
                      dcc.Store(id='store_grid_object_dict', data={}),
                      dcc.Store(id='store_device_dict', data={'house1': {}})])
 
@@ -378,14 +379,48 @@ def card_menu():
 
 
 def add_menu_tab_panel(tab_value):
-    if tab_value == 'device_bathroom':
-        return dmc.TabsPanel(
+    if tab_value == 'house':
+        return dmc.TabsPanel([
+            dmc.Text("Haus"),
+            dmc.Group([
+                dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
+                           leftIcon=DashIconify(icon="material-symbols:delete-outline")),
+                dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
+                           leftIcon=DashIconify(icon="material-symbols:save-outline"))
+            ], position='right')],
+            value=tab_value
+        )
+    elif tab_value == 'line':
+        return dmc.TabsPanel([
+            dmc.Text("Leitung"),
+            dmc.Group([
+                dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
+                           leftIcon=DashIconify(icon="material-symbols:delete-outline")),
+                dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
+                           leftIcon=DashIconify(icon="material-symbols:save-outline"))
+            ], position='right')],
+            value=tab_value
+        )
+    elif tab_value == 'device_bathroom':
+        return dmc.TabsPanel([
             dmc.Text("Gerät Badezimmer"),
+            dmc.Group([
+                dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
+                           leftIcon=DashIconify(icon="material-symbols:delete-outline")),
+                dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
+                           leftIcon=DashIconify(icon="material-symbols:save-outline"))
+            ], position='right')],
             value=tab_value
         )
     elif tab_value == 'lamp':
-        return dmc.TabsPanel(
+        return dmc.TabsPanel([
             dmc.Text("Lampe"),
+            dmc.Group([
+                dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
+                           leftIcon=DashIconify(icon="material-symbols:delete-outline")),
+                dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
+                           leftIcon=DashIconify(icon="material-symbols:save-outline"))
+            ], position='right')],
             value=tab_value
         )
 

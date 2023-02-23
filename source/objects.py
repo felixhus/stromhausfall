@@ -2,7 +2,7 @@ def create_HouseObject(object_id, node_id):
     return {
         'id': object_id,
         'linkedNode': node_id,
-        'power': None,
+        'power': 0,
         'voltage': 400,
         'object_type': 'house',
         'name': "Haus",
@@ -101,6 +101,16 @@ def create_TransformerHelperNodeObject():
     return {
         'power': 0,
         'object_type': 'transformer_helper',
+    }
+
+
+def create_LineObject(object_id, edge_id):
+    return {
+        'id': object_id,
+        'linkedEdge': edge_id,
+        'voltage': None,
+        'object_type': 'line',
+        'name': "Leitung"
     }
 
 
