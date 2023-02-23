@@ -211,22 +211,30 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_h
 @app.callback(Output('store_menu_change_tab_grid', 'data'),
               Output('cyto1', 'tapNodeData'),
               Output('cyto1', 'tapEdgeData'),
+              Output('store_notification3', 'data'),
               Input('cyto1', 'tapNodeData'),
               Input('cyto1', 'tapEdgeData'),
               State('store_grid_object_dict', 'data'),
               State('store_line_edit_active', 'data'))
 def edit_grid_objects(node, edge, gridObject_dict, btn_line_active):
-    triggered_id = ctx.triggered_id
-    if triggered_id == 'cyto1':
-        if node is not None and edge is None:   # Node was clicked
-            if not btn_line_active:
-                return gridObject_dict[node['id']]['object_type'], None, None   # Reset tapNodeData and tapEdgeData and return type of node for tab in menu
+    try:
+        triggered_id = ctx.triggered_id
+        if triggered_id == 'cyto1':
+            if node is not None and edge is None:   # Node was clicked
+                if not btn_line_active:
+                    return gridObject_dict[node['id']]['object_type'], None, None, no_update   # Reset tapNodeData and tapEdgeData and return type of node for tab in menu
+                else:
+                    raise PreventUpdate
+            elif node is None and edge is not None:     # Edge was clicked
+                return gridObject_dict[edge['id']]['object_type'], None, None, no_update   # Reset tapNodeData and tapEdgeData and return type of edge for tab in menu
             else:
-                raise PreventUpdate
-        elif node is None and edge is not None:     # Edge was clicked
-            return gridObject_dict[edge['id']]['object_type'], None, None   # Reset tapNodeData and tapEdgeData and return type of edge for tab in menu
-    else:
-        raise PreventUpdate
+                raise Exception("Weder Node noch Edge wurde geklickt.")
+        else:
+            raise PreventUpdate
+    except PreventUpdate:
+        return no_update, no_update, no_update, no_update
+    except Exception as err:
+        return no_update, no_update, no_update, err.args[0]
 
 
 # @app.callback(Output('modal_edit', 'opened'),
@@ -344,6 +352,9 @@ def start_calculation(btn, slider, flow, elements, gridObject_dict):
             return no_update, no_update, no_update, text_alert, False, no_update, no_update, no_update, labels, no_update
         else:
             raise PreventUpdate
+    except PreventUpdate:
+        return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
+               no_update
     except Exception as err:
         return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
                err.args[0]
@@ -361,13 +372,16 @@ def open_readme(btn):
               Output('bade_notifications', 'children'),
               Input('store_notification1', 'data'),
               Input('store_notification2', 'data'),
+              Input('store_notification3', 'data'),
               State('drawer_notifications', 'children'))
-def notification(data1, data2, notif_list):
+def notification(data1, data2, data3, notif_list):
     triggered_id = ctx.triggered_id
     if triggered_id == 'store_notification1':
         data = data1
     elif triggered_id == 'store_notification2':
         data = data2
+    elif triggered_id == 'store_notification3':
+        data = data3
     else:
         raise PreventUpdate
     if data is None:
