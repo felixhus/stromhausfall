@@ -14,7 +14,7 @@ devices = {'bathroom': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hai
 def add_storage_variables():
     return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
                      dcc.Store(id='store_line_edit_active'), dcc.Store(id='store_selected_element'),
-                     dcc.Store(id='element_deleted'), dcc.Store(id='store_notification1'),
+                     dcc.Store(id='store_element_deleted'), dcc.Store(id='store_notification1'),
                      dcc.Store(id='store_notification2'),
                      dcc.Store(id='store_notification3'), dcc.Store(id='store_get_voltage'),
                      dcc.Store(id='store_edge_labels'), dcc.Store(id='store_timestep'),
@@ -352,7 +352,7 @@ def card_menu():
                     dmc.TabsPanel(children=[
                         dmc.Space(h=20),
                         dmc.Tabs(children=[
-                            dmc.TabsPanel(value='empty')
+                            add_menu_tab_panel('empty')
                         ], id='menu_parent_tabs'),
                         # dmc.Container(id='menu_parent_container',
                         #               children=[]),
@@ -422,6 +422,16 @@ def add_menu_tab_panel(tab_value):
                 dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right')],
+            value=tab_value
+        )
+    elif tab_value == 'empty':
+        return dmc.TabsPanel([
+            dmc.Group([
+                dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
+                           leftIcon=DashIconify(icon="material-symbols:delete-outline")),
+                dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
+                           leftIcon=DashIconify(icon="material-symbols:save-outline"))
+            ], position='right', style={'display': 'none'})],
             value=tab_value
         )
 

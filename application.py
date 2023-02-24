@@ -108,13 +108,13 @@ def edit_mode(btn_line, btn_active):
 @app.callback(Output('cyto1', 'elements'),  # Callback to change elements of cyto
               Output('store_grid_object_dict', 'data'),
               Output('start_of_line', 'data'),
-              Output('element_deleted', 'data'),
+              Output('store_element_deleted', 'data'),
               Output('store_notification1', 'data'),
               Output('store_get_voltage', 'data'),
               Output('modal_voltage', 'opened'),
               Input('store_add_node', 'data'),
               Input('cyto1', 'selectedNodeData'),
-              Input('modal_edit_delete_button', 'n_clicks'),
+              Input('edit_delete_button', 'n_clicks'),
               Input('button_line', 'n_clicks'),
               Input('example_button', 'n_clicks'),
               Input('store_edge_labels', 'data'),
@@ -125,7 +125,8 @@ def edit_mode(btn_line, btn_active):
               State('store_line_edit_active', 'data'),
               State('start_of_line', 'data'),
               State('store_selected_element', 'data'),
-              State('store_get_voltage', 'data'), )
+              State('store_get_voltage', 'data'),
+              prevent_initial_call=True)
 def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_hv, button_lv, elements, gridObject_dict,
               btn_line_active, start_of_line, selected_element, node_ids):
     triggered_id = ctx.triggered_id
@@ -169,19 +170,22 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_h
                 raise PreventUpdate
         else:
             raise PreventUpdate
-    elif triggered_id == 'modal_edit_delete_button':  # Delete Object
-        index = 0
-        for ele in elements:
-            if ele['data']['id'] == selected_element:
-                break
-            index += 1
-        if 'position' in elements[index]:  # Check if it is node
-            connected_edges = get_connected_edges(elements, elements[index])
-            for edge in connected_edges:
-                elements.pop(elements.index(edge))
-        elements.pop(index)
-        del gridObject_dict[selected_element]  # Remove element from grid object dict
-        return elements, gridObject_dict, no_update, True, no_update, no_update, no_update
+    elif triggered_id == 'edit_delete_button':  # Delete Object
+        if btn_delete is not None:
+            index = 0
+            for ele in elements:
+                if ele['data']['id'] == selected_element:
+                    break
+                index += 1
+            if 'position' in elements[index]:  # Check if it is node
+                connected_edges = get_connected_edges(elements, elements[index])
+                for edge in connected_edges:
+                    elements.pop(elements.index(edge))
+            elements.pop(index)
+            del gridObject_dict[selected_element]  # Remove element from grid object dict
+            return elements, gridObject_dict, no_update, selected_element, no_update, no_update, no_update
+        else:
+            raise PreventUpdate
     elif triggered_id == 'example_button':
         ele, gridObject_dict = example_grids.simple_grid_timeseries_day(app, 96)
         return ele, gridObject_dict, no_update, no_update, no_update, no_update, no_update
@@ -211,30 +215,44 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_h
 @app.callback(Output('store_menu_change_tab_grid', 'data'),
               Output('cyto1', 'tapNodeData'),
               Output('cyto1', 'tapEdgeData'),
+              Output('store_selected_element', 'data'),
               Output('store_notification3', 'data'),
               Input('cyto1', 'tapNodeData'),
               Input('cyto1', 'tapEdgeData'),
+              # Input('edit_delete_button', 'n_clicks'),
+              Input('edit_save_button', 'n_clicks'),
+              Input('store_element_deleted', 'data'),
               State('store_grid_object_dict', 'data'),
               State('store_line_edit_active', 'data'))
-def edit_grid_objects(node, edge, gridObject_dict, btn_line_active):
+def edit_grid_objects(node, edge, btn_save, element_deleted, gridObject_dict, btn_line_active):
     try:
         triggered_id = ctx.triggered_id
+        triggered = ctx.triggered
         if triggered_id == 'cyto1':
-            if node is not None and edge is None:   # Node was clicked
+            if triggered[0]['prop_id'] == 'cyto1.tapNodeData':   # Node was clicked
                 if not btn_line_active:
-                    return gridObject_dict[node['id']]['object_type'], None, None, no_update   # Reset tapNodeData and tapEdgeData and return type of node for tab in menu
+                    return gridObject_dict[node['id']]['object_type'], None, None, node['id'], no_update   # Reset tapNodeData and tapEdgeData and return type of node for tab in menu
                 else:
                     raise PreventUpdate
-            elif node is None and edge is not None:     # Edge was clicked
-                return gridObject_dict[edge['id']]['object_type'], None, None, no_update   # Reset tapNodeData and tapEdgeData and return type of edge for tab in menu
+            elif triggered[0]['prop_id'] == 'cyto1.tapEdgeData':     # Edge was clicked
+                return gridObject_dict[edge['id']]['object_type'], None, None, edge['id'], no_update   # Reset tapNodeData and tapEdgeData and return type of edge for tab in menu
             else:
                 raise Exception("Weder Node noch Edge wurde geklickt.")
+        elif triggered_id == 'edit_save_button':    # Save button was clicked in the menu
+            raise PreventUpdate
+        # elif triggered_id == 'edit_delete_button':  # Delete button was clicked in the menu
+        #     raise PreventUpdate
+        elif triggered_id == 'store_element_deleted':
+            if element_deleted is not None:
+                return 'empty', None, None, no_update, no_update
+            else:
+                return PreventUpdate
         else:
             raise PreventUpdate
     except PreventUpdate:
-        return no_update, no_update, no_update, no_update
+        return no_update, no_update, no_update, no_update, no_update
     except Exception as err:
-        return no_update, no_update, no_update, err.args[0]
+        return no_update, no_update, no_update, no_update, err.args[0]
 
 
 # @app.callback(Output('modal_edit', 'opened'),
