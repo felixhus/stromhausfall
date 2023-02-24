@@ -3,23 +3,25 @@ import random
 import time
 
 import dash_bootstrap_components as dbc
+import dash_extensions as dex
 import dash_mantine_components as dmc
-import example_grids
 import grid_objects
 import objects
 import pandas as pd
 import plotly.express as px
+# from dash_extensions import EventListener
 from dash import Dash, Input, Output, State, ctx, dcc, html, no_update
 from dash.exceptions import PreventUpdate
+# from dash_extensions.enrich import DashProxy
 from dash_iconify import DashIconify
 
 import source.dash_components as dash_components
-import source.example_grids
-import source.objects
+# import source.example_grids
+# import source.objects
 import source.stylesheets as stylesheets
 from source.modules import (calculate_power_flow, connection_allowed,
                             generate_grid_object, get_connected_edges,
-                            get_last_id, get_object_from_id)
+                            get_last_id)
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
 server = app.server
@@ -77,32 +79,32 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
         dash_components.add_drawer_notifications(),
         dash_components.add_modal_voltage_level(),
         dash_components.add_storage_variables(),
+        dex.EventListener(id='key_event_listener', events=[{'event': 'keydown', 'props': ["key"]}]),
         html.P(id='init')], width=True),
     html.Div(id='notification_container')
 ], id='main_container'))
-
-
-# @app.callback(Output('store_grid_object_dict', 'data'),
-#               Input('init', 'children'),
-#               State('store_grid_object_dict', 'data'))
-# def init_callback(init, grid_object_list):
-#     if grid_object_list is None:
-#         return []
-#     else:
-#         raise PreventUpdate
 
 
 @app.callback(Output('cyto1', 'autoungrabify'),  # Callback to make Node ungrabbable when adding lines
               Output('store_line_edit_active', 'data'),
               Output('button_line', 'variant'),
               Input('button_line', 'n_clicks'),
+              Input('key_event_listener', 'n_events'),
+              State('key_event_listener', 'event'),
               State('store_line_edit_active', 'data'),
               prevent_initial_call=True)
-def edit_mode(btn_line, btn_active):
-    if not btn_active:
-        return True, True, 'light'
-    else:
-        return False, False, 'filled'
+def edit_mode(btn_line, n_events, event, btn_active):
+    triggered_id = ctx.triggered_id
+    if triggered_id == 'button_line':
+        if not btn_active:
+            return True, True, 'light'
+        else:
+            return False, False, 'filled'
+    elif triggered_id == 'key_event_listener':
+        if event['key'] == 'Escape' and btn_active:
+            return False, False, 'filled'
+        else:
+            raise PreventUpdate
 
 
 @app.callback(Output('cyto1', 'elements'),  # Callback to change elements of cyto
@@ -127,8 +129,8 @@ def edit_mode(btn_line, btn_active):
               State('store_selected_element', 'data'),
               State('store_get_voltage', 'data'),
               prevent_initial_call=True)
-def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_hv, button_lv, elements, gridObject_dict,
-              btn_line_active, start_of_line, selected_element, node_ids):
+def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_hv, button_lv, elements,
+              gridObject_dict, btn_line_active, start_of_line, selected_element, node_ids):
     triggered_id = ctx.triggered_id
     if triggered_id == 'button_line':  # Start line edit mode, set 'start_of_line' as None
         return no_update, no_update, None, no_update, no_update, no_update, no_update

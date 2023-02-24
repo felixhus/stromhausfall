@@ -1,43 +1,24 @@
-import numpy as np
-import plotly.graph_objs as go
+from dash.exceptions import PreventUpdate
+from dash_extensions import EventListener
+from dash_extensions.enrich import DashProxy, Input, Output, State, html
 
-# Generate random data
-np.random.seed(1)
-y = np.random.randint(2500, size=96)
-
-# Create the bar plot
-data = [
-    go.Bar(
-        x=list(range(96)),
-        y=y,
-        # marker=dict(
-            # color='rgb(50, 171, 96)',
-        #     line=dict(
-        #         color='rgb(0, 0, 0)',
-        #         width=1.5),
-        # ),
-        opacity=0.8,
-        width=1,
-    )
-]
-
-# Set layout options
-layout = go.Layout(
-    title='24-Hour Power Usage',
-    xaxis=dict(
-        title='Timestep',
-        tickvals=list(range(96)),
-        ticktext=[f'{i:02d}:00' for i in range(24)]*4,
+# JavaScript event(s) that we want to listen to and what properties to collect.
+event = {"event": "click", "props": ["srcElement.className", "srcElement.innerText"]}
+# Create small example app
+app = DashProxy()
+app.layout = html.Div([
+    EventListener(
+        html.Div("Click here!", className="stuff"),
+        events=[event], logging=True, id="el"
     ),
-    yaxis=dict(
-        title='W',
-    ),
-    bargap=0,
-    template='seaborn',
-)
+    html.Div(id="log")
+])
 
-# Create the figure object
-fig = go.Figure(data=data, layout=layout)
+@app.callback(Output("log", "children"), Input("el", "n_events"), State("el", "event"))
+def click_event(n_events, e):
+    if e is None:
+        raise PreventUpdate()
+    return ",".join(f"{prop} is '{e[prop]}' " for prop in event["props"]) + f" (number of clicks is {n_events})"
 
-# Display the plot
-fig.show()
+if __name__ == "__main__":
+    app.run_server()
