@@ -501,16 +501,19 @@ def manage_devices_bathroom(elements, device_dict, node, btn_close, *btn_add):  
               Output('menu_parent_tabs', 'value'),
               Input('store_menu_change_tab_house', 'data'),
               Input('store_menu_change_tab_grid', 'data'),
+              Input('tabs_main', 'value'),
               State('menu_parent_tabs', 'children'),
               State('store_grid_object_dict', 'data'),
               State('store_device_dict', 'data'),
               State('store_selected_element_grid', 'data'),
               State('store_selected_element_house', 'data'),
               prevent_initial_call=True)
-def manage_menu_containers(tab_value_house, tab_value_grid, menu_children, gridObject_dict, device_dict,
+def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, menu_children, gridObject_dict, device_dict,
                            selected_element_grid, selected_element_house):
     triggered_id = ctx.triggered_id
-    if triggered_id == 'store_menu_change_tab_house':   # If a device in the house was clicked, prepare the variables
+    if triggered_id == 'tabs_main':
+        return no_update, 'empty'
+    elif triggered_id == 'store_menu_change_tab_house':   # If a device in the house was clicked, prepare the variables
         tab_value = tab_value_house
         selected_element = selected_element_house
         elements_dict = device_dict['house1']
