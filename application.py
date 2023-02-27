@@ -520,12 +520,10 @@ def manage_menu_containers(tab_value_house, tab_value_grid, menu_children, gridO
         elements_dict = gridObject_dict
     else:
         raise PreventUpdate
-    if any(ele['props']['value'] == tab_value for ele in menu_children):  # Check if tab already exists
-        return no_update, tab_value  # If it does, only open it
-    else:
-        # If it does not, create and open it
-        new_tab_panel = dash_components.add_menu_tab_panel(tab_value, selected_element, elements_dict)
-        return menu_children + [new_tab_panel], tab_value
+    while len(menu_children) > 1:
+        menu_children.pop()
+    new_tab_panel = dash_components.add_menu_tab_panel(tab_value, selected_element, elements_dict)
+    return menu_children + [new_tab_panel], tab_value
 
 
 @app.callback(Output("power_input", "icon"),
