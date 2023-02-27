@@ -6,7 +6,7 @@ import dash_bootstrap_components as dbc
 import dash_extensions as dex
 import dash_mantine_components as dmc
 import grid_objects
-import objects
+# import objects
 import pandas as pd
 import plotly.express as px
 # from dash_extensions import EventListener
@@ -16,8 +16,8 @@ from dash.exceptions import PreventUpdate
 from dash_iconify import DashIconify
 
 import source.dash_components as dash_components
-# import source.example_grids
-# import source.objects
+import source.example_grids as example_grids
+import source.objects as objects
 import source.stylesheets as stylesheets
 from source.modules import (calculate_power_flow, connection_allowed,
                             generate_grid_object, get_connected_edges,
@@ -440,6 +440,7 @@ def notification(data1, data2, data3, notif_list):
               Output('menu_devices', 'style'),
               Output('menu_devices', 'opened'),
               Output('store_menu_change_tab_house', 'data'),
+              Output('store_selected_element', 'data'),
               State('cyto_bathroom', 'elements'),
               Input('cyto_bathroom', 'tapNode'),
               Input('button_close_menu', 'n_clicks'),
@@ -450,7 +451,7 @@ def manage_devices_bathroom(elements, node, btn_close, *btn_add):  # Callback to
     if triggered_id == 'cyto_bathroom':
         if node['data']['id'] == 'plus':  # Open Menu with Devices to add
             position = elements[1]['position']
-            return no_update, {"position": "relative", "top": position['y'], "left": position['x']}, True, no_update
+            return no_update, {"position": "relative", "top": position['y'], "left": position['x']}, True, no_update, no_update
         elif node['data']['id'][:6] == "socket":  # A socket was clicked, switch this one on/off
             for ele in elements:
                 if ele['data']['id'] == node['data']['id']:
@@ -459,11 +460,11 @@ def manage_devices_bathroom(elements, node, btn_close, *btn_add):  # Callback to
                     else:
                         ele['classes'] = 'socket_node_style_on'
                     break
-            return elements, no_update, no_update, no_update
+            return elements, no_update, no_update, no_update, node['data']['id']
         elif node['data']['id'][:6] == "device":
-            return no_update, no_update, no_update, 'device_bathroom'
+            return no_update, no_update, no_update, 'device_bathroom', node['data']['id']
         elif node['data']['id'][:4] == "lamp":
-            return no_update, no_update, no_update, 'lamp'
+            return no_update, no_update, no_update, 'lamp', node['data']['id']
         else:
             raise PreventUpdate
     elif triggered_id[:10] == 'button_add':  # A button in the menu was clicked
@@ -485,20 +486,25 @@ def manage_devices_bathroom(elements, node, btn_close, *btn_add):  # Callback to
         elements.append(new_socket)  # Append new nodes and edges to cytoscape elements
         elements.append(new_node)
         elements.append(new_edge)
-        return elements, no_update, False, no_update  # Return elements and close menu
+        return elements, no_update, False, no_update, no_update  # Return elements and close menu
     elif triggered_id == 'button_close_menu':  # The button "close" of the menu was clicked, close the menu
-        return no_update, no_update, False, no_update
+        return no_update, no_update, False, no_update, no_update
     else:
         raise PreventUpdate
 
 
 @app.callback(Output('menu_parent_tabs', 'children'),
               Output('menu_parent_tabs', 'value'),
+              Output('store_menu_inputs', 'data'),       ## Last edit here!
               Input('store_menu_change_tab_house', 'data'),
               Input('store_menu_change_tab_grid', 'data'),
               State('menu_parent_tabs', 'children'),
+              State('store_menu_inputs', 'data'),
+              State('store_grid_object_dict', 'data'),
+              State('store_selected_element', 'data'),
               prevent_initial_call=True)
-def manage_menu_containers(tab_value_house, tab_value_grid, menu_children):
+def manage_menu_containers(tab_value_house, tab_value_grid, menu_children, menu_inputs, gridObject_dict,
+                           selected_element):
     triggered_id = ctx.triggered_id
     if triggered_id == 'store_menu_change_tab_house':
         tab_value = tab_value_house
@@ -507,10 +513,15 @@ def manage_menu_containers(tab_value_house, tab_value_grid, menu_children):
     else:
         raise PreventUpdate
     if any(ele['props']['value'] == tab_value for ele in menu_children):  # Check if tab already exists
-        return no_update, tab_value  # If it does, only open it
+        for prop in menu_inputs[tab_value]:
+            # gridObject_dict[selected_element][prop]
+            print('test')
+        return no_update, tab_value, no_update  # If it does, only open it
     else:
         # If it does not, create and open it
-        return menu_children + [dash_components.add_menu_tab_panel(tab_value)], tab_value
+        new_tab_panel, new_tab_inputs = dash_components.add_menu_tab_panel(tab_value, selected_element, gridObject_dict)
+        menu_inputs[tab_value] = new_tab_inputs
+        return menu_children + [new_tab_panel], tab_value, menu_inputs
 
 
 @app.callback(Output("power_input", "icon"),

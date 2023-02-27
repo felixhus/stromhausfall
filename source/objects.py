@@ -118,7 +118,7 @@ def create_DeviceObject():
     return {
         'name': 'Gerät',
         'type': 'device',
-        'power': None,
+        'power': 20,
         'power_options': {
             'Klasse A': {'key': 'data_device_A', 'icon': 'tabler:hexagon-letter-a'},
             'Klasse B': {'key': 'data_device_B', 'icon': 'tabler:hexagon-letter-b'},

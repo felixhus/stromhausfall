@@ -19,7 +19,7 @@ def add_storage_variables():
                      dcc.Store(id='store_notification3'), dcc.Store(id='store_get_voltage'),
                      dcc.Store(id='store_edge_labels'), dcc.Store(id='store_timestep'),
                      dcc.Store(id='store_flow_data'), dcc.Store(id='store_menu_change_tab_grid'),
-                     dcc.Store(id='store_menu_change_tab_house'),
+                     dcc.Store(id='store_menu_change_tab_house'), dcc.Store(id='store_menu_inputs', data={}),
                      dcc.Store(id='store_grid_object_dict', data={}),
                      dcc.Store(id='store_device_dict', data={'house1': {}})])
 
@@ -352,7 +352,7 @@ def card_menu():
                     dmc.TabsPanel(children=[
                         dmc.Space(h=20),
                         dmc.Tabs(children=[
-                            add_menu_tab_panel('empty')
+                            add_menu_tab_panel('empty', None, None)
                         ], id='menu_parent_tabs'),
                         # dmc.Container(id='menu_parent_container',
                         #               children=[]),
@@ -379,7 +379,7 @@ def card_menu():
     return html.Div([card], id='card_menu', style={'display': 'none'})
 
 
-def add_menu_tab_panel(tab_value):
+def add_menu_tab_panel(tab_value, selected_element, gridObject_dict):
     if tab_value == 'house':
         return dmc.TabsPanel([
             dmc.Text("Haus"),
@@ -405,14 +405,27 @@ def add_menu_tab_panel(tab_value):
     elif tab_value == 'device_bathroom':
         return dmc.TabsPanel([
             dmc.Text("Gerät Badezimmer"),
+            dmc.Space(h=20),
+            dmc.NumberInput(
+                id='power_input',
+                label="Leistung dieses Elements in kW:",
+                value=gridObject_dict[selected_element]['power'],
+                min=0,
+                step=0.1, precision=1,
+                stepHoldDelay=500, stepHoldInterval=100,
+                icon=DashIconify(icon="material-symbols:download"),
+                style={"width": 250},
+            ),
+            dmc.Space(h=20),
             dmc.Group([
                 dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
                            leftIcon=DashIconify(icon="material-symbols:delete-outline")),
                 dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right')],
-            value=tab_value
-        )
+            value=tab_value)
+        # ), \
+               # {'power_input': 'value'}
     elif tab_value == 'lamp':
         return dmc.TabsPanel([
             dmc.Text("Lampe"),
