@@ -126,7 +126,7 @@ def edit_mode(btn_line, n_events, event, btn_active):
               State('store_grid_object_dict', 'data'),
               State('store_line_edit_active', 'data'),
               State('start_of_line', 'data'),
-              State('store_selected_element', 'data'),
+              State('store_selected_element_grid', 'data'),
               State('store_get_voltage', 'data'),
               prevent_initial_call=True)
 def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_hv, button_lv, elements,
@@ -217,7 +217,7 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_h
 @app.callback(Output('store_menu_change_tab_grid', 'data'),
               Output('cyto1', 'tapNodeData'),
               Output('cyto1', 'tapEdgeData'),
-              Output('store_selected_element', 'data'),
+              Output('store_selected_element_grid', 'data'),
               Output('store_notification3', 'data'),
               Input('cyto1', 'tapNodeData'),
               Input('cyto1', 'tapEdgeData'),
@@ -437,21 +437,23 @@ def notification(data1, data2, data3, notif_list):
 
 
 @app.callback(Output('cyto_bathroom', 'elements'),
+              Output('store_device_dict', 'data'),
               Output('menu_devices', 'style'),
               Output('menu_devices', 'opened'),
               Output('store_menu_change_tab_house', 'data'),
-              Output('store_selected_element', 'data'),
+              Output('store_selected_element_house', 'data'),
               State('cyto_bathroom', 'elements'),
+              State('store_device_dict', 'data'),
               Input('cyto_bathroom', 'tapNode'),
               Input('button_close_menu', 'n_clicks'),
               [Input(device[1], 'n_clicks') for device in dash_components.devices['bathroom']],
               prevent_initial_call=True)
-def manage_devices_bathroom(elements, node, btn_close, *btn_add):  # Callback to handle Bathroom action
+def manage_devices_bathroom(elements, device_dict, node, btn_close, *btn_add):  # Callback to handle Bathroom action
     triggered_id = ctx.triggered_id
     if triggered_id == 'cyto_bathroom':
         if node['data']['id'] == 'plus':  # Open Menu with Devices to add
             position = elements[1]['position']
-            return no_update, {"position": "relative", "top": position['y'], "left": position['x']}, True, no_update, no_update
+            return no_update, no_update, {"position": "relative", "top": position['y'], "left": position['x']}, True, no_update, no_update
         elif node['data']['id'][:6] == "socket":  # A socket was clicked, switch this one on/off
             for ele in elements:
                 if ele['data']['id'] == node['data']['id']:
@@ -460,11 +462,11 @@ def manage_devices_bathroom(elements, node, btn_close, *btn_add):  # Callback to
                     else:
                         ele['classes'] = 'socket_node_style_on'
                     break
-            return elements, no_update, no_update, no_update, node['data']['id']
+            return elements, no_update, no_update, no_update, no_update, node['data']['id']
         elif node['data']['id'][:6] == "device":
-            return no_update, no_update, no_update, 'device_bathroom', node['data']['id']
+            return no_update, no_update, no_update, no_update, 'device_bathroom', node['data']['id']
         elif node['data']['id'][:4] == "lamp":
-            return no_update, no_update, no_update, 'lamp', node['data']['id']
+            return no_update, no_update, no_update, no_update, 'lamp', node['data']['id']
         else:
             raise PreventUpdate
     elif triggered_id[:10] == 'button_add':  # A button in the menu was clicked
@@ -482,11 +484,13 @@ def manage_devices_bathroom(elements, node, btn_close, *btn_add):  # Callback to
                     # Generate new device
                     'style': {'background-image': ['/assets/Icons/icon_' + triggered_id[11:] + '.png']}}
         new_edge = {'data': {'source': socket_id, 'target': device_id}}  # Connect new device with new socket
+        new_device = objects.create_DeviceObject(device_id)
         elements[1]['position'] = new_position_plus
         elements.append(new_socket)  # Append new nodes and edges to cytoscape elements
         elements.append(new_node)
         elements.append(new_edge)
-        return elements, no_update, False, no_update, no_update  # Return elements and close menu
+        device_dict['house1'][device_id] = new_device
+        return elements, device_dict, no_update, False, no_update, no_update  # Return elements and close menu
     elif triggered_id == 'button_close_menu':  # The button "close" of the menu was clicked, close the menu
         return no_update, no_update, False, no_update, no_update
     else:
@@ -495,33 +499,33 @@ def manage_devices_bathroom(elements, node, btn_close, *btn_add):  # Callback to
 
 @app.callback(Output('menu_parent_tabs', 'children'),
               Output('menu_parent_tabs', 'value'),
-              Output('store_menu_inputs', 'data'),       ## Last edit here!
               Input('store_menu_change_tab_house', 'data'),
               Input('store_menu_change_tab_grid', 'data'),
               State('menu_parent_tabs', 'children'),
-              State('store_menu_inputs', 'data'),
               State('store_grid_object_dict', 'data'),
-              State('store_selected_element', 'data'),
+              State('store_device_dict', 'data'),
+              State('store_selected_element_grid', 'data'),
+              State('store_selected_element_house', 'data'),
               prevent_initial_call=True)
-def manage_menu_containers(tab_value_house, tab_value_grid, menu_children, menu_inputs, gridObject_dict,
-                           selected_element):
+def manage_menu_containers(tab_value_house, tab_value_grid, menu_children, gridObject_dict, device_dict,
+                           selected_element_grid, selected_element_house):
     triggered_id = ctx.triggered_id
-    if triggered_id == 'store_menu_change_tab_house':
+    if triggered_id == 'store_menu_change_tab_house':   # If a device in the house was clicked, prepare the variables
         tab_value = tab_value_house
-    elif triggered_id == 'store_menu_change_tab_grid':
+        selected_element = selected_element_house
+        elements_dict = device_dict['house1']
+    elif triggered_id == 'store_menu_change_tab_grid':  # If a device in the grid was clicked, prepare the variables
         tab_value = tab_value_grid
+        selected_element = selected_element_grid
+        elements_dict = gridObject_dict
     else:
         raise PreventUpdate
     if any(ele['props']['value'] == tab_value for ele in menu_children):  # Check if tab already exists
-        for prop in menu_inputs[tab_value]:
-            # gridObject_dict[selected_element][prop]
-            print('test')
-        return no_update, tab_value, no_update  # If it does, only open it
+        return no_update, tab_value  # If it does, only open it
     else:
         # If it does not, create and open it
-        new_tab_panel, new_tab_inputs = dash_components.add_menu_tab_panel(tab_value, selected_element, gridObject_dict)
-        menu_inputs[tab_value] = new_tab_inputs
-        return menu_children + [new_tab_panel], tab_value, menu_inputs
+        new_tab_panel = dash_components.add_menu_tab_panel(tab_value, selected_element, elements_dict)
+        return menu_children + [new_tab_panel], tab_value
 
 
 @app.callback(Output("power_input", "icon"),

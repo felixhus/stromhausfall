@@ -13,7 +13,8 @@ devices = {'bathroom': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hai
 
 def add_storage_variables():
     return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
-                     dcc.Store(id='store_line_edit_active'), dcc.Store(id='store_selected_element'),
+                     dcc.Store(id='store_line_edit_active'), dcc.Store(id='store_selected_element_grid'),
+                     dcc.Store(id='store_selected_element_house'),
                      dcc.Store(id='store_element_deleted'), dcc.Store(id='store_notification1'),
                      dcc.Store(id='store_notification2'),
                      dcc.Store(id='store_notification3'), dcc.Store(id='store_get_voltage'),
@@ -379,7 +380,7 @@ def card_menu():
     return html.Div([card], id='card_menu', style={'display': 'none'})
 
 
-def add_menu_tab_panel(tab_value, selected_element, gridObject_dict):
+def add_menu_tab_panel(tab_value, selected_element, element_dict):
     if tab_value == 'house':
         return dmc.TabsPanel([
             dmc.Text("Haus"),
@@ -409,7 +410,7 @@ def add_menu_tab_panel(tab_value, selected_element, gridObject_dict):
             dmc.NumberInput(
                 id='power_input',
                 label="Leistung dieses Elements in kW:",
-                value=gridObject_dict[selected_element]['power'],
+                value=element_dict[selected_element]['power'],
                 min=0,
                 step=0.1, precision=1,
                 stepHoldDelay=500, stepHoldInterval=100,

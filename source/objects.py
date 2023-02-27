@@ -114,8 +114,9 @@ def create_LineObject(object_id, edge_id):
     }
 
 
-def create_DeviceObject():
+def create_DeviceObject(device_id):
     return {
+        'id': device_id,
         'name': 'Gerät',
         'type': 'device',
         'power': 20,
