@@ -221,12 +221,12 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_h
               Output('store_notification3', 'data'),
               Input('cyto1', 'tapNodeData'),
               Input('cyto1', 'tapEdgeData'),
-              # Input('edit_delete_button', 'n_clicks'),
               Input('edit_save_button', 'n_clicks'),
               Input('store_element_deleted', 'data'),
               State('store_grid_object_dict', 'data'),
-              State('store_line_edit_active', 'data'))
-def edit_grid_objects(node, edge, btn_save, element_deleted, gridObject_dict, btn_line_active):
+              State('store_line_edit_active', 'data'),
+              State('tabs_main', 'value'))
+def edit_grid_objects(node, edge, btn_save, element_deleted, gridObject_dict, btn_line_active, tabs_main):
     try:
         triggered_id = ctx.triggered_id
         triggered = ctx.triggered
@@ -241,9 +241,9 @@ def edit_grid_objects(node, edge, btn_save, element_deleted, gridObject_dict, bt
             else:
                 raise Exception("Weder Node noch Edge wurde geklickt.")
         elif triggered_id == 'edit_save_button':    # Save button was clicked in the menu
+            if tabs_main != 'grid' or btn_save is None:    # If it was clicked in house mode or is None do nothing
+                raise PreventUpdate
             raise PreventUpdate
-        # elif triggered_id == 'edit_delete_button':  # Delete button was clicked in the menu
-        #     raise PreventUpdate
         elif triggered_id == 'store_element_deleted':
             if element_deleted is not None:
                 return 'empty', None, None, no_update, no_update
@@ -444,11 +444,13 @@ def notification(data1, data2, data3, notif_list):
               Output('store_selected_element_house', 'data'),
               State('cyto_bathroom', 'elements'),
               State('store_device_dict', 'data'),
+              State('tabs_main', 'value'),
               Input('cyto_bathroom', 'tapNode'),
+              Input('edit_save_button', 'n_clicks'),
               Input('button_close_menu', 'n_clicks'),
               [Input(device[1], 'n_clicks') for device in dash_components.devices['bathroom']],
               prevent_initial_call=True)
-def manage_devices_bathroom(elements, device_dict, node, btn_close, *btn_add):  # Callback to handle Bathroom action
+def manage_devices_bathroom(elements, device_dict, tabs_main, node, btn_save, btn_close, *btn_add):  # Callback to handle Bathroom action
     triggered_id = ctx.triggered_id
     if triggered_id == 'cyto_bathroom':
         if node['data']['id'] == 'plus':  # Open Menu with Devices to add
@@ -491,6 +493,10 @@ def manage_devices_bathroom(elements, device_dict, node, btn_close, *btn_add):  
         elements.append(new_edge)
         device_dict['house1'][device_id] = new_device
         return elements, device_dict, no_update, False, no_update, no_update  # Return elements and close menu
+    elif triggered_id == 'edit_save_button':
+        if tabs_main != 'house1' or btn_save is None:   # If button was clicked in grid mode or is None do nothing
+            raise PreventUpdate
+        ## Speichere alle Werte in device Dictionary
     elif triggered_id == 'button_close_menu':  # The button "close" of the menu was clicked, close the menu
         return no_update, no_update, False, no_update, no_update
     else:

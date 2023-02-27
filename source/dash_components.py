@@ -165,22 +165,6 @@ def add_cytoscape_layout():
     )
 
 
-# def add_rooms(app):     ## Hier app übergeben entfernen, lieber url in roomobjects hinterlegen
-#     background_bath_url = 'url(' + str(app.get_asset_url('background_bath.svg')) + ')'
-#     cytoscape_room = dbc.Card(
-#         children=[
-#             cyto.Cytoscape(
-#                 id='cyto_bathroom',
-#                 layout={'name': 'preset'},
-#                 autoRefreshLayout=False,
-#                 style={'width': '100%', 'height': '100%', 'background': '#e6ecf2', 'frame': 'blue',},
-#                        # 'background-image': background_bath_url},
-#                 # elements = edges + nodes,
-#                 stylesheet=stylesheets.cyto_stylesheet)],
-#         style={'height': '100%'})
-#     return cytoscape_room
-
-
 def add_room(id_cyto, elements):
     cytoscape_room = dbc.Card(
         children=[
