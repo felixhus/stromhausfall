@@ -71,15 +71,20 @@ from ortools.graph.python import min_cost_flow
 #     main()
 
 
+# Create the first Series
+index1 = pd.date_range('2022-01-01', periods=12, freq='M')
+data1 = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
+series1 = pd.Series(data1, index=index1)
 
+# Create the second Series
+index2 = pd.date_range('2022-01-01', periods=12, freq='M')
+data2 = [100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 0, -10]
+series2 = pd.Series(data2, index=index2)
 
+# Create the third Series
+index3 = pd.date_range('2022-01-01', periods=12, freq='M')
+data3 = [1000, 900, 800, 700, 600, 500, 400, 300, 200, 100, 0, -100]
+series3 = pd.Series(data3, index=index3)
 
-# create a sample dataframe
-df = pd.DataFrame({'external': [1, 2, 3], 'external_grid': [4, 5, 6]})
-df.index = ['step1', 'step2', 'step3']
-
-# access the value at the index "step1" and the column name "B" using df.at
-value = df.at['step1', 'external_grid']
-
-# the value should be 4
-print(value)
+# Combine the Series into one dataframe
+df = pd.DataFrame({'series1': series1, 'series2': series2, 'series3': series3})

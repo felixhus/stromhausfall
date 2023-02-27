@@ -6,6 +6,7 @@ import warnings
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+import objects
 import pandas as pd
 
 import source.grid_objects as grid_objects
@@ -41,33 +42,28 @@ def get_connected_edges(elements, selected_element):
 
 def generate_grid_object(object_type, object_id, node_id):
     if object_type == "button_house":
-        return grid_objects.HouseObject(node_id=node_id, object_id=object_id, voltage=400)
+        return objects.create_HouseObject(object_id, node_id)
     elif object_type == "button_transformer":
-        return grid_objects.TransformerObject(node_id=node_id, object_id=object_id)
+        return objects.create_TransformerObject(object_id, node_id)
     elif object_type == "button_externalgrid":
-        return grid_objects.ExternalGrid(node_id=node_id, object_id=object_id, voltage=20000)
+        return objects.create_ExternalGridObject(object_id, node_id)
     elif object_type == "button_pv":
-        return grid_objects.PV(node_id=node_id, object_id=object_id)
+        return objects.create_PVObject(object_id, node_id)
     elif object_type == "button_battery":
-        return grid_objects.Battery(node_id=node_id, object_id=object_id, voltage=400)
+        return objects.create_BatteryObject(object_id, node_id)
     elif object_type == "button_smartmeter":
-        return grid_objects.SmartMeter(node_id=node_id, object_id=object_id)
+        return objects.create_SmartMeterObject(object_id, node_id)
     elif object_type == "button_switch_cabinet":
-        return grid_objects.SwitchCabinet(node_id=node_id, object_id=object_id, voltage=400)
+        return objects.create_SwitchCabinetObject(object_id, node_id)
     else:
         return None
 
 
-def connection_allowed(source, target, object_list):
-    target_type = None
-    for gridobject in object_list:
-        if gridobject.get_id() == target:
-            target_type = gridobject.object_type
-            break
-    for gridobject in object_list:
-        if gridobject.get_id() == source:
-            if target_type in gridobject.allowed_types_to_connect:
-                return True
+def connection_allowed(source, target, object_dict):
+    """ Check if the connection which is about to be added is allowed. """
+    target_type = object_dict[target]['object_type']
+    if target_type in object_dict[source]['allowed_types_to_connect']:
+        return True
     return False
 
 
@@ -75,7 +71,7 @@ def generate_grid_dataframes(elements, grid_objects):
     """
     Generate pandas DataFrames from given cytoscape elements.
     :param elements: Cytoscape element list, nodes and edges
-    :param grid_objects: List of all grid objects to link them to the nodes
+    :param grid_objects: Dict of all grid objects to link them to the nodes
     :return df_nodes: DataFrame containing all nodes of the grid; df_edges: DataFrame containing all edges of the grid.
     """
     nodes = []
@@ -84,14 +80,16 @@ def generate_grid_dataframes(elements, grid_objects):
         if 'source' in ele['data']:
             edges.append(ele['data'])  # Extract needed data from edges
         else:
-            for go in grid_objects:  # Find grid object with the same id and link it to the node
-                if go.id == ele['data']['id']:
-                    ele['data']['linkedObject'] = go
+            ele['data']['linkedObject'] = grid_objects[ele['data']['id']]
+            # for go in grid_objects:  # Find grid object with the same id and link it to the node
+            #     if go.id == ele['data']['id']:
+            #         ele['data']['linkedObject'] = go
             nodes.append(ele['data'])  # Extract needed data from nodes
     df_nodes = pd.DataFrame(nodes)  # Generate DataFrames from extracted data, which describe the grid
     for edge in edges:
-        source_voltage = df_nodes.loc[df_nodes['id'] == edge['source']]['linkedObject'].values[0].voltage
-        target_voltage = df_nodes.loc[df_nodes['id'] == edge['target']]['linkedObject'].values[0].voltage
+        source_voltage = df_nodes.loc[df_nodes['id'] == edge['source']]['linkedObject'].values[0]['voltage']
+        x = df_nodes.loc[df_nodes['id'] == edge['target']]['linkedObject'].values[0]
+        target_voltage = df_nodes.loc[df_nodes['id'] == edge['target']]['linkedObject'].values[0]['voltage']
         if source_voltage is None and target_voltage is None:
             warnings.warn("Keine Spannungsebene für Leitung durch Knoten definiert!")
         if source_voltage is None:
@@ -119,22 +117,22 @@ def generate_grid_graph(df_nodes, df_edges):
                            name="object")
     nodes = copy.deepcopy(graph.nodes(data=True))
     for node in nodes:
-        if node[1]['object'].object_type == 'transformer':
+        if node[1]['object']['object_type'] == 'transformer':
             node_id = "transformer_" + node[0]
-            node_object = grid_objects.TransformerHelperNode()
+            node_object = objects.create_TransformerHelperNodeObject()
             graph.add_node(node_id, object=node_object)
             graph.add_edge(node[0], node_id, impedance=12, id='transformer_edge_' + node_id[16:])
     for idx in range(len(df_edges.index)):
         if df_edges.loc[idx, 'source'] in graph.nodes \
                 and df_edges.loc[idx, 'target'] in graph.nodes:  # Check if source and target node exist
-            if graph.nodes(data=True)[df_edges.loc[idx, 'source']]['object'].object_type == 'transformer':
+            if graph.nodes(data=True)[df_edges.loc[idx, 'source']]['object']['object_type'] == 'transformer':
                 if df_edges.loc[idx, 'voltage'] == 400:
                     graph.add_edge("transformer_" + df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'],
                                    id=df_edges.loc[idx, 'id'])
                 else:
                     graph.add_edge(df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'],
                                    id=df_edges.loc[idx, 'id'])
-            elif graph.nodes(data=True)[df_edges.loc[idx, 'target']]['object'].object_type == 'transformer':
+            elif graph.nodes(data=True)[df_edges.loc[idx, 'target']]['object']['object_type'] == 'transformer':
                 if df_edges.loc[idx, 'voltage'] == 400:
                     graph.add_edge(df_edges.loc[idx, 'source'], "transformer_" + df_edges.loc[idx, 'target'],
                                    id=df_edges.loc[idx, 'id'])
@@ -155,7 +153,7 @@ def generate_directed_graph(graph):
     nodes_and_attributes = [(n, d) for n, d in graph.nodes(data=True)]
     graph_dir.add_nodes_from(nodes_and_attributes)
     for node in graph.nodes(data=True):
-        if node[1]['object'].object_type == "externalgrid":
+        if node[1]['object']['object_type'] == "externalgrid":
             number_of_ext_grids += 1
             source_node = node[0]
     if number_of_ext_grids > 1:
@@ -178,29 +176,26 @@ def generate_directed_graph(graph):
 
 
 def generate_equations(graph):
+    df_power = pd.DataFrame()
+    for node in graph.nodes(data=True):
+        df_power[node[0]] = node[1]['object']['power']
     inc = nx.incidence_matrix(graph, oriented=True).toarray()
     idx = 0
-    t, s = np.zeros(len(graph.nodes)), np.zeros(len(graph.nodes))
     for node in graph.nodes(data=True):
-        if node[1]['object'].power > 0:
-            t[idx] = node[1]['object'].power
-        elif node[1]['object'].power < 0:
-            s[idx] = node[1]['object'].power
-        if node[1]['object'].object_type == 'externalgrid':
+        if node[1]['object']['object_type'] == 'externalgrid':
             idx_ext = idx
         idx += 1
-    b = s + t
+    # b = s + t
     new_column = np.array([np.zeros(np.shape(inc)[0])])
     new_column[0][idx_ext] = -1
     inc = np.append(inc, np.transpose(new_column), axis=1)
-    return inc, b
+    return inc, df_power
 
 
 def solve_flow(A, b):
     if np.shape(A)[0] != np.shape(A)[1]:
         raise Exception("Inzidenzmatrix ist nicht quadratisch!")
     flow = np.linalg.solve(A, b)
-    print(flow)
     return flow
 
 
@@ -254,32 +249,33 @@ def power_flow_statemachine(state, data):
             data['grid_graph'])  # Give graph edges directions, starting at external grid
         return 'gen_equations', data, False
     elif state == 'gen_equations':
-        data['A'], data['b'] = generate_equations(data['grid_graph'])
+        data['A'], data['df_power'] = generate_equations(data['grid_graph'])
         return 'calc_flow', data, False
     elif state == 'calc_flow':
-        data['flow'] = solve_flow(data['A'], data['b'])
-        edge_labels = []
+        column_names = []
         for edge in data['grid_graph'].edges:
-            edge_labels.append(data['grid_graph'].edges[edge]['id'])
-        edge_labels.append("external_grid")
-        data['df_flow'] = pd.DataFrame(data['flow'][np.newaxis], index=['step1'], columns=[edge_labels])
+            column_names.append(data['grid_graph'].edges[edge]['id'])
+        column_names.append("external_grid")
+        df_flow = pd.DataFrame(columns=column_names)
+        for step, row in data['df_power'].iterrows():
+            df_flow.loc[step] = solve_flow(data['A'], row)
+        data['df_flow'] = df_flow
         return 'set_edge_labels', data, False
     elif state == 'set_edge_labels':
-        data['labels'] = data['df_flow'].loc['step1'].to_dict()
-        data['labels'] = {str(key[0]): value for key, value in data['labels'].items()}
+        data['labels'] = data['df_flow'].loc[0].to_dict()
         return None, data, True
 
 
-def calculate_power_flow(elements, grid_object_list):
+def calculate_power_flow(elements, grid_object_dict):
     """
     Main function to calculate the power flows in the created and configured grid. Built as a state-machine
-    :param grid_object_list: List of objects in grid with id corresponding to node ids of cytoscape
+    :param grid_object_dict: List of objects in grid with id corresponding to node ids of cytoscape
     :param elements: Grid elements in form of cytoscape graph
     :return:
     """
     state = 'init'
     ready = False
-    data = {'elements': elements, 'grid_objects': grid_object_list}
+    data = {'elements': elements, 'grid_objects': grid_object_dict}
     while not ready:
         print(state)
         state, data, ready = power_flow_statemachine(state, data)

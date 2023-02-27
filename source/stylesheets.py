@@ -31,6 +31,61 @@ cyto_stylesheet = [
             'background-height': 40,
         }
     },
+    {
+        'selector': '.room_node_style',
+        'style': {
+            'background-color': '#6a93b0',
+            'shape': 'roundrectangle',
+            'width': 30,
+            'height': 30,
+            'background-width': 20,
+            'background-height': 20,
+        }
+    },
+    {
+        'selector': '.socket_node_style',
+        'style': {
+            'background-color': '#6a93b0',
+            'shape': 'roundrectangle',
+            'width': 30,
+            'height': 30,
+            'background-image': ['/assets/Icons/icon_socket.png'],
+            'background-width': 20,
+            'background-height': 20,
+        }
+    },
+    {
+        'selector': '.socket_node_style_on',
+        'style': {
+            'background-color': 'green',
+            'shape': 'roundrectangle',
+            'width': 30,
+            'height': 30,
+            'background-image': ['/assets/Icons/icon_socket.png'],
+            'background-width': 20,
+            'background-height': 20,
+        }
+    },
+    {
+        'selector': '.socket_node_style_off',
+        'style': {
+            'background-color': 'red',
+            'shape': 'roundrectangle',
+            'width': 30,
+            'height': 30,
+            'background-image': ['/assets/Icons/icon_socket.png'],
+            'background-width': 20,
+            'background-height': 20,
+        }
+    },
+    {
+        'selector': '.power_strip_style',
+        'style': {
+            'shape': 'roundrectangle',
+            'width': 10,
+            'height': 10,
+        }
+    },
     # {
     #     'selector': '.node_house',
     #     'style': {
@@ -103,7 +158,7 @@ cyto_stylesheet_calculated = [
             'width': '2px',
             'curve-style': 'bezier',
             'label': 'data(label)',
-            'target-arrow-shape': 'triangle'
+            # 'target-arrow-shape': 'triangle'
         }
     }
 ]
