@@ -3,6 +3,10 @@
 Dies ist der aktuelle Stand der Webapp meiner Masterthesis. Folgende Funktionen sind bereits implementiert und können ausprobiert werden:
 
 ### NEUE FUNKTIONEN 🎉 ###
+> - Haus-Modus in Tabs
+> - Steckdosenleiste in Raum, über das + kann ein neues Gerät hinzugefügt werden
+> - Jedes Gerät kann über Klick auf die Steckdose aus- und angeschaltet werden
+> - Klick auf Gerät öffnet Konfigurationsfeld im rechten Fenster
 > - Mit einem Button in der Navigationsleiste kann ein Beispielnetz erstellt werden.
 > - Durch Klicken auf die Elemente kann Last/Einspeisung ausgewählt und die Leistung eingestellt werden.
 > - Mit dem Button "Berechnen" wird eine Leistungsflussberechnung durchgeführt und die Ergebnisse im Netz angezeigt.
@@ -42,6 +46,6 @@ Jedes Element des gezeichneten Netzes wird in einen Graphenknoten mit seinen Eig
 
 Fragen und Anregungen gern an mich [per Mail](mailto:felix.husemann@tum.de)
 ~~~
-Stand: 14.02.2023
+Stand: 27.02.2023
 © Felix Husemann, TUM
 ~~~
