@@ -1,18 +1,12 @@
-import os
-import random
 import time
 
 import dash_bootstrap_components as dbc
 import dash_extensions as dex
 import dash_mantine_components as dmc
-import grid_objects
-# import objects
 import pandas as pd
 import plotly.express as px
-# from dash_extensions import EventListener
 from dash import Dash, Input, Output, State, ctx, dcc, html, no_update
 from dash.exceptions import PreventUpdate
-# from dash_extensions.enrich import DashProxy
 from dash_iconify import DashIconify
 
 import source.dash_components as dash_components
@@ -46,11 +40,6 @@ house_objects = [
     ['button_stove', "Herd"],
     ['button_tv', "TV"],
 ]
-
-nodes = []
-edges = []
-# gridObject_dict = []
-bathroom = grid_objects.BathroomObject()
 
 app.layout = dmc.NotificationsProvider(dbc.Container([
     dbc.Col([
