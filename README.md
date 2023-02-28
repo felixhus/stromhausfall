@@ -3,7 +3,7 @@
 Dies ist der aktuelle Stand der Webapp meiner Masterthesis. Folgende Funktionen sind bereits implementiert und können ausprobiert werden:
 
 ### NEUE FUNKTIONEN 🎉 ###
-> - Haus-Modus in Tabs
+> - Haus-Modus in Tabs 🏠
 > - Steckdosenleiste in Raum, über das + kann ein neues Gerät hinzugefügt werden
 > - Jedes Gerät kann über Klick auf die Steckdose aus- und angeschaltet werden
 > - Klick auf Gerät öffnet Konfigurationsfeld im rechten Fenster

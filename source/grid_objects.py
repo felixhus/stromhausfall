@@ -1,4 +1,4 @@
-import dash_components
+# import dash_components
 
 
 class GridObject:
@@ -43,7 +43,7 @@ class BathroomObject(RoomObject):
             {'data': {'id': 'node2'}, 'position': {'x': 100, 'y': 0}, 'classes': 'node_style',
              'style': {'background-color': self.color_on}}
         ]
-        self.cyto = dash_components.add_room('cyto_bath', self.nodes)
+        # self.cyto = dash_components.add_room('cyto_bath', self.nodes)
 
 
 class HouseObject(GridObject):
