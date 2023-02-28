@@ -535,7 +535,7 @@ def chips_type(value):
               Input('example_button', 'n_clicks'),
               prevent_initial_call=True)
 def activate_example(btn):
-    time.sleep(0.75)
+    time.sleep(2.5)
     return {'name': 'cose'}, True
 
 
