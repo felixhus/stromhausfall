@@ -127,3 +127,18 @@ def create_DeviceObject(device_id):
             'Klasse C': {'key': 'day_device_C', 'icon': 'tabler:hexagon-letter-c'},
         }
     }
+
+
+def create_LampObject(device_id):
+    return {
+        'id': device_id,
+        'name': 'Lampe',
+        'type': 'lamp',
+        'power': 20,
+        'active': True,
+        'power_options': {
+            'Klasse A': {'key': 'day_lamp_A', 'icon': 'tabler:hexagon-letter-a'},
+            'Klasse B': {'key': 'day_lamp_B', 'icon': 'tabler:hexagon-letter-b'},
+            'Klasse C': {'key': 'day_lamp_C', 'icon': 'tabler:hexagon-letter-c'},
+        }
+    }

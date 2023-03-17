@@ -6,6 +6,7 @@ import dash_bootstrap_components as dbc
 import dash_extensions as dex
 import dash_mantine_components as dmc
 import grid_objects
+import modules
 # import objects
 import pandas as pd
 import plotly.express as px
@@ -161,7 +162,8 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_h
                         new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
                                              'id': 'edge' + str(last_id[1] + 1), 'label': 'x'},
                                     'classes': 'line_style'}
-                        gridObject_dict[new_edge['data']['id']] = objects.create_LineObject(new_edge['data']['id'], new_edge['data']['id'])
+                        gridObject_dict[new_edge['data']['id']] = objects.create_LineObject(new_edge['data']['id'],
+                                                                                            new_edge['data']['id'])
                         elements.append(new_edge)
                         return elements, gridObject_dict, None, no_update, no_update, return_temp, modal_boolean
                     else:
@@ -189,7 +191,7 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_h
         else:
             raise PreventUpdate
     elif triggered_id == 'example_button':
-        ele, gridObject_dict = example_grids.simple_grid_timeseries_day(app, 24*60)
+        ele, gridObject_dict = example_grids.simple_grid_timeseries_day(app, 24 * 60)
         return ele, gridObject_dict, no_update, no_update, no_update, no_update, no_update
     elif triggered_id == 'store_edge_labels':  # Set labels of edges with power values
         for edge, label in labels.items():
@@ -231,17 +233,19 @@ def edit_grid_objects(node, edge, btn_save, element_deleted, gridObject_dict, bt
         triggered_id = ctx.triggered_id
         triggered = ctx.triggered
         if triggered_id == 'cyto1':
-            if triggered[0]['prop_id'] == 'cyto1.tapNodeData':   # Node was clicked
+            if triggered[0]['prop_id'] == 'cyto1.tapNodeData':  # Node was clicked
                 if not btn_line_active:
-                    return gridObject_dict[node['id']]['object_type'], None, None, node['id'], no_update   # Reset tapNodeData and tapEdgeData and return type of node for tab in menu
+                    return gridObject_dict[node['id']]['object_type'], None, None, node[
+                        'id'], no_update  # Reset tapNodeData and tapEdgeData and return type of node for tab in menu
                 else:
                     raise PreventUpdate
-            elif triggered[0]['prop_id'] == 'cyto1.tapEdgeData':     # Edge was clicked
-                return gridObject_dict[edge['id']]['object_type'], None, None, edge['id'], no_update   # Reset tapNodeData and tapEdgeData and return type of edge for tab in menu
+            elif triggered[0]['prop_id'] == 'cyto1.tapEdgeData':  # Edge was clicked
+                return gridObject_dict[edge['id']]['object_type'], None, None, edge[
+                    'id'], no_update  # Reset tapNodeData and tapEdgeData and return type of edge for tab in menu
             else:
                 raise Exception("Weder Node noch Edge wurde geklickt.")
-        elif triggered_id == 'edit_save_button':    # Save button was clicked in the menu
-            if tabs_main != 'grid' or btn_save is None:    # If it was clicked in house mode or is None do nothing
+        elif triggered_id == 'edit_save_button':  # Save button was clicked in the menu
+            if tabs_main != 'grid' or btn_save is None:  # If it was clicked in house mode or is None do nothing
                 raise PreventUpdate
             raise PreventUpdate
         elif triggered_id == 'store_element_deleted':
@@ -383,14 +387,18 @@ def notification(data1, data2, data3, data4, notif_list):
               State('store_device_dict', 'data'),
               State('tabs_main', 'value'),
               State('menu_parent_tabs', 'children'),
+              State('store_selected_element_house', 'data'),
               Input('cyto_bathroom', 'tapNode'),
               Input('edit_save_button', 'n_clicks'),
               Input('button_close_menu', 'n_clicks'),
-              [Input(device[1], 'n_clicks') for device in dash_components.devices['bathroom']],
-              prevent_initial_call=True)
-def manage_devices_bathroom(elements, device_dict, tabs_main, children, node, btn_save, btn_close, *btn_add):  # Callback to handle Bathroom action
+              [Input(device[1], 'n_clicks') for device in dash_components.devices['bathroom']])
+def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected_element, node, btn_save, btn_close,
+                            *btn_add):  # Callback to handle Bathroom action
     try:
         triggered_id = ctx.triggered_id
+        if triggered_id is None:    # Initial call
+            device_dict['house1']['lamp'] = objects.create_LampObject('lamp')   # Add lamp to device dictionary
+            return no_update, device_dict, no_update, no_update, no_update, no_update, no_update
         if triggered_id == 'cyto_bathroom':
             if node['data']['id'] == 'plus':  # Open Menu with Devices to add
                 position = elements[1]['position']
@@ -416,7 +424,8 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, node, bt
             device_id = "device" + str((len(elements) - 2) / 3 + 1)[:1]
             position = elements[1]['position']  # Get Position of plus-node
             new_position_plus = {'x': position['x'] + 40, 'y': position['y']}  # Calculate new position of plus-node
-            new_socket = {'data': {'id': socket_id, 'parent': 'power_strip'}, 'position': position,  # Generate new socket
+            new_socket = {'data': {'id': socket_id, 'parent': 'power_strip'}, 'position': position,
+                          # Generate new socket
                           'classes': 'socket_node_style'}
             if len(elements) % 6 - 2 > 0:
                 position_node = {'x': position['x'], 'y': position['y'] - 80}  # Get position of new device
@@ -434,17 +443,19 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, node, bt
             device_dict['house1'][device_id] = new_device
             return elements, device_dict, no_update, False, no_update, no_update, no_update  # Return elements and close menu
         elif triggered_id == 'edit_save_button':
-            if tabs_main != 'house1' or btn_save is None:   # If button was clicked in grid mode or is None do nothing
+            if tabs_main != 'house1' or btn_save is None:  # If button was clicked in grid mode or is None do nothing
                 raise PreventUpdate
-            ## Speichere alle Werte in device Dictionary
+            device_dict = modules.save_settings(children[1]['props']['children'], device_dict, selected_element, 'house1')
+            ## Lastprofile aus Datenbank laden!
+            return no_update, device_dict, no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'button_close_menu':  # The button "close" of the menu was clicked, close the menu
-            return no_update, no_update, False, no_update, no_update, no_update
+            return no_update, no_update, False, no_update, no_update, no_update, no_update
         else:
             raise PreventUpdate
     except PreventUpdate:
-        return no_update, no_update, no_update, no_update, no_update
+        return no_update, no_update, no_update, no_update, no_update, no_update, no_update
     except Exception as err:
-        return no_update, no_update, no_update, no_update, err.args[0]
+        return no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
 
 @app.callback(Output('menu_parent_tabs', 'children'),
@@ -463,7 +474,7 @@ def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, menu_chil
     triggered_id = ctx.triggered_id
     if triggered_id == 'tabs_main':
         return no_update, 'empty'
-    elif triggered_id == 'store_menu_change_tab_house':   # If a device in the house was clicked, prepare the variables
+    elif triggered_id == 'store_menu_change_tab_house':  # If a device in the house was clicked, prepare the variables
         tab_value = tab_value_house
         selected_element = selected_element_house
         elements_dict = device_dict['house1']

@@ -281,5 +281,24 @@ def calculate_power_flow(elements, grid_object_dict):
     return data['df_flow'], data['labels'], plot_graph(data['grid_graph'])
 
 
+def save_settings(children, device_dict, selected_element, house):
+    for child in children:      # Go through all components of the settings menu
+        if child['type'] == 'Text':     # Do nothing on things like text or vertical spaces
+            pass
+        elif child['type'] == 'Space':
+            pass
+        elif child['type'] == 'Group':
+            pass
+        else:                           # Save values of input components to device dictionary
+            if child['type'] == 'TextInput':
+                if child['props']['id'] == 'name_input':
+                    device_dict[house][selected_element]['name'] = child['props']['value']
+            elif child['type'] == 'Select':
+                if child['props']['id'] == 'load_profile_select':
+                    pass
+                    # Write profile to dict
+    return device_dict
+
+
 def handle_error(err):
     print("Error: ", err)

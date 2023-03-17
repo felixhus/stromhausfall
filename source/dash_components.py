@@ -394,7 +394,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 id='name_input',
                 style={"width": 200},
                 value=element_dict[selected_element]['name'],
-                icon=DashIconify(icon="fluent:rename-16-regular"),
+                icon=DashIconify(icon="emojione-monotone:name-badge"),
             ),
             dmc.Space(h=20),
             dmc.Select(
@@ -403,7 +403,12 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 id='load_profile_select',
                 value=None,
                 data=[
-                    {'value': key, 'label': key} for key in element_dict[selected_element]['power_options']
+                    {'value': key, 'label': key}
+                    for key in element_dict[selected_element]['power_options']
+                    # {'value': value,
+                    #  'label': dmc.Group([DashIconify(
+                    #      icon=element_dict[selected_element]['power_options'][value]['icon']), value])}
+                    # for value in element_dict[selected_element]['power_options']
                 ],
                 # style={"width": 200},
             ),
