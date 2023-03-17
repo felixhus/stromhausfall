@@ -300,8 +300,8 @@ def save_settings(children, device_dict, selected_element, house):
                         device_dict[house][selected_element]['selected_power_option'] = child['props']['value']
                         key = device_dict[house][selected_element]['power_options'][child['props']['value']]['key']
                         database = 'source/database_profiles.db'
-                        load_profile = sql_modules.get_load_profile('load_profiles_day', key, database)
-                        device_dict[house][selected_element]['power'] = load_profile
+                        load_profile = sql_modules.get_load_profile('load_profiles_day', key, database) # Get load profile from sqlite database
+                        device_dict[house][selected_element]['power'] = load_profile    # Save loaded profile to device dictionary
     return device_dict
 
 

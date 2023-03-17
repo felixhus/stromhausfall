@@ -18,6 +18,6 @@ def plot_device_timeseries(timesteps, load, color):
         fillcolor=color,
         mode='none'  # this remove the lines
     ))
-    fig.update_layout(xaxis_title='Test',
-                      yaxis_title='Leistung in W')
+    # fig.update_layout(xaxis_title='Test',
+    #                   yaxis_title='Leistung in W')
     return fig
