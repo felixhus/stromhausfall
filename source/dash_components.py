@@ -18,7 +18,8 @@ def add_storage_variables():
                      dcc.Store(id='store_selected_element_house'),
                      dcc.Store(id='store_element_deleted'), dcc.Store(id='store_notification1'),
                      dcc.Store(id='store_notification2'), dcc.Store(id='store_notification4'),
-                     dcc.Store(id='store_notification3'), dcc.Store(id='store_get_voltage'),
+                     dcc.Store(id='store_notification3'), dcc.Store(id='store_notification5'),
+                     dcc.Store(id='store_get_voltage'),
                      dcc.Store(id='store_edge_labels'), dcc.Store(id='store_timestep'),
                      dcc.Store(id='store_flow_data'), dcc.Store(id='store_menu_change_tab_grid'),
                      dcc.Store(id='store_menu_change_tab_house'), dcc.Store(id='store_menu_inputs', data={}),
@@ -343,7 +344,19 @@ def card_menu():
                         # dmc.Container(id='menu_parent_container',
                         #               children=[]),
                         dmc.Space(h=20),
-                        dmc.Button("Berechnen", id='button_calculate', rightIcon=DashIconify(icon="ph:gear-light"))],
+                        dmc.Group([
+                            dmc.Button("Berechnen", id='button_calculate', rightIcon=DashIconify(icon="ph:gear-light")),
+                            dmc.Switch(
+                                id='active_switch',
+                                thumbIcon=DashIconify(
+                                    icon="material-symbols:mode-off-on", width=16,
+                                    color=dmc.theme.DEFAULT_COLORS["teal"][5]
+                                ),
+                                size="md",
+                                color="teal",
+                                checked=False,
+                            )
+                        ], position='apart')],
                         value="edit"),
                     dmc.TabsPanel(children=[
                         dmc.Space(h=20),
@@ -402,7 +415,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 label="Geräteklasse",
                 placeholder="Auswahl",
                 id='load_profile_select',
-                value=None,
+                value=element_dict[selected_element]['selected_power_option'],
                 data=[
                     {'value': key, 'label': key}
                     for key in element_dict[selected_element]['power_options']

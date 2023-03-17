@@ -331,8 +331,9 @@ def open_readme(btn):
               Input('store_notification2', 'data'),
               Input('store_notification3', 'data'),
               Input('store_notification4', 'data'),
+              Input('store_notification5', 'data'),
               State('drawer_notifications', 'children'))
-def notification(data1, data2, data3, data4, notif_list):
+def notification(data1, data2, data3, data4, data5, notif_list):
     triggered_id = ctx.triggered_id
     if triggered_id == 'store_notification1':
         data = data1
@@ -342,6 +343,8 @@ def notification(data1, data2, data3, data4, notif_list):
         data = data3
     elif triggered_id == 'store_notification4':
         data = data4
+    elif triggered_id == 'store_notification5':
+        data = data5
     else:
         raise PreventUpdate
     if data is None:
@@ -448,7 +451,7 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
             device_dict = modules.save_settings(children[1]['props']['children'], device_dict, selected_element, 'house1')
             return no_update, device_dict, no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'button_close_menu':  # The button "close" of the menu was clicked, close the menu
-            return no_update, no_update, False, no_update, no_update, no_update, no_update
+            return no_update, no_update, no_update, False, no_update, no_update, no_update
         else:
             raise PreventUpdate
     except PreventUpdate:
@@ -459,6 +462,8 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
 
 @app.callback(Output('menu_parent_tabs', 'children'),
               Output('menu_parent_tabs', 'value'),
+              Output('active_switch', 'checked'),
+              Output('store_notification5', 'data'),
               Input('store_menu_change_tab_house', 'data'),
               Input('store_menu_change_tab_grid', 'data'),
               Input('tabs_main', 'value'),
@@ -470,23 +475,43 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
               prevent_initial_call=True)
 def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, menu_children, gridObject_dict, device_dict,
                            selected_element_grid, selected_element_house):
-    triggered_id = ctx.triggered_id
-    if triggered_id == 'tabs_main':
-        return no_update, 'empty'
-    elif triggered_id == 'store_menu_change_tab_house':  # If a device in the house was clicked, prepare the variables
-        tab_value = tab_value_house
-        selected_element = selected_element_house
-        elements_dict = device_dict['house1']
-    elif triggered_id == 'store_menu_change_tab_grid':  # If a device in the grid was clicked, prepare the variables
-        tab_value = tab_value_grid
-        selected_element = selected_element_grid
-        elements_dict = gridObject_dict
-    else:
-        raise PreventUpdate
-    while len(menu_children) > 1:
-        menu_children.pop()
-    new_tab_panel = dash_components.add_menu_tab_panel(tab_value, selected_element, elements_dict)
-    return menu_children + [new_tab_panel], tab_value
+    try:
+        triggered_id = ctx.triggered_id
+        if triggered_id == 'tabs_main':
+            return no_update, 'empty', no_update, no_update
+        elif triggered_id == 'store_menu_change_tab_house':  # If a device in the house was clicked, prepare the variables
+            tab_value = tab_value_house
+            selected_element = selected_element_house
+            elements_dict = device_dict['house1']
+        elif triggered_id == 'store_menu_change_tab_grid':  # If a device in the grid was clicked, prepare the variables
+            tab_value = tab_value_grid
+            selected_element = selected_element_grid
+            elements_dict = gridObject_dict
+        else:
+            raise PreventUpdate
+        while len(menu_children) > 1:       # Remove all tabs except the 'empty' tab
+            menu_children.pop()
+        new_tab_panel = dash_components.add_menu_tab_panel(tab_value, selected_element, elements_dict)  # Get new tab panel
+        menu_children = menu_children + [new_tab_panel]     # Add children of new tab panel
+        switch_mode = elements_dict[selected_element]['active']     # Get activation mode of device to update the switch
+        return menu_children, tab_value, switch_mode, no_update
+    except PreventUpdate:
+        return no_update, no_update, no_update, no_update
+    except Exception as err:
+        return no_update, no_update, no_update, err.args[0]
+
+
+# @app.callback(Output('active_switch', 'checked'),
+#               Input('active_switch', 'checked'),
+#               State('store_device_dict', 'data'),
+#               State('store_selected_element_house', 'data'),
+#               prevent_initial_call=True)
+# def active_switch(switch, device_dict, selected_element):
+#     ## Aktuell nur für Haus implementiert
+#     ## Brauche ich noch als Inputs: Status ob Haus oder Grid Mode, change of tabs
+#     ## Dieses Callback nur dazu da, den Status des Switches zu aktualisieren.
+
+
 
 
 @app.callback(Output("power_input", "icon"),
