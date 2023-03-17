@@ -1,24 +1,13 @@
-from dash.exceptions import PreventUpdate
-from dash_extensions import EventListener
-from dash_extensions.enrich import DashProxy, Input, Output, State, html
+import sqlite3
 
-# JavaScript event(s) that we want to listen to and what properties to collect.
-event = {"event": "click", "props": ["srcElement.className", "srcElement.innerText"]}
-# Create small example app
-app = DashProxy()
-app.layout = html.Div([
-    EventListener(
-        html.Div("Click here!", className="stuff"),
-        events=[event], logging=True, id="el"
-    ),
-    html.Div(id="log")
-])
+# connect to the database
+conn = sqlite3.connect('test_db.db')
+c = conn.cursor()
 
-@app.callback(Output("log", "children"), Input("el", "n_events"), State("el", "event"))
-def click_event(n_events, e):
-    if e is None:
-        raise PreventUpdate()
-    return ",".join(f"{prop} is '{e[prop]}' " for prop in event["props"]) + f" (number of clicks is {n_events})"
+# create table with 1440 numbered columns
+columns = ", ".join(f"col{i} float" for i in range(1440))
+c.execute(f"CREATE TABLE your_table_name (series_id INTEGER PRIMARY KEY, {columns})")
 
-if __name__ == "__main__":
-    app.run_server()
+# commit changes and close connection
+conn.commit()
+conn.close()

@@ -189,7 +189,7 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_h
         else:
             raise PreventUpdate
     elif triggered_id == 'example_button':
-        ele, gridObject_dict = example_grids.simple_grid_timeseries_day(app, 96)
+        ele, gridObject_dict = example_grids.simple_grid_timeseries_day(app, 24*60)
         return ele, gridObject_dict, no_update, no_update, no_update, no_update, no_update
     elif triggered_id == 'store_edge_labels':  # Set labels of edges with power values
         for edge, label in labels.items():
@@ -531,7 +531,7 @@ def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, menu_chil
         raise PreventUpdate
     while len(menu_children) > 1:
         menu_children.pop()
-    new_tab_panel = dash_components.add_menu_tab_panel(tab_value, selected_element, elements_dict)
+    new_tab_panel = dash_components.add_menu_tab_panel(tab_value, selected_element, elements_dict[selected_element])
     return menu_children + [new_tab_panel], tab_value
 
 

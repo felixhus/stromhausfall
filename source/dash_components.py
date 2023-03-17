@@ -391,16 +391,26 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
         return dmc.TabsPanel([
             dmc.Text("Gerät Badezimmer"),
             dmc.Space(h=20),
-            dmc.NumberInput(
-                id='power_input',
-                label="Leistung dieses Elements in kW:",
-                value=element_dict[selected_element]['power'],
-                min=0,
-                step=0.1, precision=1,
-                stepHoldDelay=500, stepHoldInterval=100,
-                icon=DashIconify(icon="material-symbols:download"),
-                style={"width": 250},
+            dmc.Select(
+                label="Geräteklasse",
+                placeholder="Auswahl",
+                id='load_profile_select',
+                value=None,
+                data=[
+                    {'value': key, 'label': key} for key in element_dict['power_options']
+                ],
+                style={"width": 200, "marginBottom": 10},
             ),
+            # dmc.NumberInput(
+            #     id='power_input',
+            #     label="Leistung dieses Elements in kW:",
+            #     value=element_dict[selected_element]['power'],
+            #     min=0,
+            #     step=0.1, precision=1,
+            #     stepHoldDelay=500, stepHoldInterval=100,
+            #     icon=DashIconify(icon="material-symbols:download"),
+            #     style={"width": 250},
+            # ),
             dmc.Space(h=20),
             dmc.Group([
                 dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
@@ -409,8 +419,6 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right')],
             value=tab_value)
-        # ), \
-               # {'power_input': 'value'}
     elif tab_value == 'lamp':
         return dmc.TabsPanel([
             dmc.Text("Lampe"),
@@ -436,18 +444,3 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
 
 def add_drawer_notifications():
     return dmc.Drawer(title="Nachrichten:", id='drawer_notifications', padding="md", children=[])
-
-# def card_plot_graph():
-#     card = dmc.Card(
-#         id='card_graph',
-#         children=[
-#             # dmc.CardSection(
-#             #     dmc.Image(id='graph_image', src='assets/temp/graph.png', withPlaceholder=True)
-#             # ),
-#             dmc.Text("Gerichteter Graph des erstellten Netzes:")
-#         ],
-#         withBorder=True,
-#         shadow="sm",
-#         radius="md",
-#         style={"width": 350, 'marginTop': 50, 'display': 'none'})
-#     return card
