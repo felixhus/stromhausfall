@@ -8,6 +8,7 @@ import networkx as nx
 import numpy as np
 import objects
 import pandas as pd
+import sql_modules
 
 
 def get_last_id(elements):
@@ -295,8 +296,12 @@ def save_settings(children, device_dict, selected_element, house):
                     device_dict[house][selected_element]['name'] = child['props']['value']
             elif child['type'] == 'Select':
                 if child['props']['id'] == 'load_profile_select':
-                    pass
-                    # Write profile to dict
+                    if child['props']['value'] is not None:
+                        device_dict[house][selected_element]['selected_power_option'] = child['props']['value']
+                        key = device_dict[house][selected_element]['power_options'][child['props']['value']]['key']
+                        database = 'source/database_profiles.db'
+                        load_profile = sql_modules.get_load_profile('load_profiles_day', key, database)
+                        device_dict[house][selected_element]['power'] = load_profile
     return device_dict
 
 

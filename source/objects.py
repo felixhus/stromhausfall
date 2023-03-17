@@ -121,6 +121,7 @@ def create_DeviceObject(device_id):
         'type': 'device',
         'power': 20,
         'active': True,
+        'selected_power_option': None,
         'power_options': {
             'Klasse A': {'key': 'day_device_A', 'icon': 'tabler:hexagon-letter-a'},
             'Klasse B': {'key': 'day_device_B', 'icon': 'tabler:hexagon-letter-b'},
