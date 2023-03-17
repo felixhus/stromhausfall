@@ -385,6 +385,7 @@ def notification(data1, data2, data3, data4, data5, notif_list):
               Output('menu_devices', 'opened'),
               Output('store_menu_change_tab_house', 'data'),
               Output('store_selected_element_house', 'data'),
+              Output('store_update_switch', 'data'),
               Output('store_notification4', 'data'),
               State('cyto_bathroom', 'elements'),
               State('store_device_dict', 'data'),
@@ -394,42 +395,60 @@ def notification(data1, data2, data3, data4, data5, notif_list):
               Input('cyto_bathroom', 'tapNode'),
               Input('edit_save_button', 'n_clicks'),
               Input('button_close_menu', 'n_clicks'),
+              Input('active_switch', 'checked'),
               [Input(device[1], 'n_clicks') for device in dash_components.devices['bathroom']])
-def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected_element, node, btn_save, btn_close,
-                            *btn_add):  # Callback to handle Bathroom action
+def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected_element, node, btn_save,
+                            btn_close, active_switch, *btn_add):  # Callback to handle Bathroom action
     try:
         triggered_id = ctx.triggered_id
-        if triggered_id is None:    # Initial call
-            device_dict['house1']['lamp'] = objects.create_LampObject('lamp')   # Add lamp to device dictionary
-            return no_update, device_dict, no_update, no_update, no_update, no_update, no_update
+        if triggered_id is None:  # Initial call
+            device_dict['house1']['lamp'] = objects.create_LampObject('lamp')  # Add lamp to device dictionary
+            return no_update, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
         if triggered_id == 'cyto_bathroom':
             if node['data']['id'] == 'plus':  # Open Menu with Devices to add
                 position = elements[1]['position']
                 return no_update, no_update, {"position": "relative", "top": position['y'], "left": position['x']}, \
-                       True, no_update, no_update, no_update
+                       True, no_update, no_update, no_update, no_update
             elif node['data']['id'][:6] == "socket":  # A socket was clicked, switch this one on/off
+                switch_state = False
                 for ele in elements:
                     if ele['data']['id'] == node['data']['id']:
+                        switch_state = device_dict['house1'][ele['linked_device']]['active']
                         if ele['classes'] == 'socket_node_style_on':
                             ele['classes'] = 'socket_node_style_off'
+                            device_dict['house1'][ele['linked_device']]['active'] = False  # Store new mode in device_dict
                         else:
                             ele['classes'] = 'socket_node_style_on'
+                            device_dict['house1'][ele['linked_device']]['active'] = True
                         break
-                return elements, no_update, no_update, no_update, no_update, node['data']['id'], no_update
+                return elements, device_dict, no_update, no_update, no_update, no_update, not switch_state, no_update
             elif node['data']['id'][:6] == "device":
-                return no_update, no_update, no_update, no_update, 'device_bathroom', node['data']['id'], no_update
+                return no_update, no_update, no_update, no_update, 'device_bathroom', node['data'][
+                    'id'], no_update, no_update
             elif node['data']['id'][:4] == "lamp":
-                return no_update, no_update, no_update, no_update, 'lamp', node['data']['id'], no_update
+                return no_update, no_update, no_update, no_update, 'lamp', node['data']['id'], no_update, no_update
             else:
                 raise PreventUpdate
+        elif triggered_id == 'active_switch':
+            for ele in elements:
+                if 'linked_device' in ele:
+                    if ele['linked_device'] == selected_element:    # search for socket connected to device
+                        if active_switch:
+                            ele['classes'] = 'socket_node_style_on'
+                            device_dict['house1'][ele['linked_device']]['active'] = True
+                        else:
+                            ele['classes'] = 'socket_node_style_off'
+                            device_dict['house1'][ele['linked_device']]['active'] = False
+                        break
+            return elements, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id[:10] == 'button_add':  # A button in the menu was clicked
             socket_id = "socket" + str((len(elements) - 2) / 3 + 1)[:1]  # Get ids of new elements
             device_id = "device" + str((len(elements) - 2) / 3 + 1)[:1]
             position = elements[1]['position']  # Get Position of plus-node
             new_position_plus = {'x': position['x'] + 40, 'y': position['y']}  # Calculate new position of plus-node
             new_socket = {'data': {'id': socket_id, 'parent': 'power_strip'}, 'position': position,
-                          # Generate new socket
-                          'classes': 'socket_node_style'}
+                          'classes': 'socket_node_style_on',  # Generate new socket
+                          'linked_device': device_id}  # and link the connected device
             if len(elements) % 6 - 2 > 0:
                 position_node = {'x': position['x'], 'y': position['y'] - 80}  # Get position of new device
             else:
@@ -444,20 +463,21 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
             elements.append(new_node)
             elements.append(new_edge)
             device_dict['house1'][device_id] = new_device
-            return elements, device_dict, no_update, False, no_update, no_update, no_update  # Return elements and close menu
+            return elements, device_dict, no_update, False, no_update, no_update, no_update, no_update  # Return elements and close menu
         elif triggered_id == 'edit_save_button':
             if tabs_main != 'house1' or btn_save is None:  # If button was clicked in grid mode or is None do nothing
                 raise PreventUpdate
-            device_dict = modules.save_settings(children[1]['props']['children'], device_dict, selected_element, 'house1')
-            return no_update, device_dict, no_update, no_update, no_update, no_update, no_update
+            device_dict = modules.save_settings(children[1]['props']['children'], device_dict, selected_element,
+                                                'house1')
+            return no_update, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'button_close_menu':  # The button "close" of the menu was clicked, close the menu
-            return no_update, no_update, no_update, False, no_update, no_update, no_update
+            return no_update, no_update, no_update, False, no_update, no_update, no_update, no_update
         else:
             raise PreventUpdate
     except PreventUpdate:
-        return no_update, no_update, no_update, no_update, no_update, no_update, no_update
+        return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
     except Exception as err:
-        return no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
+        return no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
 
 @app.callback(Output('menu_parent_tabs', 'children'),
@@ -467,18 +487,25 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
               Input('store_menu_change_tab_house', 'data'),
               Input('store_menu_change_tab_grid', 'data'),
               Input('tabs_main', 'value'),
+              Input('store_update_switch', 'data'),
               State('menu_parent_tabs', 'children'),
               State('store_grid_object_dict', 'data'),
               State('store_device_dict', 'data'),
               State('store_selected_element_grid', 'data'),
               State('store_selected_element_house', 'data'),
               prevent_initial_call=True)
-def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, menu_children, gridObject_dict, device_dict,
-                           selected_element_grid, selected_element_house):
+def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, switch_state, menu_children, gridObject_dict,
+                           device_dict, selected_element_grid, selected_element_house):
     try:
         triggered_id = ctx.triggered_id
         if triggered_id == 'tabs_main':
             return no_update, 'empty', no_update, no_update
+        elif triggered_id == 'store_update_switch':
+            if tab_value_house is None:
+                raise PreventUpdate
+            tab_value = tab_value_house
+            selected_element = selected_element_house
+            elements_dict = device_dict['house1']
         elif triggered_id == 'store_menu_change_tab_house':  # If a device in the house was clicked, prepare the variables
             tab_value = tab_value_house
             selected_element = selected_element_house
@@ -489,29 +516,17 @@ def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, menu_chil
             elements_dict = gridObject_dict
         else:
             raise PreventUpdate
-        while len(menu_children) > 1:       # Remove all tabs except the 'empty' tab
+        while len(menu_children) > 1:  # Remove all tabs except the 'empty' tab
             menu_children.pop()
-        new_tab_panel = dash_components.add_menu_tab_panel(tab_value, selected_element, elements_dict)  # Get new tab panel
-        menu_children = menu_children + [new_tab_panel]     # Add children of new tab panel
-        switch_mode = elements_dict[selected_element]['active']     # Get activation mode of device to update the switch
+        new_tab_panel = dash_components.add_menu_tab_panel(tab_value, selected_element,
+                                                           elements_dict)  # Get new tab panel
+        menu_children = menu_children + [new_tab_panel]  # Add children of new tab panel
+        switch_mode = elements_dict[selected_element]['active']  # Get activation mode of device to update the switch
         return menu_children, tab_value, switch_mode, no_update
     except PreventUpdate:
         return no_update, no_update, no_update, no_update
     except Exception as err:
         return no_update, no_update, no_update, err.args[0]
-
-
-# @app.callback(Output('active_switch', 'checked'),
-#               Input('active_switch', 'checked'),
-#               State('store_device_dict', 'data'),
-#               State('store_selected_element_house', 'data'),
-#               prevent_initial_call=True)
-# def active_switch(switch, device_dict, selected_element):
-#     ## Aktuell nur für Haus implementiert
-#     ## Brauche ich noch als Inputs: Status ob Haus oder Grid Mode, change of tabs
-#     ## Dieses Callback nur dazu da, den Status des Switches zu aktualisieren.
-
-
 
 
 @app.callback(Output("power_input", "icon"),

@@ -19,7 +19,7 @@ def add_storage_variables():
                      dcc.Store(id='store_element_deleted'), dcc.Store(id='store_notification1'),
                      dcc.Store(id='store_notification2'), dcc.Store(id='store_notification4'),
                      dcc.Store(id='store_notification3'), dcc.Store(id='store_notification5'),
-                     dcc.Store(id='store_get_voltage'),
+                     dcc.Store(id='store_get_voltage'), dcc.Store(id='store_update_switch'),
                      dcc.Store(id='store_edge_labels'), dcc.Store(id='store_timestep'),
                      dcc.Store(id='store_flow_data'), dcc.Store(id='store_menu_change_tab_grid'),
                      dcc.Store(id='store_menu_change_tab_house'), dcc.Store(id='store_menu_inputs', data={}),
@@ -91,7 +91,7 @@ def add_cytoscape_layout():
         {'data': {'id': 'plus', 'parent': 'power_strip'}, 'position': {'x': 75, 'y': 175},
          'classes': 'room_node_style', 'style': {'background-image': ['/assets/Icons/icon_plus.png']}},
         {'data': {'id': 'socket1', 'parent': 'power_strip'}, 'position': {'x': 35, 'y': 175},
-         'classes': 'socket_node_style'},
+         'classes': 'socket_node_style_on', 'linked_device': 'lamp'},
         {'data': {'id': 'lamp'}, 'position': {'x': 35, 'y': 25}, 'classes': 'room_node_style',
          'style': {'background-image': ['/assets/Icons/icon_bulb.png']}},
         {'data': {'source': 'socket1', 'target': 'lamp'}}]
@@ -433,8 +433,9 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right'),
-            dcc.Graph(figure=plot.plot_device_timeseries(list(range(24*60)), element_dict[selected_element]['power'],
-                                                         'rgba(255, 255, 126,0.5)'))],
+            # dcc.Graph(figure=plot.plot_device_timeseries(list(range(24*60)), element_dict[selected_element]['power'],
+            #                                              'rgba(255, 255, 126,0.5)'))],
+            ],
             value=tab_value)
     elif tab_value == 'lamp':
         return dmc.TabsPanel([
