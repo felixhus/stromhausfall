@@ -393,8 +393,9 @@ def open_readme(btn):
               Input('store_notification1', 'data'),
               Input('store_notification2', 'data'),
               Input('store_notification3', 'data'),
+              Input('store_notification4', 'data'),
               State('drawer_notifications', 'children'))
-def notification(data1, data2, data3, notif_list):
+def notification(data1, data2, data3, data4, notif_list):
     triggered_id = ctx.triggered_id
     if triggered_id == 'store_notification1':
         data = data1
@@ -402,6 +403,8 @@ def notification(data1, data2, data3, notif_list):
         data = data2
     elif triggered_id == 'store_notification3':
         data = data3
+    elif triggered_id == 'store_notification4':
+        data = data4
     else:
         raise PreventUpdate
     if data is None:
@@ -442,65 +445,73 @@ def notification(data1, data2, data3, notif_list):
               Output('menu_devices', 'opened'),
               Output('store_menu_change_tab_house', 'data'),
               Output('store_selected_element_house', 'data'),
+              Output('store_notification4', 'data'),
               State('cyto_bathroom', 'elements'),
               State('store_device_dict', 'data'),
               State('tabs_main', 'value'),
+              State('menu_parent_tabs', 'children'),
               Input('cyto_bathroom', 'tapNode'),
               Input('edit_save_button', 'n_clicks'),
               Input('button_close_menu', 'n_clicks'),
               [Input(device[1], 'n_clicks') for device in dash_components.devices['bathroom']],
               prevent_initial_call=True)
-def manage_devices_bathroom(elements, device_dict, tabs_main, node, btn_save, btn_close, *btn_add):  # Callback to handle Bathroom action
-    triggered_id = ctx.triggered_id
-    if triggered_id == 'cyto_bathroom':
-        if node['data']['id'] == 'plus':  # Open Menu with Devices to add
-            position = elements[1]['position']
-            return no_update, no_update, {"position": "relative", "top": position['y'], "left": position['x']}, True, no_update, no_update
-        elif node['data']['id'][:6] == "socket":  # A socket was clicked, switch this one on/off
-            for ele in elements:
-                if ele['data']['id'] == node['data']['id']:
-                    if ele['classes'] == 'socket_node_style_on':
-                        ele['classes'] = 'socket_node_style_off'
-                    else:
-                        ele['classes'] = 'socket_node_style_on'
-                    break
-            return elements, no_update, no_update, no_update, no_update, node['data']['id']
-        elif node['data']['id'][:6] == "device":
-            return no_update, no_update, no_update, no_update, 'device_bathroom', node['data']['id']
-        elif node['data']['id'][:4] == "lamp":
-            return no_update, no_update, no_update, no_update, 'lamp', node['data']['id']
+def manage_devices_bathroom(elements, device_dict, tabs_main, children, node, btn_save, btn_close, *btn_add):  # Callback to handle Bathroom action
+    try:
+        triggered_id = ctx.triggered_id
+        if triggered_id == 'cyto_bathroom':
+            if node['data']['id'] == 'plus':  # Open Menu with Devices to add
+                position = elements[1]['position']
+                return no_update, no_update, {"position": "relative", "top": position['y'], "left": position['x']}, \
+                       True, no_update, no_update, no_update
+            elif node['data']['id'][:6] == "socket":  # A socket was clicked, switch this one on/off
+                for ele in elements:
+                    if ele['data']['id'] == node['data']['id']:
+                        if ele['classes'] == 'socket_node_style_on':
+                            ele['classes'] = 'socket_node_style_off'
+                        else:
+                            ele['classes'] = 'socket_node_style_on'
+                        break
+                return elements, no_update, no_update, no_update, no_update, node['data']['id'], no_update
+            elif node['data']['id'][:6] == "device":
+                return no_update, no_update, no_update, no_update, 'device_bathroom', node['data']['id'], no_update
+            elif node['data']['id'][:4] == "lamp":
+                return no_update, no_update, no_update, no_update, 'lamp', node['data']['id'], no_update
+            else:
+                raise PreventUpdate
+        elif triggered_id[:10] == 'button_add':  # A button in the menu was clicked
+            socket_id = "socket" + str((len(elements) - 2) / 3 + 1)[:1]  # Get ids of new elements
+            device_id = "device" + str((len(elements) - 2) / 3 + 1)[:1]
+            position = elements[1]['position']  # Get Position of plus-node
+            new_position_plus = {'x': position['x'] + 40, 'y': position['y']}  # Calculate new position of plus-node
+            new_socket = {'data': {'id': socket_id, 'parent': 'power_strip'}, 'position': position,  # Generate new socket
+                          'classes': 'socket_node_style'}
+            if len(elements) % 6 - 2 > 0:
+                position_node = {'x': position['x'], 'y': position['y'] - 80}  # Get position of new device
+            else:
+                position_node = {'x': position['x'], 'y': position['y'] - 120}
+            new_node = {'data': {'id': device_id}, 'classes': 'room_node_style', 'position': position_node,
+                        # Generate new device
+                        'style': {'background-image': ['/assets/Icons/icon_' + triggered_id[11:] + '.png']}}
+            new_edge = {'data': {'source': socket_id, 'target': device_id}}  # Connect new device with new socket
+            new_device = objects.create_DeviceObject(device_id)
+            elements[1]['position'] = new_position_plus
+            elements.append(new_socket)  # Append new nodes and edges to cytoscape elements
+            elements.append(new_node)
+            elements.append(new_edge)
+            device_dict['house1'][device_id] = new_device
+            return elements, device_dict, no_update, False, no_update, no_update, no_update  # Return elements and close menu
+        elif triggered_id == 'edit_save_button':
+            if tabs_main != 'house1' or btn_save is None:   # If button was clicked in grid mode or is None do nothing
+                raise PreventUpdate
+            ## Speichere alle Werte in device Dictionary
+        elif triggered_id == 'button_close_menu':  # The button "close" of the menu was clicked, close the menu
+            return no_update, no_update, False, no_update, no_update, no_update
         else:
             raise PreventUpdate
-    elif triggered_id[:10] == 'button_add':  # A button in the menu was clicked
-        socket_id = "socket" + str((len(elements) - 2) / 3 + 1)[:1]  # Get ids of new elements
-        device_id = "device" + str((len(elements) - 2) / 3 + 1)[:1]
-        position = elements[1]['position']  # Get Position of plus-node
-        new_position_plus = {'x': position['x'] + 40, 'y': position['y']}  # Calculate new position of plus-node
-        new_socket = {'data': {'id': socket_id, 'parent': 'power_strip'}, 'position': position,  # Generate new socket
-                      'classes': 'socket_node_style'}
-        if len(elements) % 6 - 2 > 0:
-            position_node = {'x': position['x'], 'y': position['y'] - 80}  # Get position of new device
-        else:
-            position_node = {'x': position['x'], 'y': position['y'] - 120}
-        new_node = {'data': {'id': device_id}, 'classes': 'room_node_style', 'position': position_node,
-                    # Generate new device
-                    'style': {'background-image': ['/assets/Icons/icon_' + triggered_id[11:] + '.png']}}
-        new_edge = {'data': {'source': socket_id, 'target': device_id}}  # Connect new device with new socket
-        new_device = objects.create_DeviceObject(device_id)
-        elements[1]['position'] = new_position_plus
-        elements.append(new_socket)  # Append new nodes and edges to cytoscape elements
-        elements.append(new_node)
-        elements.append(new_edge)
-        device_dict['house1'][device_id] = new_device
-        return elements, device_dict, no_update, False, no_update, no_update  # Return elements and close menu
-    elif triggered_id == 'edit_save_button':
-        if tabs_main != 'house1' or btn_save is None:   # If button was clicked in grid mode or is None do nothing
-            raise PreventUpdate
-        ## Speichere alle Werte in device Dictionary
-    elif triggered_id == 'button_close_menu':  # The button "close" of the menu was clicked, close the menu
-        return no_update, no_update, False, no_update, no_update
-    else:
-        raise PreventUpdate
+    except PreventUpdate:
+        return no_update, no_update, no_update, no_update, no_update
+    except Exception as err:
+        return no_update, no_update, no_update, no_update, err.args[0]
 
 
 @app.callback(Output('menu_parent_tabs', 'children'),
@@ -531,7 +542,7 @@ def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, menu_chil
         raise PreventUpdate
     while len(menu_children) > 1:
         menu_children.pop()
-    new_tab_panel = dash_components.add_menu_tab_panel(tab_value, selected_element, elements_dict[selected_element])
+    new_tab_panel = dash_components.add_menu_tab_panel(tab_value, selected_element, elements_dict)
     return menu_children + [new_tab_panel], tab_value
 
 

@@ -16,7 +16,7 @@ def add_storage_variables():
                      dcc.Store(id='store_line_edit_active'), dcc.Store(id='store_selected_element_grid'),
                      dcc.Store(id='store_selected_element_house'),
                      dcc.Store(id='store_element_deleted'), dcc.Store(id='store_notification1'),
-                     dcc.Store(id='store_notification2'),
+                     dcc.Store(id='store_notification2'), dcc.Store(id='store_notification4'),
                      dcc.Store(id='store_notification3'), dcc.Store(id='store_get_voltage'),
                      dcc.Store(id='store_edge_labels'), dcc.Store(id='store_timestep'),
                      dcc.Store(id='store_flow_data'), dcc.Store(id='store_menu_change_tab_grid'),
@@ -390,6 +390,12 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
     elif tab_value == 'device_bathroom':
         return dmc.TabsPanel([
             dmc.Text("Gerät Badezimmer"),
+            dmc.TextInput(
+                id='name_input',
+                style={"width": 200},
+                value=element_dict[selected_element]['name'],
+                icon=DashIconify(icon="fluent:rename-16-regular"),
+            ),
             dmc.Space(h=20),
             dmc.Select(
                 label="Geräteklasse",
@@ -397,20 +403,10 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 id='load_profile_select',
                 value=None,
                 data=[
-                    {'value': key, 'label': key} for key in element_dict['power_options']
+                    {'value': key, 'label': key} for key in element_dict[selected_element]['power_options']
                 ],
-                style={"width": 200, "marginBottom": 10},
+                # style={"width": 200},
             ),
-            # dmc.NumberInput(
-            #     id='power_input',
-            #     label="Leistung dieses Elements in kW:",
-            #     value=element_dict[selected_element]['power'],
-            #     min=0,
-            #     step=0.1, precision=1,
-            #     stepHoldDelay=500, stepHoldInterval=100,
-            #     icon=DashIconify(icon="material-symbols:download"),
-            #     style={"width": 250},
-            # ),
             dmc.Space(h=20),
             dmc.Group([
                 dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
