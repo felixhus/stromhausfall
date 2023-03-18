@@ -129,9 +129,10 @@ def edit_mode(btn_line, n_events, event, btn_active):
               State('start_of_line', 'data'),
               State('store_selected_element_grid', 'data'),
               State('store_get_voltage', 'data'),
+              State('tabs_main', 'value'),
               prevent_initial_call=True)
 def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_hv, button_lv, elements,
-              gridObject_dict, btn_line_active, start_of_line, selected_element, node_ids):
+              gridObject_dict, btn_line_active, start_of_line, selected_element, node_ids, tabs_main):
     triggered_id = ctx.triggered_id
     if triggered_id == 'button_line':  # Start line edit mode, set 'start_of_line' as None
         return no_update, no_update, None, no_update, no_update, no_update, no_update
@@ -175,21 +176,24 @@ def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_h
         else:
             raise PreventUpdate
     elif triggered_id == 'edit_delete_button':  # Delete Object
-        if btn_delete is not None:
-            index = 0
-            for ele in elements:
-                if ele['data']['id'] == selected_element:
-                    break
-                index += 1
-            if 'position' in elements[index]:  # Check if it is node
-                connected_edges = get_connected_edges(elements, elements[index])
-                for edge in connected_edges:
-                    elements.pop(elements.index(edge))
-            elements.pop(index)
-            del gridObject_dict[selected_element]  # Remove element from grid object dict
-            return elements, gridObject_dict, no_update, selected_element, no_update, no_update, no_update
+        if tabs_main == 'grid':     # Check if it was clicked in grid mode
+            if btn_delete is not None:
+                index = 0
+                for ele in elements:
+                    if ele['data']['id'] == selected_element:
+                        break
+                    index += 1
+                if 'position' in elements[index]:  # Check if it is node
+                    connected_edges = get_connected_edges(elements, elements[index])
+                    for edge in connected_edges:
+                        elements.pop(elements.index(edge))
+                elements.pop(index)
+                del gridObject_dict[selected_element]  # Remove element from grid object dict
+                return elements, gridObject_dict, no_update, selected_element, no_update, no_update, no_update
+            else:
+                raise PreventUpdate
         else:
-            raise PreventUpdate
+            raise PreventUpdate     # Button was clicked in other mode than grid
     elif triggered_id == 'example_button':
         ele, gridObject_dict = example_grids.simple_grid_timeseries_day(app, 24 * 60)
         return ele, gridObject_dict, no_update, no_update, no_update, no_update, no_update
@@ -395,10 +399,11 @@ def notification(data1, data2, data3, data4, data5, notif_list):
               State('store_selected_element_house', 'data'),
               Input('cyto_bathroom', 'tapNode'),
               Input('edit_save_button', 'n_clicks'),
+              Input('edit_delete_button', 'n_clicks'),
               Input('button_close_menu', 'n_clicks'),
               Input('active_switch', 'checked'),
               [Input(device[1], 'n_clicks') for device in dash_components.devices['bathroom']])
-def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected_element, node, btn_save,
+def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected_element, node, btn_save, btn_delete,
                             btn_close, active_switch, *btn_add):  # Callback to handle Bathroom action
     try:
         triggered_id = ctx.triggered_id
@@ -470,13 +475,22 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
             elements.append(new_node)
             elements.append(new_edge)
             device_dict['house1'][device_id] = new_device
-            return elements, device_dict, no_update, False, no_update, no_update, no_update, no_update  # Return elements and close menu
+            return elements, device_dict, no_update, False, 'empty', no_update, no_update, no_update  # Return elements and close menu
         elif triggered_id == 'edit_save_button':
             if tabs_main != 'house1' or btn_save is None:  # If button was clicked in grid mode or is None do nothing
                 raise PreventUpdate
             device_dict = modules.save_settings(children[1]['props']['children'], device_dict, selected_element,
                                                 'house1')
             return no_update, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
+        elif triggered_id == 'edit_delete_button':
+            if tabs_main != 'house1' or btn_delete is None:  # If button was clicked in grid mode or is None do nothing
+                raise PreventUpdate
+        # Vorgehen Löschen Device:
+        # 1. Zu löschenden Node und zugehörige Socket finden
+        # 2. Aus elements entfernen
+        # 3. Aus Device Dict entfernen
+        # 4. Positionen der anderen aktualisieren:
+        #  - elements durchgehen und bei jeden Node, der nach den gelöschten kommt, x-Position abziehen
         elif triggered_id == 'button_close_menu':  # The button "close" of the menu was clicked, close the menu
             return no_update, no_update, no_update, False, no_update, no_update, no_update, no_update
         else:
