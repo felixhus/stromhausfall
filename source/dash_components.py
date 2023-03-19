@@ -2,7 +2,7 @@ import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 import dash_mantine_components as dmc
 import plot
-from dash import dcc, html
+from dash import dash_table, dcc, html
 from dash_iconify import DashIconify
 
 import source.stylesheets as stylesheets
@@ -469,6 +469,27 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             value=tab_value
         )
 
+
+def add_modal_timeseries():
+    return dmc.Modal(
+        title='Neue Lastkurve anlegen',
+        id='modal_timeseries',
+        children=[
+            dash_table.DataTable(
+                id='timeseries_table',
+                columns=[
+                    {'id': 'time', 'name': 'Zeit'},
+                    {'id': 'power', 'name': 'Leistung'}],
+                data=[
+                    {'time': 0, 'power': 0}],
+                editable=True,
+                row_deletable=True
+            ),
+            dmc.Space(h=20),
+            dmc.Button('Wert hinzufügen', id='button_add_value')
+        ],
+        opened=True
+    )
 
 def add_drawer_notifications():
     return dmc.Drawer(title="Nachrichten:", id='drawer_notifications', padding="md", children=[])

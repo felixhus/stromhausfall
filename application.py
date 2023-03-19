@@ -80,6 +80,7 @@ app.layout = dmc.NotificationsProvider(dbc.Container([
         dash_components.add_drawer_notifications(),
         dash_components.add_modal_voltage_level(),
         dash_components.add_storage_variables(),
+        dash_components.add_modal_timeseries(),
         dex.EventListener(id='key_event_listener', events=[{'event': 'keydown', 'props': ["key"]}]),
         html.P(id='init')], width=True),
     html.Div(id='notification_container')
@@ -619,6 +620,15 @@ def open_menu_card(btn):
         return {'display': 'none'}, {'display': 'block'}
     else:
         raise PreventUpdate
+
+
+@app.callback(Output('timeseries_table', 'data'),
+              Input('button_add_value', 'n_clicks'),
+              State('timeseries_table', 'data'),
+              prevent_initial_call=True)
+def add_table_row(btn_add, rows):
+    rows.append({'time': '', 'power': ''})
+    return rows
 
 
 # @app.callback(Output('store_menu_change_tab', 'data'),
