@@ -2,6 +2,10 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import plotly.graph_objects as go
 
+colors = {
+    'color1': ''
+}
+
 
 def plot_graph(graph):
     nx.draw(graph)

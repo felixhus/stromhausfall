@@ -1,13 +1,22 @@
-import sqlite3
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy import interpolate
 
-# connect to the database
-conn = sqlite3.connect('test_db.db')
-c = conn.cursor()
+# original time-value pairs
+x = np.array([0, 5, 10, 15, 20, 30, 45, 50, 60])
+y = np.array([0, 3, 1, 0, 2, 0, 2, 0, 0])
 
-# create table with 1440 numbered columns
-columns = ", ".join(f"col{i} float" for i in range(1440))
-c.execute(f"CREATE TABLE your_table_name (series_id INTEGER PRIMARY KEY, {columns})")
+# define the interpolation function
+f = interpolate.interp1d(x, y, kind='previous')
 
-# commit changes and close connection
-conn.commit()
-conn.close()
+# generate high-resolution time values for interpolation
+xnew = np.linspace(0, 60, num=60, endpoint=True)
+
+# interpolate the values using the new time values
+ynew = f(xnew)
+
+# plot the original and interpolated curves
+plt.plot(x, y, 'o', label='Original')
+plt.plot(xnew, ynew, '.-', label='Interpolated')
+plt.legend()
+plt.show()
