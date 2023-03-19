@@ -347,7 +347,7 @@ def card_menu():
                         dmc.Group([
                             dmc.Button("Berechnen", id='button_calculate', rightIcon=DashIconify(icon="ph:gear-light")),
                             dmc.Switch(
-                                id='active_switch',
+                                id='active_switch_house',
                                 thumbIcon=DashIconify(
                                     icon="material-symbols:mode-off-on", width=16,
                                     color=dmc.theme.DEFAULT_COLORS["teal"][5]
@@ -355,6 +355,18 @@ def card_menu():
                                 size="md",
                                 color="teal",
                                 checked=False,
+                                style={'display': 'none'}
+                            ),
+                            dmc.Switch(
+                                id='active_switch_grid',
+                                thumbIcon=DashIconify(
+                                    icon="material-symbols:mode-off-on", width=16,
+                                    color=dmc.theme.DEFAULT_COLORS["orange"][5]
+                                ),
+                                size="md",
+                                color="orange",
+                                checked=False,
+                                style={'display': 'block'}
                             )
                         ], position='apart')],
                         value="edit"),

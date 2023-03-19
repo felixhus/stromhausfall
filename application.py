@@ -389,7 +389,7 @@ def notification(data1, data2, data3, data4, data5, notif_list):
               Output('menu_devices', 'opened'),
               Output('store_menu_change_tab_house', 'data'),
               Output('store_selected_element_house', 'data'),
-              Output('active_switch', 'checked'),
+              Output('active_switch_house', 'checked'),
               Output('store_notification4', 'data'),
               State('cyto_bathroom', 'elements'),
               State('store_device_dict', 'data'),
@@ -400,7 +400,7 @@ def notification(data1, data2, data3, data4, data5, notif_list):
               Input('edit_save_button', 'n_clicks'),
               Input('edit_delete_button', 'n_clicks'),
               Input('button_close_menu', 'n_clicks'),
-              Input('active_switch', 'checked'),
+              Input('active_switch_house', 'checked'),
               [Input(device[1], 'n_clicks') for device in dash_components.devices['bathroom']])
 def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected_element, node, btn_save, btn_delete,
                             btn_close, active_switch, *btn_add):  # Callback to handle Bathroom action
@@ -440,7 +440,7 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
                     return no_update, no_update, no_update, no_update, 'lamp', node['data']['id'], switch_state, no_update
                 else:
                     raise PreventUpdate
-        elif triggered_id == 'active_switch':
+        elif triggered_id == 'active_switch_house':
             for ele in elements:
                 if 'linked_device' in ele:
                     if ele['linked_device'] == selected_element:    # search for socket connected to device
@@ -530,6 +530,8 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
 
 @app.callback(Output('menu_parent_tabs', 'children'),
               Output('menu_parent_tabs', 'value'),
+              Output('active_switch_grid', 'style'),
+              Output('active_switch_house', 'style'),
               Output('store_notification5', 'data'),
               Input('store_menu_change_tab_house', 'data'),
               Input('store_menu_change_tab_grid', 'data'),
@@ -546,16 +548,21 @@ def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, switch_st
     try:
         triggered_id = ctx.triggered_id
         if triggered_id == 'tabs_main':
-            return no_update, 'empty', no_update
+            if tabs_main == 'grid':
+                return no_update, 'empty', {'display': 'block'}, {'display': 'none'}, no_update
+            elif tabs_main == 'house1':
+                return no_update, 'empty', {'display': 'none'}, {'display': 'block'}, no_update
+            else:
+                raise PreventUpdate
         elif triggered_id == 'store_menu_change_tab_house':  # If a device in the house was clicked, prepare the variables
             if tab_value_house == 'empty':
-                return no_update, 'empty', no_update
+                return no_update, 'empty', no_update, no_update, no_update
             tab_value = tab_value_house
             selected_element = selected_element_house
             elements_dict = device_dict['house1']
         elif triggered_id == 'store_menu_change_tab_grid':  # If a device in the grid was clicked, prepare the variables
             if tab_value_grid == 'empty':
-                return no_update, 'empty', no_update
+                return no_update, 'empty', no_update, no_update, no_update
             tab_value = tab_value_grid
             selected_element = selected_element_grid
             elements_dict = gridObject_dict
@@ -567,11 +574,11 @@ def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, switch_st
                                                            elements_dict)  # Get new tab panel
         menu_children = menu_children + [new_tab_panel]  # Add children of new tab panel
         switch_mode = elements_dict[selected_element]['active']  # Get activation mode of device to update the switch
-        return menu_children, tab_value, no_update
+        return menu_children, tab_value, no_update, no_update, no_update
     except PreventUpdate:
-        return no_update, no_update, no_update
+        return no_update, no_update, no_update, no_update, no_update
     except Exception as err:
-        return no_update, no_update, err.args[0]
+        return no_update, no_update, no_update, no_update, err.args[0]
 
 
 @app.callback(Output("power_input", "icon"),
