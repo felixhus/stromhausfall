@@ -453,8 +453,11 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
                         break
             return elements, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id[:10] == 'button_add':  # A button in the menu was clicked
-            socket_id = "socket" + str((len(elements) - 2) / 3 + 1)[:1]  # Get ids of new elements
-            device_id = "device" + str((len(elements) - 2) / 3 + 1)[:1]
+            last_id = int(elements[len(elements)-3]['data']['id'][6:])  # Get number of last socket
+            socket_id = "socket" + str(last_id + 1)
+            device_id = "device" + str(last_id + 1)
+            # socket_id = "socket" + str(int((len(elements) - 2) / 3 + 1))  # Get ids of new elements
+            # device_id = "device" + str((len(elements) - 2) / 3 + 1)[:1]
             position = elements[1]['position']  # Get Position of plus-node
             new_position_plus = {'x': position['x'] + 40, 'y': position['y']}  # Calculate new position of plus-node
             new_socket = {'data': {'id': socket_id, 'parent': 'power_strip'}, 'position': position,
