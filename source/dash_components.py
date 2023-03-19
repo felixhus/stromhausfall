@@ -93,7 +93,7 @@ def add_cytoscape_layout():
         {'data': {'id': 'socket1', 'parent': 'power_strip'}, 'position': {'x': 35, 'y': 175},
          'classes': 'socket_node_style_on', 'linked_device': 'lamp'},
         {'data': {'id': 'lamp'}, 'position': {'x': 35, 'y': 25}, 'classes': 'room_node_style',
-         'style': {'background-image': ['/assets/Icons/icon_bulb.png']}},
+         'style': {'background-image': ['/assets/Icons/icon_bulb.png']}, 'linked_socket': 'socket1'},
         {'data': {'source': 'socket1', 'target': 'lamp'}}]
 
     return dbc.Card(
@@ -441,8 +441,6 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
         return dmc.TabsPanel([
             dmc.Text("Lampe"),
             dmc.Group([
-                dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
-                           leftIcon=DashIconify(icon="material-symbols:delete-outline")),
                 dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right')],

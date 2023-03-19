@@ -389,7 +389,6 @@ def notification(data1, data2, data3, data4, data5, notif_list):
               Output('menu_devices', 'opened'),
               Output('store_menu_change_tab_house', 'data'),
               Output('store_selected_element_house', 'data'),
-              # Output('store_update_switch', 'data'),
               Output('active_switch', 'checked'),
               Output('store_notification4', 'data'),
               State('cyto_bathroom', 'elements'),
@@ -466,7 +465,7 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
             else:
                 position_node = {'x': position['x'], 'y': position['y'] - 120}
             new_node = {'data': {'id': device_id}, 'classes': 'room_node_style', 'position': position_node,
-                        # Generate new device
+                        'linked_socket': socket_id,   # Generate new device
                         'style': {'background-image': ['/assets/Icons/icon_' + triggered_id[11:] + '.png']}}
             new_edge = {'data': {'source': socket_id, 'target': device_id}}  # Connect new device with new socket
             new_device = objects.create_DeviceObject(device_id)
@@ -485,12 +484,37 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
         elif triggered_id == 'edit_delete_button':
             if tabs_main != 'house1' or btn_delete is None:  # If button was clicked in grid mode or is None do nothing
                 raise PreventUpdate
-        # Vorgehen Löschen Device:
-        # 1. Zu löschenden Node und zugehörige Socket finden
-        # 2. Aus elements entfernen
-        # 3. Aus Device Dict entfernen
-        # 4. Positionen der anderen aktualisieren:
-        #  - elements durchgehen und bei jeden Node, der nach den gelöschten kommt, x-Position abziehen
+            index_device, index_socket, index_edge = 0, 0, 0
+            for ele in elements:
+                if ele['data']['id'] == selected_element:   # Find index of device in elements list
+                    break
+                index_device += 1
+            if index_device >= len(elements):  # If device node was not found
+                raise Exception("Zu löschende Objekte nicht gefunden.")
+            linked_socket = elements[index_device]['linked_socket']
+            elements.pop(index_device)  # Remove device node from elements list
+            for ele in elements:
+                if ele['data']['id'] == linked_socket:    # Find index of connected socket
+                    break
+                index_socket += 1
+            if index_socket >= len(elements):  # If socket node was not found
+                raise Exception("Zu löschende Objekte nicht gefunden.")
+            elements.pop(index_socket)  # Remove socket node from elements list
+            for ele in elements:
+                if 'target' in ele['data']:     # Find index of edge connected to device and socket
+                    if ele['data']['target'] == selected_element:
+                        break
+                index_edge += 1
+            if index_edge >= len(elements):  # If edge was not found
+                raise Exception("Zu löschende Objekte nicht gefunden.")
+            elements.pop(index_edge)  # Remove edge from elements list
+            del device_dict['house1'][selected_element]   # Delete device from device dictionary
+            # Change positions of all sockets and devices right of the deleted ones:
+            elements[1]['position']['x'] = elements[1]['position']['x'] - 40    # Change position of plus node
+            for i in range(index_device-1, len(elements)):
+                if 'position' in elements[i]:   # Check if it is a node
+                    elements[i]['position']['x'] = elements[i]['position']['x'] - 40  # shift node to the left
+            return elements, device_dict, no_update, no_update, 'empty', no_update, no_update, no_update
         elif triggered_id == 'button_close_menu':  # The button "close" of the menu was clicked, close the menu
             return no_update, no_update, no_update, False, no_update, no_update, no_update, no_update
         else:
@@ -521,10 +545,14 @@ def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, switch_st
         if triggered_id == 'tabs_main':
             return no_update, 'empty', no_update
         elif triggered_id == 'store_menu_change_tab_house':  # If a device in the house was clicked, prepare the variables
+            if tab_value_house == 'empty':
+                return no_update, 'empty', no_update
             tab_value = tab_value_house
             selected_element = selected_element_house
             elements_dict = device_dict['house1']
         elif triggered_id == 'store_menu_change_tab_grid':  # If a device in the grid was clicked, prepare the variables
+            if tab_value_grid == 'empty':
+                return no_update, 'empty', no_update
             tab_value = tab_value_grid
             selected_element = selected_element_grid
             elements_dict = gridObject_dict
