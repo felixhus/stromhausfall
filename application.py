@@ -21,7 +21,7 @@ from source.modules import (calculate_power_flow, connection_allowed,
                             generate_grid_object, get_connected_edges,
                             get_last_id)
 
-app = Dash(__name__, suppress_callback_exceptions=True,
+app = Dash(__name__, suppress_callback_exceptions=True, show_undo_redo=True,
            external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
 server = app.server
 
@@ -623,10 +623,10 @@ def open_menu_card(btn):
         raise PreventUpdate
 
 
-@app.callback(Output(),
-              Input('store_device_dict', 'data'),
-              prevent_initial_call=True)
-def update_plot(data):
+# @app.callback(Output(),
+#               Input('store_device_dict', 'data'),
+#               prevent_initial_call=True)
+# def update_plot(data):
 
 
 
