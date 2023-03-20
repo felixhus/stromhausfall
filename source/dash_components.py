@@ -1,7 +1,8 @@
 import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 import dash_mantine_components as dmc
-from dash import dcc, html
+import plot
+from dash import dash_table, dcc, html
 from dash_iconify import DashIconify
 
 import source.stylesheets as stylesheets
@@ -16,8 +17,9 @@ def add_storage_variables():
                      dcc.Store(id='store_line_edit_active'), dcc.Store(id='store_selected_element_grid'),
                      dcc.Store(id='store_selected_element_house'),
                      dcc.Store(id='store_element_deleted'), dcc.Store(id='store_notification1'),
-                     dcc.Store(id='store_notification2'),
-                     dcc.Store(id='store_notification3'), dcc.Store(id='store_get_voltage'),
+                     dcc.Store(id='store_notification2'), dcc.Store(id='store_notification4'),
+                     dcc.Store(id='store_notification3'), dcc.Store(id='store_notification5'),
+                     dcc.Store(id='store_get_voltage'), dcc.Store(id='store_update_switch'),
                      dcc.Store(id='store_edge_labels'), dcc.Store(id='store_timestep'),
                      dcc.Store(id='store_flow_data'), dcc.Store(id='store_menu_change_tab_grid'),
                      dcc.Store(id='store_menu_change_tab_house'), dcc.Store(id='store_menu_inputs', data={}),
@@ -89,9 +91,9 @@ def add_cytoscape_layout():
         {'data': {'id': 'plus', 'parent': 'power_strip'}, 'position': {'x': 75, 'y': 175},
          'classes': 'room_node_style', 'style': {'background-image': ['/assets/Icons/icon_plus.png']}},
         {'data': {'id': 'socket1', 'parent': 'power_strip'}, 'position': {'x': 35, 'y': 175},
-         'classes': 'socket_node_style'},
+         'classes': 'socket_node_style_on', 'linked_device': 'lamp'},
         {'data': {'id': 'lamp'}, 'position': {'x': 35, 'y': 25}, 'classes': 'room_node_style',
-         'style': {'background-image': ['/assets/Icons/icon_bulb.png']}},
+         'style': {'background-image': ['/assets/Icons/icon_bulb.png']}, 'linked_socket': 'socket1'},
         {'data': {'source': 'socket1', 'target': 'lamp'}}]
 
     return dbc.Card(
@@ -163,22 +165,6 @@ def add_cytoscape_layout():
                 min=1, max=10, step=1))
         ], style={'height': '100%'}
     )
-
-
-# def add_rooms(app):     ## Hier app übergeben entfernen, lieber url in roomobjects hinterlegen
-#     background_bath_url = 'url(' + str(app.get_asset_url('background_bath.svg')) + ')'
-#     cytoscape_room = dbc.Card(
-#         children=[
-#             cyto.Cytoscape(
-#                 id='cyto_bathroom',
-#                 layout={'name': 'preset'},
-#                 autoRefreshLayout=False,
-#                 style={'width': '100%', 'height': '100%', 'background': '#e6ecf2', 'frame': 'blue',},
-#                        # 'background-image': background_bath_url},
-#                 # elements = edges + nodes,
-#                 stylesheet=stylesheets.cyto_stylesheet)],
-#         style={'height': '100%'})
-#     return cytoscape_room
 
 
 def add_room(id_cyto, elements):
@@ -359,7 +345,31 @@ def card_menu():
                         # dmc.Container(id='menu_parent_container',
                         #               children=[]),
                         dmc.Space(h=20),
-                        dmc.Button("Berechnen", id='button_calculate', rightIcon=DashIconify(icon="ph:gear-light"))],
+                        dmc.Group([
+                            dmc.Button("Berechnen", id='button_calculate', rightIcon=DashIconify(icon="ph:gear-light")),
+                            dmc.Switch(
+                                id='active_switch_house',
+                                thumbIcon=DashIconify(
+                                    icon="material-symbols:mode-off-on", width=16,
+                                    color=dmc.theme.DEFAULT_COLORS["teal"][5]
+                                ),
+                                size="md",
+                                color="teal",
+                                checked=False,
+                                style={'display': 'none'}
+                            ),
+                            dmc.Switch(
+                                id='active_switch_grid',
+                                thumbIcon=DashIconify(
+                                    icon="material-symbols:mode-off-on", width=16,
+                                    color=dmc.theme.DEFAULT_COLORS["orange"][5]
+                                ),
+                                size="md",
+                                color="orange",
+                                checked=False,
+                                style={'display': 'block'}
+                            )
+                        ], position='apart')],
                         value="edit"),
                     dmc.TabsPanel(children=[
                         dmc.Space(h=20),
@@ -407,16 +417,28 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
     elif tab_value == 'device_bathroom':
         return dmc.TabsPanel([
             dmc.Text("Gerät Badezimmer"),
+            dmc.TextInput(
+                id='name_input',
+                style={"width": 200},
+                value=element_dict[selected_element]['name'],
+                icon=DashIconify(icon="emojione-monotone:name-badge"),
+            ),
             dmc.Space(h=20),
-            dmc.NumberInput(
-                id='power_input',
-                label="Leistung dieses Elements in kW:",
-                value=element_dict[selected_element]['power'],
-                min=0,
-                step=0.1, precision=1,
-                stepHoldDelay=500, stepHoldInterval=100,
-                icon=DashIconify(icon="material-symbols:download"),
-                style={"width": 250},
+            dmc.Select(
+                label=["Geräteklasse ",
+                       dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
+                placeholder="Auswahl",
+                id='load_profile_select',
+                value=element_dict[selected_element]['selected_power_option'],
+                data=[
+                    {'value': key, 'label': key}
+                    for key in element_dict[selected_element]['power_options']
+                    # {'value': value,
+                    #  'label': dmc.Group([DashIconify(
+                    #      icon=element_dict[selected_element]['power_options'][value]['icon']), value])}
+                    # for value in element_dict[selected_element]['power_options']
+                ],
+                # style={"width": 200},
             ),
             dmc.Space(h=20),
             dmc.Group([
@@ -424,21 +446,54 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                            leftIcon=DashIconify(icon="material-symbols:delete-outline")),
                 dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
-            ], position='right')],
+            ], position='right'),
+            dcc.Graph(figure=plot.plot_device_timeseries(list(range(24*60)), element_dict[selected_element]['power'],
+                                                         'rgba(255, 255, 126,0.5)'))
+            ],
             value=tab_value)
-        # ), \
-               # {'power_input': 'value'}
     elif tab_value == 'lamp':
         return dmc.TabsPanel([
             dmc.Text("Lampe"),
+            dmc.TextInput(
+                id='name_input',
+                style={"width": 200},
+                value=element_dict[selected_element]['name'],
+                icon=DashIconify(icon="emojione-monotone:name-badge"),
+            ),
+            dmc.Space(h=20),
+            dmc.Select(
+                label=["Geräteklasse ",
+                       dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
+                placeholder="Auswahl",
+                id='load_profile_select',
+                value=element_dict[selected_element]['selected_power_option'],
+                data=[
+                    {'value': key, 'label': key}
+                    for key in element_dict[selected_element]['power_options']
+                    # {'value': value,
+                    #  'label': dmc.Group([DashIconify(
+                    #      icon=element_dict[selected_element]['power_options'][value]['icon']), value])}
+                    # for value in element_dict[selected_element]['power_options']
+                ],
+                # style={"width": 200},
+            ),
+            dmc.Space(h=20),
             dmc.Group([
                 dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
                            leftIcon=DashIconify(icon="material-symbols:delete-outline")),
                 dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
-            ], position='right')],
+            ], position='right'),
+            dcc.Graph(figure=plot.plot_device_timeseries(list(range(24 * 60)), element_dict[selected_element]['power'],
+                                                         'rgba(255, 255, 126,0.5)'))
+            ],
             value=tab_value
         )
+    elif tab_value == 'power_strip':
+        return dmc.TabsPanel([
+            dmc.Text([DashIconify(icon='mdi:power-socket-de'),
+                      " Die einzelnen Steckdosen der Steckdosenleiste können durch Klicken an- und ausgeschaltet werden."])
+        ], value=tab_value)
     elif tab_value == 'empty':
         return dmc.TabsPanel([
             dmc.Group([
@@ -451,20 +506,38 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
         )
 
 
+def add_modal_timeseries():
+    return dmc.Modal(
+        title='Neue Lastkurve anlegen',
+        id='modal_timeseries',
+        children=[
+            dash_table.DataTable(
+                id='timeseries_table',
+                columns=[
+                    {'id': 'time', 'name': 'Zeit in min'},
+                    {'id': 'power', 'name': 'Leistung in W'}],
+                data=[
+                    {'time': '', 'power': ''}],
+                editable=True,
+                row_deletable=True
+            ),
+            dmc.Space(h=20),
+            dmc.TextInput(
+                id='textinput_profile_name',
+                style={"width": 200},
+                placeholder="Name des Lastprofils",
+                icon=DashIconify(icon="mdi:graph-timeline-variant"),
+            ),
+            dmc.Space(h=20),
+            dmc.Group([
+                dmc.Button('Wert hinzufügen', id='button_add_value'),
+                dmc.Button('Profil speichern', id='button_save_profile')]),
+            dmc.Space(h=20),
+            dmc.Text("Speichern hat leider noch keine Funktion.", color='red')
+        ],
+        opened=False
+    )
+
+
 def add_drawer_notifications():
     return dmc.Drawer(title="Nachrichten:", id='drawer_notifications', padding="md", children=[])
-
-# def card_plot_graph():
-#     card = dmc.Card(
-#         id='card_graph',
-#         children=[
-#             # dmc.CardSection(
-#             #     dmc.Image(id='graph_image', src='assets/temp/graph.png', withPlaceholder=True)
-#             # ),
-#             dmc.Text("Gerichteter Graph des erstellten Netzes:")
-#         ],
-#         withBorder=True,
-#         shadow="sm",
-#         radius="md",
-#         style={"width": 350, 'marginTop': 50, 'display': 'none'})
-#     return card

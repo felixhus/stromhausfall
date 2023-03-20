@@ -1,24 +1,22 @@
-from dash.exceptions import PreventUpdate
-from dash_extensions import EventListener
-from dash_extensions.enrich import DashProxy, Input, Output, State, html
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy import interpolate
 
-# JavaScript event(s) that we want to listen to and what properties to collect.
-event = {"event": "click", "props": ["srcElement.className", "srcElement.innerText"]}
-# Create small example app
-app = DashProxy()
-app.layout = html.Div([
-    EventListener(
-        html.Div("Click here!", className="stuff"),
-        events=[event], logging=True, id="el"
-    ),
-    html.Div(id="log")
-])
+# original time-value pairs
+x = np.array([0, 5, 10, 15, 20, 30, 45, 50, 60])
+y = np.array([0, 3, 1, 0, 2, 0, 2, 0, 0])
 
-@app.callback(Output("log", "children"), Input("el", "n_events"), State("el", "event"))
-def click_event(n_events, e):
-    if e is None:
-        raise PreventUpdate()
-    return ",".join(f"{prop} is '{e[prop]}' " for prop in event["props"]) + f" (number of clicks is {n_events})"
+# define the interpolation function
+f = interpolate.interp1d(x, y, kind='previous')
 
-if __name__ == "__main__":
-    app.run_server()
+# generate high-resolution time values for interpolation
+xnew = np.linspace(0, 60, num=60, endpoint=True)
+
+# interpolate the values using the new time values
+ynew = f(xnew)
+
+# plot the original and interpolated curves
+plt.plot(x, y, 'o', label='Original')
+plt.plot(xnew, ynew, '.-', label='Interpolated')
+plt.legend()
+plt.show()
