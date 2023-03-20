@@ -1,10 +1,10 @@
 import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 import dash_mantine_components as dmc
-import plot
 from dash import dash_table, dcc, html
 from dash_iconify import DashIconify
 
+import source.plot as plot
 import source.stylesheets as stylesheets
 
 devices = {'bathroom': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hair-dryer'],
