@@ -6,9 +6,10 @@ import warnings
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-import objects
 import pandas as pd
-import sql_modules
+
+import source.objects as objects
+import source.sql_modules as sql_modules
 
 
 def get_last_id(elements):
