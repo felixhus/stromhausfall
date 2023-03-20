@@ -191,5 +191,6 @@ def create_LampObject(device_id):
         'selected_power_option': None,
         'power_options': {
             'Lampe': {'key': 'lamp_basic', 'icon': None},
+            'VDEW': {'key': 'vdew_test_cubic', 'icon': None}
         }
     }

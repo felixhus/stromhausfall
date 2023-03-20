@@ -14,9 +14,6 @@ def plot_graph(graph):
 
 
 def plot_device_timeseries(timesteps, load, color):
-    # fig = px.(
-    #     template='plotly_white'
-    # )
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         name="P",
@@ -26,5 +23,8 @@ def plot_device_timeseries(timesteps, load, color):
         fillcolor=color,
         mode='none'  # this remove the lines
     ))
-    fig.update_layout(template='plotly_white')
+    fig.update_layout(template='plotly_white', margin=dict(l=0, r=0, b=0, t=0), height=200)
+    fig.update_xaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True)
+    fig.update_yaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True,
+                     rangemode='nonnegative')
     return fig

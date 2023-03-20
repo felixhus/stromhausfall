@@ -21,7 +21,7 @@ from source.modules import (calculate_power_flow, connection_allowed,
                             generate_grid_object, get_connected_edges,
                             get_last_id)
 
-app = Dash(__name__, suppress_callback_exceptions=True, show_undo_redo=True,
+app = Dash(__name__, suppress_callback_exceptions=True,
            external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
 server = app.server
 
@@ -628,10 +628,11 @@ def open_menu_card(btn):
               State('store_selected_element_house', 'data'),
               State('graph_device', 'figure'),
               prevent_initial_call=True)
-def update_figure(data, selected_element, figure):
-    patched_fig = Patch()
-    patched_fig["data"][0]["y"] = data['house1'][selected_element]['power']
-    return patched_fig
+def update_figure(data, selected_element, figure):  # Update the values of the graphs if another profile is chosen
+    # patched_fig = Patch()
+    # Patch scheint noch nicht zu funktionieren, vielleicht später nochmal probieren
+    figure["data"][0]["y"] = data['house1'][selected_element]['power']
+    return figure
 
 
 

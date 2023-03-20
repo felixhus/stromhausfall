@@ -1,6 +1,7 @@
 import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 import dash_mantine_components as dmc
+import numpy as np
 from dash import dash_table, dcc, html
 from dash_iconify import DashIconify
 
@@ -415,7 +416,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
         )
     elif tab_value == 'device_bathroom':
         return dmc.TabsPanel([
-            dmc.Text("Gerät Badezimmer"),
+            # dmc.Text("Gerät Badezimmer"),
             dmc.TextInput(
                 id='name_input',
                 style={"width": 200},
@@ -424,7 +425,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             ),
             dmc.Space(h=20),
             dmc.Select(
-                label=["Geräteklasse ",
+                label=["Lastprofil ",
                        dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
                 placeholder="Auswahl",
                 id='load_profile_select',
@@ -446,14 +447,14 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right'),
-            dcc.Graph(id='graph_device',
-                      figure=plot.plot_device_timeseries(list(range(24*60)), element_dict[selected_element]['power'],
-                                                         'rgb(175, 173, 222)'))
+            dmc.Space(h=20),
+            dcc.Graph(figure=plot.plot_device_timeseries(np.linspace(0, 24, num=1440), element_dict[selected_element]['power'],
+                      'rgb(175, 173, 222)'), id='graph_device', style={'width': '100%'})
             ],
             value=tab_value)
     elif tab_value == 'lamp':
         return dmc.TabsPanel([
-            dmc.Text("Lampe"),
+            # dmc.Text("Lampe"),
             dmc.TextInput(
                 id='name_input',
                 style={"width": 200},
@@ -462,7 +463,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             ),
             dmc.Space(h=20),
             dmc.Select(
-                label=["Geräteklasse ",
+                label=["Lastprofil ",
                        dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
                 placeholder="Auswahl",
                 id='load_profile_select',
@@ -484,8 +485,8 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right'),
-            dcc.Graph(figure=plot.plot_device_timeseries(list(range(24 * 60)), element_dict[selected_element]['power'],
-                                                         'rgba(255, 255, 126,0.5)'))
+            dcc.Graph(figure=plot.plot_device_timeseries(np.linspace(0, 24, num=1440), element_dict[selected_element]['power'],
+                      'rgb(175, 173, 222)'), id='graph_device', style={'width': '100%'})
             ],
             value=tab_value
         )
