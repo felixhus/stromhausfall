@@ -7,7 +7,7 @@ import dash_extensions as dex
 import dash_mantine_components as dmc
 import pandas as pd
 import plotly.express as px
-from dash import Dash, Input, Output, State, ctx, dcc, html, no_update
+from dash import Dash, Input, Output, Patch, State, ctx, dcc, html, no_update
 from dash.exceptions import PreventUpdate
 from dash_iconify import DashIconify
 
@@ -623,10 +623,15 @@ def open_menu_card(btn):
         raise PreventUpdate
 
 
-# @app.callback(Output(),
-#               Input('store_device_dict', 'data'),
-#               prevent_initial_call=True)
-# def update_plot(data):
+@app.callback(Output('graph_device', 'figure'),
+              Input('store_device_dict', 'data'),
+              State('store_selected_element_house', 'data'),
+              State('graph_device', 'figure'),
+              prevent_initial_call=True)
+def update_figure(data, selected_element, figure):
+    patched_fig = Patch()
+    patched_fig["data"][0]["y"] = data['house1'][selected_element]['power']
+    return patched_fig
 
 
 

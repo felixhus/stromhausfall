@@ -1,10 +1,10 @@
 import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 import dash_mantine_components as dmc
-import plot
 from dash import dash_table, dcc, html
 from dash_iconify import DashIconify
 
+import source.plot as plot
 import source.stylesheets as stylesheets
 
 devices = {'bathroom': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hair-dryer'],
@@ -446,8 +446,9 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right'),
-            dcc.Graph(figure=plot.plot_device_timeseries(list(range(24*60)), element_dict[selected_element]['power'],
-                                                         'rgba(255, 255, 126,0.5)'))
+            dcc.Graph(id='graph_device',
+                      figure=plot.plot_device_timeseries(list(range(24*60)), element_dict[selected_element]['power'],
+                                                         'rgb(175, 173, 222)'))
             ],
             value=tab_value)
     elif tab_value == 'lamp':

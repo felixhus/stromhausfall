@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import networkx as nx
+import plotly.express as px
 import plotly.graph_objects as go
 
 colors = {
@@ -13,6 +14,9 @@ def plot_graph(graph):
 
 
 def plot_device_timeseries(timesteps, load, color):
+    # fig = px.(
+    #     template='plotly_white'
+    # )
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         name="P",
@@ -22,6 +26,5 @@ def plot_device_timeseries(timesteps, load, color):
         fillcolor=color,
         mode='none'  # this remove the lines
     ))
-    # fig.update_layout(xaxis_title='Test',
-    #                   yaxis_title='Leistung in W')
+    fig.update_layout(template='plotly_white')
     return fig
