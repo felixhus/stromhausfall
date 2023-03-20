@@ -452,6 +452,7 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
                         break
             return elements, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id[:10] == 'button_add':  # A button in the menu was clicked
+            device_type = triggered_id[11:]     # Get type to add
             last_id = int(elements[len(elements)-3]['data']['id'][6:])  # Get number of last socket
             socket_id = "socket" + str(last_id + 1)
             device_id = "device" + str(last_id + 1)
@@ -470,7 +471,7 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
                         'linked_socket': socket_id,   # Generate new device
                         'style': {'background-image': ['/assets/Icons/icon_' + triggered_id[11:] + '.png']}}
             new_edge = {'data': {'source': socket_id, 'target': device_id}}  # Connect new device with new socket
-            new_device = objects.create_DeviceObject(device_id)
+            new_device = objects.create_DeviceObject(device_id, device_type)
             elements[1]['position'] = new_position_plus
             elements.append(new_socket)  # Append new nodes and edges to cytoscape elements
             elements.append(new_node)
@@ -620,6 +621,13 @@ def open_menu_card(btn):
         return {'display': 'none'}, {'display': 'block'}
     else:
         raise PreventUpdate
+
+
+@app.callback(Output(),
+              Input('store_device_dict', 'data'),
+              prevent_initial_call=True)
+def update_plot(data):
+
 
 
 @app.callback(Output('modal_timeseries', 'opened'),

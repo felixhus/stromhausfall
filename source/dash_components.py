@@ -446,17 +446,46 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right'),
-            # dcc.Graph(figure=plot.plot_device_timeseries(list(range(24*60)), element_dict[selected_element]['power'],
-            #                                              'rgba(255, 255, 126,0.5)'))],
+            dcc.Graph(figure=plot.plot_device_timeseries(list(range(24*60)), element_dict[selected_element]['power'],
+                                                         'rgba(255, 255, 126,0.5)'))
             ],
             value=tab_value)
     elif tab_value == 'lamp':
         return dmc.TabsPanel([
             dmc.Text("Lampe"),
+            dmc.TextInput(
+                id='name_input',
+                style={"width": 200},
+                value=element_dict[selected_element]['name'],
+                icon=DashIconify(icon="emojione-monotone:name-badge"),
+            ),
+            dmc.Space(h=20),
+            dmc.Select(
+                label=["Geräteklasse ",
+                       dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
+                placeholder="Auswahl",
+                id='load_profile_select',
+                value=element_dict[selected_element]['selected_power_option'],
+                data=[
+                    {'value': key, 'label': key}
+                    for key in element_dict[selected_element]['power_options']
+                    # {'value': value,
+                    #  'label': dmc.Group([DashIconify(
+                    #      icon=element_dict[selected_element]['power_options'][value]['icon']), value])}
+                    # for value in element_dict[selected_element]['power_options']
+                ],
+                # style={"width": 200},
+            ),
+            dmc.Space(h=20),
             dmc.Group([
+                dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
+                           leftIcon=DashIconify(icon="material-symbols:delete-outline")),
                 dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
-            ], position='right')],
+            ], position='right'),
+            dcc.Graph(figure=plot.plot_device_timeseries(list(range(24 * 60)), element_dict[selected_element]['power'],
+                                                         'rgba(255, 255, 126,0.5)'))
+            ],
             value=tab_value
         )
     elif tab_value == 'power_strip':

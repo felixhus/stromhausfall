@@ -11,6 +11,12 @@ def generate_time_series(power, timesteps, number_steps):
 
     x_new = np.linspace(0, number_steps, num=number_steps, endpoint=True)
     y_new = f_inter(x_new)
+
+    plt.plot(timesteps, power, 'o', label='Original')
+    plt.plot(x_new, y_new, '.-', label='Interpolated')
+    plt.legend()
+    plt.show()
+
     return x_new, y_new
 
 
@@ -31,7 +37,7 @@ def write_to_database(database, values, series_id):
     conn.close()
 
 
-P = np.array([0, 1000, 0, 1500, 1000, 500, 0, 0])
-t = np.array([0, 120, 240, 480, 540, 600, 720, 1440])
+P = np.array([0, 20, 0, 20, 0, 0])
+t = np.array([0, 470, 476, 1380, 1386, 1440])
 x, y = generate_time_series(P, t, 24*60)
-write_to_database(None, y, 'testreihe')
+write_to_database(None, y, 'toothbrush_5_min')
