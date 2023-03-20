@@ -5,8 +5,6 @@ import time
 import dash_bootstrap_components as dbc
 import dash_extensions as dex
 import dash_mantine_components as dmc
-import grid_objects
-import modules
 import pandas as pd
 import plotly.express as px
 from dash import Dash, Input, Output, State, ctx, dcc, html, no_update
@@ -15,6 +13,8 @@ from dash_iconify import DashIconify
 
 import source.dash_components as dash_components
 import source.example_grids as example_grids
+import source.grid_objects as grid_objects
+import source.modules as modules
 import source.objects as objects
 import source.stylesheets as stylesheets
 from source.modules import (calculate_power_flow, connection_allowed,
