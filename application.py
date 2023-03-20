@@ -7,13 +7,10 @@ import dash_extensions as dex
 import dash_mantine_components as dmc
 import grid_objects
 import modules
-# import objects
 import pandas as pd
 import plotly.express as px
-# from dash_extensions import EventListener
 from dash import Dash, Input, Output, State, ctx, dcc, html, no_update
 from dash.exceptions import PreventUpdate
-# from dash_extensions.enrich import DashProxy
 from dash_iconify import DashIconify
 
 import source.dash_components as dash_components
@@ -24,10 +21,9 @@ from source.modules import (calculate_power_flow, connection_allowed,
                             generate_grid_object, get_connected_edges,
                             get_last_id)
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
+app = Dash(__name__, suppress_callback_exceptions=True,
+           external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
 server = app.server
-df = px.data.iris()
-fig = px.scatter(df, x='sepal_width', y='sepal_length')
 
 menu_objects = [
     ['button_house', 'icon_house2.png'],
@@ -415,6 +411,8 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
                 position = elements[1]['position']
                 return no_update, no_update, {"position": "relative", "top": position['y'], "left": position['x']}, \
                        True, no_update, no_update, no_update, no_update
+            elif node['data']['id'] == 'power_strip':
+                return no_update, no_update, no_update, no_update, 'power_strip', no_update, no_update, no_update
             elif node['data']['id'][:6] == "socket":  # A socket was clicked, switch this one on/off
                 linked_device = None
                 for ele in elements:
@@ -558,6 +556,8 @@ def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, switch_st
         elif triggered_id == 'store_menu_change_tab_house':  # If a device in the house was clicked, prepare the variables
             if tab_value_house == 'empty':
                 return no_update, 'empty', no_update, no_update, no_update
+            # elif tab_value_house == 'power_strip':
+            #     return no_update, 'power_strip', no_update, no_update, no_update
             tab_value = tab_value_house
             selected_element = selected_element_house
             elements_dict = device_dict['house1']
@@ -574,7 +574,7 @@ def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, switch_st
         new_tab_panel = dash_components.add_menu_tab_panel(tab_value, selected_element,
                                                            elements_dict)  # Get new tab panel
         menu_children = menu_children + [new_tab_panel]  # Add children of new tab panel
-        switch_mode = elements_dict[selected_element]['active']  # Get activation mode of device to update the switch
+        # switch_mode = elements_dict[selected_element]['active']  # Get activation mode of device to update the switch
         return menu_children, tab_value, no_update, no_update, no_update
     except PreventUpdate:
         return no_update, no_update, no_update, no_update, no_update
@@ -622,13 +622,31 @@ def open_menu_card(btn):
         raise PreventUpdate
 
 
-@app.callback(Output('timeseries_table', 'data'),
+@app.callback(Output('modal_timeseries', 'opened'),
+              Output('timeseries_table', 'data'),
+              Input('pill_add_profile', 'n_clicks'),
               Input('button_add_value', 'n_clicks'),
+              Input('button_save_profile', 'n_clicks'),
               State('timeseries_table', 'data'),
+              State('textinput_profile_name', 'value'),
               prevent_initial_call=True)
-def add_table_row(btn_add, rows):
-    rows.append({'time': '', 'power': ''})
-    return rows
+def modal_timeseries(pill, btn_add, btn_save, rows, name):
+    triggered_id = ctx.triggered_id
+    if triggered_id == 'pill_add_profile':  # Open modal to add timeseries
+        if pill is not None:
+            return True, no_update
+        else:
+            raise PreventUpdate
+    elif triggered_id == 'button_add_value':    # Add one empty row to the data table
+        rows.append({'time': '', 'power': ''})
+        return no_update, rows
+    elif triggered_id == 'button_save_profile':
+        # Funktionen zum Interpolieren und in Datenbank schreiben existieren in "sql_modules".
+        # Problem: Ich kann die neuen Lastprofile eigentlich nicht in die SQL-Datenbank schreiben, da die dann
+        # für alle verändert wird.
+        return False, no_update
+    else:
+        raise PreventUpdate
 
 
 # @app.callback(Output('store_menu_change_tab', 'data'),

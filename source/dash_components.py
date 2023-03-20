@@ -424,7 +424,8 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             ),
             dmc.Space(h=20),
             dmc.Select(
-                label="Geräteklasse",
+                label=["Geräteklasse ",
+                       dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
                 placeholder="Auswahl",
                 id='load_profile_select',
                 value=element_dict[selected_element]['selected_power_option'],
@@ -458,6 +459,11 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             ], position='right')],
             value=tab_value
         )
+    elif tab_value == 'power_strip':
+        return dmc.TabsPanel([
+            dmc.Text([DashIconify(icon='mdi:power-socket-de'),
+                      " Die einzelnen Steckdosen der Steckdosenleiste können durch Klicken an- und ausgeschaltet werden."])
+        ], value=tab_value)
     elif tab_value == 'empty':
         return dmc.TabsPanel([
             dmc.Group([
@@ -478,18 +484,30 @@ def add_modal_timeseries():
             dash_table.DataTable(
                 id='timeseries_table',
                 columns=[
-                    {'id': 'time', 'name': 'Zeit'},
-                    {'id': 'power', 'name': 'Leistung'}],
+                    {'id': 'time', 'name': 'Zeit in min'},
+                    {'id': 'power', 'name': 'Leistung in W'}],
                 data=[
-                    {'time': 0, 'power': 0}],
+                    {'time': '', 'power': ''}],
                 editable=True,
                 row_deletable=True
             ),
             dmc.Space(h=20),
-            dmc.Button('Wert hinzufügen', id='button_add_value')
+            dmc.TextInput(
+                id='textinput_profile_name',
+                style={"width": 200},
+                placeholder="Name des Lastprofils",
+                icon=DashIconify(icon="mdi:graph-timeline-variant"),
+            ),
+            dmc.Space(h=20),
+            dmc.Group([
+                dmc.Button('Wert hinzufügen', id='button_add_value'),
+                dmc.Button('Profil speichern', id='button_save_profile')]),
+            dmc.Space(h=20),
+            dmc.Text("Speichern hat leider noch keine Funktion.", color='red')
         ],
-        opened=True
+        opened=False
     )
+
 
 def add_drawer_notifications():
     return dmc.Drawer(title="Nachrichten:", id='drawer_notifications', padding="md", children=[])
