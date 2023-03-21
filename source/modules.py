@@ -283,6 +283,19 @@ def calculate_power_flow(elements, grid_object_dict):
     return data['df_flow'], data['labels'], plot_graph(data['grid_graph'])
 
 
+def calculate_house(device_dict, timesteps):
+    df_power = pd.DataFrame(columns=timesteps)
+    df_sum = pd.DataFrame(columns=timesteps)
+    for room in device_dict['rooms']:
+        for dev in device_dict['rooms'][room]:  # Go through each device in the house
+            device = device_dict['house1'][dev]  # Get device properties from dict
+            if device['active']:    # If device is activated
+                df_power.loc[device['id']] = device['power']
+        df_sum.loc[room] = df_power.sum().transpose()   # Get sum of all devices in room
+    df_sum.loc['house1'] = df_sum.sum().transpose()     # Get sum of all rooms in house
+    return df_power
+
+
 def save_settings(children, device_dict, selected_element, house):
     for child in children:      # Go through all components of the settings menu
         if child['type'] == 'Text':     # Do nothing on things like text or vertical spaces

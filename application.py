@@ -331,9 +331,7 @@ def start_calculation_grid(btn, slider, flow, elements, gridObject_dict, tabs_ma
 def start_calculation_house(btn, device_dict, tabs_main):
     try:
         if tabs_main == 'house1':
-            for device in device_dict['house1']:    # Go through each device in the house
-                if device['active']:
-                    raise PreventUpdate
+            return modules.calculate_house(device_dict, range(0, 1440)), no_update
         else:
             raise PreventUpdate
     except PreventUpdate:
@@ -611,18 +609,6 @@ def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, switch_st
         return no_update, no_update, no_update, no_update, err.args[0]
 
 
-@app.callback(Output("power_input", "icon"),
-              Input("chips_type", "value"),
-              prevent_initial_call=True)
-def chips_type(value):
-    if value == "Last":
-        return DashIconify(icon="material-symbols:download")
-    elif value == "Einspeisung":
-        return DashIconify(icon="material-symbols:upload")
-    else:
-        raise PreventUpdate
-
-
 @app.callback(Output('cyto1', 'layout'),
               Output('example_button', 'disabled'),
               Input('example_button', 'n_clicks'),
@@ -664,7 +650,6 @@ def update_figure(data, selected_element, figure):  # Update the values of the g
     else:
         raise PreventUpdate
     return figure
-
 
 
 @app.callback(Output('modal_timeseries', 'opened'),
