@@ -54,10 +54,18 @@ def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
         x=df_sum.columns,
         y=df_sum.loc['house1']
     ))
-    fig.update_layout(template='plotly_white', margin=dict(l=0, r=0, b=0, t=0), height=200)
+    fig.update_layout(template='plotly_white', margin=dict(l=0, r=0, b=0, t=0), width=320)
     fig.update_xaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True)
     fig.update_yaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True,
                      rangemode='nonnegative')
+    fig.update_layout(legend=dict(
+        # orientation="h",
+        # entrywidth=70,
+        yanchor="top",
+        y=-0.25,
+        xanchor="left",
+        x=0
+    ))
     # fig.show()
 
     sunburst_labels, sunburst_parents, sunburst_values = [], [], []
@@ -81,7 +89,7 @@ def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
     ))
     # Update layout for tight margin
     # See https://plotly.com/python/creating-and-updating-figures/
-    fig_sunburst.update_layout(margin=dict(t=0, l=0, r=0, b=0))
+    fig_sunburst.update_layout(margin=dict(t=0, l=0, r=0, b=0), width=320)
 
     return fig, fig_sunburst
     # fig_sunburst.show()

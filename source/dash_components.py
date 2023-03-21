@@ -403,8 +403,9 @@ def add_result_tab_panel(tab_value):
         )
     elif tab_value == 'house':
         return dmc.TabsPanel([
-            dcc.Graph(id='graph_power_house', style={'width': '100%'}),
-            dcc.Graph(id='graph_sunburst_house', style={'width': '100%'}),
+            dmc.Space(h=20),
+            dcc.Graph(id='graph_power_house'),
+            dcc.Graph(id='graph_sunburst_house'),
             ],
             value=tab_value
         )
