@@ -331,7 +331,8 @@ def start_calculation_grid(btn, slider, flow, elements, gridObject_dict, tabs_ma
 def start_calculation_house(btn, device_dict, tabs_main):
     try:
         if tabs_main == 'house1':
-            return modules.calculate_house(device_dict, range(0, 1440)), no_update
+            temp = modules.calculate_house(device_dict, range(0, 1440))
+            return None, no_update
         else:
             raise PreventUpdate
     except PreventUpdate:

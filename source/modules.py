@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 import source.objects as objects
+import source.plot as plot
 import source.sql_modules as sql_modules
 
 
@@ -293,6 +294,7 @@ def calculate_house(device_dict, timesteps):
                 df_power.loc[device['id']] = device['power']
         df_sum.loc[room] = df_power.sum().transpose()   # Get sum of all devices in room
     df_sum.loc['house1'] = df_sum.sum().transpose()     # Get sum of all rooms in house
+    plot.plot_all_devices_room(df_power, df_sum, device_dict)
     return df_power
 
 
