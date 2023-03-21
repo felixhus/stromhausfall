@@ -461,10 +461,10 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
             else:   # A device was clicked
                 switch_state = device_dict['house1'][room][node['data']['id']]['active']
                 if node['data']['id'][:6] == "device":
-                    return no_update, no_update, no_update, no_update, 'device_bathroom', node['data'][
+                    return no_update, no_update, no_update, no_update, ['device_bathroom', room], node['data'][
                         'id'], switch_state, no_update
                 elif node['data']['id'][:4] == "lamp":
-                    return no_update, no_update, no_update, no_update, 'lamp', node['data']['id'], switch_state, no_update
+                    return no_update, no_update, no_update, no_update, ['lamp', room], node['data']['id'], switch_state, no_update
                 else:
                     raise PreventUpdate
         elif triggered_id == 'active_switch_house':
@@ -505,7 +505,7 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
             elements.append(new_node)
             elements.append(new_edge)
             device_dict['house1'][room][device_id] = new_device
-            return elements, device_dict, no_update, False, 'empty', no_update, no_update, no_update  # Return elements and close menu
+            return elements, device_dict, no_update, False, ['empty', None], no_update, no_update, no_update  # Return elements and close menu
         elif triggered_id == 'edit_save_button':
             if tabs_main != 'house1' or btn_save is None:  # If button was clicked in grid mode or is None do nothing
                 raise PreventUpdate
@@ -545,7 +545,7 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
             for i in range(index_device-1, len(elements)):
                 if 'position' in elements[i]:   # Check if it is a node
                     elements[i]['position']['x'] = elements[i]['position']['x'] - 40  # shift node to the left
-            return elements, device_dict, no_update, no_update, 'empty', no_update, no_update, no_update
+            return elements, device_dict, no_update, no_update, ['empty', None], no_update, no_update, no_update
         elif triggered_id == 'button_close_menu':  # The button "close" of the menu was clicked, close the menu
             return no_update, no_update, no_update, False, no_update, no_update, no_update, no_update
         else:
@@ -571,7 +571,7 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
               State('store_selected_element_grid', 'data'),
               State('store_selected_element_house', 'data'),
               prevent_initial_call=True)
-def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, switch_state, menu_children, gridObject_dict,
+def manage_menu_containers(tab_house, tab_value_grid, tabs_main, switch_state, menu_children, gridObject_dict,
                            device_dict, selected_element_grid, selected_element_house):
     try:
         triggered_id = ctx.triggered_id
@@ -583,12 +583,12 @@ def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, switch_st
             else:
                 raise PreventUpdate
         elif triggered_id == 'store_menu_change_tab_house':  # If a device in the house was clicked, prepare the variables
+            tab_value_house, room = tab_house[0], tab_house[1]
             if tab_value_house == 'empty':
                 return no_update, 'empty', no_update, no_update, no_update
             tab_value = tab_value_house
             selected_element = selected_element_house
-            elements_dict = device_dict['house1']
-            # Raumproblem
+            elements_dict = device_dict['house1'][room]
         elif triggered_id == 'store_menu_change_tab_grid':  # If a device in the grid was clicked, prepare the variables
             if tab_value_grid == 'empty':
                 return no_update, 'empty', no_update, no_update, no_update
@@ -658,6 +658,8 @@ def open_menu_card(btn):
 def update_figure(data, selected_element, figure):  # Update the values of the graphs if another profile is chosen
     # patched_fig = Patch()
     # Patch scheint noch nicht zu funktionieren, vielleicht später nochmal probieren
+    triggered = ctx.triggered
+    triggered_props = ctx.triggered_prop_ids
     figure["data"][0]["y"] = data['house1'][selected_element]['power']
     # Raumproblem
     return figure
