@@ -287,14 +287,23 @@ def calculate_power_flow(elements, grid_object_dict):
 def calculate_house(device_dict, timesteps):
     df_power = pd.DataFrame(columns=timesteps)
     df_sum = pd.DataFrame(columns=timesteps)
+    df_energy = pd.DataFrame(columns=['type', 'energy'])
     for room in device_dict['rooms']:
         for dev in device_dict['rooms'][room]:  # Go through each device in the house
             device = device_dict['house1'][dev]  # Get device properties from dict
             if device['active']:    # If device is activated
                 df_power.loc[device['id']] = device['power']
+                energy = df_power.loc[device['id']].sum() / 60 / 1000   # Calculate energy in kWh
+                df_energy.loc[device['id']] = {'type': 'device', 'energy': energy}
+            else:
+                df_energy.loc[device['id']] = {'type': 'device', 'energy': 0}
         df_sum.loc[room] = df_power.sum().transpose()   # Get sum of all devices in room
+        energy = df_sum.loc[room].sum() / 60 / 1000  # Calculate energy in kWh
+        df_energy.loc[room] = {'type': 'room', 'energy': energy}
     df_sum.loc['house1'] = df_sum.sum().transpose()     # Get sum of all rooms in house
-    plot.plot_all_devices_room(df_power, df_sum, device_dict)
+    energy = df_sum.loc['house1'].sum() / 60 / 1000  # Calculate energy in kWh
+    df_energy.loc['house1'] = {'type': 'house', 'energy': energy}
+    fig_power, fig_energy = plot.plot_all_devices_room(df_power, df_sum, df_energy, device_dict)
     return df_power
 
 

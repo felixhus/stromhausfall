@@ -35,7 +35,7 @@ def plot_device_timeseries(timesteps, load, color):
     return fig
 
 
-def plot_all_devices_room(df_devices, df_sum, device_dict):
+def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
     fig = go.Figure()
     color_index = 0
     for index, row in df_devices.iterrows():
@@ -61,4 +61,30 @@ def plot_all_devices_room(df_devices, df_sum, device_dict):
     fig.update_xaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True)
     fig.update_yaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True,
                      rangemode='nonnegative')
-    fig.show()
+    # fig.show()
+
+    sunburst_labels, sunburst_parents, sunburst_values = [], [], []
+    sunburst_labels.append('house1')
+    sunburst_parents.append('')
+    sunburst_values.append(df_energy.loc['house1']['energy'])
+    for room in device_dict['rooms']:
+        sunburst_labels.append(room)
+        sunburst_parents.append('house1')
+        sunburst_values.append(df_energy.loc[room]['energy'])
+        for device in device_dict['rooms'][room]:
+            sunburst_labels.append(device)
+            sunburst_parents.append(room)
+            sunburst_values.append(df_energy.loc[device]['energy'])
+
+    fig_sunburst = go.Figure(go.Sunburst(
+        labels=sunburst_labels,
+        parents=sunburst_parents,
+        values=sunburst_values,
+        branchvalues='total'
+    ))
+    # Update layout for tight margin
+    # See https://plotly.com/python/creating-and-updating-figures/
+    fig_sunburst.update_layout(margin=dict(t=0, l=0, r=0, b=0))
+
+    return fig, fig_sunburst
+    # fig_sunburst.show()
