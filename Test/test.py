@@ -1,22 +1,39 @@
-import matplotlib.pyplot as plt
-import numpy as np
-from scipy import interpolate
+import pandas as pd
+import plotly.graph_objects as go
 
-# original time-value pairs
-x = np.array([0, 5, 10, 15, 20, 30, 45, 50, 60])
-y = np.array([0, 3, 1, 0, 2, 0, 2, 0, 0])
+# create sample dataframe
+df = pd.DataFrame({
+    'x': [1, 2, 3, 4, 5],
+    'y1': [10, 8, 6, 4, 2],
+    'y2': [8, 6, 4, 2, 0],
+    'y3': [12, 9, 6, 3, 0]
+})
 
-# define the interpolation function
-f = interpolate.interp1d(x, y, kind='previous')
+# create figure object
+fig = go.Figure()
 
-# generate high-resolution time values for interpolation
-xnew = np.linspace(0, 60, num=60, endpoint=True)
+# add filled lines for each y column
+fig.add_trace(go.Scatter(
+    x=df['x'], y=df['y1'],
+    mode='lines', fill='tozeroy',
+    line=dict(color='red')
+))
+fig.add_trace(go.Scatter(
+    x=df['x'], y=df['y2'],
+    mode='lines', fill='tozeroy',
+    line=dict(color='green')
+))
+fig.add_trace(go.Scatter(
+    x=df['x'], y=df['y3'],
+    mode='lines', fill='tozeroy',
+    line=dict(color='blue')
+))
 
-# interpolate the values using the new time values
-ynew = f(xnew)
+# set x and y axis labels
+fig.update_layout(
+    xaxis_title='X-axis',
+    yaxis_title='Y-axis'
+)
 
-# plot the original and interpolated curves
-plt.plot(x, y, 'o', label='Original')
-plt.plot(xnew, ynew, '.-', label='Interpolated')
-plt.legend()
-plt.show()
+# show figure
+fig.show()

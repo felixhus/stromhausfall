@@ -288,26 +288,30 @@ def button_add_pressed(*args):
               State('store_flow_data', 'data'),
               State('cyto1', 'elements'),
               State('store_grid_object_dict', 'data'),
+              State('tabs_main', 'value'),
               prevent_initial_call=True)
-def start_calculation(btn, slider, flow, elements, gridObject_dict):
+def start_calculation_grid(btn, slider, flow, elements, gridObject_dict, tabs_main):
     try:
-        triggered_id = ctx.triggered_id
-        if triggered_id == 'button_calculate':
-            df_flow, labels, format_img_src = calculate_power_flow(elements, gridObject_dict)
-            df_flow_json = df_flow.to_json(orient='index')
-            img_src = 'data:image/png;base64,{}'.format(format_img_src)
-            return df_flow_json, {'display': 'block'}, img_src, no_update, no_update, 'results', \
-                   stylesheets.cyto_stylesheet_calculated, len(df_flow.index), labels, no_update
-        elif triggered_id == 'timestep_slider':
-            df_flow = pd.read_json(flow, orient='index')
-            labels = df_flow.loc[slider - 1].to_dict()
-            if df_flow.loc[slider - 1, 'external_grid'].item() > 0:
-                text_alert = "Es werden " + str(
-                    abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " kW an das Netz abgegeben."
+        if tabs_main == 'grid':
+            triggered_id = ctx.triggered_id
+            if triggered_id == 'button_calculate':
+                df_flow, labels, format_img_src = calculate_power_flow(elements, gridObject_dict)
+                df_flow_json = df_flow.to_json(orient='index')
+                img_src = 'data:image/png;base64,{}'.format(format_img_src)
+                return df_flow_json, {'display': 'block'}, img_src, no_update, no_update, 'results', \
+                       stylesheets.cyto_stylesheet_calculated, len(df_flow.index), labels, no_update
+            elif triggered_id == 'timestep_slider':
+                df_flow = pd.read_json(flow, orient='index')
+                labels = df_flow.loc[slider - 1].to_dict()
+                if df_flow.loc[slider - 1, 'external_grid'].item() > 0:
+                    text_alert = "Es werden " + str(
+                        abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " kW an das Netz abgegeben."
+                else:
+                    text_alert = "Es werden " + str(
+                        abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " kW aus dem Netz bezogen."
+                return no_update, no_update, no_update, text_alert, False, no_update, no_update, no_update, labels, no_update
             else:
-                text_alert = "Es werden " + str(
-                    abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " kW aus dem Netz bezogen."
-            return no_update, no_update, no_update, text_alert, False, no_update, no_update, no_update, labels, no_update
+                raise PreventUpdate
         else:
             raise PreventUpdate
     except PreventUpdate:
@@ -316,6 +320,26 @@ def start_calculation(btn, slider, flow, elements, gridObject_dict):
     except Exception as err:
         return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
                err.args[0]
+
+
+@app.callback(Output('store_results_house', 'data'),
+              Output('store_notification6', 'data'),
+              Input('button_calculate', 'n_clicks'),
+              State('store_device_dict', 'data'),
+              State('tabs_main', 'value'),
+              prevent_initial_call=True)
+def start_calculation_house(btn, device_dict, tabs_main):
+    try:
+        if tabs_main == 'house1':
+            for device in device_dict['house1']:    # Go through each device in the house
+                if device['active']:
+                    raise PreventUpdate
+        else:
+            raise PreventUpdate
+    except PreventUpdate:
+        return no_update, no_update
+    except Exception as err:
+        return no_update, err.args[0]
 
 
 @app.callback(Output('modal_readme', 'opened'),
@@ -333,8 +357,9 @@ def open_readme(btn):
               Input('store_notification3', 'data'),
               Input('store_notification4', 'data'),
               Input('store_notification5', 'data'),
+              Input('store_notification6', 'data'),
               State('drawer_notifications', 'children'))
-def notification(data1, data2, data3, data4, data5, notif_list):
+def notification(data1, data2, data3, data4, data5, data6, notif_list):
     triggered_id = ctx.triggered_id
     if triggered_id == 'store_notification1':
         data = data1
@@ -346,6 +371,8 @@ def notification(data1, data2, data3, data4, data5, notif_list):
         data = data4
     elif triggered_id == 'store_notification5':
         data = data5
+    elif triggered_id == 'store_notification6':
+        data = data6
     else:
         raise PreventUpdate
     if data is None:

@@ -20,12 +20,14 @@ def add_storage_variables():
                      dcc.Store(id='store_element_deleted'), dcc.Store(id='store_notification1'),
                      dcc.Store(id='store_notification2'), dcc.Store(id='store_notification4'),
                      dcc.Store(id='store_notification3'), dcc.Store(id='store_notification5'),
+                     dcc.Store(id='store_notification6'),
                      dcc.Store(id='store_get_voltage'), dcc.Store(id='store_update_switch'),
                      dcc.Store(id='store_edge_labels'), dcc.Store(id='store_timestep'),
                      dcc.Store(id='store_flow_data'), dcc.Store(id='store_menu_change_tab_grid'),
                      dcc.Store(id='store_menu_change_tab_house'), dcc.Store(id='store_menu_inputs', data={}),
                      dcc.Store(id='store_grid_object_dict', data={}),
-                     dcc.Store(id='store_device_dict', data={'house1': {}})])
+                     dcc.Store(id='store_device_dict', data={'house1': {}}),
+                     dcc.Store(id='store_results_house')])
 
 
 def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
@@ -283,7 +285,8 @@ def dash_navbar():
                 dmc.Button("README", id='button_readme', n_clicks=0,
                            leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
                 dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
-                           gradient={"from": "grape", "to": "pink", "deg": 35})], spacing=10
+                           gradient={"from": "grape", "to": "pink", "deg": 35})
+            ], spacing=10
             ),
         ]), color="dark", dark=True
     )
