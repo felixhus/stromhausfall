@@ -303,8 +303,8 @@ def calculate_house(device_dict, timesteps):
     df_sum.loc['house1'] = df_sum.sum().transpose()     # Get sum of all rooms in house
     energy = df_sum.loc['house1'].sum() / 60 / 1000  # Calculate energy in kWh
     df_energy.loc['house1'] = {'type': 'house', 'energy': energy}
-    fig_power, fig_energy = plot.plot_all_devices_room(df_power, df_sum, df_energy, device_dict)
-    return df_power
+    # fig_power, fig_energy = plot.plot_all_devices_room(df_power, df_sum, df_energy, device_dict)
+    return plot.plot_all_devices_room(df_power, df_sum, df_energy, device_dict)
 
 
 def save_settings(children, device_dict, selected_element, house):

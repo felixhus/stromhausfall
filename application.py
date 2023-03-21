@@ -278,7 +278,7 @@ def button_add_pressed(*args):
               Output('graph_image', 'src'),
               Output('alert_externalgrid', 'children'),
               Output('alert_externalgrid', 'hide'),
-              Output('tabs', 'value'),
+              Output('tabs_menu', 'value'),
               Output('cyto1', 'stylesheet'),
               Output('timestep_slider', 'max'),
               Output('store_edge_labels', 'data'),
@@ -323,6 +323,8 @@ def start_calculation_grid(btn, slider, flow, elements, gridObject_dict, tabs_ma
 
 
 @app.callback(Output('store_results_house', 'data'),
+              Output('graph_power_house', 'figure'),
+              Output('graph_sunburst_house', 'figure'),
               Output('store_notification6', 'data'),
               Input('button_calculate', 'n_clicks'),
               State('store_device_dict', 'data'),
@@ -331,8 +333,8 @@ def start_calculation_grid(btn, slider, flow, elements, gridObject_dict, tabs_ma
 def start_calculation_house(btn, device_dict, tabs_main):
     try:
         if tabs_main == 'house1':
-            temp = modules.calculate_house(device_dict, range(0, 1440))
-            return None, no_update
+            graph_power, graph_sunburst = modules.calculate_house(device_dict, range(0, 1440))
+            return None, graph_power, graph_sunburst, no_update
         else:
             raise PreventUpdate
     except PreventUpdate:
@@ -357,8 +359,9 @@ def open_readme(btn):
               Input('store_notification4', 'data'),
               Input('store_notification5', 'data'),
               Input('store_notification6', 'data'),
+              Input('store_notification7', 'data'),
               State('drawer_notifications', 'children'))
-def notification(data1, data2, data3, data4, data5, data6, notif_list):
+def notification(data1, data2, data3, data4, data5, data6, data7, notif_list):
     triggered_id = ctx.triggered_id
     if triggered_id == 'store_notification1':
         data = data1
@@ -372,6 +375,8 @@ def notification(data1, data2, data3, data4, data5, data6, notif_list):
         data = data5
     elif triggered_id == 'store_notification6':
         data = data6
+    elif triggered_id == 'store_notification7':
+        data = data7
     else:
         raise PreventUpdate
     if data is None:
@@ -484,8 +489,6 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
             last_id = int(elements[len(elements)-3]['data']['id'][6:])  # Get number of last socket
             socket_id = "socket" + str(last_id + 1)
             device_id = "device" + str(last_id + 1)
-            # socket_id = "socket" + str(int((len(elements) - 2) / 3 + 1))  # Get ids of new elements
-            # device_id = "device" + str((len(elements) - 2) / 3 + 1)[:1]
             position = elements[1]['position']  # Get Position of plus-node
             new_position_plus = {'x': position['x'] + 40, 'y': position['y']}  # Calculate new position of plus-node
             new_socket = {'data': {'id': socket_id, 'parent': 'power_strip'}, 'position': position,
@@ -602,12 +605,28 @@ def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, switch_st
         new_tab_panel = dash_components.add_menu_tab_panel(tab_value, selected_element,
                                                            elements_dict)  # Get new tab panel
         menu_children = menu_children + [new_tab_panel]  # Add children of new tab panel
-        # switch_mode = elements_dict[selected_element]['active']  # Get activation mode of device to update the switch
         return menu_children, tab_value, no_update, no_update, no_update
     except PreventUpdate:
         return no_update, no_update, no_update, no_update, no_update
     except Exception as err:
         return no_update, no_update, no_update, no_update, err.args[0]
+
+
+@app.callback(Output('result_parent_tabs', 'value'),
+              Output('tabs_menu', 'value', allow_duplicate=True),
+              Output('store_notification7', 'data'),
+              Input('graph_power_house', 'figure'),
+              State('tabs_main', 'data'),
+              prevent_initial_call=True)
+def manage_result_containers(figure, tabs_main):
+    try:
+        triggered_id = ctx.triggered_id
+        if triggered_id == 'graph_power_house':
+            return 'house', 'results', no_update
+    except PreventUpdate:
+        return no_update, no_update, no_update
+    except Exception as err:
+        return no_update, no_update, err.args[0]
 
 
 @app.callback(Output('cyto1', 'layout'),

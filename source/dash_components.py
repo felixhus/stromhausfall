@@ -20,7 +20,7 @@ def add_storage_variables():
                      dcc.Store(id='store_element_deleted'), dcc.Store(id='store_notification1'),
                      dcc.Store(id='store_notification2'), dcc.Store(id='store_notification4'),
                      dcc.Store(id='store_notification3'), dcc.Store(id='store_notification5'),
-                     dcc.Store(id='store_notification6'),
+                     dcc.Store(id='store_notification6'), dcc.Store(id='store_notification7'),
                      dcc.Store(id='store_get_voltage'), dcc.Store(id='store_update_switch'),
                      dcc.Store(id='store_edge_labels'), dcc.Store(id='store_timestep'),
                      dcc.Store(id='store_flow_data'), dcc.Store(id='store_menu_change_tab_grid'),
@@ -345,8 +345,6 @@ def card_menu():
                         dmc.Tabs(children=[
                             add_menu_tab_panel('empty', None, None)
                         ], id='menu_parent_tabs'),
-                        # dmc.Container(id='menu_parent_container',
-                        #               children=[]),
                         dmc.Space(h=20),
                         dmc.Group([
                             dmc.Button("Berechnen", id='button_calculate', rightIcon=DashIconify(icon="ph:gear-light")),
@@ -375,6 +373,10 @@ def card_menu():
                         ], position='apart')],
                         value="edit"),
                     dmc.TabsPanel(children=[
+                        dmc.Tabs(children=[
+                            add_result_tab_panel('empty'),
+                            add_result_tab_panel('house')
+                        ], id='result_parent_tabs'),
                         dmc.Space(h=20),
                         dmc.Alert(children="", id="alert_externalgrid", color='primary', hide=True),
                         dmc.CardSection(
@@ -383,7 +385,7 @@ def card_menu():
                         ),
                     ], value="results"),
                 ],
-                id='tabs', value='edit', color="blue", orientation="horizontal",
+                id='tabs_menu', value='edit', color="blue", orientation="horizontal",
             ), loaderProps={"variant": "bars", "color": "blue", "size": "lg"})
         ],
         withBorder=True,
@@ -392,6 +394,20 @@ def card_menu():
         style={"height": '100%'},
     )
     return html.Div([card], id='card_menu', style={'display': 'none'})
+
+
+def add_result_tab_panel(tab_value):
+    if tab_value == 'empty':
+        return dmc.TabsPanel(
+            value=tab_value
+        )
+    elif tab_value == 'house':
+        return dmc.TabsPanel([
+            dcc.Graph(id='graph_power_house', style={'width': '100%'}),
+            dcc.Graph(id='graph_sunburst_house', style={'width': '100%'}),
+            ],
+            value=tab_value
+        )
 
 
 def add_menu_tab_panel(tab_value, selected_element, element_dict):
@@ -451,9 +467,11 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right'),
             dmc.Space(h=20),
-            dcc.Graph(figure=plot.plot_device_timeseries(np.linspace(0, 24, num=1440), element_dict[selected_element]['power'],
-                      'rgb(175, 173, 222)'), id='graph_device', style={'width': '100%'})
-            ],
+            dcc.Graph(figure=plot.plot_device_timeseries(np.linspace(0, 24, num=1440),
+                                                         element_dict[selected_element]['power'],
+                                                         'rgb(175, 173, 222)'), id='graph_device',
+                      style={'width': '100%'})
+        ],
             value=tab_value)
     elif tab_value == 'lamp':
         return dmc.TabsPanel([
@@ -488,9 +506,11 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right'),
-            dcc.Graph(figure=plot.plot_device_timeseries(np.linspace(0, 24, num=1440), element_dict[selected_element]['power'],
-                      'rgb(175, 173, 222)'), id='graph_device', style={'width': '100%'})
-            ],
+            dcc.Graph(figure=plot.plot_device_timeseries(np.linspace(0, 24, num=1440),
+                                                         element_dict[selected_element]['power'],
+                                                         'rgb(175, 173, 222)'), id='graph_device',
+                      style={'width': '100%'})
+        ],
             value=tab_value
         )
     elif tab_value == 'power_strip':

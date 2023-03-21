@@ -3,19 +3,16 @@ import networkx as nx
 import plotly.express as px
 import plotly.graph_objects as go
 
-colors = {
-    'color1': 'rgb(245, 149, 178)',
-    'color2': 'rgb(255, 179, 179)',
-    'color3': 'rgb(255, 241, 186)',
-    'color4': 'rgb(190, 227, 237)',
-    'color5': 'rgb(175, 173, 222)',
-}
 colors = ['rgb(245, 149, 178)', 'rgb(255, 179, 179)', 'rgb(255, 241, 186)', 'rgb(190, 227, 237)', 'rgb(175, 173, 222)']
 
 
 def plot_graph(graph):
     nx.draw(graph)
     plt.show()
+
+
+def empty_figure():
+    return go.Figure()
 
 
 def plot_device_timeseries(timesteps, load, color):
@@ -52,7 +49,7 @@ def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
             color_index = 0
     fig.add_trace(go.Scatter(
         mode='lines',
-        line=dict(color='black', width=1),
+        line=dict(color='black', width=0.5),
         name='total',
         x=df_sum.columns,
         y=df_sum.loc['house1']
