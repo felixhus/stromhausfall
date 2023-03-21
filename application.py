@@ -432,7 +432,8 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
         room = 'bathroom'
         triggered_id = ctx.triggered_id
         if triggered_id is None:  # Initial call
-            device_dict['house1'][room]['lamp'] = objects.create_LampObject('lamp')  # Add lamp to device dictionary
+            device_dict['house1']['lamp'] = objects.create_LampObject('lamp')  # Add lamp to device dictionary
+            device_dict['rooms'][room] = ['lamp']     # Create list of devices in bathroom in dictionary
             return no_update, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
         if triggered_id == 'cyto_bathroom':
             if node['data']['id'] == 'plus':  # Open Menu with Devices to add
@@ -448,23 +449,23 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
                         linked_device = ele['linked_device']
                         if ele['classes'] == 'socket_node_style_on':
                             ele['classes'] = 'socket_node_style_off'
-                            device_dict['house1'][room][ele['linked_device']]['active'] = False  # Store new mode in device_dict
+                            device_dict['house1'][ele['linked_device']]['active'] = False  # Store new mode in device_dict
                         else:
                             ele['classes'] = 'socket_node_style_on'
-                            device_dict['house1'][room][ele['linked_device']]['active'] = True
+                            device_dict['house1'][ele['linked_device']]['active'] = True
                         break
                 if linked_device is not None and linked_device == selected_element: # If the socket of the selected element was clicked
-                    switch_state = device_dict['house1'][room][linked_device]['active']   # Update the switch state
+                    switch_state = device_dict['house1'][linked_device]['active']   # Update the switch state
                 else:
                     switch_state = no_update    # Otherwise don't update
                 return elements, device_dict, no_update, no_update, no_update, no_update, switch_state, no_update
             else:   # A device was clicked
-                switch_state = device_dict['house1'][room][node['data']['id']]['active']
+                switch_state = device_dict['house1'][node['data']['id']]['active']
                 if node['data']['id'][:6] == "device":
-                    return no_update, no_update, no_update, no_update, ['device_bathroom', room], node['data'][
+                    return no_update, no_update, no_update, no_update, 'device_bathroom', node['data'][
                         'id'], switch_state, no_update
                 elif node['data']['id'][:4] == "lamp":
-                    return no_update, no_update, no_update, no_update, ['lamp', room], node['data']['id'], switch_state, no_update
+                    return no_update, no_update, no_update, no_update, 'lamp', node['data']['id'], switch_state, no_update
                 else:
                     raise PreventUpdate
         elif triggered_id == 'active_switch_house':
@@ -473,10 +474,10 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
                     if ele['linked_device'] == selected_element:    # search for socket connected to device
                         if active_switch:
                             ele['classes'] = 'socket_node_style_on'
-                            device_dict['house1'][room][ele['linked_device']]['active'] = True
+                            device_dict['house1'][ele['linked_device']]['active'] = True
                         else:
                             ele['classes'] = 'socket_node_style_off'
-                            device_dict['house1'][room][ele['linked_device']]['active'] = False
+                            device_dict['house1'][ele['linked_device']]['active'] = False
                         break
             return elements, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id[:10] == 'button_add':  # A button in the menu was clicked
@@ -504,13 +505,14 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
             elements.append(new_socket)  # Append new nodes and edges to cytoscape elements
             elements.append(new_node)
             elements.append(new_edge)
-            device_dict['house1'][room][device_id] = new_device
+            device_dict['house1'][device_id] = new_device   # Add new device to device dictionary
+            device_dict['rooms'][room].append(device_id)  # Add new device to room device list
             return elements, device_dict, no_update, False, ['empty', None], no_update, no_update, no_update  # Return elements and close menu
         elif triggered_id == 'edit_save_button':
             if tabs_main != 'house1' or btn_save is None:  # If button was clicked in grid mode or is None do nothing
                 raise PreventUpdate
             device_dict = modules.save_settings(children[1]['props']['children'], device_dict, selected_element,
-                                                'house1', room)
+                                                'house1')
             return no_update, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'edit_delete_button':
             if tabs_main != 'house1' or btn_delete is None:  # If button was clicked in grid mode or is None do nothing
@@ -539,7 +541,7 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
             if index_edge >= len(elements):  # If edge was not found
                 raise Exception("Zu löschende Objekte nicht gefunden.")
             elements.pop(index_edge)  # Remove edge from elements list
-            del device_dict['house1'][room][selected_element]   # Delete device from device dictionary
+            del device_dict['house1'][selected_element]   # Delete device from device dictionary
             # Change positions of all sockets and devices right of the deleted ones:
             elements[1]['position']['x'] = elements[1]['position']['x'] - 40    # Change position of plus node
             for i in range(index_device-1, len(elements)):
@@ -571,7 +573,7 @@ def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected
               State('store_selected_element_grid', 'data'),
               State('store_selected_element_house', 'data'),
               prevent_initial_call=True)
-def manage_menu_containers(tab_house, tab_value_grid, tabs_main, switch_state, menu_children, gridObject_dict,
+def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, switch_state, menu_children, gridObject_dict,
                            device_dict, selected_element_grid, selected_element_house):
     try:
         triggered_id = ctx.triggered_id
@@ -583,12 +585,11 @@ def manage_menu_containers(tab_house, tab_value_grid, tabs_main, switch_state, m
             else:
                 raise PreventUpdate
         elif triggered_id == 'store_menu_change_tab_house':  # If a device in the house was clicked, prepare the variables
-            tab_value_house, room = tab_house[0], tab_house[1]
             if tab_value_house == 'empty':
                 return no_update, 'empty', no_update, no_update, no_update
             tab_value = tab_value_house
             selected_element = selected_element_house
-            elements_dict = device_dict['house1'][room]
+            elements_dict = device_dict['house1']
         elif triggered_id == 'store_menu_change_tab_grid':  # If a device in the grid was clicked, prepare the variables
             if tab_value_grid == 'empty':
                 return no_update, 'empty', no_update, no_update, no_update
@@ -658,10 +659,10 @@ def open_menu_card(btn):
 def update_figure(data, selected_element, figure):  # Update the values of the graphs if another profile is chosen
     # patched_fig = Patch()
     # Patch scheint noch nicht zu funktionieren, vielleicht später nochmal probieren
-    triggered = ctx.triggered
-    triggered_props = ctx.triggered_prop_ids
-    figure["data"][0]["y"] = data['house1'][selected_element]['power']
-    # Raumproblem
+    if selected_element in data['house1']:   # Check if element is still in dict or if it was deleted
+        figure["data"][0]["y"] = data['house1'][selected_element]['power']
+    else:
+        raise PreventUpdate
     return figure
 
 

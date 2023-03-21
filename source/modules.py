@@ -283,7 +283,7 @@ def calculate_power_flow(elements, grid_object_dict):
     return data['df_flow'], data['labels'], plot_graph(data['grid_graph'])
 
 
-def save_settings(children, device_dict, selected_element, house, room):
+def save_settings(children, device_dict, selected_element, house):
     for child in children:      # Go through all components of the settings menu
         if child['type'] == 'Text':     # Do nothing on things like text or vertical spaces
             pass
@@ -294,15 +294,15 @@ def save_settings(children, device_dict, selected_element, house, room):
         else:                           # Save values of input components to device dictionary
             if child['type'] == 'TextInput':
                 if child['props']['id'] == 'name_input':
-                    device_dict[house][room][selected_element]['name'] = child['props']['value']
+                    device_dict[house][selected_element]['name'] = child['props']['value']
             elif child['type'] == 'Select':
                 if child['props']['id'] == 'load_profile_select':
                     if child['props']['value'] is not None:
-                        device_dict[house][room][selected_element]['selected_power_option'] = child['props']['value']
-                        key = device_dict[house][room][selected_element]['power_options'][child['props']['value']]['key']
+                        device_dict[house][selected_element]['selected_power_option'] = child['props']['value']
+                        key = device_dict[house][selected_element]['power_options'][child['props']['value']]['key']
                         database = 'source/database_profiles.db'
                         load_profile = sql_modules.get_load_profile('load_profiles_day', key, database) # Get load profile from sqlite database
-                        device_dict[house][room][selected_element]['power'] = load_profile    # Save loaded profile to device dictionary
+                        device_dict[house][selected_element]['power'] = load_profile    # Save loaded profile to device dictionary
     return device_dict
 
 
