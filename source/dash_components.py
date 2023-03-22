@@ -329,7 +329,7 @@ def card_start():
         radius="md",
         style={"height": '100%'},
     )
-    return html.Div([card], id='card_start')
+    return dmc.Modal([card], id='modal_start', opened=True, withCloseButton=False, radius=10)
 
 
 def card_menu():
@@ -397,7 +397,7 @@ def card_menu():
         radius="md",
         style={"height": '100%'},
     )
-    return html.Div([card], id='card_menu', style={'display': 'none'})
+    return html.Div([card], id='card_menu', style={'display': 'block'})
 
 
 def add_result_tab_panel(tab_value):

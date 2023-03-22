@@ -169,12 +169,11 @@ def general_callbacks(app):
         else:
             raise PreventUpdate
 
-    @app.callback(Output('card_start', 'style'),
-                  Output('card_menu', 'style'),
+    @app.callback(Output('modal_start', 'opened'),
                   Input('button_start', 'n_clicks'))
     def open_menu_card(btn):
         if btn is not None:
-            return {'display': 'none'}, {'display': 'block'}
+            return False
         else:
             raise PreventUpdate
 
