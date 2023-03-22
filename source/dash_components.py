@@ -10,7 +10,12 @@ import source.stylesheets as stylesheets
 
 devices = {'bathroom': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hair-dryer'],
                         ["Zahnbürste", 'button_add_toothbrush', 'mdi:toothbrush-electric'],
-                        ["Bügeleisen", 'button_add_iron', 'tabler:ironing-1']]}
+                        ["Bügeleisen", 'button_add_iron', 'tabler:ironing-1']],
+           'kitchen': [["Föhn", 'button_add_hairdryer2', 'icon-park-outline:hair-dryer'],
+                       ["Zahnbürste", 'button_add_toothbrush2', 'mdi:toothbrush-electric'],
+                       ["Bügeleisen", 'button_add_iron2', 'tabler:ironing-1']]}
+
+urls = {'cyto_bathroom': 'url(/assets/background_bathroom.png)', 'cyto_kitchen': 'url(/assets/background_kitchen.png)'}
 
 
 def add_storage_variables():
@@ -20,12 +25,14 @@ def add_storage_variables():
                      dcc.Store(id='store_element_deleted'), dcc.Store(id='store_notification1'),
                      dcc.Store(id='store_notification2'), dcc.Store(id='store_notification4'),
                      dcc.Store(id='store_notification3'), dcc.Store(id='store_notification5'),
+                     dcc.Store(id='store_notification6'), dcc.Store(id='store_notification7'),
                      dcc.Store(id='store_get_voltage'), dcc.Store(id='store_update_switch'),
                      dcc.Store(id='store_edge_labels'), dcc.Store(id='store_timestep'),
                      dcc.Store(id='store_flow_data'), dcc.Store(id='store_menu_change_tab_grid'),
                      dcc.Store(id='store_menu_change_tab_house'), dcc.Store(id='store_menu_inputs', data={}),
                      dcc.Store(id='store_grid_object_dict', data={}),
-                     dcc.Store(id='store_device_dict', data={'house1': {}})])
+                     dcc.Store(id='store_device_dict', data={'house1': {}, 'rooms': {}}),
+                     dcc.Store(id='store_results_house')])
 
 
 def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
@@ -82,7 +89,8 @@ def add_cytoscape(cyto_id, elements):
         layout={'name': 'preset'},
         autoRefreshLayout=False,
         elements=elements,
-        style={'background': '#e6ecf2', 'frame': 'blue', 'height': '200px'},
+        style={'background': '#e6ecf2', 'frame': 'blue', 'height': '200px',
+               'background-image': urls[cyto_id], 'background-size': 'contain', 'background-repeat': 'no-repeat'},
         stylesheet=stylesheets.cyto_stylesheet))
 
 
@@ -120,19 +128,17 @@ def add_cytoscape_layout():
                             dbc.Row([
                                 dbc.Col([
                                     dmc.Menu([
-                                        dmc.MenuTarget(html.Div(id='menu_target')),
+                                        dmc.MenuTarget(html.Div(id='menu_target_bathroom')),
                                         add_menu_dropdown('bathroom')
-                                    ], id='menu_devices', position='left-start', withArrow=True),
+                                    ], id='menu_devices_bathroom', position='left-start', withArrow=True),
                                     add_cytoscape('cyto_bathroom', elements)
                                 ], width=6),
                                 dbc.Col([
-                                    cyto.Cytoscape(
-                                        id='cyto_house2',
-                                        layout={'name': 'preset'},
-                                        autoRefreshLayout=False,
-                                        elements=[],
-                                        style={'background': '#e6ecf2', 'frame': 'blue', 'height': '200px', },
-                                        stylesheet=stylesheets.cyto_stylesheet)
+                                    # dmc.Menu([
+                                    #     dmc.MenuTarget(html.Div(id='menu_target_kitchen')),
+                                    #     add_menu_dropdown('kitchen')
+                                    # ], id='menu_devices_kitchen', position='left-start', withArrow=True),
+                                    add_cytoscape('cyto_kitchen', elements)
                                 ], width=6)
                             ]),
                             dmc.Space(h=20),
@@ -282,8 +288,9 @@ def dash_navbar():
                            gradient={"from": "teal", "to": "blue", "deg": 60}),
                 dmc.Button("README", id='button_readme', n_clicks=0,
                            leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
-                # dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
-                #            gradient={"from": "grape", "to": "pink", "deg": 35})], spacing=10
+                dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
+                           gradient={"from": "grape", "to": "pink", "deg": 35})
+            ], spacing=10
             ),
         ]), color="dark", dark=True
     )
@@ -342,8 +349,6 @@ def card_menu():
                         dmc.Tabs(children=[
                             add_menu_tab_panel('empty', None, None)
                         ], id='menu_parent_tabs'),
-                        # dmc.Container(id='menu_parent_container',
-                        #               children=[]),
                         dmc.Space(h=20),
                         dmc.Group([
                             dmc.Button("Berechnen", id='button_calculate', rightIcon=DashIconify(icon="ph:gear-light")),
@@ -372,6 +377,10 @@ def card_menu():
                         ], position='apart')],
                         value="edit"),
                     dmc.TabsPanel(children=[
+                        dmc.Tabs(children=[
+                            add_result_tab_panel('empty'),
+                            add_result_tab_panel('house')
+                        ], id='result_parent_tabs'),
                         dmc.Space(h=20),
                         dmc.Alert(children="", id="alert_externalgrid", color='primary', hide=True),
                         dmc.CardSection(
@@ -380,7 +389,7 @@ def card_menu():
                         ),
                     ], value="results"),
                 ],
-                id='tabs', value='edit', color="blue", orientation="horizontal",
+                id='tabs_menu', value='edit', color="blue", orientation="horizontal",
             ), loaderProps={"variant": "bars", "color": "blue", "size": "lg"})
         ],
         withBorder=True,
@@ -389,6 +398,21 @@ def card_menu():
         style={"height": '100%'},
     )
     return html.Div([card], id='card_menu', style={'display': 'none'})
+
+
+def add_result_tab_panel(tab_value):
+    if tab_value == 'empty':
+        return dmc.TabsPanel(
+            value=tab_value
+        )
+    elif tab_value == 'house':
+        return dmc.TabsPanel([
+            dmc.Space(h=20),
+            dcc.Graph(id='graph_power_house'),
+            dcc.Graph(id='graph_sunburst_house'),
+        ],
+            value=tab_value
+        )
 
 
 def add_menu_tab_panel(tab_value, selected_element, element_dict):
@@ -448,9 +472,11 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right'),
             dmc.Space(h=20),
-            dcc.Graph(figure=plot.plot_device_timeseries(np.linspace(0, 24, num=1440), element_dict[selected_element]['power'],
-                      'rgb(175, 173, 222)'), id='graph_device', style={'width': '100%'})
-            ],
+            dcc.Graph(figure=plot.plot_device_timeseries(np.linspace(0, 24, num=1440),
+                                                         element_dict[selected_element]['power'],
+                                                         'rgb(175, 173, 222)'), id='graph_device',
+                      style={'width': '100%'})
+        ],
             value=tab_value)
     elif tab_value == 'lamp':
         return dmc.TabsPanel([
@@ -485,9 +511,11 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right'),
-            dcc.Graph(figure=plot.plot_device_timeseries(np.linspace(0, 24, num=1440), element_dict[selected_element]['power'],
-                      'rgb(175, 173, 222)'), id='graph_device', style={'width': '100%'})
-            ],
+            dcc.Graph(figure=plot.plot_device_timeseries(np.linspace(0, 24, num=1440),
+                                                         element_dict[selected_element]['power'],
+                                                         'rgb(175, 173, 222)'), id='graph_device',
+                      style={'width': '100%'})
+        ],
             value=tab_value
         )
     elif tab_value == 'power_strip':

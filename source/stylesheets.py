@@ -3,7 +3,7 @@ cyto_stylesheet = [
     {
         'selector': 'node',
         'style': {
-            'content': 'data(label)'
+            'content': 'data(label)',
         }
     },
     # Class selectors
