@@ -413,8 +413,8 @@ def notification(data1, data2, data3, data4, data5, data6, data7, notif_list):
 
 @app.callback(Output('cyto_bathroom', 'elements'),
               Output('store_device_dict', 'data'),
-              Output('menu_devices', 'style'),
-              Output('menu_devices', 'opened'),
+              Output('menu_devices_bathroom', 'style'),
+              Output('menu_devices_bathroom', 'opened'),
               Output('store_menu_change_tab_house', 'data'),
               Output('store_selected_element_house', 'data'),
               Output('active_switch_house', 'checked'),

@@ -10,9 +10,12 @@ import source.stylesheets as stylesheets
 
 devices = {'bathroom': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hair-dryer'],
                         ["Zahnbürste", 'button_add_toothbrush', 'mdi:toothbrush-electric'],
-                        ["Bügeleisen", 'button_add_iron', 'tabler:ironing-1']]}
+                        ["Bügeleisen", 'button_add_iron', 'tabler:ironing-1']],
+           'kitchen': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hair-dryer'],
+                       ["Zahnbürste", 'button_add_toothbrush', 'mdi:toothbrush-electric'],
+                       ["Bügeleisen", 'button_add_iron', 'tabler:ironing-1']]}
 
-urls = {'cyto_bathroom': 'url(/assets/background_bath.svg)'}
+urls = {'cyto_bathroom': 'url(/assets/background_bathroom.png)', 'cyto_kitchen': 'url(/assets/background_kitchen.png)'}
 
 
 def add_storage_variables():
@@ -87,7 +90,7 @@ def add_cytoscape(cyto_id, elements):
         autoRefreshLayout=False,
         elements=elements,
         style={'background': '#e6ecf2', 'frame': 'blue', 'height': '200px',
-               'background-image': urls[cyto_id], 'background-size': 'cover'},
+               'background-image': urls[cyto_id], 'background-size': 'contain', 'background-repeat': 'no-repeat'},
         stylesheet=stylesheets.cyto_stylesheet))
 
 
@@ -125,19 +128,17 @@ def add_cytoscape_layout():
                             dbc.Row([
                                 dbc.Col([
                                     dmc.Menu([
-                                        dmc.MenuTarget(html.Div(id='menu_target')),
+                                        dmc.MenuTarget(html.Div(id='menu_target_bathroom')),
                                         add_menu_dropdown('bathroom')
-                                    ], id='menu_devices', position='left-start', withArrow=True),
+                                    ], id='menu_devices_bathroom', position='left-start', withArrow=True),
                                     add_cytoscape('cyto_bathroom', elements)
                                 ], width=6),
                                 dbc.Col([
-                                    cyto.Cytoscape(
-                                        id='cyto_house2',
-                                        layout={'name': 'preset'},
-                                        autoRefreshLayout=False,
-                                        elements=[],
-                                        style={'background': '#e6ecf2', 'frame': 'blue', 'height': '200px', },
-                                        stylesheet=stylesheets.cyto_stylesheet)
+                                    dmc.Menu([
+                                        dmc.MenuTarget(html.Div(id='menu_target_kitchen')),
+                                        add_menu_dropdown('kitchen')
+                                    ], id='menu_devices_kitchen', position='left-start', withArrow=True),
+                                    add_cytoscape('cyto_kitchen', elements)
                                 ], width=6)
                             ]),
                             dmc.Space(h=20),
@@ -409,7 +410,7 @@ def add_result_tab_panel(tab_value):
             dmc.Space(h=20),
             dcc.Graph(id='graph_power_house'),
             dcc.Graph(id='graph_sunburst_house'),
-            ],
+        ],
             value=tab_value
         )
 
