@@ -11,9 +11,9 @@ import source.stylesheets as stylesheets
 devices = {'bathroom': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hair-dryer'],
                         ["Zahnbürste", 'button_add_toothbrush', 'mdi:toothbrush-electric'],
                         ["Bügeleisen", 'button_add_iron', 'tabler:ironing-1']],
-           'kitchen': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hair-dryer'],
-                       ["Zahnbürste", 'button_add_toothbrush', 'mdi:toothbrush-electric'],
-                       ["Bügeleisen", 'button_add_iron', 'tabler:ironing-1']]}
+           'kitchen': [["Föhn", 'button_add_hairdryer2', 'icon-park-outline:hair-dryer'],
+                       ["Zahnbürste", 'button_add_toothbrush2', 'mdi:toothbrush-electric'],
+                       ["Bügeleisen", 'button_add_iron2', 'tabler:ironing-1']]}
 
 urls = {'cyto_bathroom': 'url(/assets/background_bathroom.png)', 'cyto_kitchen': 'url(/assets/background_kitchen.png)'}
 
@@ -134,10 +134,10 @@ def add_cytoscape_layout():
                                     add_cytoscape('cyto_bathroom', elements)
                                 ], width=6),
                                 dbc.Col([
-                                    dmc.Menu([
-                                        dmc.MenuTarget(html.Div(id='menu_target_kitchen')),
-                                        add_menu_dropdown('kitchen')
-                                    ], id='menu_devices_kitchen', position='left-start', withArrow=True),
+                                    # dmc.Menu([
+                                    #     dmc.MenuTarget(html.Div(id='menu_target_kitchen')),
+                                    #     add_menu_dropdown('kitchen')
+                                    # ], id='menu_devices_kitchen', position='left-start', withArrow=True),
                                     add_cytoscape('cyto_kitchen', elements)
                                 ], width=6)
                             ]),
