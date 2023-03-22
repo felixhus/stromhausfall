@@ -12,6 +12,8 @@ devices = {'bathroom': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hai
                         ["Zahnbürste", 'button_add_toothbrush', 'mdi:toothbrush-electric'],
                         ["Bügeleisen", 'button_add_iron', 'tabler:ironing-1']]}
 
+urls = {'cyto_bathroom': 'url(/assets/background_bath.svg)'}
+
 
 def add_storage_variables():
     return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
@@ -84,7 +86,8 @@ def add_cytoscape(cyto_id, elements):
         layout={'name': 'preset'},
         autoRefreshLayout=False,
         elements=elements,
-        style={'background': '#e6ecf2', 'frame': 'blue', 'height': '200px'},
+        style={'background': '#e6ecf2', 'frame': 'blue', 'height': '200px',
+               'background-image': urls[cyto_id], 'background-size': 'cover'},
         stylesheet=stylesheets.cyto_stylesheet))
 
 

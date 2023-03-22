@@ -44,10 +44,10 @@ house_objects = [
     ['button_tv', "TV"],
 ]
 
-nodes = []
-edges = []
+# nodes = []
+# edges = []
 # gridObject_dict = []
-bathroom = grid_objects.BathroomObject()
+# bathroom = grid_objects.BathroomObject()
 
 app.layout = dmc.NotificationsProvider(dbc.Container([
     dbc.Col([
@@ -710,3 +710,4 @@ def modal_timeseries(pill, btn_add, btn_save, rows, name):
 
 if __name__ == '__main__':
     app.run_server(debug=True)
+
