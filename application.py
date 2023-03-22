@@ -9,6 +9,7 @@ from source.layout import app_layout
 
 app = Dash(__name__, suppress_callback_exceptions=True,
            external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
+app.title = 'PowerHouse'
 server = app.server
 
 app_layout(app)     # Get layout of app
