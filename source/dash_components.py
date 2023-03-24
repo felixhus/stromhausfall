@@ -79,7 +79,7 @@ def add_menu_dropdown(room_type):
         item_list.append(dmc.MenuItem(item[0], id=item[1], icon=DashIconify(icon=item[2])))
     item_list.append(dmc.MenuDivider())
     item_list.append(
-        dmc.MenuItem("Schließen", id='button_close_menu', icon=DashIconify(icon='material-symbols:close-rounded'),
+        dmc.MenuItem("Schließen", id='button_close_menu_'+room_type, icon=DashIconify(icon='material-symbols:close-rounded'),
                      color='red'))
     return dmc.MenuDropdown(item_list)
 
@@ -99,12 +99,7 @@ def add_cytoscape_layout():
     elements = [
         {'data': {'id': 'power_strip'}, 'classes': 'power_strip_style'},
         {'data': {'id': 'plus', 'parent': 'power_strip'}, 'position': {'x': 75, 'y': 175},
-         'classes': 'room_node_style', 'style': {'background-image': ['/assets/Icons/icon_plus.png']}},
-        {'data': {'id': 'socket1', 'parent': 'power_strip'}, 'position': {'x': 35, 'y': 175},
-         'classes': 'socket_node_style_on', 'linked_device': 'lamp'},
-        {'data': {'id': 'lamp'}, 'position': {'x': 35, 'y': 25}, 'classes': 'room_node_style',
-         'style': {'background-image': ['/assets/Icons/icon_bulb.png']}, 'linked_socket': 'socket1'},
-        {'data': {'source': 'socket1', 'target': 'lamp'}}]
+         'classes': 'room_node_style', 'style': {'background-image': ['/assets/Icons/icon_plus.png']}}]
 
     return dbc.Card(
         children=[

@@ -23,20 +23,29 @@ def kitchen_callbacks(app):
                   Input('cyto_kitchen', 'tapNode'),
                   Input('edit_save_button', 'n_clicks'),
                   Input('edit_delete_button', 'n_clicks'),
-                  Input('button_close_menu', 'n_clicks'),
+                  Input('button_close_menu_kitchen', 'n_clicks'),
                   Input('active_switch_house', 'checked'),
                   [Input(device[1], 'n_clicks') for device in dash_components.devices['kitchen']],
                   prevent_initial_call='initial_duplicate')
     def manage_devices_kitchen(elements, device_dict, tabs_main, children, selected_element, node, btn_save,
-                                btn_delete,
-                                btn_close, active_switch, *btn_add):  # Callback to handle Kitchen action
+                               btn_delete,
+                               btn_close, active_switch, *btn_add):  # Callback to handle Kitchen action
         try:
             room = 'kitchen'
             triggered_id = ctx.triggered_id
             if triggered_id is None:  # Initial call
-                device_dict['house1']['lamp_kitchen'] = objects.create_LampObject('lamp_kitchen')  # Add lamp to device dictionary
+                device_dict['house1']['lamp_kitchen'] = objects.create_LampObject(
+                    'lamp_kitchen')  # Add lamp to device dictionary
                 device_dict['rooms'][room] = ['lamp_kitchen']  # Create list of devices in kitchen in dictionary
-                return no_update, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
+                socket_node = {'data': {'id': 'socket1', 'parent': 'power_strip'}, 'position': {'x': 35, 'y': 175},
+                               'classes': 'socket_node_style_on', 'linked_device': 'lamp_kitchen'}
+                lamp_node = {'data': {'id': 'lamp_kitchen'}, 'position': {'x': 35, 'y': 25}, 'classes': 'room_node_style',
+                             'style': {'background-image': ['/assets/Icons/icon_bulb.png']}, 'linked_socket': 'socket1'}
+                lamp_edge = {'data': {'source': 'socket1', 'target': 'lamp_kitchen'}}
+                elements.append(socket_node)
+                elements.append(lamp_node)
+                elements.append(lamp_edge)
+                return elements, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
             if triggered_id == 'cyto_kitchen':
                 if node['data']['id'] == 'plus':  # Open Menu with Devices to add
                     position = elements[1]['position']
@@ -151,7 +160,7 @@ def kitchen_callbacks(app):
                     if 'position' in elements[i]:  # Check if it is a node
                         elements[i]['position']['x'] = elements[i]['position']['x'] - 40  # shift node to the left
                 return elements, device_dict, no_update, no_update, ['empty', None], no_update, no_update, no_update
-            elif triggered_id == 'button_close_menu':  # The button "close" of the menu was clicked, close the menu
+            elif triggered_id == 'button_close_menu_kitchen':  # The button "close" of the menu was clicked, close the menu
                 return no_update, no_update, no_update, False, no_update, no_update, no_update, no_update
             else:
                 raise PreventUpdate
