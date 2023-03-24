@@ -286,23 +286,25 @@ def calculate_power_flow(elements, grid_object_dict):
 
 def calculate_house(device_dict, timesteps):
     df_power = pd.DataFrame(columns=timesteps)
+    df_power.insert(0, 'room', None)  # Add column for room of device
     df_sum = pd.DataFrame(columns=timesteps)
     df_energy = pd.DataFrame(columns=['type', 'energy'])
     for room in device_dict['rooms']:
         for dev in device_dict['rooms'][room]:  # Go through each device in the house
             device = device_dict['house1'][dev]  # Get device properties from dict
-            if device['active']:    # If device is activated
-                df_power.loc[device['id']] = device['power']
-                energy = df_power.loc[device['id']].sum() / 60 / 1000   # Calculate energy in kWh
+            if device['active']:  # If device is activated
+                df_power.loc[device['id'], df_power.columns != 'room'] = device['power']
+                df_power.loc[device['id'], df_power.columns == 'room'] = room
+                energy = df_power.loc[device['id'], df_power.columns != 'room'].sum() / 60 / 1000  # Calculate energy in kWh
                 df_energy.loc[device['id']] = {'type': 'device', 'energy': energy}
             else:
                 df_energy.loc[device['id']] = {'type': 'device', 'energy': 0}
-        # Problem hier: Es werden alle geräte aufsummiert, das heißt die Summe stimmt nur für den ersten Raum.
-        df_sum.loc[room] = df_power.sum().transpose()   # Get sum of all devices in room
+        # Problem hier: Es werden alle geräte aufsummiert
+        df_sum.loc[room] = df_power.loc[df_power['room'] == room].sum().transpose()  # Get sum of all devices in room
         energy = df_sum.loc[room].sum() / 60 / 1000  # Calculate energy in kWh
         temp = df_sum.loc[room]
         df_energy.loc[room] = {'type': 'room', 'energy': energy}
-    df_sum.loc['house1'] = df_sum.sum().transpose()     # Get sum of all rooms in house
+    df_sum.loc['house1'] = df_sum.sum().transpose()  # Get sum of all rooms in house
     energy = df_sum.loc['house1'].sum() / 60 / 1000  # Calculate energy in kWh
     df_energy.loc['house1'] = {'type': 'house', 'energy': energy}
     # fig_power, fig_energy = plot.plot_all_devices_room(df_power, df_sum, df_energy, device_dict)
@@ -310,14 +312,14 @@ def calculate_house(device_dict, timesteps):
 
 
 def save_settings(children, device_dict, selected_element, house):
-    for child in children:      # Go through all components of the settings menu
-        if child['type'] == 'Text':     # Do nothing on things like text or vertical spaces
+    for child in children:  # Go through all components of the settings menu
+        if child['type'] == 'Text':  # Do nothing on things like text or vertical spaces
             pass
         elif child['type'] == 'Space':
             pass
         elif child['type'] == 'Group':
             pass
-        else:                           # Save values of input components to device dictionary
+        else:  # Save values of input components to device dictionary
             if child['type'] == 'TextInput':
                 if child['props']['id'] == 'name_input':
                     device_dict[house][selected_element]['name'] = child['props']['value']
@@ -327,8 +329,10 @@ def save_settings(children, device_dict, selected_element, house):
                         device_dict[house][selected_element]['selected_power_option'] = child['props']['value']
                         key = device_dict[house][selected_element]['power_options'][child['props']['value']]['key']
                         database = 'source/database_profiles.db'
-                        load_profile = sql_modules.get_load_profile('load_profiles_day', key, database) # Get load profile from sqlite database
-                        device_dict[house][selected_element]['power'] = load_profile    # Save loaded profile to device dictionary
+                        load_profile = sql_modules.get_load_profile('load_profiles_day', key,
+                                                                    database)  # Get load profile from sqlite database
+                        device_dict[house][selected_element][
+                            'power'] = load_profile  # Save loaded profile to device dictionary
     return device_dict
 
 
