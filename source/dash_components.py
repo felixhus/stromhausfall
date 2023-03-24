@@ -17,6 +17,8 @@ devices = {'bathroom': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hai
 
 urls = {'cyto_bathroom': 'url(/assets/background_bathroom.png)', 'cyto_kitchen': 'url(/assets/background_kitchen.png)'}
 
+device_dict_init = {'house1': {}, 'rooms': {}, 'last_id': 1}
+
 
 def add_storage_variables():
     return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
@@ -32,7 +34,7 @@ def add_storage_variables():
                      dcc.Store(id='store_flow_data'), dcc.Store(id='store_menu_change_tab_grid'),
                      dcc.Store(id='store_menu_change_tab_house'), dcc.Store(id='store_menu_inputs', data={}),
                      dcc.Store(id='store_grid_object_dict', data={}),
-                     dcc.Store(id='store_device_dict', data={'house1': {}, 'rooms': {}}),
+                     dcc.Store(id='store_device_dict', data=device_dict_init),
                      dcc.Store(id='store_results_house')])
 
 

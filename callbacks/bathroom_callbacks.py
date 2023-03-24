@@ -95,7 +95,8 @@ def bathroom_callbacks(app):
                 return elements, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
             elif triggered_id[:10] == 'button_add':  # A button in the menu was clicked
                 device_type = triggered_id[11:]  # Get type to add
-                last_id = int(elements[len(elements) - 3]['data']['id'][6:])  # Get number of last socket
+                last_id = int(device_dict['last_id'])  # Get number of last id
+                device_dict['last_id'] = last_id + 1  # Increment the last id
                 socket_id = "socket" + str(last_id + 1)
                 device_id = "device" + str(last_id + 1)
                 position = elements[1]['position']  # Get Position of plus-node
