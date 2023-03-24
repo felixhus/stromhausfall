@@ -32,8 +32,8 @@ def bathroom_callbacks(app):
             room = 'bathroom'
             triggered_id = ctx.triggered_id
             if triggered_id is None:  # Initial call
-                device_dict['house1']['lamp'] = objects.create_LampObject('lamp')  # Add lamp to device dictionary
-                device_dict['rooms'][room] = ['lamp']     # Create list of devices in bathroom in dictionary
+                device_dict['house1']['lamp_bathroom'] = objects.create_LampObject('lamp_bathroom')  # Add lamp to device dictionary
+                device_dict['rooms'][room] = ['lamp_bathroom']     # Create list of devices in bathroom in dictionary
                 return no_update, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
             if triggered_id == 'cyto_bathroom':
                 if node['data']['id'] == 'plus':  # Open Menu with Devices to add
@@ -62,7 +62,7 @@ def bathroom_callbacks(app):
                 else:   # A device was clicked
                     switch_state = device_dict['house1'][node['data']['id']]['active']
                     if node['data']['id'][:6] == "device":
-                        return no_update, no_update, no_update, no_update, 'device_bathroom', node['data'][
+                        return no_update, no_update, no_update, no_update, 'device', node['data'][
                             'id'], switch_state, no_update
                     elif node['data']['id'][:4] == "lamp":
                         return no_update, no_update, no_update, no_update, 'lamp', node['data']['id'], switch_state, no_update

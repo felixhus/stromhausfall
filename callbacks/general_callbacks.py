@@ -111,8 +111,9 @@ def general_callbacks(app):
                   Input('store_notification5', 'data'),
                   Input('store_notification6', 'data'),
                   Input('store_notification7', 'data'),
+                  Input('store_notification8', 'data'),
                   State('drawer_notifications', 'children'))
-    def notification(data1, data2, data3, data4, data5, data6, data7, notif_list):
+    def notification(data1, data2, data3, data4, data5, data6, data7, data8, notif_list):
         triggered_id = ctx.triggered_id
         if triggered_id == 'store_notification1':
             data = data1
@@ -128,6 +129,8 @@ def general_callbacks(app):
             data = data6
         elif triggered_id == 'store_notification7':
             data = data7
+        elif triggered_id == 'store_notification8':
+            data = data8
         else:
             raise PreventUpdate
         if data is None:

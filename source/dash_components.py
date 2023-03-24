@@ -11,9 +11,9 @@ import source.stylesheets as stylesheets
 devices = {'bathroom': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hair-dryer'],
                         ["Zahnbürste", 'button_add_toothbrush', 'mdi:toothbrush-electric'],
                         ["Bügeleisen", 'button_add_iron', 'tabler:ironing-1']],
-           'kitchen': [["Föhn", 'button_add_hairdryer2', 'icon-park-outline:hair-dryer'],
-                       ["Zahnbürste", 'button_add_toothbrush2', 'mdi:toothbrush-electric'],
-                       ["Bügeleisen", 'button_add_iron2', 'tabler:ironing-1']]}
+           'kitchen': [["Wasserkocher", 'button_add_kettle', 'material-symbols:kettle-outline'],
+                       ["Kaffeemaschine", 'button_add_coffee', 'ic:outline-coffee'],
+                       ["Ofen", 'button_add_oven', 'material-symbols:oven-gen-outline']]}
 
 urls = {'cyto_bathroom': 'url(/assets/background_bathroom.png)', 'cyto_kitchen': 'url(/assets/background_kitchen.png)'}
 
@@ -26,6 +26,7 @@ def add_storage_variables():
                      dcc.Store(id='store_notification2'), dcc.Store(id='store_notification4'),
                      dcc.Store(id='store_notification3'), dcc.Store(id='store_notification5'),
                      dcc.Store(id='store_notification6'), dcc.Store(id='store_notification7'),
+                     dcc.Store(id='store_notification8'),
                      dcc.Store(id='store_get_voltage'), dcc.Store(id='store_update_switch'),
                      dcc.Store(id='store_edge_labels'), dcc.Store(id='store_timestep'),
                      dcc.Store(id='store_flow_data'), dcc.Store(id='store_menu_change_tab_grid'),
@@ -134,10 +135,10 @@ def add_cytoscape_layout():
                                     add_cytoscape('cyto_bathroom', elements)
                                 ], width=6),
                                 dbc.Col([
-                                    # dmc.Menu([
-                                    #     dmc.MenuTarget(html.Div(id='menu_target_kitchen')),
-                                    #     add_menu_dropdown('kitchen')
-                                    # ], id='menu_devices_kitchen', position='left-start', withArrow=True),
+                                    dmc.Menu([
+                                        dmc.MenuTarget(html.Div(id='menu_target_kitchen')),
+                                        add_menu_dropdown('kitchen')
+                                    ], id='menu_devices_kitchen', position='left-start', withArrow=True),
                                     add_cytoscape('cyto_kitchen', elements)
                                 ], width=6)
                             ]),
@@ -438,7 +439,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             ], position='right')],
             value=tab_value
         )
-    elif tab_value == 'device_bathroom':
+    elif tab_value == 'device':
         return dmc.TabsPanel([
             # dmc.Text("Gerät Badezimmer"),
             dmc.TextInput(

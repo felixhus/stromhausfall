@@ -136,7 +136,7 @@ def create_DeviceObject(device_id, device_type):
                 'Kurze Haare': {'key': 'hairdryer_short', 'icon': None},
             }
         }
-    if device_type == 'iron':
+    elif device_type == 'iron':
         return {
             'id': device_id,
             'name': 'Bügeleisen',
@@ -150,7 +150,7 @@ def create_DeviceObject(device_id, device_type):
                 'Klasse C': {'key': 'iron_class_C', 'icon': None},
             }
         }
-    if device_type == 'toothbrush':
+    elif device_type == 'toothbrush':
         return {
             'id': device_id,
             'name': 'Elektrische Zahnbürste',
@@ -162,6 +162,45 @@ def create_DeviceObject(device_id, device_type):
                 '3 Minuten Putzen': {'key': 'toothbrush_3_min', 'icon': None},
                 '5 Minuten Putzen': {'key': 'toothbrush_5_min', 'icon': None},
                 'Mit der Hand putzen': {'key': 'toothbrush_hand', 'icon': None},
+            }
+        }
+    elif device_type == 'kettle':
+        return {
+            'id': device_id,
+            'name': 'Wasserkocher',
+            'type': device_type,
+            'power': [0] * 24*60,
+            'active': True,
+            'selected_power_option': None,
+            'power_options': {
+                'Lampe': {'key': 'lamp_basic', 'icon': None},
+                'VDEW': {'key': 'vdew_test_cubic', 'icon': None}
+            }
+        }
+    elif device_type == 'oven':
+        return {
+            'id': device_id,
+            'name': 'Ofen',
+            'type': device_type,
+            'power': [0] * 24*60,
+            'active': True,
+            'selected_power_option': None,
+            'power_options': {
+                'Lampe': {'key': 'lamp_basic', 'icon': None},
+                'VDEW': {'key': 'vdew_test_cubic', 'icon': None}
+            }
+        }
+    elif device_type == 'coffee':
+        return {
+            'id': device_id,
+            'name': 'Kaffeemaschine',
+            'type': device_type,
+            'power': [0] * 24*60,
+            'active': True,
+            'selected_power_option': None,
+            'power_options': {
+                'Lampe': {'key': 'lamp_basic', 'icon': None},
+                'VDEW': {'key': 'vdew_test_cubic', 'icon': None}
             }
         }
     else:

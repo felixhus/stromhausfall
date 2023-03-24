@@ -4,7 +4,7 @@ from dash import Dash
 from callbacks.bathroom_callbacks import bathroom_callbacks
 from callbacks.general_callbacks import general_callbacks
 from callbacks.grid_callbacks import grid_callbacks
-# from callbacks.kitchen_callbacks import kitchen_callbacks
+from callbacks.kitchen_callbacks import kitchen_callbacks
 from source.layout import app_layout
 
 app = Dash(__name__, suppress_callback_exceptions=True,
@@ -16,6 +16,7 @@ app_layout(app)     # Get layout of app
 
 grid_callbacks(app)         # Include grid callbacks
 bathroom_callbacks(app)     # Include bathroom callbacks
+kitchen_callbacks(app)     # Include bathroom callbacks
 general_callbacks(app)      # Include general callbacks
 
 
