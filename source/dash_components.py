@@ -23,7 +23,7 @@ device_dict_init = {'house1': {}, 'rooms': {}, 'last_id': 1}
 def add_storage_variables():
     return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
                      dcc.Store(id='store_line_edit_active'), dcc.Store(id='store_selected_element_grid'),
-                     dcc.Store(id='store_selected_element_house'),
+                     dcc.Store(id='store_selected_element_house'), dcc.Store('store_custom_house', data=None),
                      dcc.Store(id='store_element_deleted'), dcc.Store(id='store_notification1'),
                      dcc.Store(id='store_notification2'), dcc.Store(id='store_notification4'),
                      dcc.Store(id='store_notification3'), dcc.Store(id='store_notification5'),
@@ -109,7 +109,7 @@ def add_cytoscape_layout():
                 dmc.Tabs([
                     dmc.TabsList([
                         dmc.Tab("Netz", value="grid", icon=DashIconify(icon='tabler:chart-grid-dots')),
-                        dmc.Tab("Haus 1", value="house1",
+                        dmc.Tab("Haus", value="house1", disabled=True, id='tab_house',
                                 icon=DashIconify(icon='material-symbols:house-siding-rounded'))
                     ]),
                     dmc.TabsPanel(children=[
@@ -163,7 +163,7 @@ def add_cytoscape_layout():
                         ])
                     ], value='house1')
                 ],
-                    id='tabs_main', value='grid', color="blue", orientation="horizontal")
+                    id='tabs_main', value='grid', color="blue", orientation="horizontal", allowTabDeactivation=True)
             ),
             dbc.CardFooter(dmc.Slider(
                 id='timestep_slider', value=0, updatemode='drag',
@@ -345,7 +345,8 @@ def card_menu():
                     dmc.TabsPanel(children=[
                         dmc.Space(h=20),
                         dmc.Tabs(children=[
-                            add_menu_tab_panel('empty', None, None)
+                            add_menu_tab_panel('empty', None, None),
+                            add_menu_tab_panel('init_ids', None, None),
                         ], id='menu_parent_tabs'),
                         dmc.Space(h=20),
                         dmc.Group([
@@ -415,16 +416,47 @@ def add_result_tab_panel(tab_value):
 
 def add_menu_tab_panel(tab_value, selected_element, element_dict):
     if tab_value == 'house':
+        control, fade = 'preset', True      # Get values from element and show tab dependent on them
+        if element_dict[selected_element]['config_mode'] == 'custom':
+            control, fade = 'custom', False
         return dmc.TabsPanel([
-            dmc.Text("Haus"),
+            dmc.TextInput(
+                id='name_input',
+                style={"width": 200},
+                value=element_dict[selected_element]['name'],
+                icon=DashIconify(icon="emojione-monotone:name-badge"),
+            ),
+            dmc.Space(h=20),
+            dmc.SegmentedControl(id='house_mode', value=control,
+                                 data=[{'value': 'preset', 'label': "Fertige Profile"},
+                                       {'value': 'custom', 'label': "Selbst basteln"}]),
+            dbc.Fade([
+                dmc.Space(h=20),
+                dmc.Select(
+                    label=["Lastprofil ",
+                           dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
+                    placeholder="Auswahl",
+                    id='load_profile_select',
+                    value=element_dict[selected_element]['selected_power_option'],
+                    data=[
+                        {'value': key, 'label': key}
+                        for key in element_dict[selected_element]['power_options']
+                    ],
+                )], id='house_fade', is_in=fade),
+            dmc.Space(h=20),
             dmc.Group([
                 dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
                            leftIcon=DashIconify(icon="material-symbols:delete-outline")),
                 dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
-            ], position='right')],
-            value=tab_value
-        )
+            ], position='right'),
+            dmc.Space(h=20),
+            # dcc.Graph(figure=plot.plot_device_timeseries(np.linspace(0, 24, num=1440),
+            #                                              element_dict[selected_element]['power'],
+            #                                              'rgb(175, 173, 222)'), id='graph_device',
+            #           style={'width': '100%'})
+            ],
+            value=tab_value)
     elif tab_value == 'line':
         return dmc.TabsPanel([
             dmc.Text("Leitung"),
@@ -531,6 +563,11 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             ], position='right', style={'display': 'none'})],
             value=tab_value
         )
+    elif tab_value == 'init_ids':   # If there are components in the menu tabs, which act as inputs or Outputs of
+        return dmc.TabsPanel([      # Callbacks, they are not present when the callback is created, because the tab
+            dmc.SegmentedControl(id='house_mode', data=[]),     # is only created when a node was clicked.
+            dbc.Fade(id='house_fade')                           # This hidden tab initializes the ids of these.
+        ], value=tab_value)
 
 
 def add_modal_timeseries():

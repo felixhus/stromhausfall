@@ -153,6 +153,10 @@ def general_callbacks(app):
                                                             "dies ist leider noch nicht unterstützt."]
             icon = DashIconify(icon="ph:tree")
             color = 'red'
+        elif data == 'notification_custom_house':
+            notification_message = ["So detailliert kann ich (noch) nicht.", "Es ist bereits ein Hause im Detail konfiguriert. Wenn du das andere Haus löscht oder dort ein fertiges Profil auswählst, kannst du dieses nach deinen Wünschen konfigurieren."]
+            icon = DashIconify(icon="mdi:house-group")
+            color = 'yellow'
         else:
             notification_message = ["Fehler!", data]
             icon = DashIconify(icon="material-symbols:warning-outline-rounded")

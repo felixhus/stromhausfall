@@ -9,7 +9,14 @@ def create_HouseObject(object_id, node_id):
         'icon': 'icon_house.png',
         'ui_color': '#6a93b0',
         'allowed_types_to_connect': ["transformer", "switch_cabinet", "battery", "pv", "smart_meter"],
-        'active': True
+        'active': True,
+        'config_mode': 'preset',
+        'selected_power_option': None,
+        'power_options': {
+            'Klasse A': {'key': 'iron_class_A', 'icon': None},
+            'Klasse B': {'key': 'iron_class_B', 'icon': None},
+            'Klasse C': {'key': 'iron_class_C', 'icon': None},
+        }
     }
 
 
