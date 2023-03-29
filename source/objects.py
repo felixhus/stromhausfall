@@ -136,7 +136,7 @@ def create_DeviceObject(device_id, device_type):
             'name': 'Föhn',
             'type': device_type,
             'menu_type': 'device_custom',
-            'power': [0] * 24*60,
+            'power': [0] * 24*60*7,
             'active': True,
             'selected_power_option': None,
             'power_options': {
@@ -150,7 +150,7 @@ def create_DeviceObject(device_id, device_type):
             'name': 'Bügeleisen',
             'type': device_type,
             'menu_type': 'device_custom',
-            'power': [0] * 24*60,
+            'power': [0] * 24*60*7,
             'active': True,
             'selected_power_option': None,
             'power_options': {
@@ -165,7 +165,7 @@ def create_DeviceObject(device_id, device_type):
             'name': 'Elektrische Zahnbürste',
             'type': device_type,
             'menu_type': 'device_preset',   # Development
-            'power': [0] * 24*60,
+            'power': [0] * 24*60*7,
             'active': True,
             'selected_power_option': None,
             'power_options': {
@@ -180,7 +180,7 @@ def create_DeviceObject(device_id, device_type):
             'name': 'Wasserkocher',
             'type': device_type,
             'menu_type': 'device_custom',
-            'power': [0] * 24*60,
+            'power': [0] * 24*60*7,
             'active': True,
             'selected_power_option': None,
             'power_options': {
@@ -194,7 +194,7 @@ def create_DeviceObject(device_id, device_type):
             'name': 'Ofen',
             'type': device_type,
             'menu_type': 'device_custom',
-            'power': [0] * 24*60,
+            'power': [0] * 24*60*7,
             'active': True,
             'selected_power_option': None,
             'power_options': {
@@ -208,7 +208,7 @@ def create_DeviceObject(device_id, device_type):
             'name': 'Kaffeemaschine',
             'type': device_type,
             'menu_type': 'device_custom',
-            'power': [0] * 24*60,
+            'power': [0] * 24*60*7,
             'active': True,
             'selected_power_option': None,
             'power_options': {
@@ -239,7 +239,7 @@ def create_LampObject(device_id):
         'id': device_id,
         'name': 'Lampe',
         'type': 'lamp',
-        'power': [0] * 24*60,
+        'power': [0] * 24*60*7,
         'active': True,
         'selected_power_option': None,
         'power_options': {

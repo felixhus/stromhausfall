@@ -5,6 +5,7 @@ from dash_iconify import DashIconify
 
 import source.dash_components as dash_components
 import source.modules as modules
+from source.modules import days
 
 
 def general_callbacks(app):
@@ -14,14 +15,14 @@ def general_callbacks(app):
                   State('store_device_dict', 'data'),
                   State('store_selected_element_house', 'data'),
                   State('menu_parent_tabs', 'children'),
+                  State('pagination_days_menu', 'value'),
                   prevent_initial_call=True)
-    def save_props_action(btn_save, tabs_main, device_dict, selected_element, children):
+    def save_props_action(btn_save, tabs_main, device_dict, selected_element, children, day):
         if btn_save is None:
             raise PreventUpdate
         else:
             if tabs_main == 'house1':  # If button was clicked in house mode
-                device_dict = modules.save_settings(children[2]['props']['children'], device_dict, selected_element,
-                                                    'house1')
+                device_dict = modules.save_settings(children[2]['props']['children'], device_dict, selected_element, 'house1', day)
                 return device_dict
             else:
                 raise PreventUpdate
@@ -204,14 +205,20 @@ def general_callbacks(app):
 
     @app.callback(Output('graph_device', 'figure'),
                   Input('store_device_dict', 'data'),
+                  Input('pagination_days_menu', 'value'),
                   State('store_selected_element_house', 'data'),
                   State('graph_device', 'figure'),
+                  State('pagination_days_menu', 'value'),
                   prevent_initial_call=True)
-    def update_figure(data, selected_element, figure):  # Update the values of the graphs if another profile is chosen
+    def update_figure(data, day_control, selected_element, figure, day):  # Update the values of the graphs if another profile is chosen
         # patched_fig = Patch()
         # Patch scheint noch nicht zu funktionieren, vielleicht später nochmal probieren
+        day_ind = days[day]
+        index_start = day_ind * 24 * 60
+        index_stop = index_start + 24 * 60
+        temp = data['house1'][selected_element]['power'][index_start:index_stop]    # Development
         if selected_element in data['house1']:  # Check if element is still in dict or if it was deleted
-            figure["data"][0]["y"] = data['house1'][selected_element]['power']
+            figure["data"][0]["y"] = data['house1'][selected_element]['power'][index_start:index_stop]
         else:
             raise PreventUpdate
         return figure

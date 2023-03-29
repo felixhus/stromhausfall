@@ -609,7 +609,8 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
     elif tab_value == 'init_ids':   # If there are components in the menu tabs, which act as inputs or Outputs of
         return dmc.TabsPanel([      # Callbacks, they are not present when the callback is created, because the tab
             dmc.SegmentedControl(id='house_mode', data=[]),     # is only created when a node was clicked.
-            dbc.Fade(id='house_fade')                           # This hidden tab initializes the ids of these.
+            dbc.Fade(id='house_fade'),                          # This hidden tab initializes the ids of these.
+            dmc.SegmentedControl(id='pagination_days_menu', data=[])
         ], value=tab_value)
 
 

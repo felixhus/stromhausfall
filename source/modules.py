@@ -12,6 +12,8 @@ import source.objects as objects
 import source.plot as plot
 import source.sql_modules as sql_modules
 
+days = {'mo': 0, 'tu': 1, 'wd': 2, 'th': 3, 'fr': 4, 'sa': 5, 'su': 6}
+
 
 def get_last_id(elements):
     last_id = [0, 0]
@@ -311,7 +313,7 @@ def calculate_house(device_dict, timesteps):
     return plot.plot_all_devices_room(df_power, df_sum, df_energy, device_dict)
 
 
-def save_settings(children, device_dict, selected_element, house):
+def save_settings(children, device_dict, selected_element, house, day):
     for child in children:  # Go through all components of the settings menu
         if child['type'] == 'Text':  # Do nothing on things like text or vertical spaces
             pass
@@ -324,7 +326,7 @@ def save_settings(children, device_dict, selected_element, house):
         elif child['type'] == 'SegmentedControl':
             pass
         elif child['type'] == 'Group':
-            save_settings(child['props']['children'], device_dict, selected_element, house)  # Recursive execution for all elements in group
+            save_settings(child['props']['children'], device_dict, selected_element, house, day)  # Recursive execution for all elements in group
         else:  # Save values of input components to device dictionary
             if child['type'] == 'TextInput':
                 if child['props']['id'] == 'name_input':
@@ -339,18 +341,18 @@ def save_settings(children, device_dict, selected_element, house):
                                                                     database)  # Get load profile from sqlite database
                         device_dict[house][selected_element][
                             'power'] = load_profile  # Save loaded profile to device dictionary
-                pass
             elif child['type'] == 'TimeInput':
                 if child['props']['value'] is not None:     # There is a time input -> Add to load profile
+                    day_ind = days[day]    # Get number of day in week (Monday=0, Tuesday=1, ...)
                     timestamp = child['props']['value']
                     timestamp = timestamp[len(timestamp)-8:]    # Get time from input
                     minutes = int(timestamp[:2]) * 60 + int(timestamp[3:5])     # calculate start in minutes
+                    minutes = minutes + day_ind * 24 * 60                           # Add offset due to different days
                     power = pd.Series(device_dict[house][selected_element]['power'])    # Get current power profile
                     new_values = pd.Series([100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100])    # Development
                     index_pos = minutes - 1
                     power[index_pos:index_pos + len(new_values)] = new_values.values
                     device_dict[house][selected_element]['power'] = power.to_list()
-                pass
     return device_dict
 
 
