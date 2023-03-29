@@ -512,17 +512,21 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 icon=DashIconify(icon="emojione-monotone:name-badge"),
             ),
             dmc.Space(h=20),
-            dmc.Select(
-                label=["Lastprofil ",
-                       dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
-                placeholder="Auswahl",
-                id='load_profile_select',
-                value=element_dict[selected_element]['selected_power_option'],
-                data=[
-                    {'value': key, 'label': key}
-                    for key in element_dict[selected_element]['power_options']
-                ],
-            ),
+            dmc.Group([
+                dmc.Select(
+                    label=["Lastprofil ",
+                           dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
+                    placeholder="Auswahl",
+                    id='load_profile_select',
+                    value=element_dict[selected_element]['selected_power_option'],
+                    data=[
+                        {'value': key, 'label': key}
+                        for key in element_dict[selected_element]['power_options']
+                    ],
+                ),
+                dmc.TimeInput(id='time_input_menu', label="Einschalten um", clearable=True,
+                              icon=DashIconify(icon='material-symbols:avg-time-outline'))
+            ], noWrap=True, grow=True),
             dmc.Space(h=20),
             dmc.Group([
                 dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
@@ -542,7 +546,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 data=[
                     {'value': 'mo', 'label': 'MO'}, {'value': 'tu', 'label': 'DI'}, {'value': 'wd', 'label': 'MI'},
                     {'value': 'th', 'label': 'DO'}, {'value': 'fr', 'label': 'FR'}, {'value': 'sa', 'label': 'SA'},
-                    {'value': 'su', 'label': 'SO'},
+                    {'value': 'su', 'label': 'SO'}
                 ]
             )
         ],
