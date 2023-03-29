@@ -468,7 +468,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             ], position='right')],
             value=tab_value
         )
-    elif tab_value == 'device':
+    elif tab_value == 'device_preset':
         return dmc.TabsPanel([
             # dmc.Text("Gerät Badezimmer"),
             dmc.TextInput(
@@ -487,12 +487,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 data=[
                     {'value': key, 'label': key}
                     for key in element_dict[selected_element]['power_options']
-                    # {'value': value,
-                    #  'label': dmc.Group([DashIconify(
-                    #      icon=element_dict[selected_element]['power_options'][value]['icon']), value])}
-                    # for value in element_dict[selected_element]['power_options']
                 ],
-                # style={"width": 200},
             ),
             dmc.Space(h=20),
             dmc.Group([
@@ -506,6 +501,50 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                                                          element_dict[selected_element]['power'],
                                                          'rgb(175, 173, 222)'), id='graph_device',
                       style={'width': '100%'})
+        ],
+            value=tab_value)
+    elif tab_value == 'device_custom':
+        return dmc.TabsPanel([
+            dmc.TextInput(
+                id='name_input',
+                style={"width": 200},
+                value=element_dict[selected_element]['name'],
+                icon=DashIconify(icon="emojione-monotone:name-badge"),
+            ),
+            dmc.Space(h=20),
+            dmc.Select(
+                label=["Lastprofil ",
+                       dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
+                placeholder="Auswahl",
+                id='load_profile_select',
+                value=element_dict[selected_element]['selected_power_option'],
+                data=[
+                    {'value': key, 'label': key}
+                    for key in element_dict[selected_element]['power_options']
+                ],
+            ),
+            dmc.Space(h=20),
+            dmc.Group([
+                dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
+                           leftIcon=DashIconify(icon="material-symbols:delete-outline")),
+                dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
+                           leftIcon=DashIconify(icon="material-symbols:save-outline"))
+            ], position='right'),
+            dmc.Space(h=20),
+            dcc.Graph(figure=plot.plot_device_timeseries(np.linspace(0, 24, num=1440),
+                                                         element_dict[selected_element]['power'],
+                                                         'rgb(175, 173, 222)'), id='graph_device',
+                      style={'width': '100%'}),
+            dmc.Space(h=10),
+            dmc.SegmentedControl(
+                id='pagination_days_menu',
+                value='mo',
+                data=[
+                    {'value': 'mo', 'label': 'MO'}, {'value': 'tu', 'label': 'DI'}, {'value': 'wd', 'label': 'MI'},
+                    {'value': 'th', 'label': 'DO'}, {'value': 'fr', 'label': 'FR'}, {'value': 'sa', 'label': 'SA'},
+                    {'value': 'su', 'label': 'SO'},
+                ]
+            )
         ],
             value=tab_value)
     elif tab_value == 'lamp':

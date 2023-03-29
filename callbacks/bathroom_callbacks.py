@@ -72,9 +72,10 @@ def bathroom_callbacks(app):
                         switch_state = no_update  # Otherwise don't update
                     return elements, device_dict, no_update, no_update, no_update, no_update, switch_state, no_update
                 else:  # A device was clicked
-                    switch_state = device_dict['house1'][node['data']['id']]['active']
+                    switch_state = device_dict['house1'][node['data']['id']]['active']      # Return, which menu should be opened
                     if node['data']['id'][:6] == "device":
-                        return no_update, no_update, no_update, no_update, 'device', node['data'][
+                        menu_type = device_dict['house1'][node['data']['id']]['menu_type']
+                        return no_update, no_update, no_update, no_update, menu_type, node['data'][
                             'id'], switch_state, no_update
                     elif node['data']['id'][:4] == "lamp":
                         return no_update, no_update, no_update, no_update, 'lamp', node['data'][
