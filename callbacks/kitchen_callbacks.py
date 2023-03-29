@@ -124,7 +124,7 @@ def kitchen_callbacks(app):
             elif triggered_id == 'edit_save_button':
                 if tabs_main != 'house1' or btn_save is None:  # If button was clicked in grid mode or is None do nothing
                     raise PreventUpdate
-                device_dict = modules.save_settings(children[1]['props']['children'], device_dict, selected_element,
+                device_dict = modules.save_settings(children[2]['props']['children'], device_dict, selected_element,
                                                     'house1')
                 return no_update, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
             elif triggered_id == 'edit_delete_button':
