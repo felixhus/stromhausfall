@@ -8,6 +8,24 @@ import source.modules as modules
 
 
 def general_callbacks(app):
+    @app.callback(Output('store_device_dict', 'data', allow_duplicate=True),
+                  Input('edit_save_button', 'n_clicks'),
+                  State('tabs_main', 'value'),
+                  State('store_device_dict', 'data'),
+                  State('store_selected_element_house', 'data'),
+                  State('menu_parent_tabs', 'children'),
+                  prevent_initial_call=True)
+    def save_props_action(btn_save, tabs_main, device_dict, selected_element, children):
+        if btn_save is None:
+            raise PreventUpdate
+        else:
+            if tabs_main == 'house1':  # If button was clicked in house mode
+                device_dict = modules.save_settings(children[2]['props']['children'], device_dict, selected_element,
+                                                    'house1')
+                return device_dict
+            else:
+                raise PreventUpdate
+
     @app.callback(Output('store_results_house', 'data'),
                   Output('graph_power_house', 'figure'),
                   Output('graph_sunburst_house', 'figure'),
