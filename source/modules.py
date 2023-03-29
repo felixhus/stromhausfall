@@ -317,8 +317,14 @@ def save_settings(children, device_dict, selected_element, house):
             pass
         elif child['type'] == 'Space':
             pass
-        elif child['type'] == 'Group':
+        elif child['type'] == 'Button':
             pass
+        elif child['type'] == 'Graph':
+            pass
+        elif child['type'] == 'SegmentedControl':
+            pass
+        elif child['type'] == 'Group':
+            save_settings(child['props']['children'], device_dict, selected_element, house)  # Recursive execution for all elements in group
         else:  # Save values of input components to device dictionary
             if child['type'] == 'TextInput':
                 if child['props']['id'] == 'name_input':
@@ -333,6 +339,18 @@ def save_settings(children, device_dict, selected_element, house):
                                                                     database)  # Get load profile from sqlite database
                         device_dict[house][selected_element][
                             'power'] = load_profile  # Save loaded profile to device dictionary
+                pass
+            elif child['type'] == 'TimeInput':
+                if child['props']['value'] is not None:     # There is a time input -> Add to load profile
+                    timestamp = child['props']['value']
+                    timestamp = timestamp[len(timestamp)-8:]    # Get time from input
+                    minutes = int(timestamp[:2]) * 60 + int(timestamp[3:5])     # calculate start in minutes
+                    power = pd.Series(device_dict[house][selected_element]['power'])    # Get current power profile
+                    new_values = pd.Series([100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100])    # Development
+                    index_pos = minutes - 1
+                    power[index_pos:index_pos + len(new_values)] = new_values.values
+                    device_dict[house][selected_element]['power'] = power.to_list()
+                pass
     return device_dict
 
 
