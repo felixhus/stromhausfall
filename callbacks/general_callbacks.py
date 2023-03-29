@@ -68,7 +68,7 @@ def general_callbacks(app):
                 elements_dict = gridObject_dict
             else:
                 raise PreventUpdate
-            while len(menu_children) > 1:  # Remove all tabs except the 'empty' tab
+            while len(menu_children) > 2:  # Remove all tabs except the 'empty' tab and the 'init_ids' tab
                 menu_children.pop()
             new_tab_panel = dash_components.add_menu_tab_panel(tab_value, selected_element,
                                                                elements_dict)  # Get new tab panel
@@ -154,7 +154,7 @@ def general_callbacks(app):
             icon = DashIconify(icon="ph:tree")
             color = 'red'
         elif data == 'notification_custom_house':
-            notification_message = ["So detailliert kann ich (noch) nicht.", "Es ist bereits ein Hause im Detail konfiguriert. Wenn du das andere Haus löscht oder dort ein fertiges Profil auswählst, kannst du dieses nach deinen Wünschen konfigurieren."]
+            notification_message = ["So detailliert kann ich (noch) nicht.", "Es ist bereits ein Haus im Detail konfiguriert. Wenn du das andere Haus löscht oder dort ein fertiges Profil auswählst, kannst du dieses nach deinen Wünschen konfigurieren."]
             icon = DashIconify(icon="mdi:house-group")
             color = 'yellow'
         else:

@@ -1,46 +1,27 @@
-import pandas as pd
-import plotly.graph_objects as go
+# from datetime import datetime
+#
+# from influxdb_client import InfluxDBClient, Point, WritePrecision
+# from influxdb_client.client.write_api import SYNCHRONOUS
+#
+# # You can generate an API token from the "API Tokens Tab" in the UI
+# token = "xzrzW89eptcGAAgx4IRWMrtXZkyRqhnajYW5E5qihMgSO1LUUwf3_-Qo7kQSpxFAy5p0DQ9Y-FVayr5TgmhSqg=="
+# org = "PowerHouse"
+# bucket = "Testbucket"
+#
+# with InfluxDBClient(url="http://localhost:8086", token=token, org=org) as client:
+#     write_api = client.write_api(write_options=SYNCHRONOUS)
+#
+#     sequence = ["mem,host=host1 used_percent=23.43234543",
+#                 "mem,host=host1 available_percent=15.856523"]
+#     write_api.write(bucket, org, sequence)
+#
+# client.close()
+#
+from datetime import datetime
 
-# create empty dataframe
-df = pd.DataFrame(columns=['x', 'y', 'color'])
+from influxdb import InfluxDBClient
 
-# add data to dataframe row by row
-df = df.append({'x': 1, 'y': 10, 'color': 'red'}, ignore_index=True)
-df = df.append({'x': 2, 'y': 8, 'color': 'red'}, ignore_index=True)
-df = df.append({'x': 3, 'y': 6, 'color': 'red'}, ignore_index=True)
-df = df.append({'x': 4, 'y': 4, 'color': 'red'}, ignore_index=True)
-df = df.append({'x': 5, 'y': 2, 'color': 'red'}, ignore_index=True)
-
-df = df.append({'x': 1, 'y': 8, 'color': 'green'}, ignore_index=True)
-df = df.append({'x': 2, 'y': 6, 'color': 'green'}, ignore_index=True)
-df = df.append({'x': 3, 'y': 4, 'color': 'green'}, ignore_index=True)
-df = df.append({'x': 4, 'y': 2, 'color': 'green'}, ignore_index=True)
-df = df.append({'x': 5, 'y': 0, 'color': 'green'}, ignore_index=True)
-
-df = df.append({'x': 1, 'y': 12, 'color': 'blue'}, ignore_index=True)
-df = df.append({'x': 2, 'y': 9, 'color': 'blue'}, ignore_index=True)
-df = df.append({'x': 3, 'y': 6, 'color': 'blue'}, ignore_index=True)
-df = df.append({'x': 4, 'y': 3, 'color': 'blue'}, ignore_index=True)
-df = df.append({'x': 5, 'y': 0, 'color': 'blue'}, ignore_index=True)
-
-# create figure object
-fig = go.Figure()
-
-# add filled lines for each y column in a loop
-colors = df['color'].unique()
-for color in colors:
-    fig.add_trace(go.Scatter(
-        x=df[df['color'] == color]['x'],
-        y=df[df['color'] == color]['y'],
-        mode='lines', fill='tozeroy',
-        line=dict(color=color)
-    ))
-
-# set x and y axis labels
-fig.update_layout(
-    xaxis_title='X-axis',
-    yaxis_title='Y-axis'
-)
-
-# show figure
-fig.show()
+client = InfluxDBClient('localhost', 8086)
+client.create_database('testdatabase')
+client.get_list_database()
+client.switch_database('testdatabase')
