@@ -519,7 +519,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             ),
             dmc.Space(h=20),
             dmc.Select(
-                label=["Lastprofil ",
+                label=["Lastprofil y",
                        dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
                 placeholder="Auswahl",
                 id='load_profile_select',
