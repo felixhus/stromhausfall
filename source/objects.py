@@ -88,6 +88,10 @@ def create_PVObject(object_id, node_id):
         'voltage': None,
         'power': None,
         'object_type': 'pv',
+        'location': [None, None, None],     # Location consisting of postcode, lon, lat
+        'orientation': 0,
+        'rated_power': 0,
+        'tilt': 0,
         'name': "Solaranlage",
         'icon': 'icon_pv.png',
         'ui_color': '#b5c8d7',

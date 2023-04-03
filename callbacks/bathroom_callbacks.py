@@ -124,11 +124,6 @@ def bathroom_callbacks(app):
                                                                  None], no_update, no_update, no_update  # Return elements and close menu
             elif triggered_id == 'edit_save_button':
                 raise PreventUpdate
-                # if tabs_main != 'house1' or btn_save is None:  # If button was clicked in grid mode or is None do nothing
-                #     raise PreventUpdate
-                # device_dict = modules.save_settings(children[1]['props']['children'], device_dict, selected_element,
-                #                                     'house1')
-                # return no_update, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
             elif triggered_id == 'edit_delete_button':
                 if tabs_main != 'house1' or btn_delete is None:  # If button was clicked in grid mode or is None do nothing
                     raise PreventUpdate

@@ -313,7 +313,7 @@ def calculate_house(device_dict, timesteps):
     return plot.plot_all_devices_room(df_power, df_sum, df_energy, device_dict)
 
 
-def save_settings(children, device_dict, selected_element, house, day):
+def save_settings_house(children, device_dict, selected_element, house, day):
     for child in children:  # Go through all components of the settings menu
         if child['type'] == 'Text':  # Do nothing on things like text or vertical spaces
             pass
@@ -354,6 +354,10 @@ def save_settings(children, device_dict, selected_element, house, day):
                     power[index_pos:index_pos + len(new_values)] = new_values.values
                     device_dict[house][selected_element]['power'] = power.to_list()
     return device_dict
+
+
+def save_settings_grid(gridObject_dict):
+    return gridObject_dict
 
 
 def handle_error(err):

@@ -1,21 +1,42 @@
-import pandas as pd
+import dash
+import dash_html_components as html
+import dash_mantine_components as dmc
+from dash_iconify import DashIconify
 
-# your original python list of values
-values_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+app = dash.Dash(__name__)
 
-# convert the list to a pandas series
-values_series = pd.Series(values_list)
-
-# your new pandas series to replace the values in the original list
-new_values = pd.Series([100, 200, 300, 400])
-
-# the minute value at which you want to replace the values
-minute_value = 10
-
-# get the index position of the minute value
-index_pos = minute_value - 1
-
-# override the values in the original list with the values from the new series
-values_list[index_pos:index_pos+len(new_values)] = new_values.values
-
-print(values_list)
+app.layout = html.Div([dmc.Grid(children=[
+    dmc.ActionIcon(
+        DashIconify(icon=icon, width=20, rotate=rotation),
+        size="lg",
+        variant="transparent",
+        id=button_id,
+        color='blue'
+    )
+    for icon, button_id, rotation in zip(['gis:point', 'gis:north-arrow-n', 'gis:point'],
+                                         ['button_north_west', 'button_north', 'button_north_east'], [0, 0, 0])
+    ]),
+    dmc.Grid(children=[dmc.ActionIcon(
+        DashIconify(icon=icon, width=20, rotate=rotation),
+        size="lg",
+        variant="transparent",
+        id=button_id,
+        color='blue'
+    )
+    for icon, button_id, rotation in zip(['gis:north-arrow', 'fluent:compass-northwest-28-regular', 'gis:north-arrow'],
+                                         ['button_west', 'button_compass', 'button_east'], [3, 0, 1])
+    ]),
+    dmc.Grid(children=[dmc.ActionIcon(
+        DashIconify(icon=icon, width=20, rotate=rotation),
+        size="lg",
+        variant="transparent",
+        id=button_id,
+        color='blue'
+    )
+    for icon, button_id, rotation in zip(['gis:point', 'gis:north-arrow', 'gis:point'],
+                                         ['button_south_west', 'button_south', 'button_south_east'], [0, 2, 0])
+    ]),
+])
+# compass: fluent:compass-northwest-28-regular
+if __name__ == '__main__':
+    app.run_server(debug=True)

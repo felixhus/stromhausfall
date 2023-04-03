@@ -457,6 +457,29 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             #           style={'width': '100%'})
             ],
             value=tab_value)
+    elif tab_value == 'pv':
+        return dmc.TabsPanel([
+            dmc.TextInput(
+                id='name_input',
+                style={"width": 200},
+                value=element_dict[selected_element]['name'],
+                icon=DashIconify(icon="emojione-monotone:name-badge"),
+            ),
+            dmc.Space(h=20),
+            dmc.TextInput(id='postcode_input', label='Postleitzahl', icon=DashIconify(icon="mdi:home-location"),
+                          value=element_dict[selected_element]['location'][0]),
+            dmc.Space(h=20),
+            get_compass(),
+            dmc.Space(h=20),
+            dmc.Group([
+                dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
+                           leftIcon=DashIconify(icon="material-symbols:delete-outline")),
+                dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
+                           leftIcon=DashIconify(icon="material-symbols:save-outline"))
+            ], position='right'),
+            dmc.Space(h=20)
+        ],
+            value=tab_value)
     elif tab_value == 'line':
         return dmc.TabsPanel([
             dmc.Text("Leitung"),
@@ -612,6 +635,42 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             dbc.Fade(id='house_fade'),                          # This hidden tab initializes the ids of these.
             dmc.SegmentedControl(id='pagination_days_menu', data=[])
         ], value=tab_value)
+
+
+def get_compass():
+    return html.Div([dmc.Grid(children=[
+        dmc.ActionIcon(
+            DashIconify(icon=icon, width=20, rotate=rotation),
+            size="lg",
+            variant="transparent",
+            id=button_id,
+            color='blue'
+        )
+        for icon, button_id, rotation in zip(['gis:point', 'gis:north-arrow-n', 'gis:point'],
+                                             ['button_north_west', 'button_north', 'button_north_east'], [0, 0, 0])
+    ]),
+        dmc.Grid(children=[dmc.ActionIcon(
+            DashIconify(icon=icon, width=20, rotate=rotation),
+            size="lg",
+            variant="transparent",
+            id=button_id,
+            color='blue'
+        )
+            for icon, button_id, rotation in
+            zip(['gis:north-arrow', 'fluent:compass-northwest-28-regular', 'gis:north-arrow'],
+                ['button_west', 'button_compass', 'button_east'], [3, 0, 1])
+        ]),
+        dmc.Grid(children=[dmc.ActionIcon(
+            DashIconify(icon=icon, width=20, rotate=rotation),
+            size="lg",
+            variant="transparent",
+            id=button_id,
+            color='blue'
+        )
+            for icon, button_id, rotation in zip(['gis:point', 'gis:north-arrow', 'gis:point'],
+                                                 ['button_south_west', 'button_south', 'button_south_east'], [0, 2, 0])
+        ]),
+    ])
 
 
 def add_modal_timeseries():

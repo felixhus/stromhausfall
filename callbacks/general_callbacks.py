@@ -10,20 +10,25 @@ from source.modules import days
 
 def general_callbacks(app):
     @app.callback(Output('store_device_dict', 'data', allow_duplicate=True),
+                  Output('store_grid_object_dict', 'data', allow_duplicate=True),
                   Input('edit_save_button', 'n_clicks'),
                   State('tabs_main', 'value'),
                   State('store_device_dict', 'data'),
                   State('store_selected_element_house', 'data'),
                   State('menu_parent_tabs', 'children'),
                   State('pagination_days_menu', 'value'),
+                  State('store_grid_object_dict', 'data'),
                   prevent_initial_call=True)
-    def save_props_action(btn_save, tabs_main, device_dict, selected_element, children, day):
+    def save_props_action(btn_save, tabs_main, device_dict, selected_element, children, day, gridObject_dict):
         if btn_save is None:
             raise PreventUpdate
         else:
             if tabs_main == 'house1':  # If button was clicked in house mode
-                device_dict = modules.save_settings(children[2]['props']['children'], device_dict, selected_element, 'house1', day)
-                return device_dict
+                device_dict = modules.save_settings_house(children[2]['props']['children'], device_dict, selected_element, 'house1', day)
+                return device_dict, no_update
+            elif tabs_main == 'grid':   # If button was clicked in grid mode
+                gridObject_dict = modules.save_settings_grid(gridObject_dict)
+                return no_update, gridObject_dict
             else:
                 raise PreventUpdate
 
