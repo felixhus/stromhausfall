@@ -37,4 +37,14 @@ def generate_time_series(power, timesteps, number_steps):
     return x_new, y_new
 
 
-
+def check_postcode(postcode):
+    # connect to the database
+    conn = sqlite3.connect('database_profiles.db')
+    c = conn.cursor()
+    # Build the SQL query to insert the row
+    query = f"SELECT "
+    # Execute the query with the values
+    c.execute(query, [series_id] + values)
+    # commit changes and close connection
+    conn.commit()
+    conn.close()

@@ -356,8 +356,9 @@ def save_settings_house(children, device_dict, selected_element, house, day):
     return device_dict
 
 
-def save_settings_grid(gridObject_dict):
-    return gridObject_dict
+def save_settings_grid(gridObject_dict, postcode):
+
+    return gridObject_dict, None
 
 
 def handle_error(err):
