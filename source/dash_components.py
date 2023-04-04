@@ -110,7 +110,9 @@ def add_cytoscape_layout():
                     dmc.TabsList([
                         dmc.Tab("Netz", value="grid", icon=DashIconify(icon='tabler:chart-grid-dots')),
                         dmc.Tab("Haus", value="house1", disabled=True, id='tab_house',
-                                icon=DashIconify(icon='material-symbols:house-siding-rounded'))
+                                icon=DashIconify(icon='material-symbols:house-siding-rounded')),
+                        dmc.Tab("Einstellungen", value="settings",
+                                icon=DashIconify(icon='material-symbols:settings-outline'))
                     ]),
                     dmc.TabsPanel(children=[
                         cyto.Cytoscape(
@@ -161,7 +163,16 @@ def add_cytoscape_layout():
                                 ], width=6)
                             ]),
                         ])
-                    ], value='house1')
+                    ], value='house1'),
+                    dmc.TabsPanel(children=[
+                        dmc.Space(h=20),
+                        dmc.NumberInput(
+                            id='input_week', label="Kalenderwoche",
+                            value=1, step=1,
+                            min=1, max=52,
+                            style={"width": 250},
+                        )
+                    ], value='settings')
                 ],
                     id='tabs_main', value='grid', color="blue", orientation="horizontal", allowTabDeactivation=True)
             ),
