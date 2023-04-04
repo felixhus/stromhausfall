@@ -4,6 +4,24 @@ import numpy as np
 from scipy import interpolate
 
 
+def get_coordinates(plz, database):
+    """
+    Get longitude and latitude coordinates of given postcode. The function also returns the city name.
+    :param plz: postcode
+    :param database: path of database
+    :return: lon, lat, city name
+    """
+    conn = sqlite3.connect(database)  # Connect to the database
+    cursor = conn.cursor()  # Create a cursor object
+    # Select the row of values from the table
+    data = cursor.execute(f"SELECT lon, lat, city FROM plz_data WHERE postcode = {plz}").fetchone()
+    data = list(data)  # convert to a list
+    # Close the cursor and database connection
+    cursor.close()
+    conn.close()
+    return data[0], data[1], data[2]     # return lon and lat and city name
+
+
 def get_load_profile(table_name, key, database):
     conn = sqlite3.connect(database)    # Connect to the database
     cursor = conn.cursor()  # Create a cursor object
