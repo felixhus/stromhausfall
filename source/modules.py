@@ -1,12 +1,15 @@
 import base64
 import copy
 import io
+import json
 import warnings
+from datetime import datetime, timedelta
 
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import pandas as pd
+import requests
 
 import source.objects as objects
 import source.plot as plot
@@ -326,7 +329,7 @@ def save_settings_house(children, device_dict, selected_element, house, day):
         elif child['type'] == 'SegmentedControl':
             pass
         elif child['type'] == 'Group':
-            save_settings(child['props']['children'], device_dict, selected_element, house, day)  # Recursive execution for all elements in group
+            save_settings_house(child['props']['children'], device_dict, selected_element, house, day)  # Recursive execution for all elements in group
         else:  # Save values of input components to device dictionary
             if child['type'] == 'TextInput':
                 if child['props']['id'] == 'name_input':
@@ -356,10 +359,46 @@ def save_settings_house(children, device_dict, selected_element, house, day):
     return device_dict
 
 
-def save_settings_grid(gridObject_dict, postcode):
-    if not sql_modules.check_postcode(postcode, 'source/database_pv.db'):  # Check if the given postcode exist in database
+def save_settings_grid(gridObject_dict, selected_element, postcode, year, week):
+    database = 'source/database_pv.db'
+    url = 'https://www.renewables.ninja/api/data/pv'
+    if not sql_modules.check_postcode(postcode, database):  # Check if the given postcode exist in database
         return gridObject_dict, 'notification_false_postcode'
+    lon, lat, city = sql_modules.get_coordinates(postcode, database)    # Get coordinates from postcode
+    if week == 1:   # Problem: Data only exist from 2019, week 1 starts in 2018
+        week = 2
+    date_start, date_stop = get_monday_sunday_from_week(week, year)
+    query_params = {
+        'lat': lat,  # latitude of the location
+        'lon': lon,  # longitude of the location
+        'date_from': str(date_start),  # starting date of the data
+        'date_to': str(date_stop),  # ending date of the data
+        'dataset': 'merra2',  # dataset to use for the simulation
+        'capacity': 1,  # capacity of the PV system in kW
+        'system_loss': 0.1,  # system loss in %
+        'tracking': 0,  # tracking mode, 0 = fixed, 1 = 1-axis tracking, 2 = 2-axis tracking
+        'tilt': 35,  # tilt angle of the PV system in degrees
+        'azim': 180,  # azimuth angle of the PV system in degrees
+        'format': 'json'  # format of the data, csv or json
+    }
+    response = requests.get(url, params=query_params)   # Send the GET request and get the response
+    if response.status_code == 200:     # Check if the request was successful
+        data_pd = pd.read_json(json.dumps(response.json()['data']), orient='index', typ='frame')
+    else:
+        return gridObject_dict, 'notification_pv_api_error'
+    # Write data to selected element:
+    gridObject_dict[selected_element]['power'] = data_pd['electricity'].values.tolist()
+    gridObject_dict[selected_element]['location'] = [postcode, lat, lon]
     return gridObject_dict, None
+
+
+def get_monday_sunday_from_week(week_num, year):
+    first_day = datetime(year, 1, 1)    # get the date of the first day of the year
+    days_to_first_monday = (7 - first_day.weekday()) % 7    # calculate the days to the first Monday of the year
+    monday_first_week = first_day + timedelta(days=days_to_first_monday)    # calculate the date of the Monday of the first week
+    monday = monday_first_week + timedelta(weeks=week_num-2)    # calculate the date of the Monday of the given week
+    sunday = monday + timedelta(days=6)     # calculate the date of the Sunday of the given week
+    return monday.date(), sunday.date()
 
 
 def handle_error(err):

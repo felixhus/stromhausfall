@@ -16,21 +16,26 @@ def general_callbacks(app):
                   State('tabs_main', 'value'),
                   State('store_device_dict', 'data'),
                   State('store_selected_element_house', 'data'),
+                  State('store_selected_element_grid', 'data'),
                   State('menu_parent_tabs', 'children'),
                   State('pagination_days_menu', 'value'),
                   State('store_grid_object_dict', 'data'),
                   State('postcode_input', 'value'),
+                  State('input_year', 'value'),
+                  State('input_week', 'value'),
                   prevent_initial_call=True)
-    def save_props_action(btn_save, tabs_main, device_dict, selected_element, children, day, gridObject_dict, postcode):
+    def save_props_action(btn_save, tabs_main, device_dict, selected_element_house, selected_element_grid, children,
+                          day, gridObject_dict, postcode, year_pv, week_pv):
         try:
             if btn_save is None:
                 raise PreventUpdate
             else:
                 if tabs_main == 'house1':  # If button was clicked in house mode
-                    device_dict = modules.save_settings_house(children[2]['props']['children'], device_dict, selected_element, 'house1', day)
+                    device_dict = modules.save_settings_house(children[2]['props']['children'], device_dict, selected_element_house, 'house1', day)
                     return device_dict, no_update, no_update
                 elif tabs_main == 'grid':   # If button was clicked in grid mode
-                    gridObject_dict, notif = modules.save_settings_grid(gridObject_dict, postcode)
+                    gridObject_dict, notif = modules.save_settings_grid(gridObject_dict, selected_element_grid,
+                                                                        postcode, year_pv, week_pv)
                     if notif is not None:
                         return no_update, no_update, notif
                     else:
@@ -169,6 +174,11 @@ def general_callbacks(app):
             raise PreventUpdate
         if data is None:
             raise PreventUpdate
+        elif data == 'notification_pv_api_error':
+            notification_message = ["Fehler Datenabfrage!",
+                                    "Die Daten konnten nicht von renewables.ninja abgefragt werden."]
+            icon = DashIconify(icon="fa6-solid:solar-panel")
+            color = 'red'
         elif data == 'notification_false_postcode':
             notification_message = ["Zustellung nicht möglich!",
                                     "Diese Postleitzahl kenne ich leider nicht."]

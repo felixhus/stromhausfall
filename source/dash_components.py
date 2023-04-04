@@ -171,6 +171,13 @@ def add_cytoscape_layout():
                             value=1, step=1,
                             min=1, max=52,
                             style={"width": 250},
+                        ),
+                        dmc.Space(h=20),
+                        dmc.NumberInput(
+                            id='input_year', label="Jahr",
+                            value=2019, step=1,
+                            min=2019, max=2019,
+                            style={"width": 250}, disabled=True
                         )
                     ], value='settings')
                 ],
