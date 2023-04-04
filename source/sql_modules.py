@@ -55,14 +55,15 @@ def generate_time_series(power, timesteps, number_steps):
     return x_new, y_new
 
 
-def check_postcode(postcode):
+def check_postcode(postcode, database):
     # connect to the database
-    conn = sqlite3.connect('database_profiles.db')
-    c = conn.cursor()
-    # Build the SQL query to insert the row
-    query = f"SELECT "
-    # Execute the query with the values
-    c.execute(query, [series_id] + values)
-    # commit changes and close connection
-    conn.commit()
+    conn = sqlite3.connect(database)
+    cursor = conn.cursor()
+    # Build the SQL query to check for postcode
+    data = cursor.execute(f"SELECT postcode FROM plz_data WHERE postcode = {postcode}").fetchone()
+    # close connection
     conn.close()
+    if data:
+        return True
+    else:
+        return False

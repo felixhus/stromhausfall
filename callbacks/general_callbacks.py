@@ -169,6 +169,11 @@ def general_callbacks(app):
             raise PreventUpdate
         if data is None:
             raise PreventUpdate
+        elif data == 'notification_false_postcode':
+            notification_message = ["Zustellung nicht möglich!",
+                                    "Diese Postleitzahl kenne ich leider nicht."]
+            icon = DashIconify(icon="material-symbols:mail-outline-rounded")
+            color = 'yellow'
         elif data == 'notification_false_connection':
             notification_message = ["Kabelsalat!",
                                     "Zwischen diesen beiden Komponenten kannst du keine Leitung ziehen."]

@@ -357,7 +357,8 @@ def save_settings_house(children, device_dict, selected_element, house, day):
 
 
 def save_settings_grid(gridObject_dict, postcode):
-
+    if not sql_modules.check_postcode(postcode, 'source/database_pv.db'):  # Check if the given postcode exist in database
+        return gridObject_dict, 'notification_false_postcode'
     return gridObject_dict, None
 
 
