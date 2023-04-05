@@ -1,6 +1,7 @@
 import csv
 import random
 import sqlite3
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -43,10 +44,10 @@ def write_to_database(database, values, series_id):
 
 def izes_csv_to_sqlite():
     p1_csv_path = "C:/Users/felix/Documents/HOME/Uni/02_Master/05_Masterthesis/03_Daten/IZES_Profile/CSV_74_Loadprofiles_1min_W_var/PL1.csv"
-    p2_csv_path = "C:/Users/felix/Documents/HOME/Uni/02_Master/05_Masterthesis/03_Daten/IZES_Profile/CSV_74_Loadprofiles_1min_W_var/PL1.csv"
-    p3_csv_path = "C:/Users/felix/Documents/HOME/Uni/02_Master/05_Masterthesis/03_Daten/IZES_Profile/CSV_74_Loadprofiles_1min_W_var/PL1.csv"
+    p2_csv_path = "C:/Users/felix/Documents/HOME/Uni/02_Master/05_Masterthesis/03_Daten/IZES_Profile/CSV_74_Loadprofiles_1min_W_var/PL2.csv"
+    p3_csv_path = "C:/Users/felix/Documents/HOME/Uni/02_Master/05_Masterthesis/03_Daten/IZES_Profile/CSV_74_Loadprofiles_1min_W_var/PL3.csv"
     Path('database_izes.db').touch()
-    conn = sqlite3.connect('database_pv.db')
+    conn = sqlite3.connect('database_izes.db')
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE load_1min (date text)''')
     for i in range(1, 75):
@@ -57,31 +58,29 @@ def izes_csv_to_sqlite():
     p2_data = pd.read_csv(p2_csv_path, header=None)
     p3_data = pd.read_csv(p3_csv_path, header=None)
 
-    for i, row in enumerate(p1_data.iterrows()):
+    date = datetime(2023, 1, 1)
+
+    for i in range(len(p1_data)):
         # get the corresponding rows from the other dataframes
+        row1 = p1_data.iloc[i]
         row2 = p2_data.iloc[i]
         row3 = p3_data.iloc[i]
 
         # add up the rows elementwise
-        result_row = row[1] + row2 + row3
+        row_sum = row1 + row2 + row3
 
         placeholders = ",".join(["?"] * 74)
-        query = f"INSERT INTO table_name VALUES ({placeholders})"
+        query = f"INSERT INTO load_1min VALUES ({date.strftime('%Y-%m-%d')}, {placeholders})"
 
         if i % 1000 == 0:
-            print(f"Wrote {i} rows ({i/525600*100}%)")
+            percent = "%.2f" % (i/525600*100)
+            print(f"Wrote {i} rows ({percent}%)")
 
-    with open(p1_csv_path) as p1_csv:
-        with open(p2_csv_path) as p2_csv:
-            with open(p3_csv_path) as p3_csv:
-                csv_reader_p1 = csv.reader(p1_csv, delimiter=',')
-                csv_reader_p2 = csv.reader(p2_csv, delimiter=',')
-                csv_reader_p3 = csv.reader(p3_csv, delimiter=',')
-                counter = 0
-                for row in csv_reader_p1:
-                    print(row)
-                    counter += 1
+        cursor.execute(query, tuple(row_sum))
+        date = date + timedelta(minutes=1)
+        # BESSER: Zwei Spalten, eine mit Tag und eine mit Monat.
 
-p1_csv_path = "C:/Users/felix/Documents/HOME/Uni/02_Master/05_Masterthesis/03_Daten/IZES_Profile/CSV_74_Loadprofiles_1min_W_var/PL1.csv"
-df = pd.read_csv(p1_csv_path, header=None)
-print('Done')
+    conn.commit()
+    conn.close()
+
+izes_csv_to_sqlite()
