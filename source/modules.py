@@ -359,7 +359,7 @@ def save_settings_house(children, device_dict, selected_element, house, day):
     return device_dict
 
 
-def save_settings_grid(gridObject_dict, selected_element, postcode, year, week):
+def save_settings_pv(gridObject_dict, selected_element, postcode, year, week):
     database = 'source/database_pv.db'
     url = 'https://www.renewables.ninja/api/data/pv'
     if not sql_modules.check_postcode(postcode, database):  # Check if the given postcode exist in database
@@ -374,7 +374,7 @@ def save_settings_grid(gridObject_dict, selected_element, postcode, year, week):
         'lon': lon,  # longitude of the location
         'date_from': str(date_start),  # starting date of the data
         'date_to': str(date_stop),  # ending date of the data
-        'dataset': 'merra2',  # dataset to use for the simulation
+        'dataset': 'sarah',  # dataset to use for the simulation
         'capacity': 1,  # capacity of the PV system in kW
         'system_loss': 0.1,  # system loss in %
         'tracking': 0,  # tracking mode, 0 = fixed, 1 = 1-axis tracking, 2 = 2-axis tracking

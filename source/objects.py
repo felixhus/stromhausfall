@@ -86,7 +86,7 @@ def create_PVObject(object_id, node_id):
         'id': object_id,
         'linkedNode': node_id,
         'voltage': None,
-        'power': None,
+        'power': [0]*(24*60*7),
         'object_type': 'pv',
         'location': [None, None, None],     # Location consisting of postcode, lat, lon
         'orientation': 0,   # azimuth angle

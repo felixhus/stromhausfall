@@ -11,6 +11,7 @@ from source.modules import days
 def general_callbacks(app):
     @app.callback(Output('store_device_dict', 'data', allow_duplicate=True),
                   Output('store_grid_object_dict', 'data', allow_duplicate=True),
+                  Output('graph_pv', 'figure'),
                   Output('store_notification1', 'data', allow_duplicate=True),
                   Input('edit_save_button', 'n_clicks'),
                   State('tabs_main', 'value'),
@@ -23,29 +24,33 @@ def general_callbacks(app):
                   State('postcode_input', 'value'),
                   State('input_year', 'value'),
                   State('input_week', 'value'),
+                  State('graph_pv', 'figure'),
                   prevent_initial_call=True)
     def save_props_action(btn_save, tabs_main, device_dict, selected_element_house, selected_element_grid, children,
-                          day, gridObject_dict, postcode, year_pv, week_pv):
+                          day, gridObject_dict, postcode, year_pv, week_pv, figure):
         try:
             if btn_save is None:
                 raise PreventUpdate
             else:
                 if tabs_main == 'house1':  # If button was clicked in house mode
-                    device_dict = modules.save_settings_house(children[2]['props']['children'], device_dict, selected_element_house, 'house1', day)
-                    return device_dict, no_update, no_update
-                elif tabs_main == 'grid':   # If button was clicked in grid mode
-                    gridObject_dict, notif = modules.save_settings_grid(gridObject_dict, selected_element_grid,
-                                                                        postcode, year_pv, week_pv)
-                    if notif is not None:
-                        return no_update, no_update, notif
-                    else:
-                        return no_update, gridObject_dict, no_update
+                    device_dict = modules.save_settings_house(children[2]['props']['children'], device_dict,
+                                                              selected_element_house, 'house1', day)
+                    return device_dict, no_update, no_update, no_update
+                elif tabs_main == 'grid':  # If button was clicked in grid mode
+                    if gridObject_dict[selected_element_grid]['object_type'] == 'pv':  # If PV is selected
+                        gridObject_dict, notif = modules.save_settings_pv(gridObject_dict, selected_element_grid,
+                                                                          postcode, year_pv, week_pv)
+                        figure["data"][0]["y"] = gridObject_dict[selected_element_grid]['power']
+                        if notif is not None:
+                            return no_update, no_update, no_update, notif
+                        else:
+                            return no_update, gridObject_dict, figure, no_update
                 else:
                     raise PreventUpdate
         except PreventUpdate:
-            return no_update, no_update, no_update
+            return no_update, no_update, no_update, no_update
         except Exception as err:
-            return no_update, no_update, err.args[0]
+            return no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('store_results_house', 'data'),
                   Output('graph_power_house', 'figure'),
@@ -203,7 +208,8 @@ def general_callbacks(app):
             icon = DashIconify(icon="ph:tree")
             color = 'red'
         elif data == 'notification_custom_house':
-            notification_message = ["So detailliert kann ich (noch) nicht.", "Es ist bereits ein Haus im Detail konfiguriert. Wenn du das andere Haus löscht oder dort ein fertiges Profil auswählst, kannst du dieses nach deinen Wünschen konfigurieren."]
+            notification_message = ["So detailliert kann ich (noch) nicht.",
+                                    "Es ist bereits ein Haus im Detail konfiguriert. Wenn du das andere Haus löscht oder dort ein fertiges Profil auswählst, kannst du dieses nach deinen Wünschen konfigurieren."]
             icon = DashIconify(icon="mdi:house-group")
             color = 'yellow'
         else:
@@ -240,13 +246,13 @@ def general_callbacks(app):
                   State('graph_device', 'figure'),
                   State('pagination_days_menu', 'value'),
                   prevent_initial_call=True)
-    def update_figure(data, day_control, selected_element, figure, day):  # Update the values of the graphs if another profile is chosen
+    def update_figure_house(data, day_control, selected_element, figure,
+                            day):  # Update the values of the graphs if another profile is chosen
         # patched_fig = Patch()
         # Patch scheint noch nicht zu funktionieren, vielleicht später nochmal probieren
         day_ind = days[day]
         index_start = day_ind * 24 * 60
         index_stop = index_start + 24 * 60
-        temp = data['house1'][selected_element]['power'][index_start:index_stop]    # Development
         if selected_element in data['house1']:  # Check if element is still in dict or if it was deleted
             figure["data"][0]["y"] = data['house1'][selected_element]['power'][index_start:index_stop]
         else:

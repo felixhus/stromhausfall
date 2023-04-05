@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import networkx as nx
+import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 
@@ -26,6 +27,27 @@ def plot_device_timeseries(timesteps, load, color):
         mode='none'  # this remove the lines
     ))
     fig.update_layout(template='plotly_white', margin=dict(l=0, r=0, b=0, t=0), height=200)
+    fig.update_xaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True)
+    fig.update_yaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True,
+                     rangemode='nonnegative')
+    return fig
+
+
+def plot_pv_timeseries(timesteps, power, color):
+    tick_text = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
+    tick_values = np.linspace(0, 0.13, num=7, endpoint=False)
+    # Timesteps hier drin aus Anzahl der power-Werte berechnen. Dann ticks darauf mappen
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        name="P",
+        x=timesteps,
+        y=power,
+        stackgroup='one',
+        fillcolor=color,
+        mode='none'  # this remove the lines
+    ))
+    fig.update_layout(template='plotly_white', margin=dict(l=0, r=0, b=0, t=0), height=200)
+    fig.update_layout(xaxis=dict(tickmode='array', tickvals=tick_values, ticktext=tick_text))
     fig.update_xaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True)
     fig.update_yaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True,
                      rangemode='nonnegative')

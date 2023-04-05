@@ -81,7 +81,8 @@ def add_menu_dropdown(room_type):
         item_list.append(dmc.MenuItem(item[0], id=item[1], icon=DashIconify(icon=item[2])))
     item_list.append(dmc.MenuDivider())
     item_list.append(
-        dmc.MenuItem("Schließen", id='button_close_menu_'+room_type, icon=DashIconify(icon='material-symbols:close-rounded'),
+        dmc.MenuItem("Schließen", id='button_close_menu_' + room_type,
+                     icon=DashIconify(icon='material-symbols:close-rounded'),
                      color='red'))
     return dmc.MenuDropdown(item_list)
 
@@ -175,8 +176,8 @@ def add_cytoscape_layout():
                         dmc.Space(h=20),
                         dmc.NumberInput(
                             id='input_year', label="Jahr",
-                            value=2019, step=1,
-                            min=2019, max=2019,
+                            value=2015, step=1,
+                            min=2015, max=2015,
                             style={"width": 250}, disabled=True
                         )
                     ], value='settings')
@@ -434,7 +435,7 @@ def add_result_tab_panel(tab_value):
 
 def add_menu_tab_panel(tab_value, selected_element, element_dict):
     if tab_value == 'house':
-        control, fade = 'preset', True      # Get values from element and show tab dependent on them
+        control, fade = 'preset', True  # Get values from element and show tab dependent on them
         if element_dict[selected_element]['config_mode'] == 'custom':
             control, fade = 'custom', False
         return dmc.TabsPanel([
@@ -452,7 +453,8 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 dmc.Space(h=20),
                 dmc.Select(
                     label=["Lastprofil ",
-                           dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
+                           dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True,
+                                     color='primary')],
                     placeholder="Auswahl",
                     id='load_profile_select',
                     value=element_dict[selected_element]['selected_power_option'],
@@ -473,7 +475,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             #                                              element_dict[selected_element]['power'],
             #                                              'rgb(175, 173, 222)'), id='graph_device',
             #           style={'width': '100%'})
-            ],
+        ],
             value=tab_value)
     elif tab_value == 'pv':
         return dmc.TabsPanel([
@@ -495,6 +497,11 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right'),
+            dmc.Space(h=20),
+            dcc.Graph(figure=plot.plot_pv_timeseries(np.linspace(0, 8, num=24 * 60 * 7),
+                                                     element_dict[selected_element]['power'],
+                                                     'rgb(255, 248, 94)'), id='graph_pv',
+                      style={'width': '100%'}),
             dmc.Space(h=20)
         ],
             value=tab_value)
@@ -556,7 +563,8 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             dmc.Group([
                 dmc.Select(
                     label=["Lastprofil ",
-                           dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
+                           dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True,
+                                     color='primary')],
                     placeholder="Auswahl",
                     id='load_profile_select',
                     value=element_dict[selected_element]['selected_power_option'],
@@ -647,10 +655,10 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             ], position='right', style={'display': 'none'})],
             value=tab_value
         )
-    elif tab_value == 'init_ids':   # If there are components in the menu tabs, which act as inputs or Outputs of
-        return dmc.TabsPanel([      # Callbacks, they are not present when the callback is created, because the tab
-            dmc.SegmentedControl(id='house_mode', data=[]),     # is only created when a node was clicked.
-            dbc.Fade(id='house_fade'),                          # This hidden tab initializes the ids of these.
+    elif tab_value == 'init_ids':  # If there are components in the menu tabs, which act as inputs or Outputs of
+        return dmc.TabsPanel([  # Callbacks, they are not present when the callback is created, because the tab
+            dmc.SegmentedControl(id='house_mode', data=[]),  # is only created when a node was clicked.
+            dbc.Fade(id='house_fade'),  # This hidden tab initializes the ids of these.
             dmc.SegmentedControl(id='pagination_days_menu', data=[])
         ], value=tab_value)
 
