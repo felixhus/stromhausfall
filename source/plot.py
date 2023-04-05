@@ -35,7 +35,7 @@ def plot_device_timeseries(timesteps, load, color):
 
 def plot_pv_timeseries(timesteps, power, color):
     tick_text = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
-    tick_values = np.linspace(0, 0.13, num=7, endpoint=False)
+    tick_values = [12, 36, 60, 84, 106, 130, 154]
     # Timesteps hier drin aus Anzahl der power-Werte berechnen. Dann ticks darauf mappen
     fig = go.Figure()
     fig.add_trace(go.Scatter(

@@ -489,7 +489,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             dmc.TextInput(id='postcode_input', placeholder='Postleitzahl', icon=DashIconify(icon="mdi:home-location"),
                           value=element_dict[selected_element]['location'][0]),
             dmc.Space(h=20),
-            get_compass(),
+            get_compass(element_dict[selected_element]['orientation']),
             dmc.Space(h=20),
             dmc.Group([
                 dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
@@ -498,7 +498,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right'),
             dmc.Space(h=20),
-            dcc.Graph(figure=plot.plot_pv_timeseries(np.linspace(0, 8, num=24 * 60 * 7),
+            dcc.Graph(figure=plot.plot_pv_timeseries(np.linspace(0, 168, num=169),
                                                      element_dict[selected_element]['power'],
                                                      'rgb(255, 248, 94)'), id='graph_pv',
                       style={'width': '100%'}),
@@ -663,7 +663,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
         ], value=tab_value)
 
 
-def get_compass():
+def get_compass(orientation):
     return html.Div([dmc.Grid(children=[
         dmc.ActionIcon(
             DashIconify(icon=icon, width=20, rotate=rotation),
@@ -675,16 +675,29 @@ def get_compass():
         for icon, button_id, rotation in zip(['gis:point', 'gis:north-arrow-n', 'gis:point'],
                                              ['button_north_west', 'button_north', 'button_north_east'], [0, 0, 0])
     ]),
-        dmc.Grid(children=[dmc.ActionIcon(
-            DashIconify(icon=icon, width=20, rotate=rotation),
-            size="lg",
-            variant="transparent",
-            id=button_id,
-            color='blue'
-        )
-            for icon, button_id, rotation in
-            zip(['gis:north-arrow', 'gis:compass-rose-n', 'gis:north-arrow'],
-                ['button_west', 'button_compass', 'button_east'], [3, 0, 1])
+        dmc.Grid(children=[
+            dmc.ActionIcon(
+                DashIconify(icon='gis:north-arrow', width=20, rotate=3),
+                size="lg",
+                variant="transparent",
+                id='button_west',
+                color='blue'
+            ),
+            dmc.ActionIcon(
+                DashIconify(icon='ri:compass-discover-line', width=20, rotate=0),
+                size="lg",
+                variant="transparent",
+                id='button_compass',
+                color='blue',
+                style={'transform': f'rotate({orientation-45}deg)'}
+            ),
+            dmc.ActionIcon(
+                DashIconify(icon='gis:north-arrow', width=20, rotate=1),
+                size="lg",
+                variant="transparent",
+                id='button_east',
+                color='blue'
+            )
         ]),
         dmc.Grid(children=[dmc.ActionIcon(
             DashIconify(icon=icon, width=20, rotate=rotation),

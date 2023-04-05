@@ -14,14 +14,14 @@ from source.modules import (calculate_power_flow, connection_allowed,
                             get_last_id)
 
 # Button Ids, azimuth angles, Icons and rotations for Compass buttons PV
-compass_buttons = {'button_north': [0, 'solar:arrow-down-linear', 2],
-                   'button_north_east': [45, 'solar:arrow-left-down-linear', 2],
-                   'button_east': [90, 'solar:arrow-down-linear', 3],
-                   'button_south_east': [135, 'solar:arrow-right-down-linear', 0],
-                   'button_south': [180, 'solar:arrow-down-linear', 0],
-                   'button_south_west': [225, 'solar:arrow-left-down-linear', 0],
-                   'button_west': [270, 'solar:arrow-down-linear', 1],
-                   'button_north_west': [315, 'solar:arrow-left-down-linear', 1]}
+compass_buttons = {'button_north': 0,
+                   'button_north_east': 45,
+                   'button_east': 90,
+                   'button_south_east': 135,
+                   'button_south': 180,
+                   'button_south_west': 225,
+                   'button_west': 270,
+                   'button_north_west': 315}
 
 
 def grid_callbacks(app):
@@ -259,7 +259,7 @@ def grid_callbacks(app):
             return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('store_grid_object_dict', 'data', allow_duplicate=True),
-                  Output('button_compass', 'children'),
+                  Output('button_compass', 'style'),
                   State('store_grid_object_dict', 'data'),
                   State('store_selected_element_grid', 'data'),
                   [Input(button, 'n_clicks') for button in compass_buttons.keys()],
@@ -268,9 +268,10 @@ def grid_callbacks(app):
         triggered_id = ctx.triggered_id
         if all(ele is None for ele in args):    # If no button was clicked
             raise PreventUpdate
-        gridObject_dict[selected_element]['orientation'] = compass_buttons[triggered_id][0]
-        icon = DashIconify(icon=compass_buttons[triggered_id][1], width=20, rotate=compass_buttons[triggered_id][2])
-        return gridObject_dict, icon
+        gridObject_dict[selected_element]['orientation'] = compass_buttons[triggered_id]
+        style = {'transform': f'rotate({compass_buttons[triggered_id]-45}deg)'}
+        # icon = DashIconify(icon=compass_buttons[triggered_id][1], width=20, rotate=compass_buttons[triggered_id][2])
+        return gridObject_dict, style
 
     @app.callback(Output('cyto1', 'autoungrabify'),  # Callback to make Node ungrabbable when adding lines
                   Output('store_line_edit_active', 'data'),
