@@ -1,42 +1,35 @@
-import dash
-import dash_html_components as html
-import dash_mantine_components as dmc
-from dash_iconify import DashIconify
+import sqlite3
 
-app = dash.Dash(__name__)
+import pandas as pd
 
-app.layout = html.Div([dmc.Grid(children=[
-    dmc.ActionIcon(
-        DashIconify(icon=icon, width=20, rotate=rotation),
-        size="lg",
-        variant="transparent",
-        id=button_id,
-        color='blue'
-    )
-    for icon, button_id, rotation in zip(['gis:point', 'gis:north-arrow-n', 'gis:point'],
-                                         ['button_north_west', 'button_north', 'button_north_east'], [0, 0, 0])
-    ]),
-    dmc.Grid(children=[dmc.ActionIcon(
-        DashIconify(icon=icon, width=20, rotate=rotation),
-        size="lg",
-        variant="transparent",
-        id=button_id,
-        color='blue'
-    )
-    for icon, button_id, rotation in zip(['gis:north-arrow', 'fluent:compass-northwest-28-regular', 'gis:north-arrow'],
-                                         ['button_west', 'button_compass', 'button_east'], [3, 0, 1])
-    ]),
-    dmc.Grid(children=[dmc.ActionIcon(
-        DashIconify(icon=icon, width=20, rotate=rotation),
-        size="lg",
-        variant="transparent",
-        id=button_id,
-        color='blue'
-    )
-    for icon, button_id, rotation in zip(['gis:point', 'gis:north-arrow', 'gis:point'],
-                                         ['button_south_west', 'button_south', 'button_south_east'], [0, 2, 0])
-    ]),
-])
-# compass: fluent:compass-northwest-28-regular
-if __name__ == '__main__':
-    app.run_server(debug=True)
+# create the connection to the database
+conn = sqlite3.connect('example.db')
+
+# create the tables in the database
+conn.execute('CREATE TABLE IF NOT EXISTS table1 (a INTEGER, b INTEGER, c INTEGER)')
+conn.execute('CREATE TABLE IF NOT EXISTS table2 (a INTEGER, b INTEGER, c INTEGER)')
+conn.execute('CREATE TABLE IF NOT EXISTS table3 (a INTEGER, b INTEGER, c INTEGER)')
+conn.execute('CREATE TABLE IF NOT EXISTS result (a INTEGER, b INTEGER, c INTEGER)')
+
+# create example dataframes
+df1 = pd.DataFrame({'a': [1, 2, 3], 'b': [4, 5, 6], 'c': [7, 8, 9]})
+df2 = pd.DataFrame({'a': [2, 3, 4], 'b': [5, 6, 7], 'c': [8, 9, 10]})
+df3 = pd.DataFrame({'a': [3, 4, 5], 'b': [6, 7, 8], 'c': [9, 10, 11]})
+
+# iterate over the rows of the dataframes and insert the resulting row to the database
+for i, row in enumerate(df1.iterrows()):
+    # get the corresponding rows from the other dataframes
+    row2 = df2.iloc[i]
+    row3 = df3.iloc[i]
+
+    # add up the rows elementwise
+    result_row = row[1] + row2 + row3
+
+    # insert the row to the database
+    conn.execute('INSERT INTO result (a, b, c) VALUES (?, ?, ?)', tuple(result_row))
+
+# commit the changes to the database
+conn.commit()
+
+# close the connection to the database
+conn.close()

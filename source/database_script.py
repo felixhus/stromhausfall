@@ -1,3 +1,4 @@
+import csv
 import random
 import sqlite3
 from pathlib import Path
@@ -40,17 +41,47 @@ def write_to_database(database, values, series_id):
     conn.close()
 
 
-# Path('database_pv.db').touch()
-conn = sqlite3.connect('database_pv.db')
-c = conn.cursor()
-c.execute('''CREATE TABLE plz_data (loc_id int, postcode int, lon real, lat real, city text)''')
-plz = pd.read_csv('plz_coordinates.csv')
-# write the data to a sqlite table
-plz.to_sql('plz_data', conn, if_exists='append', index=False)
-c.close()
+def izes_csv_to_sqlite():
+    p1_csv_path = "C:/Users/felix/Documents/HOME/Uni/02_Master/05_Masterthesis/03_Daten/IZES_Profile/CSV_74_Loadprofiles_1min_W_var/PL1.csv"
+    p2_csv_path = "C:/Users/felix/Documents/HOME/Uni/02_Master/05_Masterthesis/03_Daten/IZES_Profile/CSV_74_Loadprofiles_1min_W_var/PL1.csv"
+    p3_csv_path = "C:/Users/felix/Documents/HOME/Uni/02_Master/05_Masterthesis/03_Daten/IZES_Profile/CSV_74_Loadprofiles_1min_W_var/PL1.csv"
+    Path('database_izes.db').touch()
+    conn = sqlite3.connect('database_pv.db')
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE load_1min (date text)''')
+    for i in range(1, 75):
+        column = "profile_" + str(i)
+        cursor.execute(f"ALTER TABLE load_1min ADD {column} int")
 
-lon, lat, city = sql_modules.get_coordinates(33334, 'database_pv.db')
+    p1_data = pd.read_csv(p1_csv_path, header=None)
+    p2_data = pd.read_csv(p2_csv_path, header=None)
+    p3_data = pd.read_csv(p3_csv_path, header=None)
 
-print(lon)
-print(lat)
-print(city)
+    for i, row in enumerate(p1_data.iterrows()):
+        # get the corresponding rows from the other dataframes
+        row2 = p2_data.iloc[i]
+        row3 = p3_data.iloc[i]
+
+        # add up the rows elementwise
+        result_row = row[1] + row2 + row3
+
+        placeholders = ",".join(["?"] * 74)
+        query = f"INSERT INTO table_name VALUES ({placeholders})"
+
+        if i % 1000 == 0:
+            print(f"Wrote {i} rows ({i/525600*100}%)")
+
+    with open(p1_csv_path) as p1_csv:
+        with open(p2_csv_path) as p2_csv:
+            with open(p3_csv_path) as p3_csv:
+                csv_reader_p1 = csv.reader(p1_csv, delimiter=',')
+                csv_reader_p2 = csv.reader(p2_csv, delimiter=',')
+                csv_reader_p3 = csv.reader(p3_csv, delimiter=',')
+                counter = 0
+                for row in csv_reader_p1:
+                    print(row)
+                    counter += 1
+
+p1_csv_path = "C:/Users/felix/Documents/HOME/Uni/02_Master/05_Masterthesis/03_Daten/IZES_Profile/CSV_74_Loadprofiles_1min_W_var/PL1.csv"
+df = pd.read_csv(p1_csv_path, header=None)
+print('Done')

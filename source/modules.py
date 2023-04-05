@@ -361,6 +361,9 @@ def save_settings_house(children, device_dict, selected_element, house, day):
 
 def save_settings_pv(gridObject_dict, selected_element, postcode, year, week):
     database = 'source/database_pv.db'
+    token_rn = '9d539337969f016d51d3c637ddba49bbc9fe6e71'   # Authorization renewables.ninja
+    sess = requests.session()
+    sess.headers = {'Authorization': 'Token ' + token_rn}
     url = 'https://www.renewables.ninja/api/data/pv'
     if not sql_modules.check_postcode(postcode, database):  # Check if the given postcode exist in database
         return gridObject_dict, 'notification_false_postcode'
@@ -382,7 +385,7 @@ def save_settings_pv(gridObject_dict, selected_element, postcode, year, week):
         'azim': azimuth,  # azimuth angle of the PV system in degrees
         'format': 'json'  # format of the data, csv or json
     }
-    response = requests.get(url, params=query_params)   # Send the GET request and get the response
+    response = sess.get(url, params=query_params)   # Send the GET request and get the response
     if response.status_code == 200:     # Check if the request was successful
         data_pd = pd.read_json(json.dumps(response.json()['data']), orient='index', typ='frame')
     else:
