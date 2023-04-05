@@ -40,7 +40,9 @@ def general_callbacks(app):
                     if gridObject_dict[selected_element_grid]['object_type'] == 'pv':  # If PV is selected
                         gridObject_dict, notif = modules.save_settings_pv(gridObject_dict, selected_element_grid,
                                                                           postcode, year_pv, week_pv)
-                        figure["data"][0]["y"] = gridObject_dict[selected_element_grid]['power']
+                        power = gridObject_dict[selected_element_grid]['power']
+                        power = [-i for i in power]
+                        figure["data"][0]["y"] = [-i for i in gridObject_dict[selected_element_grid]['power']] # Invert power for plot
                         if notif is not None:
                             return no_update, no_update, no_update, notif
                         else:

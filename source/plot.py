@@ -41,7 +41,7 @@ def plot_pv_timeseries(timesteps, power, color):
     fig.add_trace(go.Scatter(
         name="P",
         x=timesteps,
-        y=power,
+        y=[-i for i in power],     # Invert power for plot
         stackgroup='one',
         fillcolor=color,
         mode='none'  # this remove the lines

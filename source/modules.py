@@ -388,7 +388,7 @@ def save_settings_pv(gridObject_dict, selected_element, postcode, year, week):
     else:
         return gridObject_dict, 'notification_pv_api_error'
     # Write data to selected element:
-    gridObject_dict[selected_element]['power'] = data_pd['electricity'].values.tolist()
+    gridObject_dict[selected_element]['power'] = [-i for i in data_pd['electricity'].values.tolist()]  # Inverted Power
     gridObject_dict[selected_element]['location'] = [postcode, lat, lon]
     return gridObject_dict, None
 
