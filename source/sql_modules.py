@@ -56,6 +56,8 @@ def generate_time_series(power, timesteps, number_steps):
 
 
 def check_postcode(postcode, database):
+    if postcode is None:    # If the postcode is missing
+        return False
     # connect to the database
     conn = sqlite3.connect(database)
     cursor = conn.cursor()

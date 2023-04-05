@@ -368,6 +368,7 @@ def save_settings_grid(gridObject_dict, selected_element, postcode, year, week):
     if week == 1:   # Problem: Data only exist from 2019, week 1 starts in 2018
         week = 2
     date_start, date_stop = get_monday_sunday_from_week(week, year)
+    azimuth = gridObject_dict[selected_element]['orientation']
     query_params = {
         'lat': lat,  # latitude of the location
         'lon': lon,  # longitude of the location
@@ -378,7 +379,7 @@ def save_settings_grid(gridObject_dict, selected_element, postcode, year, week):
         'system_loss': 0.1,  # system loss in %
         'tracking': 0,  # tracking mode, 0 = fixed, 1 = 1-axis tracking, 2 = 2-axis tracking
         'tilt': 35,  # tilt angle of the PV system in degrees
-        'azim': 180,  # azimuth angle of the PV system in degrees
+        'azim': azimuth,  # azimuth angle of the PV system in degrees
         'format': 'json'  # format of the data, csv or json
     }
     response = requests.get(url, params=query_params)   # Send the GET request and get the response

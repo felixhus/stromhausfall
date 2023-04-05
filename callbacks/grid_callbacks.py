@@ -3,6 +3,7 @@ import time
 import pandas as pd
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
+from dash_iconify import DashIconify
 
 import source.example_grids as example_grids
 import source.objects as objects
@@ -11,6 +12,16 @@ from source.layout import menu_objects
 from source.modules import (calculate_power_flow, connection_allowed,
                             generate_grid_object, get_connected_edges,
                             get_last_id)
+
+# Button Ids, azimuth angles, Icons and rotations for Compass buttons PV
+compass_buttons = {'button_north': [0, 'solar:arrow-down-linear', 2],
+                   'button_north_east': [45, 'solar:arrow-left-down-linear', 2],
+                   'button_east': [90, 'solar:arrow-down-linear', 3],
+                   'button_south_east': [135, 'solar:arrow-right-down-linear', 0],
+                   'button_south': [180, 'solar:arrow-down-linear', 0],
+                   'button_south_west': [225, 'solar:arrow-left-down-linear', 0],
+                   'button_west': [270, 'solar:arrow-down-linear', 1],
+                   'button_north_west': [315, 'solar:arrow-left-down-linear', 1]}
 
 
 def grid_callbacks(app):
@@ -247,17 +258,19 @@ def grid_callbacks(app):
         except Exception as err:
             return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
-    # @app.callback(Output('tabs_main', 'value'),
-    #               Output('house_fade', 'is_in'),
-    #               Input('house_mode', 'value'),
-    #               prevent_initial_call=True)
-    # def house_mode(control):
-    #     if control == 'pre':
-    #         return 'grid', True
-    #     elif control == 'custom':
-    #         return 'house1', False
-    #     else:
-    #         raise PreventUpdate
+    @app.callback(Output('store_grid_object_dict', 'data', allow_duplicate=True),
+                  Output('button_compass', 'children'),
+                  State('store_grid_object_dict', 'data'),
+                  State('store_selected_element_grid', 'data'),
+                  [Input(button, 'n_clicks') for button in compass_buttons.keys()],
+                  prevent_initial_call=True)
+    def compass_action(gridObject_dict, selected_element, *args):
+        triggered_id = ctx.triggered_id
+        if all(ele is None for ele in args):    # If no button was clicked
+            raise PreventUpdate
+        gridObject_dict[selected_element]['orientation'] = compass_buttons[triggered_id][0]
+        icon = DashIconify(icon=compass_buttons[triggered_id][1], width=20, rotate=compass_buttons[triggered_id][2])
+        return gridObject_dict, icon
 
     @app.callback(Output('cyto1', 'autoungrabify'),  # Callback to make Node ungrabbable when adding lines
                   Output('store_line_edit_active', 'data'),

@@ -484,7 +484,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 icon=DashIconify(icon="emojione-monotone:name-badge"),
             ),
             dmc.Space(h=20),
-            dmc.TextInput(id='postcode_input', label='Postleitzahl', icon=DashIconify(icon="mdi:home-location"),
+            dmc.TextInput(id='postcode_input', placeholder='Postleitzahl', icon=DashIconify(icon="mdi:home-location"),
                           value=element_dict[selected_element]['location'][0]),
             dmc.Space(h=20),
             get_compass(),
@@ -675,7 +675,7 @@ def get_compass():
             color='blue'
         )
             for icon, button_id, rotation in
-            zip(['gis:north-arrow', 'fluent:compass-northwest-28-regular', 'gis:north-arrow'],
+            zip(['gis:north-arrow', 'gis:compass-rose-n', 'gis:north-arrow'],
                 ['button_west', 'button_compass', 'button_east'], [3, 0, 1])
         ]),
         dmc.Grid(children=[dmc.ActionIcon(

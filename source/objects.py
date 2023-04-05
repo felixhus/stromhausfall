@@ -88,8 +88,8 @@ def create_PVObject(object_id, node_id):
         'voltage': None,
         'power': None,
         'object_type': 'pv',
-        'location': [33330, None, None],     # Location consisting of postcode, lat, lon
-        'orientation': 0,
+        'location': [None, None, None],     # Location consisting of postcode, lat, lon
+        'orientation': 0,   # azimuth angle
         'rated_power': 0,
         'tilt': 0,
         'name': "Solaranlage",
