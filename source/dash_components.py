@@ -35,7 +35,7 @@ def add_storage_variables():
                      dcc.Store(id='store_menu_change_tab_house'), dcc.Store(id='store_menu_inputs', data={}),
                      dcc.Store(id='store_grid_object_dict', data={}),
                      dcc.Store(id='store_device_dict', data=device_dict_init),
-                     dcc.Store(id='store_results_house'),
+                     dcc.Store(id='store_results_house'), dcc.Store(id='store_settings', data={}),
                      dcc.Store(id='store_backup', storage_type='session')])
 
 

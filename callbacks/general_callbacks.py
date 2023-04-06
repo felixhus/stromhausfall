@@ -300,6 +300,15 @@ def general_callbacks(app):
         else:
             raise PreventUpdate
 
+    @app.callback(Output('store_settings', 'data'),
+                  Input('input_week', 'value'),
+                  Input('input_year', 'value'),
+                  State('store_settings', 'data'))
+    def settings(week, year, settings_dict):
+        settings_dict['week'] = week
+        settings_dict['year'] = year
+        return settings_dict
+
     @app.callback(Output('download_json', 'data'),
                   Output('modal_load_configuration', 'opened'),
                   Output('store_grid_object_dict', 'data', allow_duplicate=True),
@@ -307,6 +316,8 @@ def general_callbacks(app):
                   Output('cyto1', 'elements', allow_duplicate=True),
                   Output('cyto_bathroom', 'elements', allow_duplicate=True),
                   Output('cyto_kitchen', 'elements', allow_duplicate=True),
+                  Output('input_week', 'value'),
+                  Output('input_year', 'value'),
                   Output('store_notification1', 'data', allow_duplicate=True),
                   Input('menu_item_save', 'n_clicks'),
                   Input('menu_item_load', 'n_clicks'),
@@ -318,32 +329,36 @@ def general_callbacks(app):
                   State('cyto_kitchen', 'elements'),
                   State('upload_configuration', 'filename'),
                   State('upload_configuration', 'contents'),
+                  State('store_settings', 'data'),
                   prevent_initial_call=True)
     def main_menu(btn_save, btn_load_menu, btn_load, gridObject_dict, device_dict, elements_grid, elements_bath,
-                  elements_kitchen, filename, upload_content):
+                  elements_kitchen, filename, upload_content, settings_dict):
         triggered_id = ctx.triggered_id
         if triggered_id == 'menu_item_save':
             save_dict = {'gridObject_dict': gridObject_dict,
                          'device_dict': device_dict,
                          'cyto_grid': elements_grid,
                          'cyto_bathroom': elements_bath,
-                         'cyto_kitchen': elements_kitchen}
+                         'cyto_kitchen': elements_kitchen,
+                         'settings': settings_dict}
             return dict(content=json.dumps(save_dict),
-                        filename="test.json"), no_update, no_update, no_update, no_update, no_update, no_update, no_update
+                        filename="test.json"), no_update, no_update, no_update, no_update, no_update, no_update, \
+                   no_update, no_update, no_update
         elif triggered_id == 'menu_item_load':
-            return no_update, True, no_update, no_update, no_update, no_update, no_update, no_update
+            return no_update, True, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'button_load_configuration':
             if not filename.endswith('.json'):  # Check if the file format is .json
-                return no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file_format'
+                return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file_format'
             else:
                 content_type, content_string = upload_content.split(",")  # Three lines to get dict from content
                 decoded = base64.b64decode(content_string)
                 content_dict = json.loads(decoded)
                 if not (
                         'gridObject_dict' in content_dict and 'device_dict' in content_dict and 'cyto_grid' in content_dict):  # Check if all dictionaries are there
-                    return no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file'
+                    return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file'
                 return no_update, False, content_dict['gridObject_dict'], content_dict['device_dict'], \
-                       content_dict['cyto_grid'], content_dict['cyto_bathroom'], content_dict['cyto_kitchen'], no_update
+                       content_dict['cyto_grid'], content_dict['cyto_bathroom'], content_dict['cyto_kitchen'],\
+                       content_dict['settings']['week'], content_dict['settings']['year'], no_update
         else:
             raise PreventUpdate
 
@@ -360,14 +375,16 @@ def general_callbacks(app):
                   State('cyto1', 'elements'),
                   State('cyto_bathroom', 'elements'),
                   State('cyto_kitchen', 'elements'),
+                  State('store_settings', 'data'),
                   State('store_backup', 'data'),
                   prevent_initial_call=True)
-    def backup(interval, gridObject_dict, device_dict, elements_grid, elements_bath, elements_kitchen, backup):
+    def backup(interval, gridObject_dict, device_dict, elements_grid, elements_bath, elements_kitchen, settings_dict, backup):
         save_dict = {'gridObject_dict': gridObject_dict,
                      'device_dict': device_dict,
                      'cyto_grid': elements_grid,
                      'cyto_bathroom': elements_bath,
-                     'cyto_kitchen': elements_kitchen}
+                     'cyto_kitchen': elements_kitchen,
+                     'settings': settings_dict}
         return json.dumps(save_dict)
 
     @app.callback(Output('store_grid_object_dict', 'data', allow_duplicate=True),
@@ -375,6 +392,8 @@ def general_callbacks(app):
                   Output('cyto1', 'elements', allow_duplicate=True),
                   Output('cyto_bathroom', 'elements', allow_duplicate=True),
                   Output('cyto_kitchen', 'elements', allow_duplicate=True),
+                  Output('input_week', 'value', allow_duplicate=True),
+                  Output('input_year', 'value', allow_duplicate=True),
                   Input('interval_refresh', 'n_intervals'),
                   State('store_backup', 'data'),
                   prevent_initial_call=True)
@@ -382,6 +401,7 @@ def general_callbacks(app):
         if backup_dict is not None:
             backup_dict = json.loads(backup_dict)
             return backup_dict['gridObject_dict'], backup_dict['device_dict'], \
-                   backup_dict['cyto_grid'], backup_dict['cyto_bathroom'], backup_dict['cyto_kitchen']
+                   backup_dict['cyto_grid'], backup_dict['cyto_bathroom'], backup_dict['cyto_kitchen'], \
+                   backup_dict['settings']['week'], backup_dict['settings']['year']
         else:
             raise PreventUpdate
