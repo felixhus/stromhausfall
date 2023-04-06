@@ -1,3 +1,4 @@
 .idea/
 __pycache__/
 source/__pycache__
+source/database_izes.db
