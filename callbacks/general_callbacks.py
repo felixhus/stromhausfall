@@ -24,13 +24,13 @@ def general_callbacks(app):
                   State('menu_parent_tabs', 'children'),
                   State('pagination_days_menu', 'value'),
                   State('store_grid_object_dict', 'data'),
-                  State('postcode_input', 'value'),
+                  # State('postcode_input', 'value'),
                   State('input_year', 'value'),
                   State('input_week', 'value'),
                   State('graph_pv', 'figure'),
                   prevent_initial_call=True)
     def save_props_action(btn_save, tabs_main, device_dict, selected_element_house, selected_element_grid, children,
-                          day, gridObject_dict, postcode, year_pv, week_pv, figure):
+                          day, gridObject_dict, year_pv, week_pv, figure):
         try:
             if btn_save is None:
                 raise PreventUpdate
@@ -41,8 +41,9 @@ def general_callbacks(app):
                     return device_dict, no_update, no_update, no_update
                 elif tabs_main == 'grid':  # If button was clicked in grid mode
                     if gridObject_dict[selected_element_grid]['object_type'] == 'pv':  # If PV is selected
-                        gridObject_dict, notif = modules.save_settings_pv(gridObject_dict, selected_element_grid,
-                                                                          postcode, year_pv, week_pv)
+                        gridObject_dict, notif = modules.save_settings_pv(children[2]['props']['children'],
+                                                                          gridObject_dict, selected_element_grid,
+                                                                          year_pv, week_pv)
                         figure["data"][0]["y"] = [-i for i in gridObject_dict[selected_element_grid][
                             'power']]  # Invert power for plot
                         if notif is not None:
@@ -188,6 +189,11 @@ def general_callbacks(app):
                                     "Diese Datei kann ich leider nicht laden, sie hat das falsche Format!"]
             icon = DashIconify(icon="mdi:file-remove-outline")
             color = 'yellow'
+        elif data == 'notification_wrong_file':
+            notification_message = ["Falsche Datei!",
+                                    "Diese Datei ist beschädigt oder enthält nicht alle Daten, die ich brauche."]
+            icon = DashIconify(icon="mdi:file-remove-outline")
+            color = 'yellow'
         elif data == 'notification_pv_api_error':
             notification_message = ["Fehler Datenabfrage!",
                                     "Die Daten konnten nicht von renewables.ninja abgefragt werden."]
@@ -325,14 +331,15 @@ def general_callbacks(app):
         elif triggered_id == 'menu_item_load':
             return no_update, True, no_update, no_update, no_update, no_update
         elif triggered_id == 'button_load_configuration':
-            ending = filename[len(filename) - 4:]
             if not filename.endswith('.json'):  # Check if the file format is .json
                 return no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file_format'
             else:
                 content_type, content_string = upload_content.split(",")  # Three lines to get dict from content
                 decoded = base64.b64decode(content_string)
                 content_dict = json.loads(decoded)
-                return no_update, no_update, content_dict['gridObject_dict'], content_dict['device_dict'], \
+                if not ('gridObject_dict' in content_dict and 'device_dict' in content_dict and 'cyto_grid' in content_dict):   # Check if all dictionaries are there
+                    return no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file'
+                return no_update, False, content_dict['gridObject_dict'], content_dict['device_dict'], \
                        content_dict['cyto_grid'], no_update
         else:
             raise PreventUpdate

@@ -359,7 +359,8 @@ def save_settings_house(children, device_dict, selected_element, house, day):
     return device_dict
 
 
-def save_settings_pv(gridObject_dict, selected_element, postcode, year, week):
+def save_settings_pv(children, gridObject_dict, selected_element, year, week):
+    postcode = children[2]['props']['value']
     database = 'source/database_pv.db'
     token_rn = '9d539337969f016d51d3c637ddba49bbc9fe6e71'   # Authorization renewables.ninja
     sess = requests.session()
@@ -393,6 +394,7 @@ def save_settings_pv(gridObject_dict, selected_element, postcode, year, week):
     # Write data to selected element:
     gridObject_dict[selected_element]['power'] = [-i for i in data_pd['electricity'].values.tolist()]  # Inverted Power
     gridObject_dict[selected_element]['location'] = [postcode, lat, lon]
+    gridObject_dict[selected_element]['name'] = children[0]['props']['value']
     return gridObject_dict, None
 
 

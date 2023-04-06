@@ -488,6 +488,9 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
         ],
             value=tab_value)
     elif tab_value == 'pv':
+        postcode = element_dict[selected_element]['location'][0]
+        if postcode is None:
+            postcode = ""
         return dmc.TabsPanel([
             dmc.TextInput(
                 id='name_input',
@@ -497,7 +500,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             ),
             dmc.Space(h=20),
             dmc.TextInput(id='postcode_input', placeholder='Postleitzahl', icon=DashIconify(icon="mdi:home-location"),
-                          value=element_dict[selected_element]['location'][0]),
+                          value=postcode),
             dmc.Space(h=20),
             get_compass(element_dict[selected_element]['orientation']),
             dmc.Space(h=20),
