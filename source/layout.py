@@ -54,6 +54,7 @@ def app_layout(app):
             dash_components.add_modal_voltage_level(),
             dash_components.add_storage_variables(),
             dash_components.add_modal_timeseries(),
+            dash_components.add_modal_load_configuration(),
             dcc.Download(id='download_json'),
             dex.EventListener(id='key_event_listener', events=[{'event': 'keydown', 'props': ["key"]}]),
             html.P(id='init')], width=True),

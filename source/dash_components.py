@@ -755,5 +755,38 @@ def add_modal_timeseries():
     )
 
 
+def add_modal_load_configuration():
+    return dmc.Modal(
+        title='Konfiguration laden',
+        id='modal_load_configuration',
+        children=[
+            dcc.Upload(
+                id='upload_configuration',
+                children=html.Div([
+                    'Datei hier ablegen oder ',
+                    html.A('Auswählen')
+                ]),
+                style={
+                    'width': '100%',
+                    'height': '100px',
+                    'lineHeight': '100px',
+                    'borderWidth': '1px',
+                    'borderStyle': 'dashed',
+                    'borderRadius': '10px',
+                    'textAlign': 'center',
+                    'margin': '10px'
+                },
+                multiple=False
+            ),
+            dmc.Text(id='text_filename_load'),
+            dmc.Space(h=10),
+            dmc.Text("Die aktuelle Konfiguration durch die geladene überschreiben?"),
+            dmc.Space(h=10),
+            dmc.Button("Laden", id='button_load_configuration', leftIcon=DashIconify(icon="iconoir:load-action-floppy"))
+        ],
+        opened=False
+    )
+
+
 def add_drawer_notifications():
     return dmc.Drawer(title="Nachrichten:", id='drawer_notifications', padding="md", children=[])

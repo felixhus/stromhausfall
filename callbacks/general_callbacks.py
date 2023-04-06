@@ -1,3 +1,4 @@
+import base64
 import json
 
 import dash_mantine_components as dmc
@@ -42,7 +43,8 @@ def general_callbacks(app):
                     if gridObject_dict[selected_element_grid]['object_type'] == 'pv':  # If PV is selected
                         gridObject_dict, notif = modules.save_settings_pv(gridObject_dict, selected_element_grid,
                                                                           postcode, year_pv, week_pv)
-                        figure["data"][0]["y"] = [-i for i in gridObject_dict[selected_element_grid]['power']] # Invert power for plot
+                        figure["data"][0]["y"] = [-i for i in gridObject_dict[selected_element_grid][
+                            'power']]  # Invert power for plot
                         if notif is not None:
                             return no_update, no_update, no_update, notif
                         else:
@@ -181,6 +183,11 @@ def general_callbacks(app):
             raise PreventUpdate
         if data is None:
             raise PreventUpdate
+        elif data == 'notification_wrong_file_format':
+            notification_message = ["Falsches Dateiformat!",
+                                    "Diese Datei kann ich leider nicht laden, sie hat das falsche Format!"]
+            icon = DashIconify(icon="mdi:file-remove-outline")
+            color = 'yellow'
         elif data == 'notification_pv_api_error':
             notification_message = ["Fehler Datenabfrage!",
                                     "Die Daten konnten nicht von renewables.ninja abgefragt werden."]
@@ -288,15 +295,24 @@ def general_callbacks(app):
             raise PreventUpdate
 
     @app.callback(Output('download_json', 'data'),
+                  Output('modal_load_configuration', 'opened'),
+                  Output('store_grid_object_dict', 'data', allow_duplicate=True),
+                  Output('store_device_dict', 'data', allow_duplicate=True),
+                  Output('cyto1', 'elements', allow_duplicate=True),
+                  Output('store_notification1', 'data', allow_duplicate=True),
                   Input('menu_item_save', 'n_clicks'),
-                  Input('menu_item_save', 'n_clicks'),
+                  Input('menu_item_load', 'n_clicks'),
+                  Input('button_load_configuration', 'n_clicks'),
                   State('store_grid_object_dict', 'data'),
                   State('store_device_dict', 'data'),
                   State('cyto1', 'elements'),
                   State('cyto_bathroom', 'elements'),
                   State('cyto_kitchen', 'elements'),
+                  State('upload_configuration', 'filename'),
+                  State('upload_configuration', 'contents'),
                   prevent_initial_call=True)
-    def main_menu(btn_save, btn_load, gridObject_dict, device_dict, elements_grid, elements_bath, elements_kitchen):
+    def main_menu(btn_save, btn_load_menu, btn_load, gridObject_dict, device_dict, elements_grid, elements_bath,
+                  elements_kitchen, filename, upload_content):
         triggered_id = ctx.triggered_id
         if triggered_id == 'menu_item_save':
             save_dict = {'gridObject_dict': gridObject_dict,
@@ -304,6 +320,25 @@ def general_callbacks(app):
                          'cyto_grid': elements_grid,
                          'cyto_bathroom': elements_bath,
                          'cyto_kitchen': elements_kitchen}
-            return dict(content=json.dumps(save_dict), filename="test.json")
+            return dict(content=json.dumps(save_dict),
+                        filename="test.json"), no_update, no_update, no_update, no_update, no_update
+        elif triggered_id == 'menu_item_load':
+            return no_update, True, no_update, no_update, no_update, no_update
+        elif triggered_id == 'button_load_configuration':
+            ending = filename[len(filename) - 4:]
+            if not filename.endswith('.json'):  # Check if the file format is .json
+                return no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file_format'
+            else:
+                content_type, content_string = upload_content.split(",")  # Three lines to get dict from content
+                decoded = base64.b64decode(content_string)
+                content_dict = json.loads(decoded)
+                return no_update, no_update, content_dict['gridObject_dict'], content_dict['device_dict'], \
+                       content_dict['cyto_grid'], no_update
         else:
             raise PreventUpdate
+
+    @app.callback(Output('text_filename_load', 'children'),
+                  Input('upload_configuration', 'filename'),
+                  prevent_initial_call=True)
+    def filename_upload(filename):
+        return filename
