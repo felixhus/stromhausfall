@@ -305,6 +305,16 @@ def dash_navbar():
                            gradient={"from": "teal", "to": "blue", "deg": 60}),
                 dmc.Button("README", id='button_readme', n_clicks=0,
                            leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
+                dmc.Menu([
+                    dmc.MenuTarget(dmc.Button("Menü", leftIcon=DashIconify(icon="material-symbols:menu-rounded"),
+                                              variant='gradient'),),
+                    dmc.MenuDropdown([
+                        dmc.MenuItem("Konfiguration speichern", icon=DashIconify(icon="iconoir:save-action-floppy"),
+                                     id='menu_item_save'),
+                        dmc.MenuItem("Konfiguration laden", icon=DashIconify(icon="iconoir:load-action-floppy"),
+                                     id='menu_item_load'),
+                    ])
+                ], trigger='hover', openDelay=100, closeDelay=200, transition="rotate-right", transitionDuration=150),
                 dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
                            gradient={"from": "grape", "to": "pink", "deg": 35})
             ], spacing=10

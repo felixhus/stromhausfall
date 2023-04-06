@@ -49,7 +49,7 @@ def izes_csv_to_sqlite():
     Path('database_izes.db').touch()
     conn = sqlite3.connect('database_izes.db')
     cursor = conn.cursor()
-    cursor.execute('''CREATE TABLE load_1min (date text)''')
+    cursor.execute('''CREATE TABLE load_1min (month int, day int)''')
     for i in range(1, 75):
         column = "profile_" + str(i)
         cursor.execute(f"ALTER TABLE load_1min ADD {column} int")
@@ -70,7 +70,7 @@ def izes_csv_to_sqlite():
         row_sum = row1 + row2 + row3
 
         placeholders = ",".join(["?"] * 74)
-        query = f"INSERT INTO load_1min VALUES ({date.strftime('%Y-%m-%d')}, {placeholders})"
+        query = f"INSERT INTO load_1min VALUES ({date.month}, {date.day}, {placeholders})"
 
         if i % 1000 == 0:
             percent = "%.2f" % (i/525600*100)
@@ -78,7 +78,6 @@ def izes_csv_to_sqlite():
 
         cursor.execute(query, tuple(row_sum))
         date = date + timedelta(minutes=1)
-        # BESSER: Zwei Spalten, eine mit Tag und eine mit Monat.
 
     conn.commit()
     conn.close()

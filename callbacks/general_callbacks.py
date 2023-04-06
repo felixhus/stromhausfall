@@ -1,3 +1,5 @@
+import json
+
 import dash_mantine_components as dmc
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
@@ -40,8 +42,6 @@ def general_callbacks(app):
                     if gridObject_dict[selected_element_grid]['object_type'] == 'pv':  # If PV is selected
                         gridObject_dict, notif = modules.save_settings_pv(gridObject_dict, selected_element_grid,
                                                                           postcode, year_pv, week_pv)
-                        power = gridObject_dict[selected_element_grid]['power']
-                        power = [-i for i in power]
                         figure["data"][0]["y"] = [-i for i in gridObject_dict[selected_element_grid]['power']] # Invert power for plot
                         if notif is not None:
                             return no_update, no_update, no_update, notif
@@ -284,5 +284,26 @@ def general_callbacks(app):
             # Problem: Ich kann die neuen Lastprofile eigentlich nicht in die SQL-Datenbank schreiben, da die dann
             # für alle verändert wird.
             return False, no_update
+        else:
+            raise PreventUpdate
+
+    @app.callback(Output('download_json', 'data'),
+                  Input('menu_item_save', 'n_clicks'),
+                  Input('menu_item_save', 'n_clicks'),
+                  State('store_grid_object_dict', 'data'),
+                  State('store_device_dict', 'data'),
+                  State('cyto1', 'elements'),
+                  State('cyto_bathroom', 'elements'),
+                  State('cyto_kitchen', 'elements'),
+                  prevent_initial_call=True)
+    def main_menu(btn_save, btn_load, gridObject_dict, device_dict, elements_grid, elements_bath, elements_kitchen):
+        triggered_id = ctx.triggered_id
+        if triggered_id == 'menu_item_save':
+            save_dict = {'gridObject_dict': gridObject_dict,
+                         'device_dict': device_dict,
+                         'cyto_grid': elements_grid,
+                         'cyto_bathroom': elements_bath,
+                         'cyto_kitchen': elements_kitchen}
+            return dict(content=json.dumps(save_dict), filename="test.json")
         else:
             raise PreventUpdate
