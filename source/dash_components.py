@@ -482,10 +482,6 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right'),
             dmc.Space(h=20),
-            # dcc.Graph(figure=plot.plot_device_timeseries(np.linspace(0, 24, num=1440),
-            #                                              element_dict[selected_element]['power'],
-            #                                              'rgb(175, 173, 222)'), id='graph_device',
-            #           style={'width': '100%'})
         ],
             value=tab_value)
     elif tab_value == 'pv':
@@ -579,8 +575,9 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                     label=["Lastprofil ",
                            dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True,
                                      color='primary')],
-                    placeholder="Auswahl",
+                    placeholder="Work in progress",
                     id='load_profile_select',
+                    disabled=True,
                     value=element_dict[selected_element]['selected_power_option'],
                     data=[
                         {'value': key, 'label': key}
