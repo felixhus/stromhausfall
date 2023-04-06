@@ -3,6 +3,7 @@ import time
 import pandas as pd
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
+from dash_iconify import DashIconify
 
 import source.example_grids as example_grids
 import source.objects as objects
@@ -11,6 +12,16 @@ from source.layout import menu_objects
 from source.modules import (calculate_power_flow, connection_allowed,
                             generate_grid_object, get_connected_edges,
                             get_last_id)
+
+# Button Ids, azimuth angles, Icons and rotations for Compass buttons PV
+compass_buttons = {'button_north': 0,
+                   'button_north_east': 45,
+                   'button_east': 90,
+                   'button_south_east': 135,
+                   'button_south': 180,
+                   'button_south_west': 225,
+                   'button_west': 270,
+                   'button_north_west': 315}
 
 
 def grid_callbacks(app):
@@ -96,7 +107,7 @@ def grid_callbacks(app):
             image_src = app.get_asset_url('Icons/' + new_gridobject['icon'])
             gridObject_dict[new_gridobject['id']] = new_gridobject
             new_element = {'data': {'id': 'node' + str(last_id[0] + 1)},
-                           'position': {'x': 50, 'y': 50}, 'classes': 'node_style',
+                           'position': {'x': 50 + last_id[0] * 8, 'y': 50 + last_id[0] * 8}, 'classes': 'node_style',
                            'style': {'background-image': image_src, 'background-color': new_gridobject['ui_color']}}
             elements.append(new_element)
             return elements, gridObject_dict, no_update, no_update, no_update, no_update, no_update
@@ -173,49 +184,94 @@ def grid_callbacks(app):
         else:
             raise PreventUpdate
 
-    @app.callback(Output('store_menu_change_tab_grid', 'data'),
+    @app.callback(Output('store_grid_object_dict', 'data', allow_duplicate=True),
+                  Output('store_menu_change_tab_grid', 'data'),
                   Output('cyto1', 'tapNodeData'),
                   Output('cyto1', 'tapEdgeData'),
                   Output('store_selected_element_grid', 'data'),
+                  Output('tabs_main', 'value', allow_duplicate=True),
+                  Output('house_fade', 'is_in'),
+                  Output('store_custom_house', 'data'),
+                  Output('tab_house', 'disabled'),
+                  Output('house_mode', 'value'),
                   Output('store_notification3', 'data'),
                   Input('cyto1', 'tapNodeData'),
                   Input('cyto1', 'tapEdgeData'),
                   Input('edit_save_button', 'n_clicks'),
                   Input('store_element_deleted', 'data'),
+                  Input('house_mode', 'value'),
+                  State('store_selected_element_grid', 'data'),
                   State('store_grid_object_dict', 'data'),
                   State('store_line_edit_active', 'data'),
-                  State('tabs_main', 'value'))
-    def edit_grid_objects(node, edge, btn_save, element_deleted, gridObject_dict, btn_line_active, tabs_main):
+                  State('tabs_main', 'value'),
+                  State('store_custom_house', 'data'),
+                  prevent_initial_call=True)
+    def edit_grid_objects(node, edge, btn_save, element_deleted, control, selected_element,
+                          gridObject_dict, btn_line_active, tabs_main, custom_house):
         try:
             triggered_id = ctx.triggered_id
             triggered = ctx.triggered
             if triggered_id == 'cyto1':
                 if triggered[0]['prop_id'] == 'cyto1.tapNodeData':  # Node was clicked
                     if not btn_line_active:
-                        return gridObject_dict[node['id']]['object_type'], None, None, node[
-                            'id'], no_update  # Reset tapNodeData and tapEdgeData and return type of node for tab in menu
+                        return no_update, gridObject_dict[node['id']]['object_type'], None, None, node['id'],\
+                               no_update, no_update, no_update, no_update, no_update, no_update  # Reset tapNodeData and tapEdgeData and return type of node for tab in menu
                     else:
                         raise PreventUpdate
                 elif triggered[0]['prop_id'] == 'cyto1.tapEdgeData':  # Edge was clicked
-                    return gridObject_dict[edge['id']]['object_type'], None, None, edge[
-                        'id'], no_update  # Reset tapNodeData and tapEdgeData and return type of edge for tab in menu
+                    return no_update, gridObject_dict[edge['id']]['object_type'], None, None, edge['id'],\
+                           no_update, no_update, no_update, no_update, no_update, no_update  # Reset tapNodeData and tapEdgeData and return type of edge for tab in menu
                 else:
                     raise Exception("Weder Node noch Edge wurde geklickt.")
+            elif triggered_id == 'house_mode':  # New mode of house configuration was clicked (segmented control)
+                if custom_house is None:        # If no house is in custom-mode yet
+                    if control == 'preset':
+                        gridObject_dict[selected_element]['config_mode'] = 'preset'
+                        return gridObject_dict, no_update, no_update, no_update, no_update, no_update, True, no_update, no_update, no_update, no_update
+                    elif control == 'custom':
+                        gridObject_dict[selected_element]['config_mode'] = 'custom'
+                        return gridObject_dict, no_update, no_update, no_update, no_update, 'house1', False, selected_element, False, no_update, no_update
+                    else:
+                        raise PreventUpdate
+                elif custom_house == selected_element:
+                    if control == 'preset':
+                        gridObject_dict[selected_element]['config_mode'] = 'preset'
+                        return gridObject_dict, no_update, no_update, no_update, no_update, no_update, True, None, True, no_update, no_update
+                    else:
+                        raise PreventUpdate
+                else:
+                    return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
+                           no_update, 'preset', 'notification_custom_house'
             elif triggered_id == 'edit_save_button':  # Save button was clicked in the menu
                 if tabs_main != 'grid' or btn_save is None:  # If it was clicked in house mode or is None do nothing
                     raise PreventUpdate
                 raise PreventUpdate
             elif triggered_id == 'store_element_deleted':
                 if element_deleted is not None:
-                    return 'empty', None, None, no_update, no_update
+                    return no_update, 'empty', None, None, no_update, no_update, no_update, no_update, no_update, no_update, no_update
                 else:
-                    return PreventUpdate
+                    raise PreventUpdate
             else:
                 raise PreventUpdate
         except PreventUpdate:
-            return no_update, no_update, no_update, no_update, no_update
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
         except Exception as err:
-            return no_update, no_update, no_update, no_update, err.args[0]
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
+
+    @app.callback(Output('store_grid_object_dict', 'data', allow_duplicate=True),
+                  Output('button_compass', 'style'),
+                  State('store_grid_object_dict', 'data'),
+                  State('store_selected_element_grid', 'data'),
+                  [Input(button, 'n_clicks') for button in compass_buttons.keys()],
+                  prevent_initial_call=True)
+    def compass_action(gridObject_dict, selected_element, *args):
+        triggered_id = ctx.triggered_id
+        if all(ele is None for ele in args):    # If no button was clicked
+            raise PreventUpdate
+        gridObject_dict[selected_element]['orientation'] = compass_buttons[triggered_id]
+        style = {'transform': f'rotate({compass_buttons[triggered_id]-45}deg)'}
+        # icon = DashIconify(icon=compass_buttons[triggered_id][1], width=20, rotate=compass_buttons[triggered_id][2])
+        return gridObject_dict, style
 
     @app.callback(Output('cyto1', 'autoungrabify'),  # Callback to make Node ungrabbable when adding lines
                   Output('store_line_edit_active', 'data'),
@@ -246,7 +302,7 @@ def grid_callbacks(app):
         if triggered_id == 'button_line':
             raise PreventUpdate
         else:
-            return triggered_id#
+            return triggered_id
 
     @app.callback(Output('cyto1', 'layout'),
                   Output('example_button', 'disabled'),

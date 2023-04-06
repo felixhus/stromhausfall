@@ -1,7 +1,7 @@
 import dash_bootstrap_components as dbc
 import dash_extensions as dex
 import dash_mantine_components as dmc
-from dash import html
+from dash import dcc, html
 
 import source.dash_components as dash_components
 
@@ -54,6 +54,10 @@ def app_layout(app):
             dash_components.add_modal_voltage_level(),
             dash_components.add_storage_variables(),
             dash_components.add_modal_timeseries(),
+            dash_components.add_modal_load_configuration(),
+            dcc.Download(id='download_json'),
+            dcc.Interval(id='interval_refresh', interval=100, max_intervals=1),
+            dcc.Interval(id='interval_backup', interval=10000),
             dex.EventListener(id='key_event_listener', events=[{'event': 'keydown', 'props': ["key"]}]),
             html.P(id='init')], width=True),
         html.Div(id='notification_container')

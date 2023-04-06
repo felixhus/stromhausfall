@@ -3,16 +3,18 @@
 Dies ist der aktuelle Stand der Webapp meiner Masterthesis. Folgende Funktionen sind bereits implementiert und können ausprobiert werden:
 
 ### NEUE FUNKTIONEN 🎉 ###
+> Das erstellte Netz und Haus kann im Menü (oben rechts) heruntergeladen werden.
+> Eine zuvor heruntergeladene Konfiguration kann wieder in die App geladen werden (Menü > Laden)
+> Jede PV-Anlage im Netz kann mit Postleitzahl und Ausrichtung konfiguriert werden. Die realen Sonnendaten für diese Konfiguration werden anschließend in die App geladen.
 > In dem Tab "Haus 1" kann ein Haus in seinen Räumen frei konfiguriert werden.
 
 ### Funktionen Haus: ###
 
-⚠️Nur das Bad funktioniert. Die anderen Räumen werden in Kürze erstellt.
 - In jedem Raum befindet sich eine Steckdosenleiste. Über das + kann ein neues Gerät hinzugefügt werden.
 - Klickt man auf ein Gerät, öffnet sich rechts ein Menü zur Konfiguration.
 - Jedes Gerät kann entweder durch klicken auf die zugehörige Steckdose, oder durch den Schalter im Menu an- oder abgeschaltet werden. Ist es abgeschaltet, wird es in der Berechnung nicht berücksichtigt.
 - Der Name des Geräts kann geändert und abgespeichert werden.
-- Für jedes Gerät kann aus einer Liste von hinterlegten Lastprofilen über einen Tag gewählt werden.
+- Für jedes Gerät kann entweder ein fertiges Lastprofil hinterlegt werden, oder beliebig viele Einschaltzeitpunkte für jeden Tag einer Woche hinzugefügt werden.
 - Nach dem Speichern wird das Lastprofil angezeigt.
 - Mit dem Button "BERECHNEN" wird das resultierende Lastprofil des Hauses berechnet und in Graphen angezeigt.
 
@@ -38,6 +40,6 @@ Jedes Element des gezeichneten Netzes wird in einen Graphenknoten mit seinen Eig
 
 Fragen und Anregungen gern an mich [per Mail](mailto:felix.husemann@tum.de)
 ~~~
-Stand: 08.02.2023
+Stand: 06.04.2023
 © Felix Husemann, TUM
 ~~~

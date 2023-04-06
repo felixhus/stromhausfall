@@ -1,3 +1,6 @@
+import base64
+import json
+
 import dash_mantine_components as dmc
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
@@ -5,9 +8,55 @@ from dash_iconify import DashIconify
 
 import source.dash_components as dash_components
 import source.modules as modules
+from source.modules import days
 
 
 def general_callbacks(app):
+    @app.callback(Output('store_device_dict', 'data', allow_duplicate=True),
+                  Output('store_grid_object_dict', 'data', allow_duplicate=True),
+                  Output('graph_pv', 'figure'),
+                  Output('store_notification1', 'data', allow_duplicate=True),
+                  Input('edit_save_button', 'n_clicks'),
+                  State('tabs_main', 'value'),
+                  State('store_device_dict', 'data'),
+                  State('store_selected_element_house', 'data'),
+                  State('store_selected_element_grid', 'data'),
+                  State('menu_parent_tabs', 'children'),
+                  State('pagination_days_menu', 'value'),
+                  State('store_grid_object_dict', 'data'),
+                  # State('postcode_input', 'value'),
+                  State('input_year', 'value'),
+                  State('input_week', 'value'),
+                  State('graph_pv', 'figure'),
+                  prevent_initial_call=True)
+    def save_props_action(btn_save, tabs_main, device_dict, selected_element_house, selected_element_grid, children,
+                          day, gridObject_dict, year_pv, week_pv, figure):
+        try:
+            if btn_save is None:
+                raise PreventUpdate
+            else:
+                if tabs_main == 'house1':  # If button was clicked in house mode
+                    device_dict = modules.save_settings_house(children[2]['props']['children'], device_dict,
+                                                              selected_element_house, 'house1', day)
+                    return device_dict, no_update, no_update, no_update
+                elif tabs_main == 'grid':  # If button was clicked in grid mode
+                    if gridObject_dict[selected_element_grid]['object_type'] == 'pv':  # If PV is selected
+                        gridObject_dict, notif = modules.save_settings_pv(children[2]['props']['children'],
+                                                                          gridObject_dict, selected_element_grid,
+                                                                          year_pv, week_pv)
+                        figure["data"][0]["y"] = [-i for i in gridObject_dict[selected_element_grid][
+                            'power']]  # Invert power for plot
+                        if notif is not None:
+                            return no_update, no_update, no_update, notif
+                        else:
+                            return no_update, gridObject_dict, figure, no_update
+                else:
+                    raise PreventUpdate
+        except PreventUpdate:
+            return no_update, no_update, no_update, no_update
+        except Exception as err:
+            return no_update, no_update, no_update, err.args[0]
+
     @app.callback(Output('store_results_house', 'data'),
                   Output('graph_power_house', 'figure'),
                   Output('graph_sunburst_house', 'figure'),
@@ -68,7 +117,7 @@ def general_callbacks(app):
                 elements_dict = gridObject_dict
             else:
                 raise PreventUpdate
-            while len(menu_children) > 1:  # Remove all tabs except the 'empty' tab
+            while len(menu_children) > 2:  # Remove all tabs except the 'empty' tab and the 'init_ids' tab
                 menu_children.pop()
             new_tab_panel = dash_components.add_menu_tab_panel(tab_value, selected_element,
                                                                elements_dict)  # Get new tab panel
@@ -111,8 +160,9 @@ def general_callbacks(app):
                   Input('store_notification5', 'data'),
                   Input('store_notification6', 'data'),
                   Input('store_notification7', 'data'),
+                  Input('store_notification8', 'data'),
                   State('drawer_notifications', 'children'))
-    def notification(data1, data2, data3, data4, data5, data6, data7, notif_list):
+    def notification(data1, data2, data3, data4, data5, data6, data7, data8, notif_list):
         triggered_id = ctx.triggered_id
         if triggered_id == 'store_notification1':
             data = data1
@@ -128,10 +178,32 @@ def general_callbacks(app):
             data = data6
         elif triggered_id == 'store_notification7':
             data = data7
+        elif triggered_id == 'store_notification8':
+            data = data8
         else:
             raise PreventUpdate
         if data is None:
             raise PreventUpdate
+        elif data == 'notification_wrong_file_format':
+            notification_message = ["Falsches Dateiformat!",
+                                    "Diese Datei kann ich leider nicht laden, sie hat das falsche Format!"]
+            icon = DashIconify(icon="mdi:file-remove-outline")
+            color = 'yellow'
+        elif data == 'notification_wrong_file':
+            notification_message = ["Falsche Datei!",
+                                    "Diese Datei ist beschädigt oder enthält nicht alle Daten, die ich brauche."]
+            icon = DashIconify(icon="mdi:file-remove-outline")
+            color = 'yellow'
+        elif data == 'notification_pv_api_error':
+            notification_message = ["Fehler Datenabfrage!",
+                                    "Die Daten konnten nicht von renewables.ninja abgefragt werden."]
+            icon = DashIconify(icon="fa6-solid:solar-panel")
+            color = 'red'
+        elif data == 'notification_false_postcode':
+            notification_message = ["Zustellung nicht möglich!",
+                                    "Diese Postleitzahl kenne ich leider nicht."]
+            icon = DashIconify(icon="material-symbols:mail-outline-rounded")
+            color = 'yellow'
         elif data == 'notification_false_connection':
             notification_message = ["Kabelsalat!",
                                     "Zwischen diesen beiden Komponenten kannst du keine Leitung ziehen."]
@@ -150,6 +222,11 @@ def general_callbacks(app):
                                                             "dies ist leider noch nicht unterstützt."]
             icon = DashIconify(icon="ph:tree")
             color = 'red'
+        elif data == 'notification_custom_house':
+            notification_message = ["So detailliert kann ich (noch) nicht.",
+                                    "Es ist bereits ein Haus im Detail konfiguriert. Wenn du das andere Haus löscht oder dort ein fertiges Profil auswählst, kannst du dieses nach deinen Wünschen konfigurieren."]
+            icon = DashIconify(icon="mdi:house-group")
+            color = 'yellow'
         else:
             notification_message = ["Fehler!", data]
             icon = DashIconify(icon="material-symbols:warning-outline-rounded")
@@ -179,14 +256,20 @@ def general_callbacks(app):
 
     @app.callback(Output('graph_device', 'figure'),
                   Input('store_device_dict', 'data'),
+                  Input('pagination_days_menu', 'value'),
                   State('store_selected_element_house', 'data'),
                   State('graph_device', 'figure'),
+                  State('pagination_days_menu', 'value'),
                   prevent_initial_call=True)
-    def update_figure(data, selected_element, figure):  # Update the values of the graphs if another profile is chosen
+    def update_figure_house(data, day_control, selected_element, figure,
+                            day):  # Update the values of the graphs if another profile is chosen
         # patched_fig = Patch()
         # Patch scheint noch nicht zu funktionieren, vielleicht später nochmal probieren
+        day_ind = days[day]
+        index_start = day_ind * 24 * 60
+        index_stop = index_start + 24 * 60
         if selected_element in data['house1']:  # Check if element is still in dict or if it was deleted
-            figure["data"][0]["y"] = data['house1'][selected_element]['power']
+            figure["data"][0]["y"] = data['house1'][selected_element]['power'][index_start:index_stop]
         else:
             raise PreventUpdate
         return figure
@@ -214,5 +297,111 @@ def general_callbacks(app):
             # Problem: Ich kann die neuen Lastprofile eigentlich nicht in die SQL-Datenbank schreiben, da die dann
             # für alle verändert wird.
             return False, no_update
+        else:
+            raise PreventUpdate
+
+    @app.callback(Output('store_settings', 'data'),
+                  Input('input_week', 'value'),
+                  Input('input_year', 'value'),
+                  State('store_settings', 'data'))
+    def settings(week, year, settings_dict):
+        settings_dict['week'] = week
+        settings_dict['year'] = year
+        return settings_dict
+
+    @app.callback(Output('download_json', 'data'),
+                  Output('modal_load_configuration', 'opened'),
+                  Output('store_grid_object_dict', 'data', allow_duplicate=True),
+                  Output('store_device_dict', 'data', allow_duplicate=True),
+                  Output('cyto1', 'elements', allow_duplicate=True),
+                  Output('cyto_bathroom', 'elements', allow_duplicate=True),
+                  Output('cyto_kitchen', 'elements', allow_duplicate=True),
+                  Output('input_week', 'value'),
+                  Output('input_year', 'value'),
+                  Output('store_notification1', 'data', allow_duplicate=True),
+                  Input('menu_item_save', 'n_clicks'),
+                  Input('menu_item_load', 'n_clicks'),
+                  Input('button_load_configuration', 'n_clicks'),
+                  State('store_grid_object_dict', 'data'),
+                  State('store_device_dict', 'data'),
+                  State('cyto1', 'elements'),
+                  State('cyto_bathroom', 'elements'),
+                  State('cyto_kitchen', 'elements'),
+                  State('upload_configuration', 'filename'),
+                  State('upload_configuration', 'contents'),
+                  State('store_settings', 'data'),
+                  prevent_initial_call=True)
+    def main_menu(btn_save, btn_load_menu, btn_load, gridObject_dict, device_dict, elements_grid, elements_bath,
+                  elements_kitchen, filename, upload_content, settings_dict):
+        triggered_id = ctx.triggered_id
+        if triggered_id == 'menu_item_save':
+            save_dict = {'gridObject_dict': gridObject_dict,
+                         'device_dict': device_dict,
+                         'cyto_grid': elements_grid,
+                         'cyto_bathroom': elements_bath,
+                         'cyto_kitchen': elements_kitchen,
+                         'settings': settings_dict}
+            return dict(content=json.dumps(save_dict),
+                        filename="test.json"), no_update, no_update, no_update, no_update, no_update, no_update, \
+                   no_update, no_update, no_update
+        elif triggered_id == 'menu_item_load':
+            return no_update, True, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
+        elif triggered_id == 'button_load_configuration':
+            if not filename.endswith('.json'):  # Check if the file format is .json
+                return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file_format'
+            else:
+                content_type, content_string = upload_content.split(",")  # Three lines to get dict from content
+                decoded = base64.b64decode(content_string)
+                content_dict = json.loads(decoded)
+                if not (
+                        'gridObject_dict' in content_dict and 'device_dict' in content_dict and 'cyto_grid' in content_dict):  # Check if all dictionaries are there
+                    return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file'
+                return no_update, False, content_dict['gridObject_dict'], content_dict['device_dict'], \
+                       content_dict['cyto_grid'], content_dict['cyto_bathroom'], content_dict['cyto_kitchen'],\
+                       content_dict['settings']['week'], content_dict['settings']['year'], no_update
+        else:
+            raise PreventUpdate
+
+    @app.callback(Output('text_filename_load', 'children'),
+                  Input('upload_configuration', 'filename'),
+                  prevent_initial_call=True)
+    def filename_upload(filename):
+        return filename
+
+    @app.callback(Output('store_backup', 'data'),
+                  Input('interval_backup', 'n_intervals'),
+                  State('store_grid_object_dict', 'data'),
+                  State('store_device_dict', 'data'),
+                  State('cyto1', 'elements'),
+                  State('cyto_bathroom', 'elements'),
+                  State('cyto_kitchen', 'elements'),
+                  State('store_settings', 'data'),
+                  State('store_backup', 'data'),
+                  prevent_initial_call=True)
+    def backup(interval, gridObject_dict, device_dict, elements_grid, elements_bath, elements_kitchen, settings_dict, backup):
+        save_dict = {'gridObject_dict': gridObject_dict,
+                     'device_dict': device_dict,
+                     'cyto_grid': elements_grid,
+                     'cyto_bathroom': elements_bath,
+                     'cyto_kitchen': elements_kitchen,
+                     'settings': settings_dict}
+        return json.dumps(save_dict)
+
+    @app.callback(Output('store_grid_object_dict', 'data', allow_duplicate=True),
+                  Output('store_device_dict', 'data', allow_duplicate=True),
+                  Output('cyto1', 'elements', allow_duplicate=True),
+                  Output('cyto_bathroom', 'elements', allow_duplicate=True),
+                  Output('cyto_kitchen', 'elements', allow_duplicate=True),
+                  Output('input_week', 'value', allow_duplicate=True),
+                  Output('input_year', 'value', allow_duplicate=True),
+                  Input('interval_refresh', 'n_intervals'),
+                  State('store_backup', 'data'),
+                  prevent_initial_call=True)
+    def refresh(interval, backup_dict):
+        if backup_dict is not None:
+            backup_dict = json.loads(backup_dict)
+            return backup_dict['gridObject_dict'], backup_dict['device_dict'], \
+                   backup_dict['cyto_grid'], backup_dict['cyto_bathroom'], backup_dict['cyto_kitchen'], \
+                   backup_dict['settings']['week'], backup_dict['settings']['year']
         else:
             raise PreventUpdate

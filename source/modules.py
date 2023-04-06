@@ -1,16 +1,21 @@
 import base64
 import copy
 import io
+import json
 import warnings
+from datetime import datetime, timedelta
 
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import pandas as pd
+import requests
 
 import source.objects as objects
 import source.plot as plot
 import source.sql_modules as sql_modules
+
+days = {'mo': 0, 'tu': 1, 'wd': 2, 'th': 3, 'fr': 4, 'sa': 5, 'su': 6}
 
 
 def get_last_id(elements):
@@ -286,36 +291,46 @@ def calculate_power_flow(elements, grid_object_dict):
 
 def calculate_house(device_dict, timesteps):
     df_power = pd.DataFrame(columns=timesteps)
+    df_power.insert(0, 'room', None)  # Add column for room of device
     df_sum = pd.DataFrame(columns=timesteps)
     df_energy = pd.DataFrame(columns=['type', 'energy'])
     for room in device_dict['rooms']:
         for dev in device_dict['rooms'][room]:  # Go through each device in the house
             device = device_dict['house1'][dev]  # Get device properties from dict
-            if device['active']:    # If device is activated
-                df_power.loc[device['id']] = device['power']
-                energy = df_power.loc[device['id']].sum() / 60 / 1000   # Calculate energy in kWh
+            if device['active']:  # If device is activated
+                df_power.loc[device['id'], df_power.columns != 'room'] = device['power']
+                df_power.loc[device['id'], df_power.columns == 'room'] = room
+                energy = df_power.loc[device['id'], df_power.columns != 'room'].sum() / 60 / 1000  # Calculate energy in kWh
                 df_energy.loc[device['id']] = {'type': 'device', 'energy': energy}
             else:
                 df_energy.loc[device['id']] = {'type': 'device', 'energy': 0}
-        df_sum.loc[room] = df_power.sum().transpose()   # Get sum of all devices in room
+        # Problem hier: Es werden alle geräte aufsummiert
+        df_sum.loc[room] = df_power.loc[df_power['room'] == room].sum().transpose()  # Get sum of all devices in room
         energy = df_sum.loc[room].sum() / 60 / 1000  # Calculate energy in kWh
+        temp = df_sum.loc[room]
         df_energy.loc[room] = {'type': 'room', 'energy': energy}
-    df_sum.loc['house1'] = df_sum.sum().transpose()     # Get sum of all rooms in house
+    df_sum.loc['house1'] = df_sum.sum().transpose()  # Get sum of all rooms in house
     energy = df_sum.loc['house1'].sum() / 60 / 1000  # Calculate energy in kWh
     df_energy.loc['house1'] = {'type': 'house', 'energy': energy}
     # fig_power, fig_energy = plot.plot_all_devices_room(df_power, df_sum, df_energy, device_dict)
     return plot.plot_all_devices_room(df_power, df_sum, df_energy, device_dict)
 
 
-def save_settings(children, device_dict, selected_element, house):
-    for child in children:      # Go through all components of the settings menu
-        if child['type'] == 'Text':     # Do nothing on things like text or vertical spaces
+def save_settings_house(children, device_dict, selected_element, house, day):
+    for child in children:  # Go through all components of the settings menu
+        if child['type'] == 'Text':  # Do nothing on things like text or vertical spaces
             pass
         elif child['type'] == 'Space':
             pass
-        elif child['type'] == 'Group':
+        elif child['type'] == 'Button':
             pass
-        else:                           # Save values of input components to device dictionary
+        elif child['type'] == 'Graph':
+            pass
+        elif child['type'] == 'SegmentedControl':
+            pass
+        elif child['type'] == 'Group':
+            save_settings_house(child['props']['children'], device_dict, selected_element, house, day)  # Recursive execution for all elements in group
+        else:  # Save values of input components to device dictionary
             if child['type'] == 'TextInput':
                 if child['props']['id'] == 'name_input':
                     device_dict[house][selected_element]['name'] = child['props']['value']
@@ -325,9 +340,71 @@ def save_settings(children, device_dict, selected_element, house):
                         device_dict[house][selected_element]['selected_power_option'] = child['props']['value']
                         key = device_dict[house][selected_element]['power_options'][child['props']['value']]['key']
                         database = 'source/database_profiles.db'
-                        load_profile = sql_modules.get_load_profile('load_profiles_day', key, database) # Get load profile from sqlite database
-                        device_dict[house][selected_element]['power'] = load_profile    # Save loaded profile to device dictionary
+                        load_profile = sql_modules.get_load_profile('load_profiles_day', key,
+                                                                    database)  # Get load profile from sqlite database
+                        device_dict[house][selected_element][
+                            'power'] = load_profile  # Save loaded profile to device dictionary
+            elif child['type'] == 'TimeInput':
+                if child['props']['value'] is not None:     # There is a time input -> Add to load profile
+                    day_ind = days[day]    # Get number of day in week (Monday=0, Tuesday=1, ...)
+                    timestamp = child['props']['value']
+                    timestamp = timestamp[len(timestamp)-8:]    # Get time from input
+                    minutes = int(timestamp[:2]) * 60 + int(timestamp[3:5])     # calculate start in minutes
+                    minutes = minutes + day_ind * 24 * 60                           # Add offset due to different days
+                    power = pd.Series(device_dict[house][selected_element]['power'])    # Get current power profile
+                    new_values = pd.Series([100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100])    # Development
+                    index_pos = minutes - 1
+                    power[index_pos:index_pos + len(new_values)] = new_values.values
+                    device_dict[house][selected_element]['power'] = power.to_list()
     return device_dict
+
+
+def save_settings_pv(children, gridObject_dict, selected_element, year, week):
+    postcode = children[2]['props']['value']
+    database = 'source/database_pv.db'
+    token_rn = '9d539337969f016d51d3c637ddba49bbc9fe6e71'   # Authorization renewables.ninja
+    sess = requests.session()
+    sess.headers = {'Authorization': 'Token ' + token_rn}
+    url = 'https://www.renewables.ninja/api/data/pv'
+    if not sql_modules.check_postcode(postcode, database):  # Check if the given postcode exist in database
+        return gridObject_dict, 'notification_false_postcode'
+    lon, lat, city = sql_modules.get_coordinates(postcode, database)    # Get coordinates from postcode
+    if week == 1:   # Problem: Data only exist from 2019, week 1 starts in 2018
+        week = 2
+    date_start, date_stop = get_monday_sunday_from_week(week, year)
+    azimuth = gridObject_dict[selected_element]['orientation']
+    query_params = {
+        'lat': lat,  # latitude of the location
+        'lon': lon,  # longitude of the location
+        'date_from': str(date_start),  # starting date of the data
+        'date_to': str(date_stop),  # ending date of the data
+        'dataset': 'sarah',  # dataset to use for the simulation
+        'capacity': 1,  # capacity of the PV system in kW
+        'system_loss': 0.1,  # system loss in %
+        'tracking': 0,  # tracking mode, 0 = fixed, 1 = 1-axis tracking, 2 = 2-axis tracking
+        'tilt': 35,  # tilt angle of the PV system in degrees
+        'azim': azimuth,  # azimuth angle of the PV system in degrees
+        'format': 'json'  # format of the data, csv or json
+    }
+    response = sess.get(url, params=query_params)   # Send the GET request and get the response
+    if response.status_code == 200:     # Check if the request was successful
+        data_pd = pd.read_json(json.dumps(response.json()['data']), orient='index', typ='frame')
+    else:
+        return gridObject_dict, 'notification_pv_api_error'
+    # Write data to selected element:
+    gridObject_dict[selected_element]['power'] = [-i for i in data_pd['electricity'].values.tolist()]  # Inverted Power
+    gridObject_dict[selected_element]['location'] = [postcode, lat, lon]
+    gridObject_dict[selected_element]['name'] = children[0]['props']['value']
+    return gridObject_dict, None
+
+
+def get_monday_sunday_from_week(week_num, year):
+    first_day = datetime(year, 1, 1)    # get the date of the first day of the year
+    days_to_first_monday = (7 - first_day.weekday()) % 7    # calculate the days to the first Monday of the year
+    monday_first_week = first_day + timedelta(days=days_to_first_monday)    # calculate the date of the Monday of the first week
+    monday = monday_first_week + timedelta(weeks=week_num-2)    # calculate the date of the Monday of the given week
+    sunday = monday + timedelta(days=6)     # calculate the date of the Sunday of the given week
+    return monday.date(), sunday.date()
 
 
 def handle_error(err):

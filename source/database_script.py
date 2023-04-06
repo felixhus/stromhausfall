@@ -1,8 +1,13 @@
+import csv
 import random
 import sqlite3
+from datetime import datetime, timedelta
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import sql_modules
 from scipy import interpolate
 
 
@@ -27,7 +32,7 @@ def write_to_database(database, values, series_id):
     values = values.tolist()
 
     # Build the SQL query to insert the row
-    query = f"INSERT INTO load_profiles_day (series_id, {' ,'.join([f'step_{i}' for i in range(1440)])}) VALUES (?, {'?,'*1439}?)"
+    query = f"INSERT INTO load_profiles_day (series_id, {' ,'.join([f'step_{i}' for i in range(1440)])}) VALUES (?, {'?,' * 1439}?)"
 
     # Execute the query with the values
     c.execute(query, [series_id] + values)
@@ -36,7 +41,45 @@ def write_to_database(database, values, series_id):
     conn.commit()
     conn.close()
 
-P = np.array([96.5,86.3, 76.9,68.8,62.4,58.0,55.3,53.6,52.4,51.3,50.3,49.2,48.3,47.5,46.9,46.5,46.6,47.1,48.0,49.3,50.8,52.7,55.6,60.5,68.2,79.2,92.0,104.7,115.7,123.5,128.6,132.0,134.8,137.8,140.7,143.2,144.8,145.3,144.9,143.8,142.3,140.8,139.5,138.5,138.2,138.6,140.1,142.6,146.5,151.5,156.7,160.7,162.3,160.5,156.1,150.2,144.0,138.4,133.6,129.4,125.7,122.4,119.6,117.4,115.7,114.6,114.2,114.6,115.7,117.6,120.3,123.9,128.2,133.2,138.9,145.1,151.5,157.9,163.8,168.3,170.6,170.4,168.3,165.3,162.3,160.1,158.4,156.8,154.8,151.9,147.9,142.5,135.7,127.2,117.5,107.1,96.5])
-t = np.linspace(0, 1440, 97)
-x, y = generate_time_series(P, t, 24*60)
-write_to_database(None, y, 'vdew_test_cubic')
+
+def izes_csv_to_sqlite():
+    p1_csv_path = "C:/Users/felix/Documents/HOME/Uni/02_Master/05_Masterthesis/03_Daten/IZES_Profile/CSV_74_Loadprofiles_1min_W_var/PL1.csv"
+    p2_csv_path = "C:/Users/felix/Documents/HOME/Uni/02_Master/05_Masterthesis/03_Daten/IZES_Profile/CSV_74_Loadprofiles_1min_W_var/PL2.csv"
+    p3_csv_path = "C:/Users/felix/Documents/HOME/Uni/02_Master/05_Masterthesis/03_Daten/IZES_Profile/CSV_74_Loadprofiles_1min_W_var/PL3.csv"
+    Path('database_izes.db').touch()
+    conn = sqlite3.connect('database_izes.db')
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE load_1min (month int, day int)''')
+    for i in range(1, 75):
+        column = "profile_" + str(i)
+        cursor.execute(f"ALTER TABLE load_1min ADD {column} int")
+
+    p1_data = pd.read_csv(p1_csv_path, header=None)
+    p2_data = pd.read_csv(p2_csv_path, header=None)
+    p3_data = pd.read_csv(p3_csv_path, header=None)
+
+    date = datetime(2023, 1, 1)
+
+    for i in range(len(p1_data)):
+        # get the corresponding rows from the other dataframes
+        row1 = p1_data.iloc[i]
+        row2 = p2_data.iloc[i]
+        row3 = p3_data.iloc[i]
+
+        # add up the rows elementwise
+        row_sum = row1 + row2 + row3
+
+        placeholders = ",".join(["?"] * 74)
+        query = f"INSERT INTO load_1min VALUES ({date.month}, {date.day}, {placeholders})"
+
+        if i % 1000 == 0:
+            percent = "%.2f" % (i/525600*100)
+            print(f"Wrote {i} rows ({percent}%)")
+
+        cursor.execute(query, tuple(row_sum))
+        date = date + timedelta(minutes=1)
+
+    conn.commit()
+    conn.close()
+
+izes_csv_to_sqlite()
