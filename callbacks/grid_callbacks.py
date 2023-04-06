@@ -107,7 +107,7 @@ def grid_callbacks(app):
             image_src = app.get_asset_url('Icons/' + new_gridobject['icon'])
             gridObject_dict[new_gridobject['id']] = new_gridobject
             new_element = {'data': {'id': 'node' + str(last_id[0] + 1)},
-                           'position': {'x': 50, 'y': 50}, 'classes': 'node_style',
+                           'position': {'x': 50 + last_id[0] * 8, 'y': 50 + last_id[0] * 8}, 'classes': 'node_style',
                            'style': {'background-image': image_src, 'background-color': new_gridobject['ui_color']}}
             elements.append(new_element)
             return elements, gridObject_dict, no_update, no_update, no_update, no_update, no_update

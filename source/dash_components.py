@@ -35,7 +35,8 @@ def add_storage_variables():
                      dcc.Store(id='store_menu_change_tab_house'), dcc.Store(id='store_menu_inputs', data={}),
                      dcc.Store(id='store_grid_object_dict', data={}),
                      dcc.Store(id='store_device_dict', data=device_dict_init),
-                     dcc.Store(id='store_results_house')])
+                     dcc.Store(id='store_results_house'),
+                     dcc.Store(id='store_backup', storage_type='session')])
 
 
 def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
@@ -170,14 +171,14 @@ def add_cytoscape_layout():
                         dmc.NumberInput(
                             id='input_week', label="Kalenderwoche",
                             value=1, step=1,
-                            min=1, max=52,
+                            min=1, max=52, stepHoldDelay=500, stepHoldInterval=150,
                             style={"width": 250},
                         ),
                         dmc.Space(h=20),
                         dmc.NumberInput(
                             id='input_year', label="Jahr",
                             value=2015, step=1,
-                            min=2015, max=2015,
+                            min=2015, max=2015, stepHoldDelay=500, stepHoldInterval=100,
                             style={"width": 250}, disabled=True
                         )
                     ], value='settings')
@@ -672,7 +673,8 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
         return dmc.TabsPanel([  # Callbacks, they are not present when the callback is created, because the tab
             dmc.SegmentedControl(id='house_mode', data=[]),  # is only created when a node was clicked.
             dbc.Fade(id='house_fade'),  # This hidden tab initializes the ids of these.
-            dmc.SegmentedControl(id='pagination_days_menu', data=[])
+            dmc.SegmentedControl(id='pagination_days_menu', data=[]),
+            dcc.Graph(id='graph_pv')
         ], value=tab_value)
 
 
