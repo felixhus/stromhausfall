@@ -316,7 +316,7 @@ def calculate_house(device_dict, timesteps):
     return plot.plot_all_devices_room(df_power, df_sum, df_energy, device_dict)
 
 
-def save_settings_house(children, device_dict, selected_element, house, day):
+def save_settings_devices(children, device_dict, selected_element, house, day):
     for child in children:  # Go through all components of the settings menu
         if child['type'] == 'Text':  # Do nothing on things like text or vertical spaces
             pass
@@ -329,7 +329,7 @@ def save_settings_house(children, device_dict, selected_element, house, day):
         elif child['type'] == 'SegmentedControl':
             pass
         elif child['type'] == 'Group':
-            save_settings_house(child['props']['children'], device_dict, selected_element, house, day)  # Recursive execution for all elements in group
+            save_settings_devices(child['props']['children'], device_dict, selected_element, house, day)  # Recursive execution for all elements in group
         else:  # Save values of input components to device dictionary
             if child['type'] == 'TextInput':
                 if child['props']['id'] == 'name_input':
@@ -357,6 +357,15 @@ def save_settings_house(children, device_dict, selected_element, house, day):
                     power[index_pos:index_pos + len(new_values)] = new_values.values
                     device_dict[house][selected_element]['power'] = power.to_list()
     return device_dict
+
+
+def save_settings_house(children, gridObject_dict, selected_element, year, week):
+    date_start, date_stop = get_monday_sunday_from_week(week, year)
+    power = sql_modules.get_household_profile('source/database_izes.db', 17, date_start, date_stop)
+    gridObject_dict[selected_element]['name'] = children[0]['props']['value']
+    gridObject_dict[selected_element]['power'] = power
+    return gridObject_dict
+
 
 
 def save_settings_pv(children, gridObject_dict, selected_element, year, week):

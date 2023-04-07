@@ -1,4 +1,6 @@
+import datetime
 import sqlite3
+from datetime import timedelta
 
 import numpy as np
 from scipy import interpolate
@@ -69,3 +71,21 @@ def check_postcode(postcode, database):
         return True
     else:
         return False
+
+
+def get_household_profile(database, profile_number, date_start, date_stop):
+    if date_stop.month > date_stop.month:
+        date = date_start + timedelta(weeks=1)  # If it is week 1 of the year so some days are in the december before, use week 2
+    else:
+        date = date_start
+    conn = sqlite3.connect(database)    # connect to the database
+    cursor = conn.cursor()
+    power = []
+    profile = "profile_" + str(profile_number)
+    for day in range(7):
+        data_day = cursor.execute(f"SELECT {profile} FROM load_1min WHERE day = {date.day} and month = {date.month}").fetchall()
+        data_day = [d[0] for d in data_day]
+        power += data_day
+        date = date + timedelta(days=1)
+    conn.close()    # close connection
+    return power

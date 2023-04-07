@@ -36,12 +36,33 @@ def plot_device_timeseries(timesteps, load, color):
 def plot_pv_timeseries(timesteps, power, color):
     tick_text = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
     tick_values = [12, 36, 60, 84, 106, 130, 154]
-    # Timesteps hier drin aus Anzahl der power-Werte berechnen. Dann ticks darauf mappen
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         name="P",
         x=timesteps,
         y=[-i for i in power],     # Invert power for plot
+        stackgroup='one',
+        fillcolor=color,
+        mode='none'  # this remove the lines
+    ))
+    fig.update_layout(template='plotly_white', margin=dict(l=0, r=0, b=0, t=0), height=200)
+    fig.update_layout(xaxis=dict(tickmode='array', tickvals=tick_values, ticktext=tick_text))
+    fig.update_xaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True)
+    fig.update_yaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True,
+                     rangemode='nonnegative')
+    return fig
+
+
+def plot_house_timeseries(power, color):
+    tick_text = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
+    tick_values = [720, 2160, 3600, 5040, 6480, 7920, 9360]
+    power = power[0:1440]
+    timesteps = np.linspace(0, len(power), num=len(power), endpoint=False)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        name="P",
+        x=timesteps,
+        y=power,     # Invert power for plot
         stackgroup='one',
         fillcolor=color,
         mode='none'  # this remove the lines

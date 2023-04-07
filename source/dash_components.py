@@ -23,7 +23,8 @@ device_dict_init = {'house1': {}, 'rooms': {}, 'last_id': 1}
 def add_storage_variables():
     return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
                      dcc.Store(id='store_line_edit_active'), dcc.Store(id='store_selected_element_grid'),
-                     dcc.Store(id='store_selected_element_house'), dcc.Store('store_custom_house', data=None),
+                     dcc.Store(id='store_selected_element_house'),
+                     dcc.Store('store_custom_house', data=None, storage_type='session'),
                      dcc.Store(id='store_element_deleted'), dcc.Store(id='store_notification1'),
                      dcc.Store(id='store_notification2'), dcc.Store(id='store_notification4'),
                      dcc.Store(id='store_notification3'), dcc.Store(id='store_notification5'),
@@ -482,6 +483,9 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right'),
             dmc.Space(h=20),
+            dcc.Graph(figure=plot.plot_house_timeseries(element_dict[selected_element]['power'], 'rgb(64, 130, 109)'), id='graph_house',
+                      style={'width': '100%'}),
+            dmc.Space(h=20)
         ],
             value=tab_value)
     elif tab_value == 'pv':

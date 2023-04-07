@@ -30,26 +30,30 @@ def general_callbacks(app):
                   State('graph_pv', 'figure'),
                   prevent_initial_call=True)
     def save_props_action(btn_save, tabs_main, device_dict, selected_element_house, selected_element_grid, children,
-                          day, gridObject_dict, year_pv, week_pv, figure):
+                          day, gridObject_dict, year, week, figure):
         try:
             if btn_save is None:
                 raise PreventUpdate
             else:
                 if tabs_main == 'house1':  # If button was clicked in house mode
-                    device_dict = modules.save_settings_house(children[2]['props']['children'], device_dict,
-                                                              selected_element_house, 'house1', day)
+                    device_dict = modules.save_settings_devices(children[2]['props']['children'], device_dict,
+                                                                selected_element_house, 'house1', day)
                     return device_dict, no_update, no_update, no_update
                 elif tabs_main == 'grid':  # If button was clicked in grid mode
                     if gridObject_dict[selected_element_grid]['object_type'] == 'pv':  # If PV is selected
                         gridObject_dict, notif = modules.save_settings_pv(children[2]['props']['children'],
                                                                           gridObject_dict, selected_element_grid,
-                                                                          year_pv, week_pv)
+                                                                          year, week)
                         figure["data"][0]["y"] = [-i for i in gridObject_dict[selected_element_grid][
                             'power']]  # Invert power for plot
                         if notif is not None:
                             return no_update, no_update, no_update, notif
                         else:
                             return no_update, gridObject_dict, figure, no_update
+                if gridObject_dict[selected_element_grid]['object_type'] == 'house':  # If House is selected
+                    gridObject_dict = modules.save_settings_house(children[2]['props']['children'],
+                                                                  gridObject_dict, selected_element_grid, year, week)
+                    return no_update, gridObject_dict, no_update, no_update
                 else:
                     raise PreventUpdate
         except PreventUpdate:
@@ -357,7 +361,7 @@ def general_callbacks(app):
                         'gridObject_dict' in content_dict and 'device_dict' in content_dict and 'cyto_grid' in content_dict):  # Check if all dictionaries are there
                     return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file'
                 return no_update, False, content_dict['gridObject_dict'], content_dict['device_dict'], \
-                       content_dict['cyto_grid'], content_dict['cyto_bathroom'], content_dict['cyto_kitchen'],\
+                       content_dict['cyto_grid'], content_dict['cyto_bathroom'], content_dict['cyto_kitchen'], \
                        content_dict['settings']['week'], content_dict['settings']['year'], no_update
         else:
             raise PreventUpdate
@@ -378,7 +382,8 @@ def general_callbacks(app):
                   State('store_settings', 'data'),
                   State('store_backup', 'data'),
                   prevent_initial_call=True)
-    def backup(interval, gridObject_dict, device_dict, elements_grid, elements_bath, elements_kitchen, settings_dict, backup):
+    def backup(interval, gridObject_dict, device_dict, elements_grid, elements_bath, elements_kitchen, settings_dict,
+               backup):
         save_dict = {'gridObject_dict': gridObject_dict,
                      'device_dict': device_dict,
                      'cyto_grid': elements_grid,
