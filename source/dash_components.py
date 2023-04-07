@@ -181,7 +181,9 @@ def add_cytoscape_layout():
                             value=2015, step=1,
                             min=2015, max=2015, stepHoldDelay=500, stepHoldInterval=100,
                             style={"width": 250}, disabled=True
-                        )
+                        ),
+                        dmc.Space(h=15),
+                        dmc.Button("Aktualisieren", id='button_update_settings', leftIcon=DashIconify(icon='ci:arrows-reload-01')),
                     ], value='settings')
                 ],
                     id='tabs_main', value='grid', color="blue", orientation="horizontal", allowTabDeactivation=True)
@@ -414,6 +416,7 @@ def add_result_tab_panel(tab_value):
 def add_menu_tab_panel(tab_value, selected_element, element_dict):
     if tab_value == 'house':
         control, fade = 'preset', True  # Get values from element and show tab dependent on them
+        checkbox_random = element_dict[selected_element]['power_profile'] is None
         if element_dict[selected_element]['config_mode'] == 'custom':
             control, fade = 'custom', False
         return dmc.TabsPanel([
@@ -429,7 +432,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                                        {'value': 'custom', 'label': "Selbst basteln"}]),
             dbc.Fade([
                 dmc.Space(h=20),
-                dmc.Checkbox(label="Beim Speichern neues Lastprofil laden?", id='checkbox_random_profile', checked=True)
+                dmc.Checkbox(label="Beim Speichern zufälliges Lastprofil laden?", id='checkbox_random_profile', checked=checkbox_random)
             ], id='house_fade', is_in=fade),
             dmc.Space(h=20),
             dmc.Group([

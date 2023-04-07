@@ -375,6 +375,7 @@ def save_settings_house(children, gridObject_dict, selected_element, year, week,
 
 
 def save_settings_pv(children, gridObject_dict, selected_element, year, week):
+    # Important: Changes here also have to be done in update_settings module
     postcode = children[2]['props']['value']
     database = 'source/database_pv.db'
     token_rn = '9d539337969f016d51d3c637ddba49bbc9fe6e71'   # Authorization renewables.ninja
@@ -411,6 +412,47 @@ def save_settings_pv(children, gridObject_dict, selected_element, year, week):
     gridObject_dict[selected_element]['location'] = [postcode, lat, lon]
     gridObject_dict[selected_element]['name'] = children[0]['props']['value']
     return gridObject_dict, None
+
+
+def update_settings(gridObject_dict, selected_element, year, week):
+    date_start, date_stop = get_monday_sunday_from_week(week, year)
+    if gridObject_dict[selected_element]['object_type'] == 'house':
+        profile = gridObject_dict[selected_element]['power_profile']
+        power = sql_modules.get_household_profile('source/database_izes.db', profile, date_start, date_stop)
+        gridObject_dict[selected_element]['power'] = power
+    elif gridObject_dict[selected_element]['object_type'] == 'pv':
+        lat = gridObject_dict[selected_element]['location'][1]
+        lon = gridObject_dict[selected_element]['location'][2]
+        token_rn = '9d539337969f016d51d3c637ddba49bbc9fe6e71'  # Authorization renewables.ninja
+        sess = requests.session()
+        sess.headers = {'Authorization': 'Token ' + token_rn}
+        url = 'https://www.renewables.ninja/api/data/pv'
+        if week == 1:  # Problem: Data only exist from 2019, week 1 starts in 2018
+            week = 2
+        date_start, date_stop = get_monday_sunday_from_week(week, year)
+        azimuth = gridObject_dict[selected_element]['orientation']
+        query_params = {
+            'lat': lat,  # latitude of the location
+            'lon': lon,  # longitude of the location
+            'date_from': str(date_start),  # starting date of the data
+            'date_to': str(date_stop),  # ending date of the data
+            'dataset': 'sarah',  # dataset to use for the simulation
+            'capacity': 1,  # capacity of the PV system in kW
+            'system_loss': 0.1,  # system loss in %
+            'tracking': 0,  # tracking mode, 0 = fixed, 1 = 1-axis tracking, 2 = 2-axis tracking
+            'tilt': 35,  # tilt angle of the PV system in degrees
+            'azim': azimuth,  # azimuth angle of the PV system in degrees
+            'format': 'json'  # format of the data, csv or json
+        }
+        response = sess.get(url, params=query_params)  # Send the GET request and get the response
+        if response.status_code == 200:  # Check if the request was successful
+            data_pd = pd.read_json(json.dumps(response.json()['data']), orient='index', typ='frame')
+        else:
+            raise Exception('Fehler bei der PV-Datenabfrage!')
+        # Write data to selected element:
+        gridObject_dict[selected_element]['power'] = [-i for i in
+                                                      data_pd['electricity'].values.tolist()]  # Inverted Power
+    return gridObject_dict
 
 
 def get_monday_sunday_from_week(week_num, year):

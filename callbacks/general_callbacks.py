@@ -162,94 +162,6 @@ def general_callbacks(app):
     def open_readme(btn):
         return True
 
-    @app.callback(Output('notification_container', 'children'),
-                  Output('drawer_notifications', 'children'),
-                  Output('bade_notifications', 'children'),
-                  Input('store_notification1', 'data'),
-                  Input('store_notification2', 'data'),
-                  Input('store_notification3', 'data'),
-                  Input('store_notification4', 'data'),
-                  Input('store_notification5', 'data'),
-                  Input('store_notification6', 'data'),
-                  Input('store_notification7', 'data'),
-                  Input('store_notification8', 'data'),
-                  State('drawer_notifications', 'children'))
-    def notification(data1, data2, data3, data4, data5, data6, data7, data8, notif_list):
-        triggered_id = ctx.triggered_id
-        if triggered_id == 'store_notification1':
-            data = data1
-        elif triggered_id == 'store_notification2':
-            data = data2
-        elif triggered_id == 'store_notification3':
-            data = data3
-        elif triggered_id == 'store_notification4':
-            data = data4
-        elif triggered_id == 'store_notification5':
-            data = data5
-        elif triggered_id == 'store_notification6':
-            data = data6
-        elif triggered_id == 'store_notification7':
-            data = data7
-        elif triggered_id == 'store_notification8':
-            data = data8
-        else:
-            raise PreventUpdate
-        if data is None:
-            raise PreventUpdate
-        elif data == 'notification_wrong_file_format':
-            notification_message = ["Falsches Dateiformat!",
-                                    "Diese Datei kann ich leider nicht laden, sie hat das falsche Format!"]
-            icon = DashIconify(icon="mdi:file-remove-outline")
-            color = 'yellow'
-        elif data == 'notification_wrong_file':
-            notification_message = ["Falsche Datei!",
-                                    "Diese Datei ist beschädigt oder enthält nicht alle Daten, die ich brauche."]
-            icon = DashIconify(icon="mdi:file-remove-outline")
-            color = 'yellow'
-        elif data == 'notification_pv_api_error':
-            notification_message = ["Fehler Datenabfrage!",
-                                    "Die Daten konnten nicht von renewables.ninja abgefragt werden."]
-            icon = DashIconify(icon="fa6-solid:solar-panel")
-            color = 'red'
-        elif data == 'notification_false_postcode':
-            notification_message = ["Zustellung nicht möglich!",
-                                    "Diese Postleitzahl kenne ich leider nicht."]
-            icon = DashIconify(icon="material-symbols:mail-outline-rounded")
-            color = 'yellow'
-        elif data == 'notification_false_connection':
-            notification_message = ["Kabelsalat!",
-                                    "Zwischen diesen beiden Komponenten kannst du keine Leitung ziehen."]
-            icon = DashIconify(icon="mdi:connection")
-            color = 'yellow'
-        elif data == 'notification_isolates':
-            notification_message = ["Kein Netz!", "Es gibt Knoten, die nicht mit dem Netz verbunden sind!"]
-            icon = DashIconify(icon="material-symbols:group-work-outline")
-            color = 'red'
-        elif data == 'notification_emptygrid':
-            notification_message = ["Blackout!", "Hier muss erst noch ein Netz gebaut werden!"]
-            icon = DashIconify(icon="uil:desert")
-            color = 'yellow'
-        elif data == 'notification_cycles':
-            notification_message = ["Achtung (kein) Baum!", "Das Netz beinhaltet parallele Leitungen oder Zyklen, "
-                                                            "dies ist leider noch nicht unterstützt."]
-            icon = DashIconify(icon="ph:tree")
-            color = 'red'
-        elif data == 'notification_custom_house':
-            notification_message = ["So detailliert kann ich (noch) nicht.",
-                                    "Es ist bereits ein Haus im Detail konfiguriert. Wenn du das andere Haus löscht oder dort ein fertiges Profil auswählst, kannst du dieses nach deinen Wünschen konfigurieren."]
-            icon = DashIconify(icon="mdi:house-group")
-            color = 'yellow'
-        else:
-            notification_message = ["Fehler!", data]
-            icon = DashIconify(icon="material-symbols:warning-outline-rounded")
-            color = 'red'
-        notif_list.append(dmc.Alert(notification_message[1], title=notification_message[0], color=color,
-                                    withCloseButton=True))
-        return dmc.Notification(title=notification_message[0],
-                                message=notification_message[1],
-                                action='show', color=color, autoClose=5000,
-                                icon=icon, id='notification'), notif_list, len(notif_list)
-
     @app.callback(Output('drawer_notifications', 'opened'),
                   Input('button_notifications', 'n_clicks'))
     def open_drawer_notifications(btn):
@@ -380,6 +292,23 @@ def general_callbacks(app):
     def filename_upload(filename):
         return filename
 
+    @app.callback(Output('store_device_dict', 'data', allow_duplicate=True),
+                  Output('store_grid_object_dict', 'data', allow_duplicate=True),
+                  Output('store_notification1', 'data', allow_duplicate=True),
+                  Input('button_update_settings', 'n_clicks'),
+                  State('store_grid_object_dict', 'data'),
+                  State('input_week', 'value'),
+                  State('input_year', 'value'),
+                  prevent_initial_call=True)
+    def update_settings(btn_update, gridObject_dict, week, year):
+        try:
+            dict_temp = gridObject_dict
+            for obj in gridObject_dict:
+                modules.update_settings(dict_temp, obj, year, week)
+            return no_update, dict_temp, no_update
+        except Exception as err:
+            return no_update, no_update, err.args[0]
+
     @app.callback(Output('store_backup', 'data'),
                   Input('interval_backup', 'n_intervals'),
                   State('store_grid_object_dict', 'data'),
@@ -418,3 +347,92 @@ def general_callbacks(app):
                    backup_dict['settings']['week'], backup_dict['settings']['year']
         else:
             raise PreventUpdate
+
+    @app.callback(Output('notification_container', 'children'),
+                  Output('drawer_notifications', 'children'),
+                  Output('bade_notifications', 'children'),
+                  Input('store_notification1', 'data'),
+                  Input('store_notification2', 'data'),
+                  Input('store_notification3', 'data'),
+                  Input('store_notification4', 'data'),
+                  Input('store_notification5', 'data'),
+                  Input('store_notification6', 'data'),
+                  Input('store_notification7', 'data'),
+                  Input('store_notification8', 'data'),
+                  State('drawer_notifications', 'children'))
+    def notification(data1, data2, data3, data4, data5, data6, data7, data8, notif_list):
+        triggered_id = ctx.triggered_id
+        if triggered_id == 'store_notification1':
+            data = data1
+        elif triggered_id == 'store_notification2':
+            data = data2
+        elif triggered_id == 'store_notification3':
+            data = data3
+        elif triggered_id == 'store_notification4':
+            data = data4
+        elif triggered_id == 'store_notification5':
+            data = data5
+        elif triggered_id == 'store_notification6':
+            data = data6
+        elif triggered_id == 'store_notification7':
+            data = data7
+        elif triggered_id == 'store_notification8':
+            data = data8
+        else:
+            raise PreventUpdate
+        if data is None:
+            raise PreventUpdate
+        elif data == 'notification_wrong_file_format':
+            notification_message = ["Falsches Dateiformat!",
+                                    "Diese Datei kann ich leider nicht laden, sie hat das falsche Format!"]
+            icon = DashIconify(icon="mdi:file-remove-outline")
+            color = 'yellow'
+        elif data == 'notification_wrong_file':
+            notification_message = ["Falsche Datei!",
+                                    "Diese Datei ist beschädigt oder enthält nicht alle Daten, die ich brauche."]
+            icon = DashIconify(icon="mdi:file-remove-outline")
+            color = 'yellow'
+        elif data == 'notification_pv_api_error':
+            notification_message = ["Fehler Datenabfrage!",
+                                    "Die Daten konnten nicht von renewables.ninja abgefragt werden."]
+            icon = DashIconify(icon="fa6-solid:solar-panel")
+            color = 'red'
+        elif data == 'notification_false_postcode':
+            notification_message = ["Zustellung nicht möglich!",
+                                    "Diese Postleitzahl kenne ich leider nicht."]
+            icon = DashIconify(icon="material-symbols:mail-outline-rounded")
+            color = 'yellow'
+        elif data == 'notification_false_connection':
+            notification_message = ["Kabelsalat!",
+                                    "Zwischen diesen beiden Komponenten kannst du keine Leitung ziehen."]
+            icon = DashIconify(icon="mdi:connection")
+            color = 'yellow'
+        elif data == 'notification_isolates':
+            notification_message = ["Kein Netz!", "Es gibt Knoten, die nicht mit dem Netz verbunden sind!"]
+            icon = DashIconify(icon="material-symbols:group-work-outline")
+            color = 'red'
+        elif data == 'notification_emptygrid':
+            notification_message = ["Blackout!", "Hier muss erst noch ein Netz gebaut werden!"]
+            icon = DashIconify(icon="uil:desert")
+            color = 'yellow'
+        elif data == 'notification_cycles':
+            notification_message = ["Achtung (kein) Baum!", "Das Netz beinhaltet parallele Leitungen oder Zyklen, "
+                                                            "dies ist leider noch nicht unterstützt."]
+            icon = DashIconify(icon="ph:tree")
+            color = 'red'
+        elif data == 'notification_custom_house':
+            notification_message = ["So detailliert kann ich (noch) nicht.",
+                                    "Es ist bereits ein Haus im Detail konfiguriert. Wenn du das andere Haus löscht oder dort ein fertiges Profil auswählst, kannst du dieses nach deinen Wünschen konfigurieren."]
+            icon = DashIconify(icon="mdi:house-group")
+            color = 'yellow'
+        else:
+            notification_message = ["Fehler!", data]
+            icon = DashIconify(icon="material-symbols:warning-outline-rounded")
+            color = 'red'
+        notif_list.append(dmc.Alert(notification_message[1], title=notification_message[0], color=color,
+                                    withCloseButton=True))
+        return dmc.Notification(title=notification_message[0],
+                                message=notification_message[1],
+                                action='show', color=color, autoClose=5000,
+                                icon=icon, id='notification'), notif_list, len(notif_list)
+
