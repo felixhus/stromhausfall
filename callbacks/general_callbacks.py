@@ -15,6 +15,9 @@ def general_callbacks(app):
     @app.callback(Output('store_device_dict', 'data', allow_duplicate=True),
                   Output('store_grid_object_dict', 'data', allow_duplicate=True),
                   Output('graph_pv', 'figure'),
+                  Output('graph_house', 'figure'),
+                  Output('store_used_profiles', 'data'),
+                  Output('checkbox_random_profile', 'checked'),
                   Output('store_notification1', 'data', allow_duplicate=True),
                   Input('edit_save_button', 'n_clicks'),
                   State('tabs_main', 'value'),
@@ -24,13 +27,15 @@ def general_callbacks(app):
                   State('menu_parent_tabs', 'children'),
                   State('pagination_days_menu', 'value'),
                   State('store_grid_object_dict', 'data'),
-                  # State('postcode_input', 'value'),
                   State('input_year', 'value'),
                   State('input_week', 'value'),
+                  State('store_used_profiles', 'data'),
+                  State('checkbox_random_profile', 'checked'),
                   State('graph_pv', 'figure'),
+                  State('graph_house', 'figure'),
                   prevent_initial_call=True)
     def save_props_action(btn_save, tabs_main, device_dict, selected_element_house, selected_element_grid, children,
-                          day, gridObject_dict, year, week, figure):
+                          day, gridObject_dict, year, week, used_profiles, checkbox, figure_pv, figure_house):
         try:
             if btn_save is None:
                 raise PreventUpdate
@@ -38,28 +43,31 @@ def general_callbacks(app):
                 if tabs_main == 'house1':  # If button was clicked in house mode
                     device_dict = modules.save_settings_devices(children[2]['props']['children'], device_dict,
                                                                 selected_element_house, 'house1', day)
-                    return device_dict, no_update, no_update, no_update
+                    return device_dict, no_update, no_update, no_update, no_update, no_update, no_update
                 elif tabs_main == 'grid':  # If button was clicked in grid mode
                     if gridObject_dict[selected_element_grid]['object_type'] == 'pv':  # If PV is selected
                         gridObject_dict, notif = modules.save_settings_pv(children[2]['props']['children'],
                                                                           gridObject_dict, selected_element_grid,
                                                                           year, week)
-                        figure["data"][0]["y"] = [-i for i in gridObject_dict[selected_element_grid][
+                        figure_pv["data"][0]["y"] = [-i for i in gridObject_dict[selected_element_grid][
                             'power']]  # Invert power for plot
                         if notif is not None:
-                            return no_update, no_update, no_update, notif
+                            return no_update, no_update, no_update, no_update, no_update, no_update, notif
                         else:
-                            return no_update, gridObject_dict, figure, no_update
+                            return no_update, gridObject_dict, figure_pv, no_update, no_update, no_update, no_update
                 if gridObject_dict[selected_element_grid]['object_type'] == 'house':  # If House is selected
-                    gridObject_dict = modules.save_settings_house(children[2]['props']['children'],
-                                                                  gridObject_dict, selected_element_grid, year, week)
-                    return no_update, gridObject_dict, no_update, no_update
+                    gridObject_dict, used_profiles = modules.save_settings_house(children[2]['props']['children'],
+                                                                                 gridObject_dict,
+                                                                                 selected_element_grid, year, week,
+                                                                                 used_profiles, checkbox)
+                    figure_house["data"][0]["y"] = gridObject_dict[selected_element_grid]['power']
+                    return no_update, gridObject_dict, no_update, figure_house, used_profiles, False, no_update
                 else:
                     raise PreventUpdate
         except PreventUpdate:
-            return no_update, no_update, no_update, no_update
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update
         except Exception as err:
-            return no_update, no_update, no_update, err.args[0]
+            return no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('store_results_house', 'data'),
                   Output('graph_power_house', 'figure'),

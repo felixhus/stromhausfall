@@ -2,7 +2,7 @@ def create_HouseObject(object_id, node_id):
     return {
         'id': object_id,
         'linkedNode': node_id,
-        'power': 0,
+        'power': [0] * 7 * 24 * 60,
         'voltage': 400,
         'object_type': 'house',
         'name': "Haus",
@@ -11,12 +11,7 @@ def create_HouseObject(object_id, node_id):
         'allowed_types_to_connect': ["transformer", "switch_cabinet", "battery", "pv", "smart_meter"],
         'active': True,
         'config_mode': 'preset',
-        'selected_power_option': None,
-        'power_options': {
-            'Klasse A': {'key': 'iron_class_A', 'icon': None},
-            'Klasse B': {'key': 'iron_class_B', 'icon': None},
-            'Klasse C': {'key': 'iron_class_C', 'icon': None},
-        }
+        'power_profile': None
     }
 
 

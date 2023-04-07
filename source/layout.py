@@ -48,7 +48,6 @@ def app_layout(app):
                 dbc.Col([dash_components.add_cytoscape_layout()], width=7),
                 dbc.Col([dash_components.card_start(), dash_components.card_menu()], width=True)
             ]),
-            dash_components.add_modal_edit(),
             dash_components.add_modal_readme(),
             dash_components.add_drawer_notifications(),
             dash_components.add_modal_voltage_level(),

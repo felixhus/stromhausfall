@@ -35,6 +35,7 @@ def add_storage_variables():
                      dcc.Store(id='store_flow_data'), dcc.Store(id='store_menu_change_tab_grid'),
                      dcc.Store(id='store_menu_change_tab_house'), dcc.Store(id='store_menu_inputs', data={}),
                      dcc.Store(id='store_grid_object_dict', data={}),
+                     dcc.Store(id='store_used_profiles', data=[1], storage_type='session'),
                      dcc.Store(id='store_device_dict', data=device_dict_init),
                      dcc.Store(id='store_results_house'), dcc.Store(id='store_settings', data={}),
                      dcc.Store(id='store_backup', storage_type='session')])
@@ -49,7 +50,6 @@ def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
     :param icon: Pfad zum anzuzeigenden Icon
     :return: DBC Button
     """
-    # children = html.Img(src=icon, width=stylesheets.button_add_components_style['width'])
     if icon is not None:
         children = html.Img(src=icon, height=str(stylesheets.button_add_components_style['icon_width']))
     else:
@@ -220,40 +220,6 @@ def add_modal_readme():
     )
 
 
-def add_modal_edit():
-    return dmc.Modal(
-        title="Edit",
-        id='modal_edit',
-        children=[
-            dmc.Text("", id='modal_text'),
-            dmc.Space(h=20),
-            dmc.ChipGroup([
-                dmc.Chip(x, value=x) for x in ["Last", "Einspeisung"]], value="Last", id='chips_type'
-            ),
-            dmc.Space(h=20),
-            dmc.NumberInput(
-                id='power_input',
-                label="Leistung dieses Elements in kW:",
-                # description="From 0 to infinity, in steps of 5",
-                value=0,
-                min=0,
-                step=0.1, precision=1,
-                stepHoldDelay=500, stepHoldInterval=100,
-                icon=DashIconify(icon="material-symbols:download"),
-                style={"width": 250},
-            ),
-            dmc.Space(h=20),
-            dmc.Group([
-                dmc.Button("Löschen", color='red', variant='outline', id='modal_edit_delete_button',
-                           leftIcon=DashIconify(icon="material-symbols:delete-outline")),
-                dmc.Button("Speichern", color='green', variant='outline', id='modal_edit_save_button',
-                           leftIcon=DashIconify(icon="material-symbols:save-outline")),
-                dmc.Button("Schließen", variant='outline', id='modal_edit_close_button')
-            ], position='right')
-        ]
-    )
-
-
 def add_modal_voltage_level():
     return dmc.Modal(
         title="Spannungsebene auswählen",
@@ -317,8 +283,8 @@ def dash_navbar():
                                      id='menu_item_load'),
                     ])
                 ], trigger='hover', openDelay=100, closeDelay=200, transition="rotate-right", transitionDuration=150),
-                # dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
-                #            gradient={"from": "grape", "to": "pink", "deg": 35})
+                dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
+                           gradient={"from": "grape", "to": "pink", "deg": 35})
             ], spacing=10
             ),
         ]), color="dark", dark=True
@@ -459,22 +425,12 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             ),
             dmc.Space(h=20),
             dmc.SegmentedControl(id='house_mode', value=control,
-                                 data=[{'value': 'preset', 'label': "Fertige Profile"},
+                                 data=[{'value': 'preset', 'label': "Fertiges Profil"},
                                        {'value': 'custom', 'label': "Selbst basteln"}]),
             dbc.Fade([
                 dmc.Space(h=20),
-                dmc.Select(
-                    label=["Lastprofil ",
-                           dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True,
-                                     color='primary')],
-                    placeholder="Auswahl",
-                    id='load_profile_select',
-                    value=element_dict[selected_element]['selected_power_option'],
-                    data=[
-                        {'value': key, 'label': key}
-                        for key in element_dict[selected_element]['power_options']
-                    ],
-                )], id='house_fade', is_in=fade),
+                dmc.Checkbox(label="Beim Speichern neues Lastprofil laden?", id='checkbox_random_profile', checked=True)
+            ], id='house_fade', is_in=fade),
             dmc.Space(h=20),
             dmc.Group([
                 dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
@@ -675,7 +631,9 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             dmc.SegmentedControl(id='house_mode', data=[]),  # is only created when a node was clicked.
             dbc.Fade(id='house_fade'),  # This hidden tab initializes the ids of these.
             dmc.SegmentedControl(id='pagination_days_menu', data=[]),
-            dcc.Graph(id='graph_pv')
+            dcc.Graph(id='graph_pv'),
+            dcc.Graph(id='graph_house'),
+            dmc.Checkbox(id='checkbox_random_profile')
         ], value=tab_value)
 
 

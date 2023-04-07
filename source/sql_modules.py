@@ -1,4 +1,3 @@
-import datetime
 import sqlite3
 from datetime import timedelta
 
@@ -74,7 +73,7 @@ def check_postcode(postcode, database):
 
 
 def get_household_profile(database, profile_number, date_start, date_stop):
-    if date_stop.month > date_stop.month:
+    if date_start.month > date_stop.month:
         date = date_start + timedelta(weeks=1)  # If it is week 1 of the year so some days are in the december before, use week 2
     else:
         date = date_start

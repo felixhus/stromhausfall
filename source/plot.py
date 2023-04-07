@@ -56,7 +56,7 @@ def plot_pv_timeseries(timesteps, power, color):
 def plot_house_timeseries(power, color):
     tick_text = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
     tick_values = [720, 2160, 3600, 5040, 6480, 7920, 9360]
-    power = power[0:1440]
+    power = power
     timesteps = np.linspace(0, len(power), num=len(power), endpoint=False)
     fig = go.Figure()
     fig.add_trace(go.Scatter(

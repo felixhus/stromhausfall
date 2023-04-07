@@ -4,6 +4,7 @@ import io
 import json
 import warnings
 from datetime import datetime, timedelta
+from random import randint
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -359,13 +360,18 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
     return device_dict
 
 
-def save_settings_house(children, gridObject_dict, selected_element, year, week):
-    date_start, date_stop = get_monday_sunday_from_week(week, year)
-    power = sql_modules.get_household_profile('source/database_izes.db', 17, date_start, date_stop)
+def save_settings_house(children, gridObject_dict, selected_element, year, week, used_profiles, checkbox):
+    if checkbox:    # If wanted, load a random household profile from the database
+        date_start, date_stop = get_monday_sunday_from_week(week, year)
+        profile = randint(1, 74)
+        while profile in used_profiles:     # Make sure to load a profile which wasn't used already
+            profile = randint(1, 74)
+        used_profiles.append(profile)
+        power = sql_modules.get_household_profile('source/database_izes.db', profile, date_start, date_stop)
+        gridObject_dict[selected_element]['power'] = power
+        gridObject_dict[selected_element]['power_profile'] = profile
     gridObject_dict[selected_element]['name'] = children[0]['props']['value']
-    gridObject_dict[selected_element]['power'] = power
-    return gridObject_dict
-
+    return gridObject_dict, used_profiles
 
 
 def save_settings_pv(children, gridObject_dict, selected_element, year, week):
