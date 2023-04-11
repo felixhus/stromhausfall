@@ -37,7 +37,7 @@ def get_load_profile(table_name, key, database):
 
 def write_to_database(database, values, series_id):
     # connect to the database
-    conn = sqlite3.connect('database_profiles.db')
+    conn = sqlite3.connect(database)
     c = conn.cursor()
     values = values.tolist()
     # Build the SQL query to insert the row
