@@ -438,7 +438,7 @@ def save_settings_pv(children, gridObject_dict, selected_element, year, week):
     else:
         return gridObject_dict, 'notification_pv_api_error'
     # Write data to selected element:
-    gridObject_dict[selected_element]['power'] = [-i for i in data_pd['electricity'].values.tolist()]  # Inverted Power
+    gridObject_dict[selected_element]['power'] = [-i * 1000 for i in data_pd['electricity'].values.tolist()]  # Inverted Power and unit changed to Watts
     gridObject_dict[selected_element]['location'] = [postcode, lat, lon]
     gridObject_dict[selected_element]['name'] = children[0]['props']['value']
     return gridObject_dict, None
@@ -480,8 +480,8 @@ def update_settings(gridObject_dict, selected_element, year, week):
         else:
             raise Exception('Fehler bei der PV-Datenabfrage!')
         # Write data to selected element:
-        gridObject_dict[selected_element]['power'] = [-i for i in
-                                                      data_pd['electricity'].values.tolist()]  # Inverted Power
+        gridObject_dict[selected_element]['power'] = [-i * 1000 for i in
+                                                      data_pd['electricity'].values.tolist()]  # Inverted Power and unit changed to Watts
     return gridObject_dict
 
 

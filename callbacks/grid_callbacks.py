@@ -57,10 +57,10 @@ def grid_callbacks(app):
                     labels = df_flow.loc[slider - 1].to_dict()
                     if df_flow.loc[slider - 1, 'external_grid'].item() > 0:
                         text_alert = "Es werden " + str(
-                            abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " kW an das Netz abgegeben."
+                            abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " W an das Netz abgegeben."
                     else:
                         text_alert = "Es werden " + str(
-                            abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " kW aus dem Netz bezogen."
+                            abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " W aus dem Netz bezogen."
                     return no_update, no_update, no_update, text_alert, False, no_update, no_update, no_update, labels, no_update
                 else:
                     raise PreventUpdate
