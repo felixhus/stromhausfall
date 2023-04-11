@@ -11,6 +11,7 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import requests
+from scipy import interpolate
 
 import source.objects as objects
 import source.plot as plot
@@ -182,9 +183,22 @@ def generate_directed_graph(graph):
     return graph_dir
 
 
+def check_power_profiles(graph):
+    max_length = 0
+    for node in graph.nodes(data=True):     # Get length of longest power profile (most timesteps)
+        if node[0][:11] != 'transformer':   # Don't check for transformer helper node
+            if len(node[1]['object']['power']) > max_length:
+                max_length = len(node[1]['object']['power'])
+    for node in graph.nodes(data=True):     # Interpolate all shorter profiles to the length of the longest one
+        if node[0][:11] != 'transformer':  # Don't check for transformer helper node
+            if len(node[1]['object']['power']) != max_length:
+                node[1]['object']['power'] = interpolate_profile(node[1]['object']['power'], max_length, 'nearest')
+    return graph
+
+
 def generate_equations(graph):
     df_power = pd.DataFrame()
-    for node in graph.nodes(data=True):
+    for node in graph.nodes(data=True):     # Get power profile from each node
         df_power[node[0]] = node[1]['object']['power']
     inc = nx.incidence_matrix(graph, oriented=True).toarray()
     idx = 0
@@ -254,6 +268,9 @@ def power_flow_statemachine(state, data):
     elif state == 'gen_directed_graph':
         data['grid_graph'] = generate_directed_graph(
             data['grid_graph'])  # Give graph edges directions, starting at external grid
+        return 'check_power_profiles', data, False
+    elif state == 'check_power_profiles':
+        data['grid_graph'] = check_power_profiles(data['grid_graph'])
         return 'gen_equations', data, False
     elif state == 'gen_equations':
         data['A'], data['df_power'] = generate_equations(data['grid_graph'])
@@ -315,6 +332,19 @@ def calculate_house(device_dict, timesteps):
     df_energy.loc['house1'] = {'type': 'house', 'energy': energy}
     # fig_power, fig_energy = plot.plot_all_devices_room(df_power, df_sum, df_energy, device_dict)
     return plot.plot_all_devices_room(df_power, df_sum, df_energy, device_dict)
+
+
+def interpolate_profile(values, number_steps, interpolation_type):
+    # possible kinds: linear, nearest, nearest-up, zero, slinear, quadratic, cubic, previous, next
+    if len(values) < 2:
+        values = np.append(values, values[0])
+    timesteps_values = np.linspace(0, number_steps-1, num=len(values), endpoint=True)
+    f_inter = interpolate.interp1d(timesteps_values, values, kind=interpolation_type)
+    x_new = np.linspace(0, number_steps, num=number_steps, endpoint=False)
+    y_new = f_inter(x_new)
+    plt.plot(y_new)
+    plt.show()
+    return y_new
 
 
 def save_settings_devices(children, device_dict, selected_element, house, day):

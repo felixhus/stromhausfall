@@ -80,14 +80,14 @@ def general_callbacks(app):
     def start_calculation_house(btn, device_dict, tabs_main):
         try:
             if tabs_main == 'house1':
-                graph_power, graph_sunburst = modules.calculate_house(device_dict, range(0, 1440))
+                graph_power, graph_sunburst = modules.calculate_house(device_dict, range(0, 7*1440))
                 return None, graph_power, graph_sunburst, no_update
             else:
                 raise PreventUpdate
         except PreventUpdate:
-            return no_update, no_update
+            return no_update, no_update, no_update, no_update
         except Exception as err:
-            return no_update, err.args[0]
+            return no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('menu_parent_tabs', 'children'),
                   Output('menu_parent_tabs', 'value'),
