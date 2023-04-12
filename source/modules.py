@@ -407,6 +407,8 @@ def save_settings_house(children, gridObject_dict, selected_element, year, week,
 def save_settings_pv(children, gridObject_dict, selected_element, year, week):
     # Important: Changes here also have to be done in update_settings module
     postcode = children[2]['props']['value']
+    tilt = children[4]['props']['children'][1]['props']['children'][1]['props']['children'][1]['props']['value']
+    rated_power = children[4]['props']['children'][1]['props']['children'][0]['props']['children'][1]['props']['value']
     database = 'source/database_pv.db'
     token_rn = '9d539337969f016d51d3c637ddba49bbc9fe6e71'   # Authorization renewables.ninja
     sess = requests.session()
@@ -425,10 +427,10 @@ def save_settings_pv(children, gridObject_dict, selected_element, year, week):
         'date_from': str(date_start),  # starting date of the data
         'date_to': str(date_stop),  # ending date of the data
         'dataset': 'sarah',  # dataset to use for the simulation
-        'capacity': 1,  # capacity of the PV system in kW
-        'system_loss': 0.1,  # system loss in %
+        'capacity': rated_power,  # capacity of the PV system in kW
+        'system_loss': 0.1,  # system loss
         'tracking': 0,  # tracking mode, 0 = fixed, 1 = 1-axis tracking, 2 = 2-axis tracking
-        'tilt': 35,  # tilt angle of the PV system in degrees
+        'tilt': tilt,  # tilt angle of the PV system in degrees
         'azim': azimuth,  # azimuth angle of the PV system in degrees
         'format': 'json'  # format of the data, csv or json
     }
@@ -441,6 +443,8 @@ def save_settings_pv(children, gridObject_dict, selected_element, year, week):
     gridObject_dict[selected_element]['power'] = [-i * 1000 for i in data_pd['electricity'].values.tolist()]  # Inverted Power and unit changed to Watts
     gridObject_dict[selected_element]['location'] = [postcode, lat, lon]
     gridObject_dict[selected_element]['name'] = children[0]['props']['value']
+    gridObject_dict[selected_element]['rated_power'] = rated_power
+    gridObject_dict[selected_element]['tilt'] = tilt
     return gridObject_dict, None
 
 

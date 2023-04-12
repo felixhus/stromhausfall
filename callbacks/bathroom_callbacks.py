@@ -25,7 +25,8 @@ def bathroom_callbacks(app):
                   Input('edit_delete_button', 'n_clicks'),
                   Input('button_close_menu_bathroom', 'n_clicks'),
                   Input('active_switch_house', 'checked'),
-                  [Input(device[1], 'n_clicks') for device in dash_components.devices['bathroom']])
+                  [Input(device[1], 'n_clicks') for device in dash_components.devices['bathroom']],
+                  prevent_initial_call='initial_duplicate')
     def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected_element, node, btn_save,
                                 btn_delete,
                                 btn_close, active_switch, *btn_add):  # Callback to handle Bathroom action

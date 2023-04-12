@@ -459,7 +459,32 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             dmc.TextInput(id='postcode_input', placeholder='Postleitzahl', icon=DashIconify(icon="mdi:home-location"),
                           value=postcode),
             dmc.Space(h=20),
-            get_compass(element_dict[selected_element]['orientation']),
+            dmc.Group([
+                get_compass(element_dict[selected_element]['orientation']),
+                dmc.Stack([
+                    dmc.Group([
+                        dmc.Text("Leistung [kWp]"),
+                        dmc.NumberInput(
+                            id='input_kwp',
+                            value=element_dict[selected_element]['rated_power'],
+                            step=0.1, min=0.1, max=100, stepHoldDelay=500, stepHoldInterval=150, precision=1,
+                            style={"width": 85})
+                    ]),
+                    dmc.Group([
+                        dmc.Text("Neigung"),
+                        dmc.Select(
+                            placeholder="Auswahl",
+                            id='tilt_select',
+                            value=element_dict[selected_element]['tilt'],
+                            style={"width": 115},
+                            data=[
+                                {'value': 0, 'label': 'Liegend'}, {'value': 15, 'label': 'Flachdach'},
+                                {'value': 35, 'label': 'Steildach'}, {'value': 90, 'label': 'Fassade'}
+                            ]),
+                    ]),
+                ], align='end')
+
+            ], position='apart'),
             dmc.Space(h=20),
             dmc.Group([
                 dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
