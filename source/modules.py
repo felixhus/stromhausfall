@@ -244,6 +244,32 @@ def plot_graph(graph):
     return base64_encoded
 
 
+def correct_cyto_edges(elements, graph):
+    """
+    Function takes the elements of the grid cytoscape and corrects all edges, so the point in the same direction as in the directed graph of the grid.
+    Needed for the display of arrows.
+    :param elements: Element list of dash cytoscape
+    :param graph: Directed Graph of the grid.
+    :return: Edited Element list of dash cytoscape
+    """
+    elements_new = copy.deepcopy(elements)
+    for idx, ele in enumerate(elements):
+        if 'source' in ele['data']:     # If element is edge
+            start_node = None
+            target_node = None
+            edge_id = ele['data']['id']
+            for graph_edge in graph.edges(data=True):  # Search for corresponding edge in graph
+                if graph_edge[2]['id'] == edge_id:
+                    start_node = graph_edge[0]
+                    target_node = graph_edge[1]
+                    break
+            if start_node is None or target_node is None:
+                raise Exception('Fehler bei Richtungszuweisung Leitungen.')
+            elements_new[idx]['data']['source'] = start_node
+            elements_new[idx]['data']['target'] = target_node
+    return elements_new
+
+
 def power_flow_statemachine(state, data):
     if state == 'init':
         if len(data['elements']) == 0:  # Check if there are any elements in the grid
@@ -286,6 +312,7 @@ def power_flow_statemachine(state, data):
         data['df_flow'] = df_flow
         return 'set_edge_labels', data, False
     elif state == 'set_edge_labels':
+        data['elements'] = correct_cyto_edges(data['elements'], data['grid_graph'])
         data['labels'] = data['df_flow'].loc[0].to_dict()
         return None, data, True
 
@@ -304,7 +331,7 @@ def calculate_power_flow(elements, grid_object_dict):
         print(state)
         state, data, ready = power_flow_statemachine(state, data)
         print("Done")
-    return data['df_flow'], data['labels'], plot_graph(data['grid_graph'])
+    return data['df_flow'], data['labels'], data['elements'], plot_graph(data['grid_graph'])
 
 
 def calculate_house(device_dict, timesteps):

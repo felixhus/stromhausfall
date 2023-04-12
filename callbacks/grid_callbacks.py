@@ -32,6 +32,7 @@ def grid_callbacks(app):
                   Output('alert_externalgrid', 'hide'),
                   Output('tabs_menu', 'value'),
                   Output('cyto1', 'stylesheet'),
+                  Output('cyto1', 'elements', allow_duplicate=True),
                   Output('timestep_slider', 'max'),
                   Output('store_edge_labels', 'data'),
                   Output('store_notification', 'data', allow_duplicate=True),
@@ -47,11 +48,11 @@ def grid_callbacks(app):
             if tabs_main == 'grid':
                 triggered_id = ctx.triggered_id
                 if triggered_id == 'button_calculate':
-                    df_flow, labels, format_img_src = calculate_power_flow(elements, gridObject_dict)
+                    df_flow, labels, elements, format_img_src = calculate_power_flow(elements, gridObject_dict)
                     df_flow_json = df_flow.to_json(orient='index')
                     img_src = 'data:image/png;base64,{}'.format(format_img_src)
                     return df_flow_json, {'display': 'block'}, img_src, no_update, no_update, 'results', \
-                           stylesheets.cyto_stylesheet_calculated, len(df_flow.index), labels, no_update
+                           stylesheets.cyto_stylesheet_calculated, elements, len(df_flow.index), labels, no_update
                 elif triggered_id == 'timestep_slider':
                     df_flow = pd.read_json(flow, orient='index')
                     labels = df_flow.loc[slider - 1].to_dict()
@@ -61,17 +62,17 @@ def grid_callbacks(app):
                     else:
                         text_alert = "Es werden " + str(
                             abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " W aus dem Netz bezogen."
-                    return no_update, no_update, no_update, text_alert, False, no_update, no_update, no_update, labels, no_update
+                    return no_update, no_update, no_update, text_alert, False, no_update, no_update, no_update, no_update, labels, no_update
                 else:
                     raise PreventUpdate
             else:
                 raise PreventUpdate
         except PreventUpdate:
             return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
-                   no_update
+                   no_update, no_update
         except Exception as err:
             return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
-                   err.args[0]
+                   no_update, err.args[0]
 
     @app.callback(Output('cyto1', 'elements'),  # Callback to change elements of cyto
                   Output('store_grid_object_dict', 'data'),
