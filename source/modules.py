@@ -265,8 +265,19 @@ def correct_cyto_edges(elements, graph):
                     break
             if start_node is None or target_node is None:
                 raise Exception('Fehler bei Richtungszuweisung Leitungen.')
-            elements_new[idx]['data']['source'] = start_node
-            elements_new[idx]['data']['target'] = target_node
+            if start_node[:11] == 'transformer':    # Problem with transformer node: doesn't exist in cytoscape
+                if target_node == ele['data']['target']:    # If target of both edges are the same
+                    start_node = ele['data']['source']      # Get source node from cytoscape and set start_node
+                else:                                       # In this case the desired node is target of cyto edge
+                    start_node = ele['data']['target']      # Get target node from cytoscape and set start_node
+            if target_node[:11] == 'transformer':  # Same for target node
+                if start_node == ele['data']['source']:
+                    target_node = ele['data']['target']
+                else:
+                    target_node = ele['data']['source']
+            if ele['data']['source'] != start_node:     # If the orientation of cyto edge and graph edge are different
+                elements_new[idx]['data']['source'] = start_node
+                elements_new[idx]['data']['target'] = target_node
     return elements_new
 
 
