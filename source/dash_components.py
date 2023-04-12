@@ -478,6 +478,72 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             dmc.Space(h=20)
         ],
             value=tab_value)
+    elif tab_value == 'transformer':
+        return dmc.TabsPanel([
+            dmc.TextInput(
+                id='name_input',
+                style={"width": 200},
+                value=element_dict[selected_element]['name'],
+                icon=DashIconify(icon="emojione-monotone:name-badge"),
+            ),
+            dmc.Space(h=20),
+            dmc.Select(
+                label=["Leistung:"],
+                placeholder="Auswahl",
+                id='transformer_power_select',
+                value=element_dict[selected_element]['rating'],
+                data=[
+                    {'value': 250, 'label': '250 kVA'}, {'value': 400, 'label': '400 kVA'},
+                    {'value': 630, 'label': '630 kVA'}, {'value': 800, 'label': '800 kVA'}
+                ],
+            ),
+            dmc.Space(h=20),
+            dmc.Group([
+                dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
+                           leftIcon=DashIconify(icon="material-symbols:delete-outline")),
+                dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
+                           leftIcon=DashIconify(icon="material-symbols:save-outline"))
+            ], position='right'),
+            dmc.Space(h=20),
+        ],
+            value=tab_value)
+    elif tab_value == 'externalgrid':
+        return dmc.TabsPanel([
+            dmc.TextInput(
+                id='name_input',
+                style={"width": 200},
+                value=element_dict[selected_element]['name'],
+                icon=DashIconify(icon="emojione-monotone:name-badge"),
+                disabled=True,
+            ),
+            dmc.Space(h=20),
+            dmc.Group([
+                dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
+                           leftIcon=DashIconify(icon="material-symbols:delete-outline")),
+                dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
+                           leftIcon=DashIconify(icon="material-symbols:save-outline"), disabled=True)
+            ], position='right'),
+            dmc.Space(h=20),
+        ],
+            value=tab_value)
+    elif tab_value == 'switch_cabinet':
+        return dmc.TabsPanel([
+            dmc.TextInput(
+                id='name_input',
+                style={"width": 200},
+                value=element_dict[selected_element]['name'],
+                icon=DashIconify(icon="emojione-monotone:name-badge"),
+            ),
+            dmc.Space(h=20),
+            dmc.Group([
+                dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
+                           leftIcon=DashIconify(icon="material-symbols:delete-outline")),
+                dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
+                           leftIcon=DashIconify(icon="material-symbols:save-outline"))
+            ], position='right'),
+            dmc.Space(h=20),
+        ],
+            value=tab_value)
     elif tab_value == 'line':
         return dmc.TabsPanel([
             dmc.Text("Leitung"),
@@ -485,7 +551,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
                            leftIcon=DashIconify(icon="material-symbols:delete-outline")),
                 dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
-                           leftIcon=DashIconify(icon="material-symbols:save-outline"))
+                           leftIcon=DashIconify(icon="material-symbols:save-outline"), disabled=True)
             ], position='right')],
             value=tab_value
         )

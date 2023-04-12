@@ -15,10 +15,8 @@ for dir in os.listdir(directory):
 
     pdf = PdfPages(pdf_path)
     for filename in os.listdir(dir_working):
-        if filename[:5] == 'plots':
-            break
         file = os.path.join(dir_working, filename)
-        if os.path.isfile(file):
+        if os.path.isfile(file) and filename[:5] != 'plots':
             df = pd.read_csv(file, header=None, delimiter=";", names=["datetime", "value1", "value2"])
             df["datetime"] = pd.to_datetime(df.iloc[:, 0])
             df.set_index("datetime", inplace=True)

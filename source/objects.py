@@ -21,6 +21,7 @@ def create_TransformerObject(object_id, node_id):
         'linkedNode': node_id,
         'voltage': None,
         'impedance': None,
+        'rating': 250,    # rating in kVA
         'power': [0],
         'object_type': 'transformer',
         'name': "Transformator",

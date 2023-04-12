@@ -55,13 +55,22 @@ def general_callbacks(app):
                             return no_update, no_update, no_update, no_update, no_update, no_update, notif
                         else:
                             return no_update, gridObject_dict, figure_pv, no_update, no_update, no_update, no_update
-                if gridObject_dict[selected_element_grid]['object_type'] == 'house':  # If House is selected
-                    gridObject_dict, used_profiles = modules.save_settings_house(children[2]['props']['children'],
-                                                                                 gridObject_dict,
-                                                                                 selected_element_grid, year, week,
-                                                                                 used_profiles, checkbox)
-                    figure_house["data"][0]["y"] = gridObject_dict[selected_element_grid]['power']
-                    return no_update, gridObject_dict, no_update, figure_house, used_profiles, False, no_update
+                    elif gridObject_dict[selected_element_grid]['object_type'] == 'house':  # If House is selected
+                        gridObject_dict, used_profiles = modules.save_settings_house(children[2]['props']['children'],
+                                                                                     gridObject_dict,
+                                                                                     selected_element_grid, year, week,
+                                                                                     used_profiles, checkbox)
+                        figure_house["data"][0]["y"] = gridObject_dict[selected_element_grid]['power']
+                        return no_update, gridObject_dict, no_update, figure_house, used_profiles, False, no_update
+                    elif gridObject_dict[selected_element_grid]['object_type'] == 'transformer':  # If Transformer is selected
+                        childs = children[2]['props']['children']
+                        gridObject_dict[selected_element_grid]['name'] = childs[0]['props']['value']
+                        gridObject_dict[selected_element_grid]['rating'] = childs[2]['props']['value']
+                        return no_update, gridObject_dict, no_update, no_update, no_update, no_update, no_update
+                    elif gridObject_dict[selected_element_grid]['object_type'] == 'switch_cabinet':  # If switch cabinet is selected
+                        childs = children[2]['props']['children']
+                        gridObject_dict[selected_element_grid]['name'] = childs[0]['props']['value']
+                        return no_update, gridObject_dict, no_update, no_update, no_update, no_update, no_update
                 else:
                     raise PreventUpdate
         except PreventUpdate:
