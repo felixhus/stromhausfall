@@ -14,7 +14,7 @@ def kitchen_callbacks(app):
                   Output('store_menu_change_tab_house', 'data', allow_duplicate=True),
                   Output('store_selected_element_house', 'data', allow_duplicate=True),
                   Output('active_switch_house', 'checked', allow_duplicate=True),
-                  Output('store_notification8', 'data'),
+                  Output('store_notification', 'data', allow_duplicate=True),
                   State('cyto_kitchen', 'elements'),
                   State('store_device_dict', 'data'),
                   State('tabs_main', 'value'),

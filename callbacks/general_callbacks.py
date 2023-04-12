@@ -18,7 +18,7 @@ def general_callbacks(app):
                   Output('graph_house', 'figure'),
                   Output('store_used_profiles', 'data'),
                   Output('checkbox_random_profile', 'checked'),
-                  Output('store_notification1', 'data', allow_duplicate=True),
+                  Output('store_notification', 'data', allow_duplicate=True),
                   Input('edit_save_button', 'n_clicks'),
                   State('tabs_main', 'value'),
                   State('store_device_dict', 'data'),
@@ -81,7 +81,7 @@ def general_callbacks(app):
     @app.callback(Output('store_results_house', 'data'),
                   Output('graph_power_house', 'figure'),
                   Output('graph_sunburst_house', 'figure'),
-                  Output('store_notification6', 'data'),
+                  Output('store_notification', 'data', allow_duplicate=True),
                   Input('button_calculate', 'n_clicks'),
                   State('store_device_dict', 'data'),
                   State('tabs_main', 'value'),
@@ -102,7 +102,7 @@ def general_callbacks(app):
                   Output('menu_parent_tabs', 'value'),
                   Output('active_switch_grid', 'style'),
                   Output('active_switch_house', 'style'),
-                  Output('store_notification5', 'data'),
+                  Output('store_notification', 'data', allow_duplicate=True),
                   Input('store_menu_change_tab_house', 'data'),
                   Input('store_menu_change_tab_grid', 'data'),
                   Input('tabs_main', 'value'),
@@ -151,7 +151,7 @@ def general_callbacks(app):
 
     @app.callback(Output('result_parent_tabs', 'value'),
                   Output('tabs_menu', 'value', allow_duplicate=True),
-                  Output('store_notification7', 'data'),
+                  Output('store_notification', 'data', allow_duplicate=True),
                   Input('graph_power_house', 'figure'),
                   State('tabs_main', 'data'),
                   prevent_initial_call=True)
@@ -251,7 +251,7 @@ def general_callbacks(app):
                   Output('cyto_kitchen', 'elements', allow_duplicate=True),
                   Output('input_week', 'value'),
                   Output('input_year', 'value'),
-                  Output('store_notification1', 'data', allow_duplicate=True),
+                  Output('store_notification', 'data', allow_duplicate=True),
                   Input('menu_item_save', 'n_clicks'),
                   Input('menu_item_load', 'n_clicks'),
                   Input('button_load_configuration', 'n_clicks'),
@@ -303,7 +303,7 @@ def general_callbacks(app):
 
     @app.callback(Output('store_device_dict', 'data', allow_duplicate=True),
                   Output('store_grid_object_dict', 'data', allow_duplicate=True),
-                  Output('store_notification1', 'data', allow_duplicate=True),
+                  Output('store_notification', 'data', allow_duplicate=True),
                   Input('button_update_settings', 'n_clicks'),
                   State('store_grid_object_dict', 'data'),
                   State('input_week', 'value'),
@@ -360,35 +360,9 @@ def general_callbacks(app):
     @app.callback(Output('notification_container', 'children'),
                   Output('drawer_notifications', 'children'),
                   Output('bade_notifications', 'children'),
-                  Input('store_notification1', 'data'),
-                  Input('store_notification2', 'data'),
-                  Input('store_notification3', 'data'),
-                  Input('store_notification4', 'data'),
-                  Input('store_notification5', 'data'),
-                  Input('store_notification6', 'data'),
-                  Input('store_notification7', 'data'),
-                  Input('store_notification8', 'data'),
+                  Input('store_notification', 'data'),
                   State('drawer_notifications', 'children'))
-    def notification(data1, data2, data3, data4, data5, data6, data7, data8, notif_list):
-        triggered_id = ctx.triggered_id
-        if triggered_id == 'store_notification1':
-            data = data1
-        elif triggered_id == 'store_notification2':
-            data = data2
-        elif triggered_id == 'store_notification3':
-            data = data3
-        elif triggered_id == 'store_notification4':
-            data = data4
-        elif triggered_id == 'store_notification5':
-            data = data5
-        elif triggered_id == 'store_notification6':
-            data = data6
-        elif triggered_id == 'store_notification7':
-            data = data7
-        elif triggered_id == 'store_notification8':
-            data = data8
-        else:
-            raise PreventUpdate
+    def notification(data, notif_list):
         if data is None:
             raise PreventUpdate
         elif data == 'notification_wrong_file_format':

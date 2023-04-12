@@ -14,7 +14,7 @@ def bathroom_callbacks(app):
                   Output('store_menu_change_tab_house', 'data'),
                   Output('store_selected_element_house', 'data'),
                   Output('active_switch_house', 'checked'),
-                  Output('store_notification4', 'data'),
+                  Output('store_notification', 'data', allow_duplicate=True),
                   State('cyto_bathroom', 'elements'),
                   State('store_device_dict', 'data'),
                   State('tabs_main', 'value'),
