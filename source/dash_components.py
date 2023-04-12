@@ -41,20 +41,21 @@ def add_storage_variables():
                      dcc.Store(id='store_backup', storage_type='session')])
 
 
-def add_grid_object_button(object_id, name=None, linked_object=None, icon=None):
+def add_grid_object_button(object_id, name=None, linked_object=None, icon=None, enable=True):
     """
     Methode erzeugt einen Button für das Menü, um Grid-Objekte hinzuzufügen.
     :param object_id: Id des Buttons
     :param linked_object: Node, der beim Klicken zum Grid hinzugefügt wird.
     :param name: Name des Buttons
     :param icon: Pfad zum anzuzeigenden Icon
+    :param enable: Boolean, ob Button Enabled sein soll (False = Disabled)
     :return: DBC Button
     """
     if icon is not None:
         children = html.Img(src=icon, height=str(stylesheets.button_add_components_style['icon_width']))
     else:
         children = name
-    return dmc.Button(id=object_id, children=children, style=stylesheets.button_add_components_style)
+    return dmc.Button(id=object_id, children=children, style=stylesheets.button_add_components_style, disabled=not enable)
 
 
 def add_cytoscape_grid(nodes, edges):
