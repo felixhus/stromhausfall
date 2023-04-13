@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.backends.backend_pdf import PdfPages
 
-directory = r"C:\Users\felix\Documents\HOME\Uni\02_Master\05_Masterthesis\03_Daten\Tracebase Profiles\complete"
+directory = r"C:\Users\felix\Documents\HOME\Uni\02_Master\05_Masterthesis\03_Daten\Tracebase Profiles\synthetic"
 counter = 0
-all_files = 1873
+all_files = 330
 
 for dir in os.listdir(directory):
     dir_working = os.path.join(directory, dir)

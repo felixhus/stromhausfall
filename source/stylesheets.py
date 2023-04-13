@@ -160,6 +160,16 @@ cyto_stylesheet_calculated = [
             'label': 'data(label)',
             'target-arrow-shape': 'triangle',
         }
+    },
+    {
+        'selector': '.line_style_reverse',
+        'style': {
+            'width': '2px',
+            'curve-style': 'bezier',
+            'label': 'data(label)',
+            'source-arrow-shape': 'triangle',
+            # 'line-color': 'red'
+        }
     }
 ]
 

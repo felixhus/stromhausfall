@@ -244,15 +244,16 @@ def plot_graph(graph):
     return base64_encoded
 
 
-def correct_cyto_edges(elements, graph):
+def correct_cyto_edges(elements, graph, flow):
     """
     Function takes the elements of the grid cytoscape and corrects all edges, so the point in the same direction as in the directed graph of the grid.
     Needed for the display of arrows.
     :param elements: Element list of dash cytoscape
     :param graph: Directed Graph of the grid.
+    :param flow: Result of the flow calculation.
     :return: Edited Element list of dash cytoscape
     """
-    elements_new = copy.deepcopy(elements)
+    # elements_new = copy.deepcopy(elements)
     for idx, ele in enumerate(elements):
         if 'source' in ele['data']:     # If element is edge
             start_node = None
@@ -276,9 +277,10 @@ def correct_cyto_edges(elements, graph):
                 else:
                     target_node = ele['data']['source']
             if ele['data']['source'] != start_node:     # If the orientation of cyto edge and graph edge are different
-                elements_new[idx]['data']['source'] = start_node
-                elements_new[idx]['data']['target'] = target_node
-    return elements_new
+                elements[idx]['data']['source'] = start_node
+                elements[idx]['data']['target'] = target_node
+        print('test')
+    return elements
 
 
 def power_flow_statemachine(state, data):
@@ -323,7 +325,7 @@ def power_flow_statemachine(state, data):
         data['df_flow'] = df_flow
         return 'set_edge_labels', data, False
     elif state == 'set_edge_labels':
-        data['elements'] = correct_cyto_edges(data['elements'], data['grid_graph'])
+        data['elements'] = correct_cyto_edges(data['elements'], data['grid_graph'], data['df_flow'])
         data['labels'] = data['df_flow'].loc[0].to_dict()
         return None, data, True
 

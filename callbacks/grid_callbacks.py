@@ -54,15 +54,18 @@ def grid_callbacks(app):
                     return df_flow_json, {'display': 'block'}, img_src, no_update, no_update, 'results', \
                            stylesheets.cyto_stylesheet_calculated, elements, len(df_flow.index), labels, no_update
                 elif triggered_id == 'timestep_slider':
-                    df_flow = pd.read_json(flow, orient='index')
-                    labels = df_flow.loc[slider - 1].to_dict()
-                    if df_flow.loc[slider - 1, 'external_grid'].item() > 0:
-                        text_alert = "Es werden " + str(
-                            abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " W an das Netz abgegeben."
+                    if flow is not None:
+                        df_flow = pd.read_json(flow, orient='index')
+                        labels = df_flow.loc[slider - 1].to_dict()
+                        if df_flow.loc[slider - 1, 'external_grid'].item() > 0:
+                            text_alert = "Es werden " + str(
+                                abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " W an das Netz abgegeben."
+                        else:
+                            text_alert = "Es werden " + str(
+                                abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " W aus dem Netz bezogen."
+                        return no_update, no_update, no_update, text_alert, False, no_update, no_update, no_update, no_update, labels, no_update
                     else:
-                        text_alert = "Es werden " + str(
-                            abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " W aus dem Netz bezogen."
-                    return no_update, no_update, no_update, text_alert, False, no_update, no_update, no_update, no_update, labels, no_update
+                        raise PreventUpdate
                 else:
                     raise PreventUpdate
             else:
@@ -86,7 +89,6 @@ def grid_callbacks(app):
                   Input('edit_delete_button', 'n_clicks'),
                   Input('button_line', 'n_clicks'),
                   Input('example_button', 'n_clicks'),
-                  Input('store_edge_labels', 'data'),
                   Input('button_voltage_hv', 'n_clicks'),
                   Input('button_voltage_lv', 'n_clicks'),
                   State('cyto1', 'elements'),
@@ -97,7 +99,7 @@ def grid_callbacks(app):
                   State('store_get_voltage', 'data'),
                   State('tabs_main', 'value'),
                   prevent_initial_call=True)
-    def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, labels, button_hv, button_lv, elements,
+    def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, button_hv, button_lv, elements,
                   gridObject_dict, btn_line_active, start_of_line, selected_element, node_ids, tabs_main):
         triggered_id = ctx.triggered_id
         if triggered_id == 'button_line':  # Start line edit mode, set 'start_of_line' as None
@@ -163,13 +165,6 @@ def grid_callbacks(app):
         elif triggered_id == 'example_button':
             ele, gridObject_dict = example_grids.simple_grid_timeseries_day(app, 24 * 60)
             return ele, gridObject_dict, no_update, no_update, no_update, no_update, no_update
-        elif triggered_id == 'store_edge_labels':  # Set labels of edges with power values
-            for edge, label in labels.items():
-                for ele in elements:
-                    if edge == ele['data']['id']:
-                        ele['data']['label'] = str(label)
-                        break
-            return elements, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'button_voltage_hv':
             for node_id in node_ids:
                 obj = gridObject_dict[node_id]
@@ -258,6 +253,23 @@ def grid_callbacks(app):
             return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
         except Exception as err:
             return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
+
+    @app.callback(Output('cyto1', 'elements', allow_duplicate=True),
+                  Input('store_edge_labels', 'data'),
+                  State('cyto1', 'elements'),
+                  prevent_initial_call=True)
+    def edge_labels(labels, elements):
+        for edge, label in labels.items():  # Set labels of edges with power values
+            reverse = label < 0             # If power over edge is negative -> Reverse
+            for ele in elements:
+                if edge == ele['data']['id']:
+                    ele['data']['label'] = str(abs(label))  # Set absolute value of power as label
+                    if reverse:
+                        ele['classes'] = 'line_style_reverse'
+                    else:
+                        ele['classes'] = 'line_style'
+                    break
+        return elements
 
     @app.callback(Output('store_grid_object_dict', 'data', allow_duplicate=True),
                   Output('button_compass', 'style'),
