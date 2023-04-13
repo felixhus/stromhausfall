@@ -99,7 +99,7 @@ cyto_stylesheet = [
     #     }
     # },
     {
-        'selector': '.line_style',
+        'selector': '.line_style_new',
         'style': {
             'width': '2px',
             'curve-style': 'bezier',
@@ -169,6 +169,13 @@ cyto_stylesheet_calculated = [
             'label': 'data(label)',
             'source-arrow-shape': 'triangle',
             # 'line-color': 'red'
+        }
+    },
+    {
+        'selector': '.line_style_new',
+        'style': {
+            'width': '2px',
+            'curve-style': 'bezier',
         }
     }
 ]

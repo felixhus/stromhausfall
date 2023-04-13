@@ -279,7 +279,6 @@ def correct_cyto_edges(elements, graph, flow):
             if ele['data']['source'] != start_node:     # If the orientation of cyto edge and graph edge are different
                 elements[idx]['data']['source'] = start_node
                 elements[idx]['data']['target'] = target_node
-        print('test')
     return elements
 
 

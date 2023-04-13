@@ -120,7 +120,7 @@ def add_cytoscape_layout():
                             layout={'name': 'preset'},
                             autoRefreshLayout=False,
                             elements=[],
-                            style={'background': '#e6ecf2', 'frame': 'blue', 'height': '475px'},
+                            style={'background': '#e6ecf2', 'frame': 'blue', 'height': '400px'},
                             stylesheet=stylesheets.cyto_stylesheet)],
                         value='grid'),
                     dmc.TabsPanel(children=[
@@ -378,6 +378,8 @@ def card_menu():
                         ], id='result_parent_tabs'),
                         dmc.Space(h=20),
                         dmc.Alert(children="", id="alert_externalgrid", color='primary', hide=True),
+                        dmc.Space(h=10),
+                        dmc.Alert(children="", id="alert_time", color='primary', hide=True),
                         dmc.CardSection(
                             dmc.Image(id='graph_image', src='assets/temp/graph.png', withPlaceholder=True,
                                       style={'display': 'none'})

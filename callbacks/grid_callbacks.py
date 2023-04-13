@@ -1,5 +1,7 @@
+import datetime
 import time
 
+import modules
 import pandas as pd
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
@@ -22,6 +24,8 @@ compass_buttons = {'button_north': 0,
                    'button_south_west': 225,
                    'button_west': 270,
                    'button_north_west': 315}
+
+weekdays = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"]
 
 
 def grid_callbacks(app):
@@ -129,8 +133,8 @@ def grid_callbacks(app):
                                 return_temp = [start_object['id'], end_object['id']]
                                 modal_boolean = True
                             new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
-                                                 'id': 'edge' + str(last_id[1] + 1), 'label': 'x'},
-                                        'classes': 'line_style'}
+                                                 'id': 'edge' + str(last_id[1] + 1), 'label': ''},
+                                        'classes': 'line_style_new'}
                             gridObject_dict[new_edge['data']['id']] = objects.create_LineObject(new_edge['data']['id'],
                                                                                                 new_edge['data']['id'])
                             elements.append(new_edge)
@@ -270,6 +274,20 @@ def grid_callbacks(app):
                         ele['classes'] = 'line_style'
                     break
         return elements
+
+    @app.callback(Output('alert_time', 'children'),
+                  Output('alert_time', 'hide'),
+                  Input('timestep_slider', 'value'),
+                  State('input_year', 'value'),
+                  State('input_week', 'value'),
+                  prevent_initial_call=True)
+    def time_slider(slider, year, week):
+        date_start, date_stop = modules.get_monday_sunday_from_week(week, year)
+        time_start = datetime.datetime.combine(date_start, datetime.datetime.min.time())
+        slider_time = time_start + datetime.timedelta(minutes=slider)
+        text = slider_time.strftime(f"Am {weekdays[slider_time.weekday()]} %d.%m. um %H:%M")
+        return text, False
+
 
     @app.callback(Output('store_grid_object_dict', 'data', allow_duplicate=True),
                   Output('button_compass', 'style'),
