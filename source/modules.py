@@ -410,8 +410,10 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
                         device_dict[house][selected_element]['selected_power_option'] = child['props']['value']
                         key = device_dict[house][selected_element]['power_options'][child['props']['value']]['key']
                         database = 'source/database_profiles.db'
-                        load_profile = sql_modules.get_load_profile('load_profiles_day', key,
+                        table_name = device_dict[house][selected_element]['menu_type']  # From which SQLite-Table
+                        load_profile = sql_modules.get_load_profile(table_name, key,
                                                                     database)  # Get load profile from sqlite database
+                        load_profile *= 7   # Extend profile from one day to one week
                         device_dict[house][selected_element][
                             'power'] = load_profile  # Save loaded profile to device dictionary
             elif child['type'] == 'TimeInput':

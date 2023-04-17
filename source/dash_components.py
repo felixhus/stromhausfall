@@ -11,7 +11,8 @@ import source.stylesheets as stylesheets
 devices = {'bathroom': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hair-dryer'],
                         ["Zahnbürste", 'button_add_toothbrush', 'mdi:toothbrush-electric'],
                         ["Bügeleisen", 'button_add_iron', 'tabler:ironing-1']],
-           'kitchen': [["Wasserkocher", 'button_add_kettle', 'material-symbols:kettle-outline'],
+           'kitchen': [["Kühlschrank", 'button_add_refrigerator', 'mdi:fridge-outline'],
+                       ["Wasserkocher", 'button_add_kettle', 'material-symbols:kettle-outline'],
                        ["Kaffeemaschine", 'button_add_coffee', 'ic:outline-coffee'],
                        ["Ofen", 'button_add_oven', 'material-symbols:oven-gen-outline']]}
 
@@ -622,7 +623,18 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             dcc.Graph(figure=plot.plot_device_timeseries(np.linspace(0, 24, num=1440),
                                                          element_dict[selected_element]['power'],
                                                          'rgb(175, 173, 222)'), id='graph_device',
-                      style={'width': '100%'})
+                      style={'width': '100%'}),
+            dmc.Space(h=10),
+            dmc.SegmentedControl(
+                id='pagination_days_menu',
+                value='mo',
+                fullWidth=320,
+                data=[
+                    {'value': 'mo', 'label': 'MO'}, {'value': 'tu', 'label': 'DI'}, {'value': 'wd', 'label': 'MI'},
+                    {'value': 'th', 'label': 'DO'}, {'value': 'fr', 'label': 'FR'}, {'value': 'sa', 'label': 'SA'},
+                    {'value': 'su', 'label': 'SO'}
+                ]
+            )
         ],
             value=tab_value)
     elif tab_value == 'device_custom':

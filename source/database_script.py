@@ -29,10 +29,10 @@ def write_to_database(database, values, series_id):
     # connect to the database
     conn = sqlite3.connect('database_profiles.db')
     c = conn.cursor()
-    values = values.tolist()
+    # values = values.tolist()
 
     # Build the SQL query to insert the row
-    query = f"INSERT INTO load_profiles_day (series_id, {' ,'.join([f'step_{i}' for i in range(1440)])}) VALUES (?, {'?,' * 1439}?)"
+    query = f"INSERT INTO load_profiles_preset_day (series_id, {' ,'.join([f'step_{i}' for i in range(1440)])}) VALUES (?, {'?,' * 1439}?)"
 
     # Execute the query with the values
     c.execute(query, [series_id] + values)
@@ -82,4 +82,11 @@ def izes_csv_to_sqlite():
     conn.commit()
     conn.close()
 
-izes_csv_to_sqlite()
+filepath = r"C:\Users\felix\Documents\HOME\Uni\02_Master\05_Masterthesis\03_Daten\Tracebase Profiles\complete\Refrigerator\dev_D331DA_2011.12.20.csv"
+df = pd.read_csv(filepath, header=None, delimiter=";", names=["datetime", "value1", "value2"])
+df["datetime"] = pd.to_datetime(df.iloc[:, 0])
+df.set_index("datetime", inplace=True)
+df_resampled = df.resample('1T').mean()
+
+values = df_resampled['value2'].tolist()
+write_to_database(None, values, 'Refrigerator_Small_Old')

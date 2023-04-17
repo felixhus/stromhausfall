@@ -309,12 +309,12 @@ def general_callbacks(app):
             if not filename.endswith('.json'):  # Check if the file format is .json
                 return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file_format'
             else:
-                custom_house_disabled = True
-                if custom_house is not None:
-                    custom_house_disabled = False
                 content_type, content_string = upload_content.split(",")  # Three lines to get dict from content
                 decoded = base64.b64decode(content_string)
                 content_dict = json.loads(decoded)
+                custom_house_disabled = True    # Look up if there is a house configured to activate house tab
+                if content_dict['device_dict']['house1'] is not None:
+                    custom_house_disabled = False
                 if not (
                         'gridObject_dict' in content_dict and 'device_dict' in content_dict and 'cyto_grid' in content_dict):  # Check if all dictionaries are there
                     return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file'

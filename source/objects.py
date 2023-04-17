@@ -174,6 +174,21 @@ def create_DeviceObject(device_id, device_type):
                 'Mit der Hand putzen': {'key': 'toothbrush_hand', 'icon': None},
             }
         }
+    elif device_type == 'refrigerator':
+        return {
+            'id': device_id,
+            'name': 'Kühlschrank',
+            'type': device_type,
+            'menu_type': 'device_preset',   # Development
+            'power': [0] * 24*60*7,
+            'active': True,
+            'selected_power_option': None,
+            'power_options': {
+                'Großer Kühlschrank': {'key': 'Refrigerator_Big', 'icon': None},
+                'Kleiner Kühlschrank Alt': {'key': 'Refrigerator_Small_Old', 'icon': None},
+                'Kleiner Kühlschrank Neu': {'key': 'Refrigerator_Small_New', 'icon': None},
+            }
+        }
     elif device_type == 'kettle':
         return {
             'id': device_id,
