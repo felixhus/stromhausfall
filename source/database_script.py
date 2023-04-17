@@ -82,11 +82,33 @@ def izes_csv_to_sqlite():
     conn.commit()
     conn.close()
 
-filepath = r"C:\Users\felix\Documents\HOME\Uni\02_Master\05_Masterthesis\03_Daten\Tracebase Profiles\complete\Refrigerator\dev_D331DA_2011.12.20.csv"
+
+def write_part_profile_to_database(start_index, end_index, values, series_id, standby):
+    # Connect to the database
+    conn = sqlite3.connect('database_profiles.db')
+    cursor = conn.cursor()
+
+    # Build the SQL statement
+    columns = ', '.join(['step_' + str(i) for i in range(end_index - start_index + 1)])
+    placeholders = ', '.join(['?' for i in range(start_index, end_index + 1)])
+    query = f"INSERT INTO profile_custom (series_id, standby_power, {columns}) VALUES (?, ?, {placeholders})"
+
+    # Get the range of values to insert
+    range_of_values = values[start_index:end_index + 1]
+
+    # Execute the SQL statement
+    cursor.execute(query, [series_id, standby] + range_of_values)
+    conn.commit()
+
+    # Close the database connection
+    conn.close()
+
+
+filepath = r"C:\Users\felix\Documents\HOME\Uni\02_Master\05_Masterthesis\03_Daten\Tracebase Profiles\complete\WaterKettle\dev_D33E1F_2012.06.23.csv"
 df = pd.read_csv(filepath, header=None, delimiter=";", names=["datetime", "value1", "value2"])
 df["datetime"] = pd.to_datetime(df.iloc[:, 0])
 df.set_index("datetime", inplace=True)
 df_resampled = df.resample('1T').mean()
 
 values = df_resampled['value2'].tolist()
-write_to_database(None, values, 'Refrigerator_Small_Old')
+write_part_profile_to_database(664, 674, values, 'kettle_2500W', 0)
