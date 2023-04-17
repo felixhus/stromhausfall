@@ -62,12 +62,14 @@ def general_callbacks(app):
                                                                                      used_profiles, checkbox)
                         figure_house["data"][0]["y"] = gridObject_dict[selected_element_grid]['power']
                         return no_update, gridObject_dict, no_update, figure_house, used_profiles, False, no_update
-                    elif gridObject_dict[selected_element_grid]['object_type'] == 'transformer':  # If Transformer is selected
+                    elif gridObject_dict[selected_element_grid][
+                        'object_type'] == 'transformer':  # If Transformer is selected
                         childs = children[2]['props']['children']
                         gridObject_dict[selected_element_grid]['name'] = childs[0]['props']['value']
                         gridObject_dict[selected_element_grid]['rating'] = childs[2]['props']['value']
                         return no_update, gridObject_dict, no_update, no_update, no_update, no_update, no_update
-                    elif gridObject_dict[selected_element_grid]['object_type'] == 'switch_cabinet':  # If switch cabinet is selected
+                    elif gridObject_dict[selected_element_grid][
+                        'object_type'] == 'switch_cabinet':  # If switch cabinet is selected
                         childs = children[2]['props']['children']
                         gridObject_dict[selected_element_grid]['name'] = childs[0]['props']['value']
                         return no_update, gridObject_dict, no_update, no_update, no_update, no_update, no_update
@@ -92,7 +94,7 @@ def general_callbacks(app):
     def start_calculation_house(btn, device_dict, tabs_main, gridObject_dict, house):
         try:
             if tabs_main == 'house1':
-                df_power, df_sum, graph_power, graph_sunburst = modules.calculate_house(device_dict, range(0, 7*1440))
+                df_power, df_sum, graph_power, graph_sunburst = modules.calculate_house(device_dict, range(0, 7 * 1440))
                 gridObject_dict[house]['power'] = df_sum.loc['house1'].values.flatten().tolist()
                 return df_power.to_json(orient='index'), graph_power, graph_sunburst, gridObject_dict, no_update
             else:
@@ -211,6 +213,24 @@ def general_callbacks(app):
             raise PreventUpdate
         return figure
 
+    @app.callback(Output('graph_power_house', 'figure', allow_duplicate=True),
+                  Input('pagination_days_results', 'value'),
+                  State('graph_power_house', 'figure'),
+                  State('pagination_days_results', 'value'),
+                  prevent_initial_call=True)
+    def update_figure_devices(day_control, figure, day):  # Update the values of the graphs if another profile is chosen
+        # patched_fig = Patch()
+        # Patch scheint noch nicht zu funktionieren, vielleicht später nochmal probieren
+        if day == 'tot':    # Set total range
+            index_start = 0
+            index_stop = 7 * 24 * 60
+        else:   # Set range for one day
+            day_ind = days[day]
+            index_start = day_ind * 24 * 60
+            index_stop = index_start + 24 * 60
+        figure['layout']['xaxis']['range'] = [index_start, index_stop]
+        return figure
+
     @app.callback(Output('modal_timeseries', 'opened'),
                   Output('timeseries_table', 'data'),
                   Input('pill_add_profile', 'n_clicks'),
@@ -255,6 +275,7 @@ def general_callbacks(app):
                   Output('cyto_kitchen', 'elements', allow_duplicate=True),
                   Output('input_week', 'value'),
                   Output('input_year', 'value'),
+                  Output('tab_house', 'disabled', allow_duplicate=True),
                   Output('store_notification', 'data', allow_duplicate=True),
                   Input('menu_item_save', 'n_clicks'),
                   Input('menu_item_load', 'n_clicks'),
@@ -267,9 +288,10 @@ def general_callbacks(app):
                   State('upload_configuration', 'filename'),
                   State('upload_configuration', 'contents'),
                   State('store_settings', 'data'),
+                  State('store_custom_house', 'data'),
                   prevent_initial_call=True)
     def main_menu(btn_save, btn_load_menu, btn_load, gridObject_dict, device_dict, elements_grid, elements_bath,
-                  elements_kitchen, filename, upload_content, settings_dict):
+                  elements_kitchen, filename, upload_content, settings_dict, custom_house):
         triggered_id = ctx.triggered_id
         if triggered_id == 'menu_item_save':
             save_dict = {'gridObject_dict': gridObject_dict,
@@ -280,22 +302,25 @@ def general_callbacks(app):
                          'settings': settings_dict}
             return dict(content=json.dumps(save_dict),
                         filename="test.json"), no_update, no_update, no_update, no_update, no_update, no_update, \
-                   no_update, no_update, no_update
+                   no_update, no_update, no_update, no_update
         elif triggered_id == 'menu_item_load':
-            return no_update, True, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
+            return no_update, True, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'button_load_configuration':
             if not filename.endswith('.json'):  # Check if the file format is .json
-                return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file_format'
+                return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file_format'
             else:
+                custom_house_disabled = True
+                if custom_house is not None:
+                    custom_house_disabled = False
                 content_type, content_string = upload_content.split(",")  # Three lines to get dict from content
                 decoded = base64.b64decode(content_string)
                 content_dict = json.loads(decoded)
                 if not (
                         'gridObject_dict' in content_dict and 'device_dict' in content_dict and 'cyto_grid' in content_dict):  # Check if all dictionaries are there
-                    return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file'
+                    return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file'
                 return no_update, False, content_dict['gridObject_dict'], content_dict['device_dict'], \
                        content_dict['cyto_grid'], content_dict['cyto_bathroom'], content_dict['cyto_kitchen'], \
-                       content_dict['settings']['week'], content_dict['settings']['year'], no_update
+                       content_dict['settings']['week'], content_dict['settings']['year'], custom_house_disabled, no_update
         else:
             raise PreventUpdate
 
@@ -349,15 +374,20 @@ def general_callbacks(app):
                   Output('cyto_kitchen', 'elements', allow_duplicate=True),
                   Output('input_week', 'value', allow_duplicate=True),
                   Output('input_year', 'value', allow_duplicate=True),
+                  Output('tab_house', 'disabled', allow_duplicate=True),
                   Input('interval_refresh', 'n_intervals'),
                   State('store_backup', 'data'),
+                  State('store_custom_house', 'data'),
                   prevent_initial_call=True)
-    def refresh(interval, backup_dict):
+    def refresh(interval, backup_dict, custom_house):
+        custom_house_disabled = True
+        if custom_house is not None:
+            custom_house_disabled = False
         if backup_dict is not None:
             backup_dict = json.loads(backup_dict)
             return backup_dict['gridObject_dict'], backup_dict['device_dict'], \
                    backup_dict['cyto_grid'], backup_dict['cyto_bathroom'], backup_dict['cyto_kitchen'], \
-                   backup_dict['settings']['week'], backup_dict['settings']['year']
+                   backup_dict['settings']['week'], backup_dict['settings']['year'], custom_house_disabled
         else:
             raise PreventUpdate
 
@@ -422,4 +452,3 @@ def general_callbacks(app):
                                 message=notification_message[1],
                                 action='show', color=color, autoClose=5000,
                                 icon=icon, id='notification'), notif_list, len(notif_list)
-

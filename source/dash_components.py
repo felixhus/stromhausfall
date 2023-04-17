@@ -296,7 +296,7 @@ def card_start():
         children=[
             dmc.CardSection(
                 dmc.Image(
-                    src="https://images.unsplash.com/photo-1598528133401-228e74463adb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80",
+                    src="assets/crayon_powerhouse.png",
                     # height=160,
                 )
             ),
@@ -406,6 +406,17 @@ def add_result_tab_panel(tab_value):
         return dmc.TabsPanel([
             dmc.Space(h=20),
             dcc.Graph(id='graph_power_house'),
+            dmc.Space(h=10),
+            dmc.SegmentedControl(
+                id='pagination_days_results',
+                value='tot',
+                fullWidth=320,
+                data=[
+                    {'value': 'mo', 'label': 'MO'}, {'value': 'tu', 'label': 'DI'}, {'value': 'wd', 'label': 'MI'},
+                    {'value': 'th', 'label': 'DO'}, {'value': 'fr', 'label': 'FR'}, {'value': 'sa', 'label': 'SA'},
+                    {'value': 'su', 'label': 'SO'}, {'value': 'tot', 'label': 'TOT'}
+                ]
+            ),
             dcc.Graph(id='graph_sunburst_house'),
         ],
             value=tab_value
@@ -656,6 +667,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             dmc.SegmentedControl(
                 id='pagination_days_menu',
                 value='mo',
+                fullWidth=320,
                 data=[
                     {'value': 'mo', 'label': 'MO'}, {'value': 'tu', 'label': 'DI'}, {'value': 'wd', 'label': 'MI'},
                     {'value': 'th', 'label': 'DO'}, {'value': 'fr', 'label': 'FR'}, {'value': 'sa', 'label': 'SA'},

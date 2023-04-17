@@ -97,17 +97,15 @@ def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
         x=df_sum.columns,
         y=df_sum.loc['house1']
     ))
-    fig.update_layout(template='plotly_white', margin=dict(l=0, r=0, b=0, t=0), width=320)
+    fig.update_layout(xaxis_range=[0, len(df_sum.columns)], template='plotly_white', margin=dict(l=0, r=0, b=0, t=0), width=320, height=320)
     fig.update_xaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True)
     fig.update_yaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True,
                      rangemode='nonnegative')
     fig.update_layout(legend=dict(
-        # orientation="h",
-        # entrywidth=70,
         yanchor="top",
-        y=-0.25,
-        xanchor="left",
-        x=0
+        y=1,
+        xanchor="right",
+        x=1
     ))
     # fig.show()
 
