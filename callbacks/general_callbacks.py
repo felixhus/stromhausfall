@@ -444,6 +444,16 @@ def general_callbacks(app):
                                     "Es ist bereits ein Haus im Detail konfiguriert. Wenn du das andere Haus löscht oder dort ein fertiges Profil auswählst, kannst du dieses nach deinen Wünschen konfigurieren."]
             icon = DashIconify(icon="mdi:house-group")
             color = 'yellow'
+        elif data == 'notification_no_time_input':
+            notification_message = ["Keine Zeit!",
+                                    "Bitte eine Uhrzeit eingeben."]
+            icon = DashIconify(icon="material-symbols:nest-clock-farsight-analog-outline")
+            color = 'yellow'
+        elif data == 'notification_no_profile_selected':
+            notification_message = ["Kein Gerätetyp ausgewählt!",
+                                    "Bitte ein Lastprofil auswählen."]
+            icon = DashIconify(icon="mdi:chart-bell-curve")
+            color = 'yellow'
         else:
             notification_message = ["Fehler!", data]
             icon = DashIconify(icon="material-symbols:warning-outline-rounded")

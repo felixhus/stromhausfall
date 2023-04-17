@@ -316,7 +316,7 @@ def card_start():
             ),
             dmc.Space(h=20),
             dmc.Group([
-                dmc.Button("Neu", leftIcon=DashIconify(icon='material-symbols:play-arrow-outline-rounded'),
+                dmc.Button("Start", leftIcon=DashIconify(icon='material-symbols:play-arrow-outline-rounded'),
                            id='button_start'),
                 dmc.Button("Konfiguration laden", leftIcon=DashIconify(icon='iconoir:load-action-floppy'),
                            id='button_start_load')
@@ -608,7 +608,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 label=["Lastprofil ",
                        dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
                 placeholder="Auswahl",
-                id='load_profile_select',
+                id='load_profile_select_preset',
                 value=element_dict[selected_element]['selected_power_option'],
                 data=[
                     {'value': key, 'label': key}
@@ -654,9 +654,9 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                     label=["Lastprofil ",
                            dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True,
                                      color='primary')],
-                    placeholder="Work in progress",
-                    id='load_profile_select',
-                    disabled=True,
+                    placeholder="Auswählen",
+                    id='load_profile_select_custom',
+                    disabled=False, # Development
                     value=element_dict[selected_element]['selected_power_option'],
                     data=[
                         {'value': key, 'label': key}

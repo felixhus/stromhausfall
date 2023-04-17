@@ -405,7 +405,7 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
                 if child['props']['id'] == 'name_input':
                     device_dict[house][selected_element]['name'] = child['props']['value']
             elif child['type'] == 'Select':
-                if child['props']['id'] == 'load_profile_select':
+                if child['props']['id'] == 'load_profile_select_preset':
                     if child['props']['value'] is not None:
                         device_dict[house][selected_element]['selected_power_option'] = child['props']['value']
                         key = device_dict[house][selected_element]['power_options'][child['props']['value']]['key']
@@ -416,18 +416,25 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
                         load_profile *= 7   # Extend profile from one day to one week
                         device_dict[house][selected_element][
                             'power'] = load_profile  # Save loaded profile to device dictionary
+                elif child['props']['id'] == 'load_profile_select_custom':
+                    device_dict[house][selected_element]['selected_power_option'] = child['props']['value']
             elif child['type'] == 'TimeInput':
-                if child['props']['value'] is not None:     # There is a time input -> Add to load profile
-                    day_ind = days[day]    # Get number of day in week (Monday=0, Tuesday=1, ...)
-                    timestamp = child['props']['value']
-                    timestamp = timestamp[len(timestamp)-8:]    # Get time from input
-                    minutes = int(timestamp[:2]) * 60 + int(timestamp[3:5])     # calculate start in minutes
-                    minutes = minutes + day_ind * 24 * 60                           # Add offset due to different days
-                    power = pd.Series(device_dict[house][selected_element]['power'])    # Get current power profile
-                    new_values = pd.Series([100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100])    # Development
-                    index_pos = minutes - 1
-                    power[index_pos:index_pos + len(new_values)] = new_values.values
-                    device_dict[house][selected_element]['power'] = power.to_list()
+                if 'value' in child['props']:     # There is a time input -> Add to load profile
+                    if device_dict[house][selected_element]['selected_power_option'] is not None:    # If a profile was selected
+                        day_ind = days[day]    # Get number of day in week (Monday=0, Tuesday=1, ...)
+                        timestamp = child['props']['value']
+                        timestamp = timestamp[len(timestamp)-8:]    # Get time from input
+                        minutes = int(timestamp[:2]) * 60 + int(timestamp[3:5])     # calculate start in minutes
+                        minutes = minutes + day_ind * 24 * 60                           # Add offset due to different days
+                        power = pd.Series(device_dict[house][selected_element]['power'])    # Get current power profile
+                        new_values = pd.Series([100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100])    # Development
+                        index_pos = minutes - 1
+                        power[index_pos:index_pos + len(new_values)] = new_values.values
+                        device_dict[house][selected_element]['power'] = power.to_list()
+                    else:
+                        raise Exception("notification_no_profile_selected")
+                else:
+                    raise Exception("notification_no_time_input")
     return device_dict
 
 
