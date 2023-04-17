@@ -297,8 +297,7 @@ def card_start():
         children=[
             dmc.CardSection(
                 dmc.Image(
-                    src="assets/crayon_powerhouse.png",
-                    # height=160,
+                    src="assets/crayon_powerhouse.png", height=250,
                 )
             ),
             dmc.Group(
@@ -316,8 +315,12 @@ def card_start():
                 color="dimmed",
             ),
             dmc.Space(h=20),
-            dmc.Button("Start", leftIcon=DashIconify(icon='material-symbols:play-arrow-outline-rounded'),
-                       id='button_start')
+            dmc.Group([
+                dmc.Button("Neu", leftIcon=DashIconify(icon='material-symbols:play-arrow-outline-rounded'),
+                           id='button_start'),
+                dmc.Button("Konfiguration laden", leftIcon=DashIconify(icon='iconoir:load-action-floppy'),
+                           id='button_start_load')
+            ])
         ],
         withBorder=True,
         shadow="sm",

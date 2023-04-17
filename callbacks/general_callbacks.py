@@ -186,9 +186,10 @@ def general_callbacks(app):
             raise PreventUpdate
 
     @app.callback(Output('modal_start', 'opened'),
-                  Input('button_start', 'n_clicks'))
-    def open_menu_card(btn):
-        if btn is not None:
+                  Input('button_start', 'n_clicks'),
+                  Input('button_start_load', 'n_clicks'))
+    def open_menu_card(btn, btn_load):
+        if btn is not None or btn_load is not None:
             return False
         else:
             raise PreventUpdate
@@ -279,6 +280,7 @@ def general_callbacks(app):
                   Output('store_notification', 'data', allow_duplicate=True),
                   Input('menu_item_save', 'n_clicks'),
                   Input('menu_item_load', 'n_clicks'),
+                  Input('button_start_load', 'n_clicks'),
                   Input('button_load_configuration', 'n_clicks'),
                   State('store_grid_object_dict', 'data'),
                   State('store_device_dict', 'data'),
@@ -290,8 +292,8 @@ def general_callbacks(app):
                   State('store_settings', 'data'),
                   State('store_custom_house', 'data'),
                   prevent_initial_call=True)
-    def main_menu(btn_save, btn_load_menu, btn_load, gridObject_dict, device_dict, elements_grid, elements_bath,
-                  elements_kitchen, filename, upload_content, settings_dict, custom_house):
+    def main_menu(btn_save, btn_load_menu, btn_load, btn_start_load, gridObject_dict, device_dict, elements_grid,
+                  elements_bath, elements_kitchen, filename, upload_content, settings_dict, custom_house):
         triggered_id = ctx.triggered_id
         if triggered_id == 'menu_item_save':
             save_dict = {'gridObject_dict': gridObject_dict,
@@ -303,7 +305,7 @@ def general_callbacks(app):
             return dict(content=json.dumps(save_dict),
                         filename="test.json"), no_update, no_update, no_update, no_update, no_update, no_update, \
                    no_update, no_update, no_update, no_update
-        elif triggered_id == 'menu_item_load':
+        elif triggered_id == 'menu_item_load' or triggered_id == 'button_start_load':
             return no_update, True, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'button_load_configuration':
             if not filename.endswith('.json'):  # Check if the file format is .json
