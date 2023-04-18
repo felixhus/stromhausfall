@@ -133,6 +133,8 @@ def kitchen_callbacks(app):
             elif triggered_id == 'edit_delete_button':
                 if tabs_main != 'house1' or btn_delete is None:  # If button was clicked in grid mode or is None do nothing
                     raise PreventUpdate
+                if selected_element not in device_dict['rooms'][room]:  # If delete button was clicked on device in another room
+                    raise PreventUpdate
                 index_device, index_socket, index_edge = 0, 0, 0
                 for ele in elements:
                     if ele['data']['id'] == selected_element:  # Find index of device in elements list
@@ -163,6 +165,7 @@ def kitchen_callbacks(app):
                 for i in range(index_device - 1, len(elements)):
                     if 'position' in elements[i]:  # Check if it is a node
                         elements[i]['position']['x'] = elements[i]['position']['x'] - 40  # shift node to the left
+                device_dict['rooms'][room].remove(selected_element)  # remove device from room list
                 return elements, device_dict, no_update, no_update, ['empty', None], no_update, no_update, no_update
             elif triggered_id == 'button_close_menu_kitchen':  # The button "close" of the menu was clicked, close the menu
                 return no_update, no_update, no_update, False, no_update, no_update, no_update, no_update
