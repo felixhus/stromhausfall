@@ -39,7 +39,10 @@ def general_callbacks(app):
     def save_props_action(btn_save, key_save, tabs_main, device_dict, selected_element_house, selected_element_grid, children,
                           day, gridObject_dict, year, week, used_profiles, checkbox, figure_pv, figure_house):
         try:
+            triggered_id = ctx.triggered_id
             if btn_save is None and key_save is None:
+                raise PreventUpdate
+            if children[2] is None:     # Catch event that enter was pressed without an open menu
                 raise PreventUpdate
             else:
                 if tabs_main == 'house1':  # If button was clicked in house mode

@@ -9,7 +9,7 @@ colors = ['rgb(245, 149, 178)', 'rgb(255, 179, 179)', 'rgb(255, 241, 186)', 'rgb
 
 def plot_graph(graph):
     nx.draw(graph)
-    plt.show()
+    # plt.show()
 
 
 def empty_figure():

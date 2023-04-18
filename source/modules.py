@@ -240,17 +240,16 @@ def plot_graph(graph):
     # Encode PNG image to base64 string
     base64_encoded = base64.b64encode(png_output.getvalue()).decode('utf-8')
 
-    plt.show()
+    # plt.show()
     return base64_encoded
 
 
-def correct_cyto_edges(elements, graph, flow):
+def correct_cyto_edges(elements, graph):
     """
     Function takes the elements of the grid cytoscape and corrects all edges, so the point in the same direction as in the directed graph of the grid.
     Needed for the display of arrows.
     :param elements: Element list of dash cytoscape
     :param graph: Directed Graph of the grid.
-    :param flow: Result of the flow calculation.
     :return: Edited Element list of dash cytoscape
     """
     # elements_new = copy.deepcopy(elements)
@@ -381,7 +380,7 @@ def interpolate_profile(values, number_steps, interpolation_type):
     x_new = np.linspace(0, number_steps, num=number_steps, endpoint=False)
     y_new = f_inter(x_new)
     plt.plot(y_new)
-    plt.show()
+    # plt.show()
     return y_new
 
 

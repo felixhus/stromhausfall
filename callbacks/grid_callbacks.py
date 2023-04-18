@@ -53,6 +53,7 @@ def grid_callbacks(app):
                 triggered_id = ctx.triggered_id
                 if triggered_id == 'button_calculate':
                     df_flow, labels, elements, format_img_src = calculate_power_flow(elements, gridObject_dict)
+                    labels = {k: round(v, 1) for k, v in labels.items()}    # Round numbers for better display
                     df_flow_json = df_flow.to_json(orient='index')
                     img_src = 'data:image/png;base64,{}'.format(format_img_src)
                     return df_flow_json, {'display': 'block'}, img_src, no_update, no_update, 'results', \
@@ -61,6 +62,7 @@ def grid_callbacks(app):
                     if flow is not None:
                         df_flow = pd.read_json(flow, orient='index')
                         labels = df_flow.loc[slider - 1].to_dict()
+                        labels = {k: round(v, 1) for k, v in labels.items()}    # Round numbers for better display
                         if df_flow.loc[slider - 1, 'external_grid'].item() > 0:
                             text_alert = "Es werden " + str(
                                 abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " W an das Netz abgegeben."
