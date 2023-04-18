@@ -32,7 +32,7 @@ def write_to_database(database, values, series_id):
     # values = values.tolist()
 
     # Build the SQL query to insert the row
-    query = f"INSERT INTO load_profiles_preset_day (series_id, {' ,'.join([f'step_{i}' for i in range(1440)])}) VALUES (?, {'?,' * 1439}?)"
+    query = f"INSERT INTO device_preset (series_id, {' ,'.join([f'step_{i}' for i in range(1440)])}) VALUES (?, {'?,' * 1439}?)"
 
     # Execute the query with the values
     c.execute(query, [series_id] + values)
@@ -91,7 +91,7 @@ def write_part_profile_to_database(start_index, end_index, values, series_id, st
     # Build the SQL statement
     columns = ', '.join(['step_' + str(i) for i in range(end_index - start_index + 1)])
     placeholders = ', '.join(['?' for i in range(start_index, end_index + 1)])
-    query = f"INSERT INTO profile_custom (series_id, standby_power, {columns}) VALUES (?, ?, {placeholders})"
+    query = f"INSERT INTO device_custom (series_id, standby_power, {columns}) VALUES (?, ?, {placeholders})"
 
     # Get the range of values to insert
     range_of_values = values[start_index:end_index + 1]
@@ -104,11 +104,12 @@ def write_part_profile_to_database(start_index, end_index, values, series_id, st
     conn.close()
 
 
-filepath = r"C:\Users\felix\Documents\HOME\Uni\02_Master\05_Masterthesis\03_Daten\Tracebase Profiles\complete\WaterKettle\dev_D33E1F_2012.06.23.csv"
+filepath = r"C:\Users\felix\Documents\HOME\Uni\02_Master\05_Masterthesis\03_Daten\Tracebase Profiles\complete\Lamp\_D3237E_2012.01.10.csv"
 df = pd.read_csv(filepath, header=None, delimiter=";", names=["datetime", "value1", "value2"])
 df["datetime"] = pd.to_datetime(df.iloc[:, 0])
 df.set_index("datetime", inplace=True)
 df_resampled = df.resample('1T').mean()
 
 values = df_resampled['value2'].tolist()
-write_part_profile_to_database(664, 674, values, 'kettle_2500W', 0)
+# write_part_profile_to_database(627, 753, values, 'washing_machine', 2)
+write_to_database('database_profiles.db', values, 'lamp_04')

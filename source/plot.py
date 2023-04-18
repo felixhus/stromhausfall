@@ -113,13 +113,13 @@ def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
     sunburst_labels.append('Mein Haus')
     sunburst_parents.append('')
     sunburst_values.append(df_energy.loc['house1']['energy'])
-    for room in device_dict['rooms']['devices']:
-        sunburst_labels.append(room)
-        sunburst_parents.append('house1')
+    for room in device_dict['rooms']:
+        sunburst_labels.append(device_dict['rooms'][room]['name'])
+        sunburst_parents.append('Mein Haus')
         sunburst_values.append(df_energy.loc[room]['energy'])
         for device in device_dict['rooms'][room]['devices']:
-            sunburst_labels.append(device)
-            sunburst_parents.append(room)
+            sunburst_labels.append(device_dict['house1'][device]['name'])
+            sunburst_parents.append(device_dict['rooms'][room]['name'])
             sunburst_values.append(df_energy.loc[device]['energy'])
 
     fig_sunburst = go.Figure(go.Sunburst(

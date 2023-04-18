@@ -203,6 +203,32 @@ def create_DeviceObject(device_id, device_type):
                 '2500 W': {'key': 'kettle_2500W', 'icon': None}
             }
         }
+    elif device_type == 'boiler':
+        return {
+            'id': device_id,
+            'name': 'Boiler',
+            'type': device_type,
+            'menu_type': 'device_preset',
+            'power': [0] * 24*60*7,
+            'active': True,
+            'selected_power_option': 'Boiler',
+            'power_options': {
+                'Boiler': {'key': 'water_boiler', 'icon': None}
+            }
+        }
+    elif device_type == 'washing_machine':
+        return {
+            'id': device_id,
+            'name': 'Waschmaschine',
+            'type': device_type,
+            'menu_type': 'device_custom',
+            'power': [0] * 24*60*7,
+            'active': True,
+            'selected_power_option': 'Waschgang',
+            'power_options': {
+                'Waschgang': {'key': 'washing_machine', 'icon': None}
+            }
+        }
     elif device_type == 'oven':
         return {
             'id': device_id,
@@ -249,16 +275,19 @@ def create_DeviceObject(device_id, device_type):
     }
 
 
-def create_LampObject(device_id):
+def create_LampObject(device_id, room):
     return {
         'id': device_id,
-        'name': 'Lampe',
+        'name': 'Lampe ' + room,
         'type': 'lamp',
+        'menu_type': 'device_preset',
         'power': [0] * 24*60*7,
         'active': True,
         'selected_power_option': None,
         'power_options': {
-            'Lampe': {'key': 'lamp_basic', 'icon': None},
-            'VDEW': {'key': 'vdew_test_cubic', 'icon': None}
+            'Lampe Profil 1': {'key': 'lamp_01', 'icon': None},
+            'Lampe Profil 2': {'key': 'lamp_02', 'icon': None},
+            'Lampe Profil 3': {'key': 'lamp_03', 'icon': None},
+            'Lampe Profil 4': {'key': 'lamp_04', 'icon': None},
         }
     }

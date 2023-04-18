@@ -35,7 +35,7 @@ def bathroom_callbacks(app):
             triggered_id = ctx.triggered_id
             if triggered_id is None:  # Initial call
                 device_dict['house1']['lamp_bathroom'] = objects.create_LampObject(
-                    'lamp_bathroom')  # Add lamp to device dictionary
+                    'lamp_bathroom', "Bad")  # Add lamp to device dictionary
                 device_dict['rooms'][room] = {}
                 device_dict['rooms'][room]['name'] = 'Bad'  # Create roomname
                 device_dict['rooms'][room]['devices'] = ['lamp_' + room]  # Create list of devices in bathroom in dictionary

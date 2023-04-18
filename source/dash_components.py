@@ -8,13 +8,18 @@ from dash_iconify import DashIconify
 import source.plot as plot
 import source.stylesheets as stylesheets
 
-devices = {'bathroom': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hair-dryer'],
-                        ["Zahnbürste", 'button_add_toothbrush', 'mdi:toothbrush-electric'],
-                        ["Bügeleisen", 'button_add_iron', 'tabler:ironing-1']],
+# devices = {'bathroom': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hair-dryer'],
+#                         ["Zahnbürste", 'button_add_toothbrush', 'mdi:toothbrush-electric'],
+#                         ["Bügeleisen", 'button_add_iron', 'tabler:ironing-1']],
+#            'kitchen': [["Kühlschrank", 'button_add_refrigerator', 'mdi:fridge-outline'],
+#                        ["Wasserkocher", 'button_add_kettle', 'material-symbols:kettle-outline'],
+#                        ["Kaffeemaschine", 'button_add_coffee', 'ic:outline-coffee'],
+#                        ["Ofen", 'button_add_oven', 'material-symbols:oven-gen-outline']]}
+
+devices = {'bathroom': [["Waschmaschine", 'button_add_washing_machine', 'icon-park-outline:washing-machine-one'],
+                        ["Boiler", 'button_add_boiler', 'mdi:water-boiler']],
            'kitchen': [["Kühlschrank", 'button_add_refrigerator', 'mdi:fridge-outline'],
-                       ["Wasserkocher", 'button_add_kettle', 'material-symbols:kettle-outline'],
-                       ["Kaffeemaschine", 'button_add_coffee', 'ic:outline-coffee'],
-                       ["Ofen", 'button_add_oven', 'material-symbols:oven-gen-outline']]}
+                       ["Wasserkocher", 'button_add_kettle', 'material-symbols:kettle-outline']]}
 
 urls = {'cyto_bathroom': 'url(/assets/background_bathroom.png)', 'cyto_kitchen': 'url(/assets/background_kitchen.png)'}
 
@@ -704,7 +709,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 label=["Lastprofil ",
                        dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
                 placeholder="Auswahl",
-                id='load_profile_select',
+                id='load_profile_select_preset',
                 value=element_dict[selected_element]['selected_power_option'],
                 data=[
                     {'value': key, 'label': key}
