@@ -325,6 +325,19 @@ def grid_callbacks(app):
             else:
                 raise PreventUpdate
 
+    @app.callback(Output('cyto1', 'elements', allow_duplicate=True),
+                  Input('store_custom_house', 'data'),
+                  State('cyto1', 'elements'),
+                  prevent_initial_call=True)
+    def custom_house_style(selected_element, elements):
+        if selected_element is not None:
+            for ele in elements:
+                if ele['data']['id'] == selected_element:
+                    ele['classes'] = 'node_style_custom'
+                    break
+            return elements
+        raise PreventUpdate
+
     @app.callback(Output('store_add_node', 'data'),
                   [Input(object_id[0], 'n_clicks') for object_id in menu_objects],
                   prevent_initial_call=True)

@@ -20,6 +20,18 @@ cyto_stylesheet = [
         }
     },
     {
+        'selector': '.node_style_custom',
+        'style': {
+            'background-color': '#6a93b0',
+            'shape': 'rectangle',
+            'width': 50,
+            'height': 50,
+            'background-image': ['/assets/Icons/icon_house.png'],
+            'background-width': 40,
+            'background-height': 40,
+        }
+    },
+    {
         'selector': '.node_style_selected',
         'style': {
             'background-color': '#blue',
@@ -86,18 +98,6 @@ cyto_stylesheet = [
             'height': 10,
         }
     },
-    # {
-    #     'selector': '.node_house',
-    #     'style': {
-    #         'background-color': '#6a93b0',
-    #         'shape': 'roundrectangle',
-    #         'width': 25,
-    #         'height': 25,
-    #         'background-image': ['/assets/Icons/icon_house.png'],
-    #         'background-width': 25,
-    #         'background-height': 25,
-    #     }
-    # },
     {
         'selector': '.line_style_new',
         'style': {
@@ -129,6 +129,18 @@ cyto_stylesheet_calculated = [
         }
     },
     {
+        'selector': '.node_style_custom',
+        'style': {
+            'background-color': '#6a93b0',
+            'shape': 'rectangle',
+            'width': 50,
+            'height': 50,
+            'background-image': ['/assets/Icons/icon_house.png'],
+            'background-width': 40,
+            'background-height': 40,
+        }
+    },
+    {
         'selector': '.node_style_selected',
         'style': {
             'background-color': '#blue',
@@ -140,18 +152,6 @@ cyto_stylesheet_calculated = [
             'background-height': 40,
         }
     },
-    # {
-    #     'selector': '.node_house',
-    #     'style': {
-    #         'background-color': '#6a93b0',
-    #         'shape': 'roundrectangle',
-    #         'width': 25,
-    #         'height': 25,
-    #         'background-image': ['/assets/Icons/icon_house.png'],
-    #         'background-width': 25,
-    #         'background-height': 25,
-    #     }
-    # },
     {
         'selector': '.line_style',
         'style': {
