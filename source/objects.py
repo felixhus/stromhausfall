@@ -199,8 +199,8 @@ def create_DeviceObject(device_id, device_type):
             'active': True,
             'selected_power_option': None,
             'power_options': {
-                '2000 W': {'key': 'Kettle_2000W', 'icon': None},
-                '2500 W': {'key': 'Kettle_2500W', 'icon': None}
+                '2000 W': {'key': 'kettle_2000W', 'icon': None},
+                '2500 W': {'key': 'kettle_2500W', 'icon': None}
             }
         }
     elif device_type == 'oven':

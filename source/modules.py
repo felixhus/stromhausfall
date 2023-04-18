@@ -416,6 +416,8 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
                         load_profile *= 7   # Extend profile from one day to one week
                         device_dict[house][selected_element][
                             'power'] = load_profile  # Save loaded profile to device dictionary
+                    else:
+                        raise Exception("notification_no_profile_selected")
                 elif child['props']['id'] == 'load_profile_select_custom':
                     device_dict[house][selected_element]['selected_power_option'] = child['props']['value']
             elif child['type'] == 'TimeInput':
@@ -425,11 +427,18 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
                         timestamp = child['props']['value']
                         timestamp = timestamp[len(timestamp)-8:]    # Get time from input
                         minutes = int(timestamp[:2]) * 60 + int(timestamp[3:5])     # calculate start in minutes
-                        minutes = minutes + day_ind * 24 * 60                           # Add offset due to different days
+                        minutes = minutes + day_ind * 24 * 60                           # Add offset due to different
+                        table_name = device_dict[house][selected_element]['menu_type']  # From which SQLite-Table
+                        selected_power_option = device_dict[house][selected_element]['selected_power_option']
+                        key = device_dict[house][selected_element]['power_options'][selected_power_option]['key']
+                        database = 'source/database_profiles.db'
+                        load_profile = sql_modules.get_load_profile(table_name, key, database)  # Get load profile snippet from database
+                        standby_power = load_profile[0]     # Get standby power (first element of loaded profile)
+                        load_profile = pd.Series(load_profile[1:])     # Delete first element (standby power)
                         power = pd.Series(device_dict[house][selected_element]['power'])    # Get current power profile
-                        new_values = pd.Series([100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100])    # Development
+                        # new_values = pd.Series([100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100])    # Development
                         index_pos = minutes - 1
-                        power[index_pos:index_pos + len(new_values)] = new_values.values
+                        power[index_pos:index_pos + len(load_profile)] = load_profile.values
                         device_dict[house][selected_element]['power'] = power.to_list()
                     else:
                         raise Exception("notification_no_profile_selected")
