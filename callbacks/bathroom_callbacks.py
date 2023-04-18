@@ -36,7 +36,9 @@ def bathroom_callbacks(app):
             if triggered_id is None:  # Initial call
                 device_dict['house1']['lamp_bathroom'] = objects.create_LampObject(
                     'lamp_bathroom')  # Add lamp to device dictionary
-                device_dict['rooms'][room] = ['lamp_bathroom']  # Create list of devices in bathroom in dictionary
+                device_dict['rooms'][room] = {}
+                device_dict['rooms'][room]['name'] = 'Bad'  # Create roomname
+                device_dict['rooms'][room]['devices'] = ['lamp_' + room]  # Create list of devices in bathroom in dictionary
                 socket_node = {'data': {'id': 'socket1', 'parent': 'power_strip'}, 'position': {'x': 35, 'y': 175},
                                'classes': 'socket_node_style_on', 'linked_device': 'lamp_bathroom'}
                 lamp_node = {'data': {'id': 'lamp_bathroom'}, 'position': {'x': 35, 'y': 25},
@@ -120,7 +122,7 @@ def bathroom_callbacks(app):
                 elements.append(new_node)
                 elements.append(new_edge)
                 device_dict['house1'][device_id] = new_device  # Add new device to device dictionary
-                device_dict['rooms'][room].append(device_id)  # Add new device to room device list
+                device_dict['rooms'][room]['devices'].append(device_id)  # Add new device to room device list
                 return elements, device_dict, no_update, False, ['empty',
                                                                  None], no_update, no_update, no_update  # Return elements and close menu
             elif triggered_id == 'edit_save_button':
@@ -128,7 +130,7 @@ def bathroom_callbacks(app):
             elif triggered_id == 'edit_delete_button':
                 if tabs_main != 'house1' or btn_delete is None:  # If button was clicked in grid mode or is None do nothing
                     raise PreventUpdate
-                if selected_element not in device_dict['rooms'][room]:  # If delete button was clicked on device in another room
+                if selected_element not in device_dict['rooms'][room]['devices']:  # If delete button was clicked on device in another room
                     raise PreventUpdate
                 index_device, index_socket, index_edge = 0, 0, 0
                 for ele in elements:
@@ -160,7 +162,7 @@ def bathroom_callbacks(app):
                 for i in range(index_device - 1, len(elements)):
                     if 'position' in elements[i]:  # Check if it is a node
                         elements[i]['position']['x'] = elements[i]['position']['x'] - 40  # shift node to the left
-                device_dict['rooms'][room].remove(selected_element)     # remove device from room list
+                device_dict['rooms'][room]['devices'].remove(selected_element)     # remove device from room list
                 return elements, device_dict, no_update, no_update, ['empty', None], no_update, no_update, no_update
             elif triggered_id == 'button_close_menu_bathroom':  # The button "close" of the menu was clicked, close the menu
                 return no_update, no_update, no_update, False, no_update, no_update, no_update, no_update

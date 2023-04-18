@@ -57,7 +57,7 @@ cyto_stylesheet = [
     {
         'selector': '.socket_node_style_on',
         'style': {
-            'background-color': 'green',
+            'background-color': '#89CFF0',
             'shape': 'roundrectangle',
             'width': 30,
             'height': 30,
@@ -69,7 +69,7 @@ cyto_stylesheet = [
     {
         'selector': '.socket_node_style_off',
         'style': {
-            'background-color': 'red',
+            'background-color': '#FF7F50',
             'shape': 'roundrectangle',
             'width': 30,
             'height': 30,
