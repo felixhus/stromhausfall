@@ -40,7 +40,8 @@ def add_storage_variables():
                      dcc.Store(id='store_used_profiles', data=[1], storage_type='session'),
                      dcc.Store(id='store_device_dict', data=device_dict_init),
                      dcc.Store(id='store_results_house'), dcc.Store(id='store_settings', data={}),
-                     dcc.Store(id='store_backup', storage_type='session')])
+                     dcc.Store(id='store_backup', storage_type='session'),
+                     dcc.Store(id='store_save_by_enter', data=None)])
 
 
 def add_grid_object_button(object_id, name=None, linked_object=None, icon=None, enable=True):

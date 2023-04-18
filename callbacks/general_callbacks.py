@@ -18,8 +18,10 @@ def general_callbacks(app):
                   Output('graph_house', 'figure'),
                   Output('store_used_profiles', 'data'),
                   Output('checkbox_random_profile', 'checked'),
+                  Output('store_save_by_enter', 'data', allow_duplicate=True),
                   Output('store_notification', 'data', allow_duplicate=True),
                   Input('edit_save_button', 'n_clicks'),
+                  Input('store_save_by_enter', 'data'),
                   State('tabs_main', 'value'),
                   State('store_device_dict', 'data'),
                   State('store_selected_element_house', 'data'),
@@ -34,16 +36,16 @@ def general_callbacks(app):
                   State('graph_pv', 'figure'),
                   State('graph_house', 'figure'),
                   prevent_initial_call=True)
-    def save_props_action(btn_save, tabs_main, device_dict, selected_element_house, selected_element_grid, children,
+    def save_props_action(btn_save, key_save, tabs_main, device_dict, selected_element_house, selected_element_grid, children,
                           day, gridObject_dict, year, week, used_profiles, checkbox, figure_pv, figure_house):
         try:
-            if btn_save is None:
+            if btn_save is None and key_save is None:
                 raise PreventUpdate
             else:
                 if tabs_main == 'house1':  # If button was clicked in house mode
                     device_dict = modules.save_settings_devices(children[2]['props']['children'], device_dict,
                                                                 selected_element_house, 'house1', day)
-                    return device_dict, no_update, no_update, no_update, no_update, no_update, no_update
+                    return device_dict, no_update, no_update, no_update, no_update, no_update, no_update, no_update
                 elif tabs_main == 'grid':  # If button was clicked in grid mode
                     if gridObject_dict[selected_element_grid]['object_type'] == 'pv':  # If PV is selected
                         gridObject_dict, notif = modules.save_settings_pv(children[2]['props']['children'],
@@ -52,33 +54,33 @@ def general_callbacks(app):
                         figure_pv["data"][0]["y"] = [-i for i in gridObject_dict[selected_element_grid][
                             'power']]  # Invert power for plot
                         if notif is not None:
-                            return no_update, no_update, no_update, no_update, no_update, no_update, notif
+                            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, notif
                         else:
-                            return no_update, gridObject_dict, figure_pv, no_update, no_update, no_update, no_update
+                            return no_update, gridObject_dict, figure_pv, no_update, no_update, no_update, None, no_update
                     elif gridObject_dict[selected_element_grid]['object_type'] == 'house':  # If House is selected
                         gridObject_dict, used_profiles = modules.save_settings_house(children[2]['props']['children'],
                                                                                      gridObject_dict,
                                                                                      selected_element_grid, year, week,
                                                                                      used_profiles, checkbox)
                         figure_house["data"][0]["y"] = gridObject_dict[selected_element_grid]['power']
-                        return no_update, gridObject_dict, no_update, figure_house, used_profiles, False, no_update
+                        return no_update, gridObject_dict, no_update, figure_house, used_profiles, False, None, no_update
                     elif gridObject_dict[selected_element_grid][
                         'object_type'] == 'transformer':  # If Transformer is selected
                         childs = children[2]['props']['children']
                         gridObject_dict[selected_element_grid]['name'] = childs[0]['props']['value']
                         gridObject_dict[selected_element_grid]['rating'] = childs[2]['props']['value']
-                        return no_update, gridObject_dict, no_update, no_update, no_update, no_update, no_update
+                        return no_update, gridObject_dict, no_update, no_update, no_update, no_update, None, no_update
                     elif gridObject_dict[selected_element_grid][
                         'object_type'] == 'switch_cabinet':  # If switch cabinet is selected
                         childs = children[2]['props']['children']
                         gridObject_dict[selected_element_grid]['name'] = childs[0]['props']['value']
-                        return no_update, gridObject_dict, no_update, no_update, no_update, no_update, no_update
+                        return no_update, gridObject_dict, no_update, no_update, no_update, no_update, None, no_update
                 else:
                     raise PreventUpdate
         except PreventUpdate:
-            return no_update, no_update, no_update, no_update, no_update, no_update, no_update
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
         except Exception as err:
-            return no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('store_results_house', 'data'),
                   Output('graph_power_house', 'figure'),
@@ -390,6 +392,20 @@ def general_callbacks(app):
             return backup_dict['gridObject_dict'], backup_dict['device_dict'], \
                    backup_dict['cyto_grid'], backup_dict['cyto_bathroom'], backup_dict['cyto_kitchen'], \
                    backup_dict['settings']['week'], backup_dict['settings']['year'], custom_house_disabled
+        else:
+            raise PreventUpdate
+
+    @app.callback(Output('store_save_by_enter', 'data'),
+                  Input('key_event_listener', 'n_events'),
+                  State('key_event_listener', 'event'),
+                  State('edit_save_button', 'n_clicks'),
+                  prevent_initial_call=True)
+    def enter_save(key_n, key_event, n):
+        if key_event['key'] == 'Enter':
+            # if n is None:
+            #     return 0
+            # return n + 1
+            return 'pressed'
         else:
             raise PreventUpdate
 
