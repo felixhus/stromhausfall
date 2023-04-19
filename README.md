@@ -7,6 +7,8 @@ Dies ist der aktuelle Stand der Webapp meiner Masterthesis. Folgende Funktionen 
 > Eine zuvor heruntergeladene Konfiguration kann wieder in die App geladen werden (Menü > Laden)
 > Jede PV-Anlage im Netz kann mit Postleitzahl und Ausrichtung konfiguriert werden. Die realen Sonnendaten für diese Konfiguration werden anschließend in die App geladen.
 > In dem Tab "Haus 1" kann ein Haus in seinen Räumen frei konfiguriert werden.
+> Die Geräte haben entweder fertige tägliche Lastprofile (z.B. Kühlschrank) oder können mit ihrem Einschaltzeitpunkt hinzugefügt werden (z.B. Waschmaschine, Wasserkocher).
+> Das resultierende Lastprofil des frei verfügbaren Hauses wird im Netz beim Haus hinterlegt.
 
 ### Funktionen Haus: ###
 
@@ -31,8 +33,6 @@ Dies ist der aktuelle Stand der Webapp meiner Masterthesis. Folgende Funktionen 
 - Mit dem Button "Berechnen" wird eine Leistungsflussberechnung durchgeführt und die Ergebnisse im Netz angezeigt.
 - Wird ein Element mit einem Trafo verbunden, dessen Spannungsebene nicht klar definiert ist (z.B. PV), wird in einem Dialog die Spannungsebene abgefragt.
 
-⚠️An der Netznachbildung wird aktuell nicht gearbeitet, einige Funktionen können fehlerhaft sein.
-
 #### Berechnung des Graphen: ####
 Jedes Element des gezeichneten Netzes wird in einen Graphenknoten mit seinen Eigenschaften übertragen. Für jeden Transformator wird ein weiterer Knoten erstellt. 
   Ein Trafo wird also durch zwei Knoten repräsentiert, dies dient zum einen zur Darstellung von Anschlüssen an Ober-/Unterspannungsseite. Vor allem kann so aber der 
@@ -40,6 +40,6 @@ Jedes Element des gezeichneten Netzes wird in einen Graphenknoten mit seinen Eig
 
 Fragen und Anregungen gern an mich [per Mail](mailto:felix.husemann@tum.de)
 ~~~
-Stand: 06.04.2023
+Stand: 19.04.2023
 © Felix Husemann, TUM
 ~~~
