@@ -390,10 +390,6 @@ def card_menu():
                         dmc.Alert(children="", id="alert_externalgrid", color='primary', hide=True),
                         dmc.Space(h=10),
                         dmc.Alert(children="", id="alert_time", color='primary', hide=True),
-                        dmc.CardSection(
-                            dmc.Image(id='graph_image', src='assets/temp/graph.png', withPlaceholder=True,
-                                      style={'display': 'none'})
-                        ),
                     ], value="results"),
                 ],
                 id='tabs_menu', value='edit', color="blue", orientation="horizontal",
@@ -874,7 +870,7 @@ def add_modal_load_configuration():
                 },
                 multiple=False
             ),
-            dmc.Text(id='text_filename_load'),
+            dmc.Text(id='text_filename_load', color='blue', underline=True),
             dmc.Space(h=10),
             dmc.Text("Die aktuelle Konfiguration durch die geladene überschreiben?"),
             dmc.Space(h=10),
