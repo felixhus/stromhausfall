@@ -323,7 +323,7 @@ def power_flow_statemachine(state, data):
         data['df_flow'] = df_flow
         return 'set_edge_labels', data, False
     elif state == 'set_edge_labels':
-        data['elements'] = correct_cyto_edges(data['elements'], data['grid_graph'], data['df_flow'])
+        data['elements'] = correct_cyto_edges(data['elements'], data['grid_graph'])
         data['labels'] = data['df_flow'].loc[0].to_dict()
         return None, data, True
 
