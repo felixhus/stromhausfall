@@ -275,8 +275,6 @@ def dash_navbar():
             ),
             dbc.NavbarToggler(id="navbar-toggler", n_clicks=0),
             dmc.Group([
-                dmc.Button("Beispielnetz", id='example_button', n_clicks=0, variant='gradient',
-                           gradient={"from": "teal", "to": "blue", "deg": 60}),
                 dmc.Button("README", id='button_readme', n_clicks=0,
                            leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
                 dmc.Menu([

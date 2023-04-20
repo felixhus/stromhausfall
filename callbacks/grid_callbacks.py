@@ -91,7 +91,6 @@ def grid_callbacks(app):
                   Input('cyto1', 'selectedNodeData'),
                   Input('edit_delete_button', 'n_clicks'),
                   Input('button_line', 'n_clicks'),
-                  Input('example_button', 'n_clicks'),
                   Input('button_voltage_hv', 'n_clicks'),
                   Input('button_voltage_lv', 'n_clicks'),
                   State('cyto1', 'elements'),
@@ -102,7 +101,7 @@ def grid_callbacks(app):
                   State('store_get_voltage', 'data'),
                   State('tabs_main', 'value'),
                   prevent_initial_call=True)
-    def edit_grid(btn_add, node, btn_delete, btn_line, btn_example, button_hv, button_lv, elements,
+    def edit_grid(btn_add, node, btn_delete, btn_line, button_hv, button_lv, elements,
                   gridObject_dict, btn_line_active, start_of_line, selected_element, node_ids, tabs_main):
         triggered_id = ctx.triggered_id
         if triggered_id == 'button_line':  # Start line edit mode, set 'start_of_line' as None
@@ -165,9 +164,6 @@ def grid_callbacks(app):
                     raise PreventUpdate
             else:
                 raise PreventUpdate  # Button was clicked in other mode than grid
-        elif triggered_id == 'example_button':
-            ele, gridObject_dict = example_grids.simple_grid_timeseries_day(app, 24 * 60)
-            return ele, gridObject_dict, no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'button_voltage_hv':
             for node_id in node_ids:
                 obj = gridObject_dict[node_id]
@@ -346,11 +342,3 @@ def grid_callbacks(app):
             raise PreventUpdate
         else:
             return triggered_id
-
-    @app.callback(Output('cyto1', 'layout'),
-                  Output('example_button', 'disabled'),
-                  Input('example_button', 'n_clicks'),
-                  prevent_initial_call=True)
-    def activate_example(btn):
-        time.sleep(0.25)
-        return {'name': 'cose'}, True
