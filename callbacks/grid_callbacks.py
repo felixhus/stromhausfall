@@ -31,7 +31,6 @@ weekdays = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"
 def grid_callbacks(app):
     @app.callback(Output('store_flow_data', 'data'),
                   Output('graph_image', 'style'),
-                  Output('graph_image', 'src'),
                   Output('alert_externalgrid', 'children'),
                   Output('alert_externalgrid', 'hide'),
                   Output('tabs_menu', 'value'),
@@ -52,11 +51,10 @@ def grid_callbacks(app):
             if tabs_main == 'grid':
                 triggered_id = ctx.triggered_id
                 if triggered_id == 'button_calculate':
-                    df_flow, labels, elements, format_img_src = calculate_power_flow(elements, gridObject_dict)
+                    df_flow, labels, elements = calculate_power_flow(elements, gridObject_dict)
                     labels = {k: round(v, 1) for k, v in labels.items()}    # Round numbers for better display
                     df_flow_json = df_flow.to_json(orient='index')
-                    img_src = 'data:image/png;base64,{}'.format(format_img_src)
-                    return df_flow_json, {'display': 'block'}, img_src, no_update, no_update, 'results', \
+                    return df_flow_json, {'display': 'block'}, no_update, no_update, 'results', \
                            stylesheets.cyto_stylesheet_calculated, elements, len(df_flow.index), labels, no_update
                 elif triggered_id == 'timestep_slider':
                     if flow is not None:

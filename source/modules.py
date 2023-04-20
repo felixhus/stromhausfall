@@ -342,7 +342,7 @@ def calculate_power_flow(elements, grid_object_dict):
         print(state)
         state, data, ready = power_flow_statemachine(state, data)
         print("Done")
-    return data['df_flow'], data['labels'], data['elements'], plot_graph(data['grid_graph'])
+    return data['df_flow'], data['labels'], data['elements']
 
 
 def calculate_house(device_dict, timesteps):
