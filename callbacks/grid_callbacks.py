@@ -13,7 +13,7 @@ import source.stylesheets as stylesheets
 from source.layout import menu_objects
 from source.modules import (calculate_power_flow, connection_allowed,
                             generate_grid_object, get_connected_edges,
-                            get_last_id)
+                            get_last_id, get_monday_sunday_from_week)
 
 # Button Ids, azimuth angles, Icons and rotations for Compass buttons PV
 compass_buttons = {'button_north': 0,
@@ -30,7 +30,6 @@ weekdays = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"
 
 def grid_callbacks(app):
     @app.callback(Output('store_flow_data', 'data'),
-                  Output('graph_image', 'style'),
                   Output('alert_externalgrid', 'children'),
                   Output('alert_externalgrid', 'hide'),
                   Output('tabs_menu', 'value'),
@@ -54,7 +53,7 @@ def grid_callbacks(app):
                     df_flow, labels, elements = calculate_power_flow(elements, gridObject_dict)
                     labels = {k: round(v, 1) for k, v in labels.items()}    # Round numbers for better display
                     df_flow_json = df_flow.to_json(orient='index')
-                    return df_flow_json, {'display': 'block'}, no_update, no_update, 'results', \
+                    return df_flow_json, no_update, no_update, 'results', \
                            stylesheets.cyto_stylesheet_calculated, elements, len(df_flow.index), labels, no_update
                 elif triggered_id == 'timestep_slider':
                     if flow is not None:
@@ -67,7 +66,7 @@ def grid_callbacks(app):
                         else:
                             text_alert = "Es werden " + str(
                                 abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " W aus dem Netz bezogen."
-                        return no_update, no_update, no_update, text_alert, False, no_update, no_update, no_update, no_update, labels, no_update
+                        return no_update, text_alert, False, no_update, no_update, no_update, no_update, labels, no_update
                     else:
                         raise PreventUpdate
                 else:
@@ -75,10 +74,10 @@ def grid_callbacks(app):
             else:
                 raise PreventUpdate
         except PreventUpdate:
-            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
                    no_update, no_update
         except Exception as err:
-            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
                    no_update, err.args[0]
 
     @app.callback(Output('cyto1', 'elements'),  # Callback to change elements of cyto
@@ -282,7 +281,7 @@ def grid_callbacks(app):
                   State('input_week', 'value'),
                   prevent_initial_call=True)
     def time_slider(slider, year, week):
-        date_start, date_stop = modules.get_monday_sunday_from_week(week, year)
+        date_start, date_stop = get_monday_sunday_from_week(week, year)
         time_start = datetime.datetime.combine(date_start, datetime.datetime.min.time())
         slider_time = time_start + datetime.timedelta(minutes=slider)
         text = slider_time.strftime(f"Am {weekdays[slider_time.weekday()]} %d.%m. um %H:%M")
