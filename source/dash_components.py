@@ -187,7 +187,7 @@ def add_cytoscape_layout():
                             style={"width": 250}, disabled=True
                         ),
                         dmc.Space(h=15),
-                        dmc.Button("Aktualisieren", id='button_update_settings', leftIcon=DashIconify(icon='ci:arrows-reload-01')),
+                        dmc.Button("Aktualisieren - Work in progress", disabled=True, id='button_update_settings', leftIcon=DashIconify(icon='ci:arrows-reload-01')),
                     ], value='settings')
                 ],
                     id='tabs_main', value='grid', color="blue", orientation="horizontal", allowTabDeactivation=True)
