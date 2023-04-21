@@ -63,11 +63,9 @@ def grid_callbacks(app):
                         external_grid_value = df_flow.loc[slider - 1, 'external_grid'].item()
                         external_grid_value = round(external_grid_value, 1)
                         if external_grid_value > 0:
-                            text_alert = "Es werden " + str(
-                                abs(external_grid_value) + " W an das Netz abgegeben."
+                            text_alert = "Es werden " + str(abs(external_grid_value)) + " W an das Netz abgegeben."
                         else:
-                            text_alert = "Es werden " + str(
-                                abs(external_grid_value) + " W aus dem Netz bezogen."
+                            text_alert = "Es werden " + str(abs(external_grid_value)) + " W aus dem Netz bezogen."
                         return no_update, text_alert, False, no_update, no_update, no_update, no_update, labels, no_update
                     else:
                         raise PreventUpdate
