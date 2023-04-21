@@ -2,9 +2,9 @@ import base64
 import copy
 import io
 import json
+import random
 import warnings
 from datetime import datetime, timedelta
-from random import randint
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -18,6 +18,7 @@ import source.plot as plot
 import source.sql_modules as sql_modules
 
 days = {'mo': 0, 'tu': 1, 'wd': 2, 'th': 3, 'fr': 4, 'sa': 5, 'su': 6}
+profile_selection = [46, 4, 7, 9, 14, 15, 16, 17, 18, 19, 20, 22, 23, 27, 28, 32, 33, 39, 41, 73, 42, 45, 47, 58, 61, 62, 65]
 
 
 def get_last_id(elements):
@@ -448,11 +449,11 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
 def save_settings_house(children, gridObject_dict, selected_element, year, week, used_profiles, checkbox):
     if checkbox:    # If wanted, load a random household profile from the database
         date_start, date_stop = get_monday_sunday_from_week(week, year)
-        profile = randint(1, 74)
+        profile = random.choice(profile_selection)
         while profile in used_profiles:     # Make sure to load a profile which wasn't used already
-            profile = randint(1, 74)
+            profile = random.choice(profile_selection)
         used_profiles.append(profile)
-        power = sql_modules.get_household_profile('source/database_izes.db', profile, date_start, date_stop)
+        power = sql_modules.get_household_profile('source/database_izes_reduced.db', profile, date_start, date_stop)
         gridObject_dict[selected_element]['power'] = power
         gridObject_dict[selected_element]['power_profile'] = profile
     gridObject_dict[selected_element]['name'] = children[0]['props']['value']
@@ -507,7 +508,7 @@ def update_settings(gridObject_dict, selected_element, year, week):
     date_start, date_stop = get_monday_sunday_from_week(week, year)
     if gridObject_dict[selected_element]['object_type'] == 'house':
         profile = gridObject_dict[selected_element]['power_profile']
-        power = sql_modules.get_household_profile('source/database_izes.db', profile, date_start, date_stop)
+        power = sql_modules.get_household_profile('source/database_izes_reduced.db', profile, date_start, date_stop)
         gridObject_dict[selected_element]['power'] = power
     elif gridObject_dict[selected_element]['object_type'] == 'pv':
         lat = gridObject_dict[selected_element]['location'][1]

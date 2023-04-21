@@ -60,12 +60,14 @@ def grid_callbacks(app):
                         df_flow = pd.read_json(flow, orient='index')
                         labels = df_flow.loc[slider - 1].to_dict()
                         labels = {k: round(v, 1) for k, v in labels.items()}    # Round numbers for better display
-                        if df_flow.loc[slider - 1, 'external_grid'].item() > 0:
+                        external_grid_value = df_flow.loc[slider - 1, 'external_grid'].item()
+                        external_grid_value = round(external_grid_value, 1)
+                        if external_grid_value > 0:
                             text_alert = "Es werden " + str(
-                                abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " W an das Netz abgegeben."
+                                abs(external_grid_value) + " W an das Netz abgegeben."
                         else:
                             text_alert = "Es werden " + str(
-                                abs(df_flow.loc[slider - 1, 'external_grid'].item())) + " W aus dem Netz bezogen."
+                                abs(external_grid_value) + " W aus dem Netz bezogen."
                         return no_update, text_alert, False, no_update, no_update, no_update, no_update, labels, no_update
                     else:
                         raise PreventUpdate
