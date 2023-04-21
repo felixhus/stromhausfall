@@ -34,21 +34,7 @@ def bathroom_callbacks(app):
             room = 'bathroom'
             triggered_id = ctx.triggered_id
             if triggered_id is None:  # Initial call
-                device_dict['house1']['lamp_bathroom'] = objects.create_LampObject(
-                    'lamp_bathroom', "Bad")  # Add lamp to device dictionary
-                device_dict['rooms'][room] = {}
-                device_dict['rooms'][room]['name'] = 'Bad'  # Create roomname
-                device_dict['rooms'][room]['devices'] = ['lamp_' + room]  # Create list of devices in bathroom in dictionary
-                socket_node = {'data': {'id': 'socket1', 'parent': 'power_strip'}, 'position': {'x': 35, 'y': 175},
-                               'classes': 'socket_node_style_on', 'linked_device': 'lamp_bathroom'}
-                lamp_node = {'data': {'id': 'lamp_bathroom'}, 'position': {'x': 35, 'y': 25},
-                             'classes': 'room_node_style',
-                             'style': {'background-image': ['/assets/Icons/icon_bulb.png']}, 'linked_socket': 'socket1'}
-                lamp_edge = {'data': {'source': 'socket1', 'target': 'lamp_bathroom'}}
-                elements.append(socket_node)
-                elements.append(lamp_node)
-                elements.append(lamp_edge)
-                return elements, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
+                raise PreventUpdate
             if triggered_id == 'cyto_bathroom':
                 if node['data']['id'] == 'plus':  # Open Menu with Devices to add
                     position = elements[1]['position']

@@ -34,21 +34,7 @@ def office_callbacks(app):
             room = 'office'
             triggered_id = ctx.triggered_id
             if triggered_id is None:  # Initial call
-                device_dict['house1']['lamp_office'] = objects.create_LampObject(
-                    'lamp_office', "Büro")  # Add lamp to device dictionary
-                device_dict['rooms'][room] = {}
-                device_dict['rooms'][room]['name'] = 'Büro'  # Create roomname
-                device_dict['rooms'][room]['devices'] = ['lamp_' + room]  # Create list of devices in office in dictionary
-                socket_node = {'data': {'id': 'socket1', 'parent': 'power_strip'}, 'position': {'x': 35, 'y': 175},
-                               'classes': 'socket_node_style_on', 'linked_device': 'lamp_office'}
-                lamp_node = {'data': {'id': 'lamp_office'}, 'position': {'x': 35, 'y': 25},
-                             'classes': 'room_node_style',
-                             'style': {'background-image': ['/assets/Icons/icon_bulb.png']}, 'linked_socket': 'socket1'}
-                lamp_edge = {'data': {'source': 'socket1', 'target': 'lamp_office'}}
-                elements.append(socket_node)
-                elements.append(lamp_node)
-                elements.append(lamp_edge)
-                return elements, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
+                raise PreventUpdate
             if triggered_id == 'cyto_office':
                 if node['data']['id'] == 'plus':  # Open Menu with Devices to add
                     position = elements[1]['position']
