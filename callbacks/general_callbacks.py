@@ -36,13 +36,14 @@ def general_callbacks(app):
                   State('graph_pv', 'figure'),
                   State('graph_house', 'figure'),
                   prevent_initial_call=True)
-    def save_props_action(btn_save, key_save, tabs_main, device_dict, selected_element_house, selected_element_grid, children,
+    def save_props_action(btn_save, key_save, tabs_main, device_dict, selected_element_house, selected_element_grid,
+                          children,
                           day, gridObject_dict, year, week, used_profiles, checkbox, figure_pv, figure_house):
         try:
             triggered_id = ctx.triggered_id
             if btn_save is None and key_save is None:
                 raise PreventUpdate
-            if children[2] is None:     # Catch event that enter was pressed without an open menu
+            if children[2] is None:  # Catch event that enter was pressed without an open menu
                 raise PreventUpdate
             else:
                 if tabs_main == 'house1':  # If button was clicked in house mode
@@ -227,10 +228,10 @@ def general_callbacks(app):
     def update_figure_devices(day_control, figure, day):  # Update the values of the graphs if another profile is chosen
         # patched_fig = Patch()
         # Patch scheint noch nicht zu funktionieren, vielleicht später nochmal probieren
-        if day == 'tot':    # Set total range
+        if day == 'tot':  # Set total range
             index_start = 0
             index_stop = 7 * 24 * 60
-        else:   # Set range for one day
+        else:  # Set range for one day
             day_ind = days[day]
             index_start = day_ind * 24 * 60
             index_stop = index_start + 24 * 60
@@ -281,6 +282,7 @@ def general_callbacks(app):
                   Output('cyto_kitchen', 'elements', allow_duplicate=True),
                   Output('input_week', 'value'),
                   Output('input_year', 'value'),
+                  Output('store_custom_house', 'data', allow_duplicate=True),
                   Output('tab_house', 'disabled', allow_duplicate=True),
                   Output('store_notification', 'data', allow_duplicate=True),
                   Input('menu_item_save', 'n_clicks'),
@@ -292,13 +294,16 @@ def general_callbacks(app):
                   State('cyto1', 'elements'),
                   State('cyto_bathroom', 'elements'),
                   State('cyto_kitchen', 'elements'),
+                  State('cyto_livingroom', 'elements'),
+                  State('cyto_office', 'elements'),
                   State('upload_configuration', 'filename'),
                   State('upload_configuration', 'contents'),
                   State('store_settings', 'data'),
                   State('store_custom_house', 'data'),
                   prevent_initial_call=True)
     def main_menu(btn_save, btn_load_menu, btn_load, btn_start_load, gridObject_dict, device_dict, elements_grid,
-                  elements_bath, elements_kitchen, filename, upload_content, settings_dict, custom_house):
+                  elements_bath, elements_kitchen, elements_livingroom, elements_office, filename, upload_content,
+                  settings_dict, custom_house):
         triggered_id = ctx.triggered_id
         if triggered_id == 'menu_item_save':
             save_dict = {'gridObject_dict': gridObject_dict,
@@ -306,28 +311,32 @@ def general_callbacks(app):
                          'cyto_grid': elements_grid,
                          'cyto_bathroom': elements_bath,
                          'cyto_kitchen': elements_kitchen,
-                         'settings': settings_dict}
+                         'cyto_livingroom': elements_livingroom,
+                         'cyto_office': elements_office,
+                         'settings': settings_dict,
+                         'custom_house': custom_house}
             return dict(content=json.dumps(save_dict),
                         filename="test.json"), no_update, no_update, no_update, no_update, no_update, no_update, \
-                   no_update, no_update, no_update, no_update
+                   no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'menu_item_load' or triggered_id == 'button_start_load':
-            return no_update, True, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
+            return no_update, True, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'button_load_configuration':
             if not filename.endswith('.json'):  # Check if the file format is .json
-                return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file_format'
+                return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file_format'
             else:
                 content_type, content_string = upload_content.split(",")  # Three lines to get dict from content
                 decoded = base64.b64decode(content_string)
                 content_dict = json.loads(decoded)
-                custom_house_disabled = True    # Look up if there is a house configured to activate house tab
+                custom_house_disabled = True  # Look up if there is a house configured to activate house tab
                 if content_dict['device_dict']['house1'] is not None:
                     custom_house_disabled = False
                 if not (
                         'gridObject_dict' in content_dict and 'device_dict' in content_dict and 'cyto_grid' in content_dict):  # Check if all dictionaries are there
-                    return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file'
+                    return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file'
                 return no_update, False, content_dict['gridObject_dict'], content_dict['device_dict'], \
                        content_dict['cyto_grid'], content_dict['cyto_bathroom'], content_dict['cyto_kitchen'], \
-                       content_dict['settings']['week'], content_dict['settings']['year'], custom_house_disabled, no_update
+                       content_dict['settings']['week'], content_dict['settings'][
+                           'year'], content_dict['custom_house'], custom_house_disabled, no_update
         else:
             raise PreventUpdate
 
@@ -361,17 +370,22 @@ def general_callbacks(app):
                   State('cyto1', 'elements'),
                   State('cyto_bathroom', 'elements'),
                   State('cyto_kitchen', 'elements'),
+                  State('cyto_livingroom', 'elements'),
+                  State('cyto_office', 'elements'),
                   State('store_settings', 'data'),
-                  State('store_backup', 'data'),
+                  State('store_custom_house', 'data'),
                   prevent_initial_call=True)
-    def backup(interval, gridObject_dict, device_dict, elements_grid, elements_bath, elements_kitchen, settings_dict,
-               backup):
+    def backup(interval, gridObject_dict, device_dict, elements_grid, elements_bath, elements_kitchen,
+               elements_livingroom, elements_office, settings_dict, custom_house):
         save_dict = {'gridObject_dict': gridObject_dict,
                      'device_dict': device_dict,
                      'cyto_grid': elements_grid,
                      'cyto_bathroom': elements_bath,
                      'cyto_kitchen': elements_kitchen,
-                     'settings': settings_dict}
+                     'cyto_livingroom': elements_livingroom,
+                     'cyto_office': elements_office,
+                     'settings': settings_dict,
+                     'custom_house': custom_house}
         return json.dumps(save_dict)
 
     @app.callback(Output('store_grid_object_dict', 'data', allow_duplicate=True),
@@ -379,8 +393,11 @@ def general_callbacks(app):
                   Output('cyto1', 'elements', allow_duplicate=True),
                   Output('cyto_bathroom', 'elements', allow_duplicate=True),
                   Output('cyto_kitchen', 'elements', allow_duplicate=True),
+                  Output('cyto_livingroom', 'elements', allow_duplicate=True),
+                  Output('cyto_office', 'elements', allow_duplicate=True),
                   Output('input_week', 'value', allow_duplicate=True),
                   Output('input_year', 'value', allow_duplicate=True),
+                  Output('store_custom_house', 'data', allow_duplicate=True),
                   Output('tab_house', 'disabled', allow_duplicate=True),
                   Input('interval_refresh', 'n_intervals'),
                   State('store_backup', 'data'),
@@ -394,7 +411,9 @@ def general_callbacks(app):
             backup_dict = json.loads(backup_dict)
             return backup_dict['gridObject_dict'], backup_dict['device_dict'], \
                    backup_dict['cyto_grid'], backup_dict['cyto_bathroom'], backup_dict['cyto_kitchen'], \
-                   backup_dict['settings']['week'], backup_dict['settings']['year'], custom_house_disabled
+                   backup_dict['cyto_livingroom'], backup_dict['cyto_office'], \
+                   backup_dict['settings']['week'], backup_dict['settings']['year'], backup_dict['custom_house'], \
+                   custom_house_disabled
         else:
             raise PreventUpdate
 

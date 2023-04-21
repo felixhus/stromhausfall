@@ -33,7 +33,7 @@ def add_storage_variables():
     return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
                      dcc.Store(id='store_line_edit_active'), dcc.Store(id='store_selected_element_grid'),
                      dcc.Store(id='store_selected_element_house'),
-                     dcc.Store('store_custom_house', data=None, storage_type='session'),
+                     dcc.Store(id='store_custom_house', data=None, storage_type='session'),
                      dcc.Store(id='store_element_deleted'), dcc.Store(id='store_notification'),
                      dcc.Store(id='store_get_voltage'), dcc.Store(id='store_update_switch'),
                      dcc.Store(id='store_edge_labels'), dcc.Store(id='store_timestep'),
