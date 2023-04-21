@@ -20,11 +20,11 @@ def house_callbacks(app):
     def initial_room_configuration(interval, cyto_bathroom, cyto_livingroom, cyto_kitchen, cyto_office, device_dict):
         # Bathroom elements
         device_dict['house1']['lamp_bathroom'] = objects.create_LampObject(
-            'lamp_office', "Bad")  # Add lamp to device dictionary
+            'lamp_bathroom', "Bad")  # Add lamp to device dictionary
         device_dict['rooms']['bathroom'] = {}
         device_dict['rooms']['bathroom']['name'] = 'Bad'  # Create roomname
         device_dict['rooms']['bathroom']['devices'] = [
-            'lamp_bathroom']  # Create list of devices in office in dictionary
+            'lamp_bathroom']  # Create list of devices in bathroom in dictionary
         socket_node = {'data': {'id': 'socket1', 'parent': 'power_strip'}, 'position': {'x': 35, 'y': 175},
                        'classes': 'socket_node_style_on', 'linked_device': 'lamp_bathroom'}
         lamp_node = {'data': {'id': 'lamp_bathroom'}, 'position': {'x': 35, 'y': 25},
@@ -37,11 +37,11 @@ def house_callbacks(app):
 
         # Livingroom elements
         device_dict['house1']['lamp_livingroom'] = objects.create_LampObject(
-            'lamp_office', "Wohnzimmer")  # Add lamp to device dictionary
+            'lamp_livingroom', "Wohnzimmer")  # Add lamp to device dictionary
         device_dict['rooms']['livingroom'] = {}
         device_dict['rooms']['livingroom']['name'] = 'Wohnzimmer'  # Create roomname
         device_dict['rooms']['livingroom']['devices'] = [
-            'lamp_livingroom']  # Create list of devices in office in dictionary
+            'lamp_livingroom']  # Create list of devices in livingroom in dictionary
         socket_node = {'data': {'id': 'socket1', 'parent': 'power_strip'}, 'position': {'x': 35, 'y': 175},
                        'classes': 'socket_node_style_on', 'linked_device': 'lamp_livingroom'}
         lamp_node = {'data': {'id': 'lamp_livingroom'}, 'position': {'x': 35, 'y': 25},
@@ -54,11 +54,11 @@ def house_callbacks(app):
 
         # Kitchen elements
         device_dict['house1']['lamp_kitchen'] = objects.create_LampObject(
-            'lamp_office', "Küche")  # Add lamp to device dictionary
+            'lamp_kitchen', "Küche")  # Add lamp to device dictionary
         device_dict['rooms']['kitchen'] = {}
         device_dict['rooms']['kitchen']['name'] = 'Küche'  # Create roomname
         device_dict['rooms']['kitchen']['devices'] = [
-            'lamp_kitchen']  # Create list of devices in office in dictionary
+            'lamp_kitchen']  # Create list of devices in kitchen in dictionary
         socket_node = {'data': {'id': 'socket1', 'parent': 'power_strip'}, 'position': {'x': 35, 'y': 175},
                        'classes': 'socket_node_style_on', 'linked_device': 'lamp_kitchen'}
         lamp_node = {'data': {'id': 'lamp_kitchen'}, 'position': {'x': 35, 'y': 25},
