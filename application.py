@@ -19,11 +19,11 @@ app_layout(app)     # Get layout of app
 
 grid_callbacks(app)         # Include grid callbacks
 bathroom_callbacks(app)     # Include bathroom callbacks
-kitchen_callbacks(app)     # Include bathroom callbacks
-livingroom_callbacks(app)      # Include livingroom callbacks
+kitchen_callbacks(app)      # Include bathroom callbacks
+livingroom_callbacks(app)   # Include livingroom callbacks
 office_callbacks(app)       # Include office callbacks
 general_callbacks(app)      # Include general callbacks
-house_callbacks(app)        # Inculde House intitial callbacks
+house_callbacks(app)        # Include House initial callbacks
 
 
 # @app.callback(Output('store_menu_change_tab', 'data'),
@@ -36,5 +36,5 @@ house_callbacks(app)        # Inculde House intitial callbacks
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, port=8051)
 

@@ -86,7 +86,8 @@ def general_callbacks(app):
         except Exception as err:
             return no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
-    @app.callback(Output('store_results_house', 'data'),
+    @app.callback(Output('store_results_house_power', 'data'),
+                  Output('store_results_house_energy', 'data'),
                   Output('graph_power_house', 'figure'),
                   Output('graph_sunburst_house', 'figure'),
                   Output('store_grid_object_dict', 'data', allow_duplicate=True),
@@ -100,9 +101,9 @@ def general_callbacks(app):
     def start_calculation_house(btn, device_dict, tabs_main, gridObject_dict, house):
         try:
             if tabs_main == 'house1':
-                df_power, df_sum, graph_power, graph_sunburst = modules.calculate_house(device_dict, range(0, 7 * 1440))
+                df_power, df_sum, df_energy, graph_power, graph_sunburst = modules.calculate_house(device_dict, range(0, 7 * 1440))
                 gridObject_dict[house]['power'] = df_sum.loc['house1'].values.flatten().tolist()
-                return df_power.to_json(orient='index'), graph_power, graph_sunburst, gridObject_dict, no_update
+                return df_power.to_json(orient='index'), df_energy.to_json(orient='index'), graph_power, graph_sunburst, gridObject_dict, no_update
             else:
                 raise PreventUpdate
         except PreventUpdate:
@@ -176,6 +177,19 @@ def general_callbacks(app):
             return no_update, no_update, no_update
         except Exception as err:
             return no_update, no_update, err.args[0]
+
+    @app.callback(Output('cost_tab', 'children'),
+                  Output('store_notification', 'data', allow_duplicate=True),
+                  Input('store_results_house_energy', 'data'),
+                  prevent_initial_call=True)
+    def cost_result(data):
+        try:
+            data = json.loads(data)
+            print('cool')
+        except PreventUpdate:
+            return no_update, no_update
+        except Exception as err:
+            return no_update, err.args[0]
 
     @app.callback(Output('modal_readme', 'opened'),
                   Input('button_readme', 'n_clicks'),

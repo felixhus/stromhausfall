@@ -369,7 +369,7 @@ def calculate_house(device_dict, timesteps):
     energy = df_sum.loc['house1'].sum() / 60 / 1000  # Calculate energy in kWh
     df_energy.loc['house1'] = {'type': 'house', 'energy': energy}
     figures = plot.plot_all_devices_room(df_power, df_sum, df_energy, device_dict)
-    return df_power, df_sum, figures[0], figures[1]
+    return df_power, df_sum, df_energy, figures[0], figures[1]
 
 
 def interpolate_profile(values, number_steps, interpolation_type):

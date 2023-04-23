@@ -42,7 +42,8 @@ def add_storage_variables():
                      dcc.Store(id='store_grid_object_dict', data={}),
                      dcc.Store(id='store_used_profiles', data=[1], storage_type='session'),
                      dcc.Store(id='store_device_dict', data=device_dict_init),
-                     dcc.Store(id='store_results_house'), dcc.Store(id='store_settings', data={}),
+                     dcc.Store(id='store_results_house_power'), dcc.Store(id='store_settings', data={}),
+                     dcc.Store(id='store_results_house_energy'),
                      dcc.Store(id='store_backup', storage_type='session'),
                      dcc.Store(id='store_save_by_enter', data=None)])
 
@@ -343,6 +344,7 @@ def card_menu():
                             dmc.Tab("Bearbeiten", value="edit",
                                     icon=DashIconify(icon="material-symbols:edit-square-outline")),
                             dmc.Tab("Ergebnisse", value="results", icon=DashIconify(icon="fluent:poll-16-regular")),
+                            dmc.Tab("Kosten", value="costs", icon=DashIconify(icon="tabler:pig-money"))
                         ]
                     ),
                     dmc.TabsPanel(children=[
@@ -388,6 +390,9 @@ def card_menu():
                         dmc.Space(h=10),
                         dmc.Alert(children="", id="alert_time", color='primary', hide=True),
                     ], value="results"),
+                    dmc.TabsPanel(children=[
+                        dmc.Text("Keine Kosten berechnet!")
+                    ], value='costs', id='cost_tab')
                 ],
                 id='tabs_menu', value='edit', color="blue", orientation="horizontal",
             ), loaderProps={"variant": "bars", "color": "blue", "size": "lg"})
