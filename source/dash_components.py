@@ -845,7 +845,7 @@ def add_cost_badge(name, cost, icon):
 
 def add_device_costs(cost_tuple):
     grid = dmc.Grid(children=[
-        add_cost_badge(element[0], element[1], "tabler:pig-money")
+        add_cost_badge(element[0], element[1], element[2])
         for element in cost_tuple
     ], gutter='lg')
     return html.Div(children=[dmc.Space(h=30), grid])

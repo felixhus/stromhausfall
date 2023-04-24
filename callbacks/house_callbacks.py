@@ -103,10 +103,11 @@ def house_callbacks(app):
             device_costs = []
             for element in data:  # Filter rooms out of data, store device energy with the device id
                 if data[element]['type'] == 'device':
-                    cost = data[element]['energy'] * cost_kwh
+                    cost = data[element]['energy'] * cost_kwh * 52
                     name = device_dict['house1'][element]['name']  # Get name of device
-                    device_costs.append((name, cost))
-            device_costs = sorted(device_costs, key=lambda energy: energy[1])  # Sort devices by their cost
+                    icon = device_dict['house1'][element]['icon']  # Get icon of device
+                    device_costs.append((name, cost, icon))
+            device_costs = sorted(device_costs, key=lambda energy: energy[1], reverse=True)  # Sort devices by their cost
             children = dash_components.add_device_costs(device_costs)           # Get dash components
             return children, no_update
         except PreventUpdate:
