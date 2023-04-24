@@ -1,42 +1,66 @@
+import os
+import time
+
 import dash
-import dash_html_components as html
-import dash_mantine_components as dmc
-from dash_iconify import DashIconify
+from dash import CeleryManager, DiskcacheManager, Input, Output, html
 
-app = dash.Dash(__name__)
+if 'REDIS_URL' in os.environ:
+    # Use Redis & Celery if REDIS_URL set as an env variable
+    from celery import Celery
+    celery_app = Celery(__name__, broker=os.environ['REDIS_URL'], backend=os.environ['REDIS_URL'])
+    background_callback_manager = CeleryManager(celery_app)
 
-badges = [["Badge 1", "2,50€", "tabler:pig-money"], ["Badge 2", "2,50€", "tabler:pig-money"],
-          ["Badge 3", "2,50€", "tabler:pig-money"], ["Badge 4", "2,50€", "tabler:pig-money"],
-          ["Badge 5", "3,50€", "tabler:pig-money"], ["Badge 6", "2,50€", "tabler:pig-money"],]
+else:
+    # Diskcache for non-production apps when developing locally
+    import diskcache
+    cache = diskcache.Cache("./cache")
+    background_callback_manager = DiskcacheManager(cache)
+
+app = dash.Dash(__name__, background_callback_manager=background_callback_manager)
+
+app.layout = html.Div(
+    [
+        html.Div(
+            [
+                html.P(id="paragraph_id", children=["Button not clicked"]),
+                html.Progress(id="progress_bar", value="0"),
+            ]
+        ),
+        html.Button(id="button_id", children="Run Job!"),
+        html.Button(id="cancel_button_id", children="Cancel Running Job!"),
+    ]
+)
+
+@dash.callback(
+    output=Output("paragraph_id", "children"),
+    inputs=Input("button_id", "n_clicks"),
+    background=True,
+    running=[
+        (Output("button_id", "disabled"), True, False),
+        (Output("cancel_button_id", "disabled"), False, True),
+        (
+            Output("paragraph_id", "style"),
+            {"visibility": "hidden"},
+            {"visibility": "visible"},
+        ),
+        (
+            Output("progress_bar", "style"),
+            {"visibility": "visible"},
+            {"visibility": "hidden"},
+        ),
+    ],
+    cancel=Input("cancel_button_id", "n_clicks"),
+    progress=[Output("progress_bar", "value"), Output("progress_bar", "max")],
+    prevent_initial_call=True
+)
+def update_progress(set_progress, n_clicks):
+    total = 5
+    for i in range(total + 1):
+        set_progress((str(i), str(total)))
+        time.sleep(1)
+
+    return f"Clicked {n_clicks} times"
 
 
-def cost_badge(name, cost, icon):
-    return dmc.Tooltip(
-        label=name,
-        position='bottom', transition='slide-down', transitionDuration=300, closeDelay=500,
-        color='gray',
-        children=[
-            html.Div(children=[
-                dmc.ThemeIcon(
-                    size=60,
-                    color="indigo",
-                    variant="filled",
-                    children=DashIconify(icon=icon, width=40),
-                ),
-                html.Br(),
-                dmc.Badge(
-                    cost
-                )
-            ], style={'margin-left': 10, 'margin-bottom': 10})
-        ])
-
-
-app.layout = dmc.Card(children=[
-    dmc.Grid(children=[
-        cost_badge(element[0], element[1], element[2])
-        for element in badges
-    ], gutter='lg')
-], style={'width': 250})
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run_server(debug=True)

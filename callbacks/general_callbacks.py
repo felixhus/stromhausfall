@@ -107,9 +107,9 @@ def general_callbacks(app):
             else:
                 raise PreventUpdate
         except PreventUpdate:
-            return no_update, no_update, no_update, no_update, no_update
+            return no_update, no_update, no_update, no_update, no_update, no_update
         except Exception as err:
-            return no_update, no_update, no_update, no_update, err.args[0]
+            return no_update, no_update, no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('menu_parent_tabs', 'children'),
                   Output('menu_parent_tabs', 'value'),
@@ -265,8 +265,10 @@ def general_callbacks(app):
         else:
             raise PreventUpdate
 
-    @app.callback()
-    def progress_bar_action():
+    # @app.callback(Output('progress_bar', 'value'),
+    #               Output('progress_text', 'children'),
+    #               Output('progress_affix', 'style'))
+    # def progress_bar_action():
 
     @app.callback(Output('store_settings', 'data'),
                   Input('input_week', 'value'),

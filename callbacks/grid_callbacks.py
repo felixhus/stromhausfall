@@ -1,7 +1,7 @@
 import datetime
 import time
 
-# import modules
+import dash
 import pandas as pd
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
@@ -28,38 +28,48 @@ compass_buttons = {'button_north': 0,
 weekdays = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"]
 
 
-def grid_callbacks(app):
-    @app.callback(Output('store_flow_data', 'data'),
-                  Output('alert_externalgrid', 'children'),
-                  Output('alert_externalgrid', 'hide'),
-                  Output('tabs_menu', 'value'),
-                  Output('cyto1', 'stylesheet'),
-                  Output('cyto1', 'elements', allow_duplicate=True),
-                  Output('timestep_slider', 'max'),
-                  Output('store_edge_labels', 'data'),
-                  Output('store_notification', 'data', allow_duplicate=True),
-                  Input('button_calculate', 'n_clicks'),
-                  Input('timestep_slider', 'value'),
-                  State('store_flow_data', 'data'),
-                  State('cyto1', 'elements'),
-                  State('store_grid_object_dict', 'data'),
-                  State('tabs_main', 'value'),
-                  prevent_initial_call=True)
-    def start_calculation_grid(btn, slider, flow, elements, gridObject_dict, tabs_main):
+# def set_progress(x):
+#     print(x)
+
+def grid_callbacks(app, background_callback_manager):
+    @dash.callback(Output('store_flow_data', 'data'),
+                   Output('alert_externalgrid', 'children'),
+                   Output('alert_externalgrid', 'hide'),
+                   Output('tabs_menu', 'value'),
+                   Output('cyto1', 'stylesheet'),
+                   Output('cyto1', 'elements', allow_duplicate=True),
+                   Output('timestep_slider', 'max'),
+                   Output('store_edge_labels', 'data'),
+                   Output('store_notification', 'data', allow_duplicate=True),
+                   Input('button_calculate', 'n_clicks'),
+                   Input('timestep_slider', 'value'),
+                   State('store_flow_data', 'data'),
+                   State('cyto1', 'elements'),
+                   State('store_grid_object_dict', 'data'),
+                   State('tabs_main', 'value'),
+                   progress=[Output('progress_bar', 'value'), Output('progress_text', 'children')],
+                   running=[(Output('progress_affix', 'style'), {'display': 'block'}, {'display': 'none'})],
+                   background=True,
+                   manager=background_callback_manager,
+                   prevent_initial_call=True)
+    def start_calculation_grid(set_progress, btn, slider, flow, elements, gridObject_dict, tabs_main):
         try:
             if tabs_main == 'grid':
                 triggered_id = ctx.triggered_id
                 if triggered_id == 'button_calculate':
-                    df_flow, labels, elements = calculate_power_flow(elements, gridObject_dict)
-                    labels = {k: round(v, 1) for k, v in labels.items()}    # Round numbers for better display
+                    set_progress((0, "Berechnung starten..."))
+                    df_flow, labels, elements = calculate_power_flow(elements, gridObject_dict, set_progress)
+                    labels = {k: round(v, 1) for k, v in labels.items()}  # Round numbers for better display
+                    set_progress((99, "Daten umwandeln..."))
                     df_flow_json = df_flow.to_json(orient='index')
+                    set_progress((100, "Fertig!"))
                     return df_flow_json, no_update, no_update, 'results', \
                            stylesheets.cyto_stylesheet_calculated, elements, len(df_flow.index), labels, no_update
                 elif triggered_id == 'timestep_slider':
                     if flow is not None:
                         df_flow = pd.read_json(flow, orient='index')
                         labels = df_flow.loc[slider - 1].to_dict()
-                        labels = {k: round(v, 1) for k, v in labels.items()}    # Round numbers for better display
+                        labels = {k: round(v, 1) for k, v in labels.items()}  # Round numbers for better display
                         external_grid_value = df_flow.loc[slider - 1, 'external_grid'].item()
                         external_grid_value = round(external_grid_value, 1)
                         if external_grid_value > 0:
@@ -209,17 +219,17 @@ def grid_callbacks(app):
             if triggered_id == 'cyto1':
                 if triggered[0]['prop_id'] == 'cyto1.tapNodeData':  # Node was clicked
                     if not btn_line_active:
-                        return no_update, gridObject_dict[node['id']]['object_type'], None, None, node['id'],\
+                        return no_update, gridObject_dict[node['id']]['object_type'], None, None, node['id'], \
                                no_update, no_update, no_update, no_update, no_update, no_update  # Reset tapNodeData and tapEdgeData and return type of node for tab in menu
                     else:
                         raise PreventUpdate
                 elif triggered[0]['prop_id'] == 'cyto1.tapEdgeData':  # Edge was clicked
-                    return no_update, gridObject_dict[edge['id']]['object_type'], None, None, edge['id'],\
+                    return no_update, gridObject_dict[edge['id']]['object_type'], None, None, edge['id'], \
                            no_update, no_update, no_update, no_update, no_update, no_update  # Reset tapNodeData and tapEdgeData and return type of edge for tab in menu
                 else:
                     raise Exception("Weder Node noch Edge wurde geklickt.")
             elif triggered_id == 'house_mode':  # New mode of house configuration was clicked (segmented control)
-                if custom_house is None:        # If no house is in custom-mode yet
+                if custom_house is None:  # If no house is in custom-mode yet
                     if control == 'preset':
                         gridObject_dict[selected_element]['config_mode'] = 'preset'
                         return gridObject_dict, no_update, no_update, no_update, no_update, no_update, True, no_update, no_update, no_update, no_update
@@ -251,7 +261,8 @@ def grid_callbacks(app):
         except PreventUpdate:
             return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
         except Exception as err:
-            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
+                   err.args[0]
 
     @app.callback(Output('cyto1', 'elements', allow_duplicate=True),
                   Input('store_edge_labels', 'data'),
@@ -259,7 +270,7 @@ def grid_callbacks(app):
                   prevent_initial_call=True)
     def edge_labels(labels, elements):
         for edge, label in labels.items():  # Set labels of edges with power values
-            reverse = label < 0             # If power over edge is negative -> Reverse
+            reverse = label < 0  # If power over edge is negative -> Reverse
             for ele in elements:
                 if edge == ele['data']['id']:
                     ele['data']['label'] = str(abs(label))  # Set absolute value of power as label
@@ -283,7 +294,6 @@ def grid_callbacks(app):
         text = slider_time.strftime(f"Am {weekdays[slider_time.weekday()]} %d.%m. um %H:%M")
         return text, False
 
-
     @app.callback(Output('store_grid_object_dict', 'data', allow_duplicate=True),
                   Output('button_compass', 'style'),
                   State('store_grid_object_dict', 'data'),
@@ -292,10 +302,10 @@ def grid_callbacks(app):
                   prevent_initial_call=True)
     def compass_action(gridObject_dict, selected_element, *args):
         triggered_id = ctx.triggered_id
-        if all(ele is None for ele in args):    # If no button was clicked
+        if all(ele is None for ele in args):  # If no button was clicked
             raise PreventUpdate
         gridObject_dict[selected_element]['orientation'] = compass_buttons[triggered_id]
-        style = {'transform': f'rotate({compass_buttons[triggered_id]-45}deg)'}
+        style = {'transform': f'rotate({compass_buttons[triggered_id] - 45}deg)'}
         # icon = DashIconify(icon=compass_buttons[triggered_id][1], width=20, rotate=compass_buttons[triggered_id][2])
         return gridObject_dict, style
 

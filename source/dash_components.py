@@ -919,13 +919,13 @@ def add_modal_load_configuration():
 
 
 def add_progress_affix():
-    return dmc.Affix(id='progress_affix', position={'bottom': 40, 'right': 30}, children=[
+    return dmc.Affix(id='progress_affix', position={'bottom': 40, 'right': 150}, children=[
         dmc.Paper(withBorder=True, children=[
             dmc.Progress(id='progress_bar', value=42, striped=True, animate=True, style={'width': 250}),
             dmc.Space(h=5),
             dmc.Code("Lets go...", id='progress_text')
         ])
-    ], style={'display': 'none'})
+    ], style={'display': 'block'})
 
 
 def add_drawer_notifications():

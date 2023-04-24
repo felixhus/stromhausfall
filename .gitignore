@@ -4,3 +4,5 @@ source/__pycache__
 source/database_izes.db
 source/database_izes_reduced.db
 source/plots_izes.pdf
+Test/cache/
+cache/

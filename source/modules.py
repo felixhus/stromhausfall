@@ -282,38 +282,47 @@ def correct_cyto_edges(elements, graph):
     return elements
 
 
-def power_flow_statemachine(state, data):
+def power_flow_statemachine(state, data, set_progress):
     if state == 'init':
+        set_progress((9, "Initialisierung..."))
         if len(data['elements']) == 0:  # Check if there are any elements in the grid
             raise Exception('notification_emptygrid')
         return 'gen_dataframes', data, False
     elif state == 'gen_dataframes':
+        set_progress((18, "Daten vorbereiten..."))
         data['df_nodes'], data['df_edges'] = generate_grid_dataframes(data['elements'],
                                                                       data['grid_objects'])  # Generate DataFrames
         return 'gen_grid_graph', data, False
     elif state == 'gen_grid_graph':
+        set_progress((27, "Graph erstellen..."))
         data['grid_graph'] = generate_grid_graph(data['df_nodes'], data['df_edges'])  # Generate NetworkX Graph
         return 'check_isolates', data, False
     elif state == 'check_isolates':
+        set_progress((36, "Graph überprüfen..."))
         if nx.number_of_isolates(data['grid_graph']) > 0:  # Check if there are isolated (not connected) nodes
             raise Exception('notification_isolates')
         return 'check_tree', data, False
     elif state == 'check_tree':
+        set_progress((45, "Graph überprüfen..."))
         min_spanning_tree = nx.minimum_spanning_tree(data['grid_graph'])
         if data['grid_graph'].number_of_edges() != min_spanning_tree.number_of_edges():
             raise Exception('notification_cycles')
         return 'gen_directed_graph', data, False
     elif state == 'gen_directed_graph':
+        set_progress((54, "Gerichteten Graphen erstellen..."))
         data['grid_graph'] = generate_directed_graph(
             data['grid_graph'])  # Give graph edges directions, starting at external grid
         return 'check_power_profiles', data, False
     elif state == 'check_power_profiles':
+        set_progress((63, "Lastprofile interpolieren..."))
         data['grid_graph'] = check_power_profiles(data['grid_graph'])
         return 'gen_equations', data, False
     elif state == 'gen_equations':
+        set_progress((72, "Gleichungen erstellen..."))
         data['A'], data['df_power'] = generate_equations(data['grid_graph'])
         return 'calc_flow', data, False
     elif state == 'calc_flow':
+        set_progress((81, "Gleichungen lösen..."))
         column_names = []
         for edge in data['grid_graph'].edges:
             column_names.append(data['grid_graph'].edges[edge]['id'])
@@ -324,16 +333,18 @@ def power_flow_statemachine(state, data):
         data['df_flow'] = df_flow
         return 'set_edge_labels', data, False
     elif state == 'set_edge_labels':
+        set_progress((90, "Beschriftungen erstellen..."))
         data['elements'] = correct_cyto_edges(data['elements'], data['grid_graph'])
         data['labels'] = data['df_flow'].loc[0].to_dict()
         return None, data, True
 
 
-def calculate_power_flow(elements, grid_object_dict):
+def calculate_power_flow(elements, grid_object_dict, set_progress):
     """
     Main function to calculate the power flows in the created and configured grid. Built as a state-machine
     :param grid_object_dict: List of objects in grid with id corresponding to node ids of cytoscape
     :param elements: Grid elements in form of cytoscape graph
+    :param set_progress:
     :return:
     """
     state = 'init'
@@ -341,7 +352,7 @@ def calculate_power_flow(elements, grid_object_dict):
     data = {'elements': elements, 'grid_objects': grid_object_dict}
     while not ready:
         print(state)
-        state, data, ready = power_flow_statemachine(state, data)
+        state, data, ready = power_flow_statemachine(state, data, set_progress)
         print("Done")
     return data['df_flow'], data['labels'], data['elements']
 

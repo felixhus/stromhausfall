@@ -1,5 +1,7 @@
+import dash
 import dash_bootstrap_components as dbc
-from dash import Dash
+import diskcache as dc
+from dash import CeleryManager, Dash, DiskcacheManager
 
 from callbacks.bathroom_callbacks import bathroom_callbacks
 from callbacks.general_callbacks import general_callbacks
@@ -10,6 +12,8 @@ from callbacks.livingroom_callbacks import livingroom_callbacks
 from callbacks.office_callbacks import office_callbacks
 from source.layout import app_layout
 
+cache = dc.Cache("./cache")
+background_callback_manager = DiskcacheManager(cache)
 app = Dash(__name__, suppress_callback_exceptions=True,
            external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
 app.title = 'PowerHouse'
@@ -17,7 +21,7 @@ server = app.server
 
 app_layout(app)     # Get layout of app
 
-grid_callbacks(app)         # Include grid callbacks
+grid_callbacks(app, background_callback_manager)         # Include grid callbacks
 bathroom_callbacks(app)     # Include bathroom callbacks
 kitchen_callbacks(app)      # Include bathroom callbacks
 livingroom_callbacks(app)   # Include livingroom callbacks
