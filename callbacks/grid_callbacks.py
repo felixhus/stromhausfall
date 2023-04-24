@@ -33,8 +33,6 @@ weekdays = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"
 
 def grid_callbacks(app, background_callback_manager):
     @dash.callback(Output('store_flow_data', 'data'),
-                   Output('alert_externalgrid', 'children'),
-                   Output('alert_externalgrid', 'hide'),
                    Output('tabs_menu', 'value'),
                    Output('cyto1', 'stylesheet'),
                    Output('cyto1', 'elements', allow_duplicate=True),
@@ -42,7 +40,6 @@ def grid_callbacks(app, background_callback_manager):
                    Output('store_edge_labels', 'data'),
                    Output('store_notification', 'data', allow_duplicate=True),
                    Input('button_calculate', 'n_clicks'),
-                   Input('timestep_slider', 'value'),
                    State('store_flow_data', 'data'),
                    State('cyto1', 'elements'),
                    State('store_grid_object_dict', 'data'),
@@ -52,43 +49,50 @@ def grid_callbacks(app, background_callback_manager):
                    background=True,
                    manager=background_callback_manager,
                    prevent_initial_call=True)
-    def start_calculation_grid(set_progress, btn, slider, flow, elements, gridObject_dict, tabs_main):
+    def start_calculation_grid(set_progress, btn, flow, elements, gridObject_dict, tabs_main):
         try:
             if tabs_main == 'grid':
-                triggered_id = ctx.triggered_id
-                if triggered_id == 'button_calculate':
-                    set_progress((0, "Berechnung starten..."))
-                    df_flow, labels, elements = calculate_power_flow(elements, gridObject_dict, set_progress)
-                    labels = {k: round(v, 1) for k, v in labels.items()}  # Round numbers for better display
-                    set_progress((99, "Daten umwandeln..."))
-                    df_flow_json = df_flow.to_json(orient='index')
-                    set_progress((100, "Fertig!"))
-                    return df_flow_json, no_update, no_update, 'results', \
-                           stylesheets.cyto_stylesheet_calculated, elements, len(df_flow.index), labels, no_update
-                elif triggered_id == 'timestep_slider':
-                    if flow is not None:
-                        df_flow = pd.read_json(flow, orient='index')
-                        labels = df_flow.loc[slider - 1].to_dict()
-                        labels = {k: round(v, 1) for k, v in labels.items()}  # Round numbers for better display
-                        external_grid_value = df_flow.loc[slider - 1, 'external_grid'].item()
-                        external_grid_value = round(external_grid_value, 1)
-                        if external_grid_value > 0:
-                            text_alert = "Es werden " + str(abs(external_grid_value)) + " W an das Netz abgegeben."
-                        else:
-                            text_alert = "Es werden " + str(abs(external_grid_value)) + " W aus dem Netz bezogen."
-                        return no_update, text_alert, False, no_update, no_update, no_update, no_update, labels, no_update
-                    else:
-                        raise PreventUpdate
-                else:
-                    raise PreventUpdate
+                set_progress((0, "Berechnung starten..."))
+                df_flow, labels, elements = calculate_power_flow(elements, gridObject_dict, set_progress)
+                labels = {k: round(v, 1) for k, v in labels.items()}  # Round numbers for better display
+                set_progress((99, "Daten umwandeln..."))
+                df_flow_json = df_flow.to_json(orient='index')
+                set_progress((100, "Fertig!"))
+                return df_flow_json, 'results', \
+                       stylesheets.cyto_stylesheet_calculated, elements, len(df_flow.index), labels, no_update
             else:
                 raise PreventUpdate
         except PreventUpdate:
-            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
-                   no_update, no_update
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update
         except Exception as err:
-            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
-                   no_update, err.args[0]
+            return no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
+
+    @app.callback(Output('alert_externalgrid', 'children'),
+                  Output('alert_externalgrid', 'hide'),
+                  Output('store_edge_labels', 'data', allow_duplicate=True),
+                  Output('store_notification', 'data', allow_duplicate=True),
+                  Input('timestep_slider', 'value'),
+                  State('store_flow_data', 'data'),
+                  prevent_initial_call=True)
+    def update_labels(slider, flow):
+        try:
+            if flow is not None:
+                df_flow = pd.read_json(flow, orient='index')
+                labels = df_flow.loc[slider - 1].to_dict()
+                labels = {k: round(v, 1) for k, v in labels.items()}  # Round numbers for better display
+                external_grid_value = df_flow.loc[slider - 1, 'external_grid'].item()
+                external_grid_value = round(external_grid_value, 1)
+                if external_grid_value > 0:
+                    text_alert = "Es werden " + str(abs(external_grid_value)) + " W an das Netz abgegeben."
+                else:
+                    text_alert = "Es werden " + str(abs(external_grid_value)) + " W aus dem Netz bezogen."
+                return text_alert, False, labels, no_update
+            else:
+                raise PreventUpdate
+        except PreventUpdate:
+            return no_update, no_update, no_update, no_update
+        except Exception as err:
+            return no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('cyto1', 'elements'),  # Callback to change elements of cyto
                   Output('store_grid_object_dict', 'data'),
