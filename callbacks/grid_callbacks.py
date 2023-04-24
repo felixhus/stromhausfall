@@ -45,7 +45,6 @@ def grid_callbacks(app, background_callback_manager):
                    State('store_grid_object_dict', 'data'),
                    State('tabs_main', 'value'),
                    progress=[Output('progress_bar', 'value'), Output('progress_text', 'children')],
-                   # running=[(Output('progress_affix', 'style'), {'display': 'block'}, {'display': 'none'})],
                    background=True,
                    manager=background_callback_manager,
                    prevent_initial_call=True)

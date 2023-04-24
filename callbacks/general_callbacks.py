@@ -99,7 +99,6 @@ def general_callbacks(app, background_callback_manager):
                    State('store_grid_object_dict', 'data'),
                    State('store_custom_house', 'data'),
                    progress=[Output('progress_bar', 'value'), Output('progress_text', 'children')],
-                   running=[(Output('progress_affix', 'style'), {'display': 'block'}, {'display': 'none'})],
                    background=True,
                    manager=background_callback_manager,
                    prevent_initial_call=True)
@@ -277,14 +276,15 @@ def general_callbacks(app, background_callback_manager):
         else:
             raise PreventUpdate
 
-    @app.callback(Output('progress_affix', 'style'),
+    @app.callback(Output('progress_bar', 'animate'),
+                  Output('progress_text', 'style'),
                   Input('progress_bar', 'value'),
                   prevent_initial_call=True)
     def progress_bar_action(value):
         if value == 100:
-            return {'display': 'none'}
+            return False, {'display': 'none'}
         else:
-            return {'display': 'block'}
+            return True, {'display': 'block'}
 
     @app.callback(Output('store_settings', 'data'),
                   Input('input_week', 'value'),

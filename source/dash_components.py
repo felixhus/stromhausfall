@@ -283,6 +283,11 @@ def dash_navbar():
             ),
             dbc.NavbarToggler(id="navbar-toggler", n_clicks=0),
             dmc.Group([
+                dmc.Progress(id='progress_bar', value=0, striped=True, animate=True, color='pink', style={'width': 250}),
+                dmc.Space(h=5),
+                dmc.Code("", id='progress_text')
+            ]),
+            dmc.Group([
                 dmc.Button("README", id='button_readme', n_clicks=0,
                            leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
                 dmc.Menu([
@@ -833,7 +838,7 @@ def add_cost_badge(name, cost, icon):
         children=[
             html.Div(children=[
                 dmc.ThemeIcon(
-                    size=60,
+                    size=70,
                     color="indigo",
                     variant="filled",
                     children=DashIconify(icon=icon, width=40),
@@ -916,16 +921,6 @@ def add_modal_load_configuration():
         ],
         opened=False
     )
-
-
-def add_progress_affix():
-    return dmc.Affix(id='progress_affix', position={'bottom': 40, 'right': 150}, children=[
-        dmc.Paper(withBorder=True, children=[
-            dmc.Progress(id='progress_bar', value=0, striped=True, animate=True, style={'width': 250}),
-            dmc.Space(h=5),
-            dmc.Code("Fortschritt", id='progress_text')
-        ])
-    ], style={'display': 'none'})
 
 
 def add_drawer_notifications():
