@@ -1,6 +1,7 @@
 import base64
 import json
 
+import dash
 import dash_mantine_components as dmc
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
@@ -11,7 +12,7 @@ import source.modules as modules
 from source.modules import days
 
 
-def general_callbacks(app):
+def general_callbacks(app, background_callback_manager):
     @app.callback(Output('store_device_dict', 'data', allow_duplicate=True),
                   Output('store_grid_object_dict', 'data', allow_duplicate=True),
                   Output('graph_pv', 'figure'),
@@ -86,24 +87,34 @@ def general_callbacks(app):
         except Exception as err:
             return no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
-    @app.callback(Output('store_results_house_power', 'data'),
-                  Output('store_results_house_energy', 'data'),
-                  Output('graph_power_house', 'figure'),
-                  Output('graph_sunburst_house', 'figure'),
-                  Output('store_grid_object_dict', 'data', allow_duplicate=True),
-                  Output('store_notification', 'data', allow_duplicate=True),
-                  Input('button_calculate', 'n_clicks'),
-                  State('store_device_dict', 'data'),
-                  State('tabs_main', 'value'),
-                  State('store_grid_object_dict', 'data'),
-                  State('store_custom_house', 'data'),
-                  prevent_initial_call=True)
-    def start_calculation_house(btn, device_dict, tabs_main, gridObject_dict, house):
+    @dash.callback(Output('store_results_house_power', 'data'),
+                   Output('store_results_house_energy', 'data'),
+                   Output('graph_power_house', 'figure'),
+                   Output('graph_sunburst_house', 'figure'),
+                   Output('store_grid_object_dict', 'data', allow_duplicate=True),
+                   Output('store_notification', 'data', allow_duplicate=True),
+                   Input('button_calculate', 'n_clicks'),
+                   State('store_device_dict', 'data'),
+                   State('tabs_main', 'value'),
+                   State('store_grid_object_dict', 'data'),
+                   State('store_custom_house', 'data'),
+                   progress=[Output('progress_bar', 'value'), Output('progress_text', 'children')],
+                   running=[(Output('progress_affix', 'style'), {'display': 'block'}, {'display': 'none'})],
+                   background=True,
+                   manager=background_callback_manager,
+                   prevent_initial_call=True)
+    def start_calculation_house(set_progress, btn, device_dict, tabs_main, gridObject_dict, house):
         try:
             if tabs_main == 'house1':
-                df_power, df_sum, df_energy, graph_power, graph_sunburst = modules.calculate_house(device_dict, range(0, 7 * 1440))
+                df_power, df_sum, df_energy, graph_power, graph_sunburst = modules.calculate_house(device_dict,
+                                                                                                   range(0, 7 * 1440),
+                                                                                                   set_progress)
+                set_progress((99, "Als Lastprofil von Haus speichern..."))
                 gridObject_dict[house]['power'] = df_sum.loc['house1'].values.flatten().tolist()
-                return df_power.to_json(orient='index'), df_energy.to_json(orient='index'), graph_power, graph_sunburst, gridObject_dict, no_update
+                set_progress((100, "Fertig!"))
+                print("Done")
+                return df_power.to_json(orient='index'), df_energy.to_json(
+                    orient='index'), graph_power, graph_sunburst, gridObject_dict, no_update
             else:
                 raise PreventUpdate
         except PreventUpdate:

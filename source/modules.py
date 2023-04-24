@@ -351,18 +351,23 @@ def calculate_power_flow(elements, grid_object_dict, set_progress):
     ready = False
     data = {'elements': elements, 'grid_objects': grid_object_dict}
     while not ready:
-        print(state)
+        # print(state)
         state, data, ready = power_flow_statemachine(state, data, set_progress)
-        print("Done")
+        # print("Done")
     return data['df_flow'], data['labels'], data['elements']
 
 
-def calculate_house(device_dict, timesteps):
+def calculate_house(device_dict, timesteps, set_progress):
+    progress = 0
+    set_progress((progress, "Daten vorbereiten..."))
+    progress += 9
     df_power = pd.DataFrame(columns=timesteps)
     df_power.insert(0, 'room', None)  # Add column for room of device
     df_sum = pd.DataFrame(columns=timesteps)
     df_energy = pd.DataFrame(columns=['type', 'energy'])
     for room in device_dict['rooms']:
+        set_progress((progress, "Geräte in Raum berechnen..."))
+        progress += 9
         for dev in device_dict['rooms'][room]['devices']:  # Go through each device in the house
             device = device_dict['house1'][dev]  # Get device properties from dict
             if device['active']:  # If device is activated
@@ -372,12 +377,18 @@ def calculate_house(device_dict, timesteps):
                 df_energy.loc[device['id']] = {'type': 'device', 'energy': energy}
             else:
                 df_energy.loc[device['id']] = {'type': 'device', 'energy': 0}
+        set_progress((progress, "Summe von Raum berechnen..."))
+        progress += 9
         df_sum.loc[room] = df_power.loc[df_power['room'] == room].sum().transpose()  # Get sum of all devices in room
         energy = df_sum.loc[room].sum() / 60 / 1000  # Calculate energy in kWh
         df_energy.loc[room] = {'type': 'room', 'energy': energy}
+    set_progress((progress, "Summe aller Räume berechnen..."))
+    progress += 9
     df_sum.loc['house1'] = df_sum.sum().transpose()  # Get sum of all rooms in house
     energy = df_sum.loc['house1'].sum() / 60 / 1000  # Calculate energy in kWh
     df_energy.loc['house1'] = {'type': 'house', 'energy': energy}
+    set_progress((progress, "Graphen erstellen..."))
+    progress += 9
     figures = plot.plot_all_devices_room(df_power, df_sum, df_energy, device_dict)
     return df_power, df_sum, df_energy, figures[0], figures[1]
 

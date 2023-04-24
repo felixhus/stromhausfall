@@ -26,7 +26,7 @@ bathroom_callbacks(app)     # Include bathroom callbacks
 kitchen_callbacks(app)      # Include bathroom callbacks
 livingroom_callbacks(app)   # Include livingroom callbacks
 office_callbacks(app)       # Include office callbacks
-general_callbacks(app)      # Include general callbacks
+general_callbacks(app, background_callback_manager)      # Include general callbacks
 house_callbacks(app)        # Include House initial callbacks
 
 
