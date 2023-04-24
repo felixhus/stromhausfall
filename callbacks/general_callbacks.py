@@ -120,6 +120,7 @@ def general_callbacks(app, background_callback_manager):
         except PreventUpdate:
             return no_update, no_update, no_update, no_update, no_update, no_update
         except Exception as err:
+            set_progress((100, "Fertig!"))
             return no_update, no_update, no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('menu_parent_tabs', 'children'),
@@ -276,10 +277,14 @@ def general_callbacks(app, background_callback_manager):
         else:
             raise PreventUpdate
 
-    # @app.callback(Output('progress_bar', 'value'),
-    #               Output('progress_text', 'children'),
-    #               Output('progress_affix', 'style'))
-    # def progress_bar_action():
+    @app.callback(Output('progress_affix', 'style'),
+                  Input('progress_bar', 'value'),
+                  prevent_initial_call=True)
+    def progress_bar_action(value):
+        if value == 100:
+            return {'display': 'none'}
+        else:
+            return {'display': 'block'}
 
     @app.callback(Output('store_settings', 'data'),
                   Input('input_week', 'value'),

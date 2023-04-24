@@ -65,6 +65,7 @@ def grid_callbacks(app, background_callback_manager):
         except PreventUpdate:
             return no_update, no_update, no_update, no_update, no_update, no_update, no_update
         except Exception as err:
+            set_progress((100, "Fertig!"))
             return no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('alert_externalgrid', 'children'),
