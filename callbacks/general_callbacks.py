@@ -178,19 +178,6 @@ def general_callbacks(app):
         except Exception as err:
             return no_update, no_update, err.args[0]
 
-    @app.callback(Output('cost_tab', 'children'),
-                  Output('store_notification', 'data', allow_duplicate=True),
-                  Input('store_results_house_energy', 'data'),
-                  prevent_initial_call=True)
-    def cost_result(data):
-        try:
-            data = json.loads(data)
-            print('cool')
-        except PreventUpdate:
-            return no_update, no_update
-        except Exception as err:
-            return no_update, err.args[0]
-
     @app.callback(Output('modal_readme', 'opened'),
                   Input('button_readme', 'n_clicks'),
                   prevent_initial_call=True)

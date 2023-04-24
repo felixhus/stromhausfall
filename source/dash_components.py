@@ -186,6 +186,13 @@ def add_cytoscape_layout():
                             min=2015, max=2015, stepHoldDelay=500, stepHoldInterval=100,
                             style={"width": 250}, disabled=True
                         ),
+                        dmc.Space(h=20),
+                        dmc.NumberInput(
+                            id='input_cost_kwh', label="Stromkosten pro kWh in ct",
+                            value=30, step=0.1,
+                            min=0, max=300, stepHoldDelay=500, stepHoldInterval=100,
+                            style={"width": 250}
+                        ),
                         dmc.Space(h=15),
                         dmc.Button("Aktualisieren - Work in progress", disabled=True, id='button_update_settings', leftIcon=DashIconify(icon='ci:arrows-reload-01')),
                     ], value='settings')
@@ -814,6 +821,34 @@ def get_compass(orientation):
                                                  ['button_south_west', 'button_south', 'button_south_east'], [0, 2, 0])
         ]),
     ])
+
+
+def add_cost_badge(name, cost, icon):
+    cost = str(round(cost / 100, 2)) + "€"
+    return dmc.Tooltip(
+        label=name,
+        position='bottom', transition='slide-down', transitionDuration=300, closeDelay=0,
+        color='gray',
+        children=[
+            html.Div(children=[
+                dmc.ThemeIcon(
+                    size=60,
+                    color="indigo",
+                    variant="filled",
+                    children=DashIconify(icon=icon, width=40),
+                ),
+                html.Br(),
+                dmc.Badge(cost)
+            ], style={'margin-left': 10, 'margin-bottom': 10})
+        ])
+
+
+def add_device_costs(cost_tuple):
+    grid = dmc.Grid(children=[
+        add_cost_badge(element[0], element[1], "tabler:pig-money")
+        for element in cost_tuple
+    ], gutter='lg')
+    return html.Div(children=[dmc.Space(h=30), grid])
 
 
 def add_modal_timeseries():

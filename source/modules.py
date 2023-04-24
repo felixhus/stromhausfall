@@ -361,7 +361,6 @@ def calculate_house(device_dict, timesteps):
                 df_energy.loc[device['id']] = {'type': 'device', 'energy': energy}
             else:
                 df_energy.loc[device['id']] = {'type': 'device', 'energy': 0}
-        # Problem hier: Es werden alle geräte aufsummiert
         df_sum.loc[room] = df_power.loc[df_power['room'] == room].sum().transpose()  # Get sum of all devices in room
         energy = df_sum.loc[room].sum() / 60 / 1000  # Calculate energy in kWh
         df_energy.loc[room] = {'type': 'room', 'energy': energy}

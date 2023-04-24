@@ -1,6 +1,9 @@
+import json
+
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
 
+import source.dash_components as dash_components
 import source.objects as objects
 
 
@@ -87,3 +90,26 @@ def house_callbacks(app):
         cyto_office.append(lamp_edge)
 
         return cyto_bathroom, cyto_livingroom, cyto_kitchen, cyto_office, device_dict
+
+    @app.callback(Output('cost_tab', 'children'),
+                  Output('store_notification', 'data', allow_duplicate=True),
+                  Input('store_results_house_energy', 'data'),
+                  State('input_cost_kwh', 'value'),
+                  State('store_device_dict', 'data'),
+                  prevent_initial_call=True)
+    def cost_result(data, cost_kwh, device_dict):
+        try:
+            data = json.loads(data)  # Get calculated energy per device
+            device_costs = []
+            for element in data:  # Filter rooms out of data, store device energy with the device id
+                if data[element]['type'] == 'device':
+                    cost = data[element]['energy'] * cost_kwh
+                    name = device_dict['house1'][element]['name']  # Get name of device
+                    device_costs.append((name, cost))
+            device_costs = sorted(device_costs, key=lambda energy: energy[1])  # Sort devices by their cost
+            children = dash_components.add_device_costs(device_costs)           # Get dash components
+            return children, no_update
+        except PreventUpdate:
+            return no_update, no_update
+        except Exception as err:
+            return no_update, err.args[0]
