@@ -265,6 +265,9 @@ def general_callbacks(app):
         else:
             raise PreventUpdate
 
+    @app.callback()
+    def progress_bar_action():
+
     @app.callback(Output('store_settings', 'data'),
                   Input('input_week', 'value'),
                   Input('input_year', 'value'),
