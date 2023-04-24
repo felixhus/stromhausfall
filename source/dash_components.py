@@ -295,8 +295,8 @@ def dash_navbar():
                                      id='menu_item_load'),
                     ])
                 ], trigger='hover', openDelay=100, closeDelay=200, transition="rotate-right", transitionDuration=150),
-                dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
-                           gradient={"from": "grape", "to": "pink", "deg": 35})
+                # dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
+                #            gradient={"from": "grape", "to": "pink", "deg": 35})
             ], spacing=10
             ),
         ]), color="dark", dark=True
