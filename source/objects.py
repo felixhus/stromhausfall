@@ -193,6 +193,20 @@ def create_DeviceObject(device_id, device_type):
                 'Kleiner Kühlschrank Neu': {'key': 'Refrigerator_Small_New', 'icon': None},
             }
         }
+    elif device_type == 'dishwasher':
+        return {
+            'id': device_id,
+            'name': 'Spülmaschine',
+            'type': device_type,
+            'menu_type': 'device_custom',
+            'icon': 'fluent:dishwasher-20-regular',
+            'power': [0] * 24*60*7,
+            'active': True,
+            'selected_power_option': None,
+            'power_options': {
+                'Geschirr spülen': {'key': 'dishwasher', 'icon': None},
+            }
+        }
     elif device_type == 'kettle':
         return {
             'id': device_id,
@@ -264,6 +278,37 @@ def create_DeviceObject(device_id, device_type):
             'power_options': {
                 'Lampe': {'key': 'lamp_basic', 'icon': None},
                 'VDEW': {'key': 'vdew_test_cubic', 'icon': None}
+            }
+        }
+    elif device_type == 'desktop_pc':
+        return {
+            'id': device_id,
+            'name': 'Desktop PC',
+            'type': device_type,
+            'menu_type': 'device_preset',
+            'icon': 'ph:desktop-tower',
+            'power': [0] * 24*60*7,
+            'active': True,
+            'selected_power_option': None,
+            'power_options': {
+                'Arbeiten 4 Stunden': {'key': 'desktop_pc_4h', 'icon': None},
+                'Arbeiten 8 Stunden': {'key': 'desktop_pc_8h', 'icon': None},
+                'Arbeiten 12 Stunden': {'key': 'desktop_pc_12h', 'icon': None}
+            }
+        }
+    elif device_type == 'tv_lcd':
+        return {
+            'id': device_id,
+            'name': 'Fernseher',
+            'type': device_type,
+            'menu_type': 'device_custom',
+            'icon': 'mdi:tv-classic',
+            'power': [0] * 24*60*7,
+            'active': True,
+            'selected_power_option': None,
+            'power_options': {
+                '2 Stunden fernsehen': {'key': 'tv_lcd_2h', 'icon': None},
+                '8 Stunden fernsehen': {'key': 'tv_lcd_8h', 'icon': None}
             }
         }
     else:

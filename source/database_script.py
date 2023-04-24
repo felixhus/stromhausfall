@@ -104,12 +104,14 @@ def write_part_profile_to_database(start_index, end_index, values, series_id, st
     conn.close()
 
 
-filepath = r"C:\Users\felix\Documents\HOME\Uni\02_Master\05_Masterthesis\03_Daten\Tracebase Profiles\complete\Lamp\_D3237E_2012.01.10.csv"
+print("Start")
+filepath = r"C:\Users\felix\Documents\HOME\Uni\02_Master\05_Masterthesis\03_Daten\Tracebase Profiles\complete\TV-LCD\dev_B81116_2011.09.02.csv"
 df = pd.read_csv(filepath, header=None, delimiter=";", names=["datetime", "value1", "value2"])
 df["datetime"] = pd.to_datetime(df.iloc[:, 0])
 df.set_index("datetime", inplace=True)
 df_resampled = df.resample('1T').mean()
 
 values = df_resampled['value2'].tolist()
-# write_part_profile_to_database(627, 753, values, 'washing_machine', 2)
-write_to_database('database_profiles.db', values, 'lamp_04')
+write_part_profile_to_database(1055, 1175, values, 'tv_lcd_2h', 0)
+# write_to_database('database_profiles.db', values, 'desktop_pc_12h')
+print("Done")

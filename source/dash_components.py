@@ -19,9 +19,10 @@ import source.stylesheets as stylesheets
 devices = {'bathroom': [["Waschmaschine", 'button_add_washing_machine', 'icon-park-outline:washing-machine-one'],
                         ["Boiler", 'button_add_boiler', 'mdi:water-boiler']],
            'kitchen': [["Kühlschrank", 'button_add_refrigerator', 'mdi:fridge-outline'],
-                       ["Wasserkocher", 'button_add_kettle', 'material-symbols:kettle-outline']],
-           'livingroom': [],
-           'office': []}
+                       ["Wasserkocher", 'button_add_kettle', 'material-symbols:kettle-outline'],
+                       ["Spülmaschine", 'button_add_dishwasher', 'fluent:dishwasher-20-regular']],
+           'livingroom': [["Fernseher", 'button_add_tv_lcd', 'mdi:tv-classic']],
+           'office': [["Desktop PC", 'button_add_desktop_pc', 'ph:desktop-tower']]}
 
 urls = {'cyto_bathroom': 'url(/assets/background_bathroom.png)', 'cyto_kitchen': 'url(/assets/background_kitchen.png)',
         'cyto_livingroom': 'url(/assets/background_livingroom.png)', 'cyto_office': 'url(/assets/background_office.png)'}
