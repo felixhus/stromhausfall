@@ -101,12 +101,21 @@ def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
     fig.update_xaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True)
     fig.update_yaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True,
                      rangemode='nonnegative')
-    fig.update_layout(legend=dict(
-        yanchor="top",
-        y=1,
-        xanchor="right",
-        x=1
-    ))
+    fig.update_layout(
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=-0.1,
+            xanchor="center",
+            x=0.5,
+            bgcolor="white",
+            bordercolor="gray",
+            borderwidth=1,
+            itemwidth=30,  # set the width of each legend item
+            font={'size': 8},
+        ),
+        showlegend=False
+    )
     # fig.show()
 
     sunburst_labels, sunburst_parents, sunburst_values = [], [], []

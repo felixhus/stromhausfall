@@ -1,7 +1,8 @@
 import dash
 import dash_bootstrap_components as dbc
 import diskcache as dc
-from dash import CeleryManager, Dash, DiskcacheManager
+from dash import (CeleryManager, Dash, DiskcacheManager, Input, Output, State,
+                  ctx, no_update)
 
 from callbacks.bathroom_callbacks import bathroom_callbacks
 from callbacks.general_callbacks import general_callbacks
@@ -30,13 +31,15 @@ general_callbacks(app, background_callback_manager)      # Include general callb
 house_callbacks(app)        # Include House initial callbacks
 
 
-# @app.callback(Output('store_menu_change_tab', 'data'),
+# @app.callback(Output('graph_modal', 'figure'),
+#               Output('modal_graph', 'opened'),
 #               Input('debug_button', 'n_clicks'),
-#               State('menu_parent_tabs', 'children'),
+#               State('graph_power_house', 'figure'),
 #               prevent_initial_call=True)
-# def debug(btn, children):
-#     tab_id = str(random.randrange(1000))
-#     return 'tab1'
+# def debug(btn, figure):
+#     figure['layout']['height'] = None
+#     figure['layout']['width'] = None
+#     return figure, True
 
 
 if __name__ == '__main__':

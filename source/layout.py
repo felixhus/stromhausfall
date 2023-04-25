@@ -42,6 +42,7 @@ def app_layout(app):
             dash_components.add_storage_variables(),
             dash_components.add_modal_timeseries(),
             dash_components.add_modal_load_configuration(),
+            dash_components.add_modal_graph(),
             dcc.Download(id='download_json'),
             dcc.Interval(id='interval_refresh', interval=100, max_intervals=1),
             dcc.Interval(id='interval_backup', interval=10000),
