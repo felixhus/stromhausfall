@@ -258,7 +258,7 @@ def general_callbacks(app, background_callback_manager):
             return figure, no_update, no_update
 
     @app.callback(Output('graph_power_house', 'figure', allow_duplicate=True),
-                  Input('checkbox_show_legend', 'value'),
+                  Input('checkbox_show_legend', 'checked'),
                   State('graph_power_house', 'figure'),
                   prevent_initial_call=True)
     def show_legend(checkbox, figure):

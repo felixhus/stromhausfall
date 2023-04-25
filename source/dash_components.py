@@ -440,7 +440,7 @@ def add_result_tab_panel(tab_value):
                 ]
             ),
             dmc.Space(h=10),
-            dmc.Checkbox("Legende anzeigen", id='checkbox_show_legend'),
+            dmc.Checkbox(label="Legende anzeigen", id='checkbox_show_legend'),
             dcc.Graph(id='graph_sunburst_house'),
         ],
             value=tab_value
