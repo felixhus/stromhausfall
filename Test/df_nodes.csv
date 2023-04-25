@@ -1,8 +1,0 @@
-,id,linkedObject
-0,node1,<grid_objects.HouseObject object at 0x0000027C035769D0>
-1,node2,<grid_objects.SwitchCabinet object at 0x0000027C0358A460>
-2,node3,<grid_objects.HouseObject object at 0x0000027C0358A1F0>
-3,node4,<grid_objects.TransformerObject object at 0x0000027C0358FC70>
-4,node5,<grid_objects.TransformerObject object at 0x0000027C035A05E0>
-5,node6,<grid_objects.ExternalGrid object at 0x0000027C0358BE20>
-6,node7,<grid_objects.PV object at 0x0000027C035949A0>

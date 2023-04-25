@@ -2,13 +2,20 @@
 
 Dies ist der aktuelle Stand der Webapp meiner Masterthesis. Folgende Funktionen sind bereits implementiert und können ausprobiert werden:
 
+### Noch zu implementierende Funktionen ###
+- Schnittstelle um eigene Gerätelastprofile hinzuzufügen
+- Vergleich der Preise pro Gerät für verschiedene Stromtarife (Öko, normal, etc)
+- CO2 Equivalent Geräte
+- Einfache Geschäfte/Betriebe in Netz als Ergänzung zu den Haushalten
+
 ### NEUE FUNKTIONEN 🎉 ###
-> Das erstellte Netz und Haus kann im Menü (oben rechts) heruntergeladen werden.
-> Eine zuvor heruntergeladene Konfiguration kann wieder in die App geladen werden (Menü > Laden)
-> Jede PV-Anlage im Netz kann mit Postleitzahl und Ausrichtung konfiguriert werden. Die realen Sonnendaten für diese Konfiguration werden anschließend in die App geladen.
-> In dem Tab "Haus 1" kann ein Haus in seinen Räumen frei konfiguriert werden.
-> Die Geräte haben entweder fertige tägliche Lastprofile (z.B. Kühlschrank) oder können mit ihrem Einschaltzeitpunkt hinzugefügt werden (z.B. Waschmaschine, Wasserkocher).
-> Das resultierende Lastprofil des frei verfügbaren Hauses wird im Netz beim Haus hinterlegt.
+- Das erstellte Netz und Haus kann im Menü (oben rechts) heruntergeladen werden.
+- Eine zuvor heruntergeladene Konfiguration kann wieder in die App geladen werden (Menü > Laden)
+- Jede PV-Anlage im Netz kann mit Postleitzahl und Ausrichtung konfiguriert werden. Die realen Sonnendaten für diese Konfiguration werden anschließend in die App geladen.
+- In dem Tab "Haus 1" kann ein Haus in seinen Räumen frei konfiguriert werden.
+- Die Geräte haben entweder fertige tägliche Lastprofile (z.B. Kühlschrank) oder können mit ihrem Einschaltzeitpunkt hinzugefügt werden (z.B. Waschmaschine, Wasserkocher).
+- Das resultierende Lastprofil des frei verfügbaren Hauses wird im Netz beim Haus hinterlegt.
+- Im Tab "Kosten" werden die jährlichen Stromkosten pro Gerät visualisiert.
 
 ### Funktionen Haus: ###
 
