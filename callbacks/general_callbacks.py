@@ -1,6 +1,8 @@
 import base64
+import copy
 import json
 
+import dash
 import dash_mantine_components as dmc
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
@@ -222,21 +224,38 @@ def general_callbacks(app):
         return figure
 
     @app.callback(Output('graph_power_house', 'figure', allow_duplicate=True),
+                  Output('graph_modal', 'figure'),
+                  Output('modal_graph', 'opened'),
                   Input('pagination_days_results', 'value'),
                   State('graph_power_house', 'figure'),
-                  State('pagination_days_results', 'value'),
                   prevent_initial_call=True)
-    def update_figure_devices(day_control, figure, day):  # Update the values of the graphs if another profile is chosen
+    def update_figure_devices(day, figure):  # Update the values of the graphs if another profile is chosen
         # patched_fig = Patch()
         # Patch scheint noch nicht zu funktionieren, vielleicht später nochmal probieren
         if day == 'tot':  # Set total range
             index_start = 0
             index_stop = 7 * 24 * 60
+            figure['layout']['xaxis']['range'] = [index_start, index_stop]
+            figure_big = copy.deepcopy(figure)  # Get copy of small figure for the big modal
+            figure_big['layout']['height'] = None   # Set size of big figure to full size
+            figure_big['layout']['width'] = None
+            return figure, figure_big, True
         else:  # Set range for one day
             day_ind = days[day]
             index_start = day_ind * 24 * 60
             index_stop = index_start + 24 * 60
-        figure['layout']['xaxis']['range'] = [index_start, index_stop]
+            figure['layout']['xaxis']['range'] = [index_start, index_stop]
+            return figure, no_update, no_update
+
+    @app.callback(Output('graph_power_house', 'figure', allow_duplicate=True),
+                  Input('checkbox_show_legend', 'checked'),
+                  State('graph_power_house', 'figure'),
+                  prevent_initial_call=True)
+    def show_legend(checkbox, figure):
+        if checkbox:
+            figure['layout']['showlegend'] = True
+        else:
+            figure['layout']['showlegend'] = False
         return figure
 
     @app.callback(Output('modal_timeseries', 'opened'),
@@ -322,6 +341,8 @@ def general_callbacks(app):
         elif triggered_id == 'menu_item_load' or triggered_id == 'button_start_load':
             return no_update, True, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'button_load_configuration':
+            if filename is None:
+                return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_no_file_selected'
             if not filename.endswith('.json'):  # Check if the file format is .json
                 return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file_format'
             else:
@@ -443,6 +464,11 @@ def general_callbacks(app):
         elif data == 'notification_wrong_file_format':
             notification_message = ["Falsches Dateiformat!",
                                     "Diese Datei kann ich leider nicht laden, sie hat das falsche Format!"]
+            icon = DashIconify(icon="mdi:file-remove-outline")
+            color = 'yellow'
+        elif data == 'notification_no_file_selected':
+            notification_message = ["Keine Datei ausgewählt!",
+                                    "Bitte lade eine Datei hoch."]
             icon = DashIconify(icon="mdi:file-remove-outline")
             color = 'yellow'
         elif data == 'notification_wrong_file':

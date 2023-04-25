@@ -1,7 +1,7 @@
 import datetime
 import time
 
-# import modules
+import dash
 import pandas as pd
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
@@ -209,17 +209,17 @@ def grid_callbacks(app):
             if triggered_id == 'cyto1':
                 if triggered[0]['prop_id'] == 'cyto1.tapNodeData':  # Node was clicked
                     if not btn_line_active:
-                        return no_update, gridObject_dict[node['id']]['object_type'], None, None, node['id'],\
+                        return no_update, gridObject_dict[node['id']]['object_type'], None, None, node['id'], \
                                no_update, no_update, no_update, no_update, no_update, no_update  # Reset tapNodeData and tapEdgeData and return type of node for tab in menu
                     else:
                         raise PreventUpdate
                 elif triggered[0]['prop_id'] == 'cyto1.tapEdgeData':  # Edge was clicked
-                    return no_update, gridObject_dict[edge['id']]['object_type'], None, None, edge['id'],\
+                    return no_update, gridObject_dict[edge['id']]['object_type'], None, None, edge['id'], \
                            no_update, no_update, no_update, no_update, no_update, no_update  # Reset tapNodeData and tapEdgeData and return type of edge for tab in menu
                 else:
                     raise Exception("Weder Node noch Edge wurde geklickt.")
             elif triggered_id == 'house_mode':  # New mode of house configuration was clicked (segmented control)
-                if custom_house is None:        # If no house is in custom-mode yet
+                if custom_house is None:  # If no house is in custom-mode yet
                     if control == 'preset':
                         gridObject_dict[selected_element]['config_mode'] = 'preset'
                         return gridObject_dict, no_update, no_update, no_update, no_update, no_update, True, no_update, no_update, no_update, no_update
@@ -251,7 +251,8 @@ def grid_callbacks(app):
         except PreventUpdate:
             return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
         except Exception as err:
-            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
+                   err.args[0]
 
     @app.callback(Output('cyto1', 'elements', allow_duplicate=True),
                   Input('store_edge_labels', 'data'),
@@ -259,7 +260,7 @@ def grid_callbacks(app):
                   prevent_initial_call=True)
     def edge_labels(labels, elements):
         for edge, label in labels.items():  # Set labels of edges with power values
-            reverse = label < 0             # If power over edge is negative -> Reverse
+            reverse = label < 0  # If power over edge is negative -> Reverse
             for ele in elements:
                 if edge == ele['data']['id']:
                     ele['data']['label'] = str(abs(label))  # Set absolute value of power as label
@@ -283,7 +284,6 @@ def grid_callbacks(app):
         text = slider_time.strftime(f"Am {weekdays[slider_time.weekday()]} %d.%m. um %H:%M")
         return text, False
 
-
     @app.callback(Output('store_grid_object_dict', 'data', allow_duplicate=True),
                   Output('button_compass', 'style'),
                   State('store_grid_object_dict', 'data'),
@@ -292,10 +292,10 @@ def grid_callbacks(app):
                   prevent_initial_call=True)
     def compass_action(gridObject_dict, selected_element, *args):
         triggered_id = ctx.triggered_id
-        if all(ele is None for ele in args):    # If no button was clicked
+        if all(ele is None for ele in args):  # If no button was clicked
             raise PreventUpdate
         gridObject_dict[selected_element]['orientation'] = compass_buttons[triggered_id]
-        style = {'transform': f'rotate({compass_buttons[triggered_id]-45}deg)'}
+        style = {'transform': f'rotate({compass_buttons[triggered_id] - 45}deg)'}
         # icon = DashIconify(icon=compass_buttons[triggered_id][1], width=20, rotate=compass_buttons[triggered_id][2])
         return gridObject_dict, style
 

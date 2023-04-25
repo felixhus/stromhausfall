@@ -238,6 +238,7 @@ def add_modal_voltage_level():
     return dmc.Modal(
         title="Spannungsebene auswählen",
         id='modal_voltage',
+        closeOnEscape=False, closeOnClickOutside=False, withCloseButton=False,
         children=[
             dmc.Text(
                 "Möchtest du das Element mit der Ober- oder Unterspannungsseite des Transformators verbinden (20kV oder 400V)?"),
@@ -425,7 +426,7 @@ def add_result_tab_panel(tab_value):
             dmc.Space(h=10),
             dmc.SegmentedControl(
                 id='pagination_days_results',
-                value='tot',
+                value='mo',
                 fullWidth=320,
                 data=[
                     {'value': 'mo', 'label': 'MO'}, {'value': 'tu', 'label': 'DI'}, {'value': 'wd', 'label': 'MI'},
@@ -433,6 +434,8 @@ def add_result_tab_panel(tab_value):
                     {'value': 'su', 'label': 'SO'}, {'value': 'tot', 'label': 'TOT'}
                 ]
             ),
+            dmc.Space(h=10),
+            dmc.Checkbox(label="Legende anzeigen", id='checkbox_show_legend'),
             dcc.Graph(id='graph_sunburst_house'),
         ],
             value=tab_value
@@ -833,7 +836,7 @@ def add_cost_badge(name, cost, icon):
         children=[
             html.Div(children=[
                 dmc.ThemeIcon(
-                    size=60,
+                    size=70,
                     color="indigo",
                     variant="filled",
                     children=DashIconify(icon=icon, width=40),
@@ -850,6 +853,16 @@ def add_device_costs(cost_tuple):
         for element in cost_tuple
     ], gutter='lg')
     return html.Div(children=[dmc.Space(h=30), grid])
+
+
+def add_modal_graph():
+    return dmc.Modal(
+        id='modal_graph',
+        fullScreen=True, zIndex=10000,
+        children=[
+            dcc.Graph(id='graph_modal')
+        ]
+    )
 
 
 def add_modal_timeseries():
