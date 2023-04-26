@@ -322,6 +322,8 @@ def general_callbacks(app, background_callback_manager):
                   Output('cyto1', 'elements', allow_duplicate=True),
                   Output('cyto_bathroom', 'elements', allow_duplicate=True),
                   Output('cyto_kitchen', 'elements', allow_duplicate=True),
+                  Output('cyto_livingroom', 'elements', allow_duplicate=True),
+                  Output('cyto_office', 'elements', allow_duplicate=True),
                   Output('input_week', 'value'),
                   Output('input_year', 'value'),
                   Output('store_custom_house', 'data', allow_duplicate=True),
@@ -379,6 +381,7 @@ def general_callbacks(app, background_callback_manager):
                     return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file'
                 return no_update, False, content_dict['gridObject_dict'], content_dict['device_dict'], \
                        content_dict['cyto_grid'], content_dict['cyto_bathroom'], content_dict['cyto_kitchen'], \
+                       content_dict['cyto_livingroom'], content_dict['office'], \
                        content_dict['settings']['week'], content_dict['settings'][
                            'year'], content_dict['custom_house'], custom_house_disabled, no_update
         else:
