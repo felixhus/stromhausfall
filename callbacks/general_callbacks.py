@@ -361,14 +361,14 @@ def general_callbacks(app, background_callback_manager):
                          'custom_house': custom_house}
             return dict(content=json.dumps(save_dict),
                         filename="test.json"), no_update, no_update, no_update, no_update, no_update, no_update, \
-                   no_update, no_update, no_update, no_update, no_update
+                   no_update, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'menu_item_load' or triggered_id == 'button_start_load':
-            return no_update, True, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
+            return no_update, True, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'button_load_configuration':
             if filename is None:
-                return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_no_file_selected'
+                return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_no_file_selected'
             if not filename.endswith('.json'):  # Check if the file format is .json
-                return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file_format'
+                return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file_format'
             else:
                 content_type, content_string = upload_content.split(",")  # Three lines to get dict from content
                 decoded = base64.b64decode(content_string)
@@ -378,7 +378,7 @@ def general_callbacks(app, background_callback_manager):
                     custom_house_disabled = False
                 if not (
                         'gridObject_dict' in content_dict and 'device_dict' in content_dict and 'cyto_grid' in content_dict):  # Check if all dictionaries are there
-                    return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file'
+                    return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file'
                 return no_update, False, content_dict['gridObject_dict'], content_dict['device_dict'], \
                        content_dict['cyto_grid'], content_dict['cyto_bathroom'], content_dict['cyto_kitchen'], \
                        content_dict['cyto_livingroom'], content_dict['office'], \
