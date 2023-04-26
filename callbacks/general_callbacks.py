@@ -1,6 +1,7 @@
 import base64
 import copy
 import json
+import time
 
 import dash
 import dash_mantine_components as dmc
@@ -105,6 +106,7 @@ def general_callbacks(app, background_callback_manager):
                    prevent_initial_call=True)
     def start_calculation_house(set_progress, btn, device_dict, tabs_main, gridObject_dict, house):
         try:
+            start_time = time.process_time()
             if tabs_main == 'house1':
                 df_power, df_sum, df_energy, graph_power, graph_sunburst = modules.calculate_house(device_dict,
                                                                                                    range(0, 7 * 1440),
@@ -112,9 +114,9 @@ def general_callbacks(app, background_callback_manager):
                 set_progress((99, "Als Lastprofil von Haus speichern..."))
                 gridObject_dict[house]['power'] = df_sum.loc['house1'].values.flatten().tolist()
                 set_progress((100, "Fertig!"))
-                print("Done")
+                elapsed_time = time.process_time() - start_time
                 return df_power.to_json(orient='index'), df_energy.to_json(
-                    orient='index'), graph_power, graph_sunburst, gridObject_dict, no_update
+                    orient='index'), graph_power, graph_sunburst, gridObject_dict, f"Berechnungszeit: {elapsed_time}"
             else:
                 raise PreventUpdate
         except PreventUpdate:
