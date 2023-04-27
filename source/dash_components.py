@@ -8,22 +8,6 @@ from dash_iconify import DashIconify
 import source.plot as plot
 import source.stylesheets as stylesheets
 
-# devices = {'bathroom': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hair-dryer'],
-#                         ["Zahnbürste", 'button_add_toothbrush', 'mdi:toothbrush-electric'],
-#                         ["Bügeleisen", 'button_add_iron', 'tabler:ironing-1']],
-#            'kitchen': [["Kühlschrank", 'button_add_refrigerator', 'mdi:fridge-outline'],
-#                        ["Wasserkocher", 'button_add_kettle', 'material-symbols:kettle-outline'],
-#                        ["Kaffeemaschine", 'button_add_coffee', 'ic:outline-coffee'],
-#                        ["Ofen", 'button_add_oven', 'material-symbols:oven-gen-outline']]}
-
-devices = {'bathroom': [["Waschmaschine", 'button_add_washing_machine', 'icon-park-outline:washing-machine-one'],
-                        ["Boiler", 'button_add_boiler', 'mdi:water-boiler']],
-           'kitchen': [["Kühlschrank", 'button_add_refrigerator', 'mdi:fridge-outline'],
-                       ["Wasserkocher", 'button_add_kettle', 'material-symbols:kettle-outline'],
-                       ["Spülmaschine", 'button_add_dishwasher', 'fluent:dishwasher-20-regular']],
-           'livingroom': [["Fernseher", 'button_add_tv_lcd', 'mdi:tv-classic']],
-           'office': [["Desktop PC", 'button_add_desktop_pc', 'ph:desktop-tower']]}
-
 urls = {'cyto_bathroom': 'url(/assets/background_bathroom.png)', 'cyto_kitchen': 'url(/assets/background_kitchen.png)',
         'cyto_livingroom': 'url(/assets/background_livingroom.png)', 'cyto_office': 'url(/assets/background_office.png)'}
 
@@ -888,12 +872,42 @@ def add_modal_devices():
                     dmc.Tab("Eigene", value='own', icon=DashIconify(icon='mdi:user-outline')),
                     dmc.Tab("Neues hinzufügen", value='new', icon=DashIconify(icon='mdi:package-variant-plus'))
                 ]),
-                dmc.TabsPanel(value='additional', id='tab_additional_devices'),
+                dmc.TabsPanel(value='additional', children=[dmc.Card(id='card_additional_devices')]),
                 dmc.TabsPanel(value='own', id='tab_own_devices'),
                 dmc.TabsPanel(value='new', id='tab_new_devices'),
-            ])
+            ], value='additional')
         ]
     )
+
+
+def add_card_additional_devices(devices):
+    data = []
+    for device in devices:
+        content = dmc.Group([
+            DashIconify(icon=device[4], inline=True),
+            device[2]
+        ])
+        data.append([device[0], content])
+    radio_devices = dmc.RadioGroup(
+        [dmc.Radio(l, value=k) for k, l in data],
+        id='radiogroup_devices',
+        label="Gerät auswählen",
+        size='sm', orientation='vertical'
+    )
+    data = [['bathroom', 'Bad'], ['livingroom', 'Wohnzimmer'], ['kitchen', 'Küche'], ['office', 'Büro']]
+    radio_rooms = dmc.RadioGroup(
+        [dmc.Radio(l, value=k) for k, l in data],
+        id='radiogroup_room',
+        label="In Raum",
+        size='sm', orientation='vertical'
+    )
+    return html.Div([
+        dmc.Group([
+            radio_devices, radio_rooms
+        ], position='apart'),
+        dmc.Space(h=20),
+        dmc.Button("Hinzufügen", id='button_add_additional_device')
+    ])
 
 
 def add_modal_timeseries():

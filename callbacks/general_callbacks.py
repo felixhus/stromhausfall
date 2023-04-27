@@ -498,6 +498,16 @@ def general_callbacks(app):
                                     "Bitte ein Lastprofil auswählen."]
             icon = DashIconify(icon="mdi:chart-bell-curve")
             color = 'yellow'
+        elif data == 'notification_no_device_selected':
+            notification_message = ["Kein Gerät ausgewählt!",
+                                    "Bitte ein Gerät auswählen."]
+            icon = DashIconify(icon="material-symbols:device-unknown-outline-rounded")
+            color = 'yellow'
+        elif data == 'notification_no_room_selected':
+            notification_message = ["Kein Raum ausgewählt!",
+                                    "Bitte einen Raum im Haus auswählen."]
+            icon = DashIconify(icon="material-symbols:meeting-room-outline-rounded")
+            color = 'yellow'
         else:
             notification_message = ["Fehler!", data]
             icon = DashIconify(icon="material-symbols:warning-outline-rounded")

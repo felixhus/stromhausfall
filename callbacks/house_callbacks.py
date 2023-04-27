@@ -1,7 +1,7 @@
 import json
 import time
 
-from dash import Input, Output, State, ctx, no_update
+from dash import Input, Output, State, ctx, html, no_update
 from dash.exceptions import PreventUpdate
 
 import source.dash_components as dash_components
@@ -148,20 +148,27 @@ def house_callbacks(app):
         except Exception as err:
             return no_update, err.args[0]
 
-    # @app.callback(Output('store_menu_elements_house', 'data'),
-    #               Input('interval_refresh', 'n_intervals'),
-    #               State('store_menu_elements_house', 'data'),
-    #               prevent_initial_call=True)
-    # def generate_menu_buttons_house(interval, button_dict):
-    #     if button_dict is None:
-    #         devices = sql_modules.get_button_dict('source/database_profiles.db')     # Get the dict from the database
-    #         button_dict = {}
-    #         for device in devices:
-    #             if device[1] not in button_dict:  # If room doesn't already exist in dict, create list for it
-    #                 button_dict[device[1]] = []
-    #             button_dict[device[1]].append([
-    #                 device[2], "button_add_" + device[0], device[4]
-    #             ])
-    #         return button_dict
-    #     else:
-    #         raise PreventUpdate     # If it was already created, skip
+    @app.callback(Output('card_additional_devices', 'children'),
+                  Input('modal_additional_devices', 'opened'))
+    def fill_device_modal(modal_open):
+        if modal_open:
+            devices = sql_modules.get_all_devices('source/database_profiles.db')
+            childs_additional = dash_components.add_card_additional_devices(devices)
+            return childs_additional
+        else:
+            raise PreventUpdate
+
+    @app.callback(Output('store_notification', 'data', allow_duplicate=True),
+                  Input('button_add_additional_device', 'n_clicks'),
+                  State('radiogroup_devices', 'value'),
+                  State('radiogroup_room', 'value'),
+                  prevent_initial_call=True)
+    def add_additional_device(btn, radio_device, radio_room):
+        if btn is not None:
+            if radio_device is None:
+                return "notification_no_device_selected"
+            elif radio_room is None:
+                return "notification_no_room_selected"
+            raise PreventUpdate
+        else:
+            raise PreventUpdate

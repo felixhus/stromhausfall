@@ -94,8 +94,15 @@ def get_household_profile(database, profile_number, date_start, date_stop):
 
 def get_button_dict(database):
     conn = sqlite3.connect(database)  # connect to the database
-    cursor = conn.cursor()
 
     query = "SELECT * FROM devices WHERE standard_room IS NOT NULL" # Get all devices with a standard room
+    devices = conn.execute(query).fetchall()
+    return devices
+
+
+def get_all_devices(database):
+    conn = sqlite3.connect(database)  # connect to the database
+
+    query = "SELECT * FROM devices"  # Get all devices
     devices = conn.execute(query).fetchall()
     return devices
