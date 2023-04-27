@@ -7,6 +7,13 @@ import source.objects as objects
 
 
 def livingroom_callbacks(app):
+    @app.callback(Output('menu_devices_livingroom', 'opened', allow_duplicate=True),
+                  Output('modal_additional_devices', 'opened', allow_duplicate=True),
+                  Input('button_additional_livingroom', 'n_clicks'),
+                  prevent_initial_call=True)
+    def menu_show(btn_additional):
+        return False, True
+
     @app.callback(Output('cyto_livingroom', 'elements'),
                   Output('store_device_dict', 'data', allow_duplicate=True),
                   Output('menu_devices_livingroom', 'style'),

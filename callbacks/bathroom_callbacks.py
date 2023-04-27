@@ -7,6 +7,13 @@ import source.objects as objects
 
 
 def bathroom_callbacks(app):
+    @app.callback(Output('menu_devices_bathroom', 'opened', allow_duplicate=True),
+                  Output('modal_additional_devices', 'opened', allow_duplicate=True),
+                  Input('button_additional_bathroom', 'n_clicks'),
+                  prevent_initial_call=True)
+    def menu_show(btn_additional):
+        return False, True
+
     @app.callback(Output('cyto_bathroom', 'elements'),
                   Output('store_device_dict', 'data'),
                   Output('menu_devices_bathroom', 'style'),

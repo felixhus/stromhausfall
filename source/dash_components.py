@@ -92,6 +92,10 @@ def add_menu_dropdown(room_type):
         item_list.append(dmc.MenuItem(item[0], id=item[1], icon=DashIconify(icon=item[2])))
     item_list.append(dmc.MenuDivider())
     item_list.append(
+        dmc.MenuItem("Weitere", id='button_additional_' + room_type,
+                     icon=DashIconify(icon='mdi:more-circle-outline')))
+    item_list.append(dmc.MenuDivider())
+    item_list.append(
         dmc.MenuItem("Schließen", id='button_close_menu_' + room_type,
                      icon=DashIconify(icon='material-symbols:close-rounded'),
                      color='red'))
@@ -299,6 +303,8 @@ def dash_navbar():
                                      id='menu_item_save'),
                         dmc.MenuItem("Konfiguration laden", icon=DashIconify(icon="iconoir:load-action-floppy"),
                                      id='menu_item_load'),
+                        dmc.MenuItem("Download eigene Geräte", icon=DashIconify(icon="material-symbols:sim-card-download-outline"),
+                                     id='menu_item_own_devices'),
                     ])
                 ], trigger='hover', openDelay=100, closeDelay=200, transition="rotate-right", transitionDuration=150),
                 dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
@@ -867,6 +873,13 @@ def add_modal_graph():
         children=[
             dcc.Graph(id='graph_modal')
         ]
+    )
+
+
+def add_modal_devices():
+    return dmc.Modal(
+        id='modal_additional_devices',
+        opened=False
     )
 
 

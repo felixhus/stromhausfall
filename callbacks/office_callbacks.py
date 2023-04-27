@@ -7,6 +7,13 @@ import source.objects as objects
 
 
 def office_callbacks(app):
+    @app.callback(Output('menu_devices_office', 'opened', allow_duplicate=True),
+                  Output('modal_additional_devices', 'opened', allow_duplicate=True),
+                  Input('button_additional_office', 'n_clicks'),
+                  prevent_initial_call=True)
+    def menu_show(btn_additional):
+        return False, True
+
     @app.callback(Output('cyto_office', 'elements'),
                   Output('store_device_dict', 'data', allow_duplicate=True),
                   Output('menu_devices_office', 'style'),
