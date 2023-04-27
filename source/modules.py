@@ -553,5 +553,17 @@ def get_monday_sunday_from_week(week_num, year):
     return monday.date(), sunday.date()
 
 
+def get_button_dict():
+    devices = sql_modules.get_button_dict('source/database_profiles.db')  # Get the dict from the database
+    button_dict = {}
+    for device in devices:
+        if device[1] not in button_dict:  # If room doesn't already exist in dict, create list for it
+            button_dict[device[1]] = []
+        button_dict[device[1]].append([
+            device[2], "button_add_" + device[0], device[4]
+        ])
+    return button_dict
+
+
 def handle_error(err):
     print("Error: ", err)

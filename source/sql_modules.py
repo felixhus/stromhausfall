@@ -90,3 +90,12 @@ def get_household_profile(database, profile_number, date_start, date_stop):
         date = date + timedelta(days=1)
     conn.close()  # close connection
     return power
+
+
+def get_button_dict(database):
+    conn = sqlite3.connect(database)  # connect to the database
+    cursor = conn.cursor()
+
+    query = "SELECT * FROM devices WHERE standard_room IS NOT NULL" # Get all devices with a standard room
+    devices = conn.execute(query).fetchall()
+    return devices

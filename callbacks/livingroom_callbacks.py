@@ -1,12 +1,11 @@
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
 
-import source.dash_components as dash_components
 import source.modules as modules
 import source.objects as objects
 
 
-def livingroom_callbacks(app):
+def livingroom_callbacks(app, button_dict):
     @app.callback(Output('menu_devices_livingroom', 'opened', allow_duplicate=True),
                   Output('modal_additional_devices', 'opened', allow_duplicate=True),
                   Input('button_additional_livingroom', 'n_clicks'),
@@ -32,7 +31,7 @@ def livingroom_callbacks(app):
                   Input('edit_delete_button', 'n_clicks'),
                   Input('button_close_menu_livingroom', 'n_clicks'),
                   Input('active_switch_house', 'checked'),
-                  [Input(device[1], 'n_clicks') for device in dash_components.devices['livingroom']],
+                  [Input(device[1], 'n_clicks') for device in button_dict['livingroom']],
                   prevent_initial_call='initial_duplicate')
     def manage_devices_livingroom(elements, device_dict, tabs_main, children, selected_element, node, btn_save,
                                 btn_delete,

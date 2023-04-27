@@ -17,7 +17,7 @@ menu_objects = [
 ]
 
 
-def app_layout(app):
+def app_layout(app, button_dict):
     app.layout = dmc.NotificationsProvider(dbc.Container([
         dbc.Col([
             dbc.Row(
@@ -33,7 +33,7 @@ def app_layout(app):
                         for i in range(len(menu_objects))
                     ], id='grid_buttons', style={'display': 'block'}, withBorder=True, shadow="sm", radius="md"),
                 ], width=1),
-                dbc.Col([dash_components.add_cytoscape_layout()], width=7),
+                dbc.Col([dash_components.add_cytoscape_layout(button_dict)], width=7),
                 dbc.Col([dash_components.card_start(), dash_components.card_menu()], width=True)
             ]),
             dash_components.add_modal_readme(),

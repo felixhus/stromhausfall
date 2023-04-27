@@ -1,12 +1,11 @@
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
 
-import source.dash_components as dash_components
 import source.modules as modules
 import source.objects as objects
 
 
-def bathroom_callbacks(app):
+def bathroom_callbacks(app, button_dict):
     @app.callback(Output('menu_devices_bathroom', 'opened', allow_duplicate=True),
                   Output('modal_additional_devices', 'opened', allow_duplicate=True),
                   Input('button_additional_bathroom', 'n_clicks'),
@@ -32,7 +31,7 @@ def bathroom_callbacks(app):
                   Input('edit_delete_button', 'n_clicks'),
                   Input('button_close_menu_bathroom', 'n_clicks'),
                   Input('active_switch_house', 'checked'),
-                  [Input(device[1], 'n_clicks') for device in dash_components.devices['bathroom']],
+                  [Input(device[1], 'n_clicks') for device in button_dict['bathroom']],
                   prevent_initial_call='initial_duplicate')
     def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected_element, node, btn_save,
                                 btn_delete,

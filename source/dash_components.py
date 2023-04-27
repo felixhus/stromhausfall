@@ -87,9 +87,9 @@ def add_cytoscape_grid(nodes, edges):
     return cytoscape
 
 
-def add_menu_dropdown(room_type):
+def add_menu_dropdown(room_type, button_dict):
     item_list = []
-    for item in devices[room_type]:
+    for item in button_dict[room_type]:
         item_list.append(dmc.MenuItem(item[0], id=item[1], icon=DashIconify(icon=item[2])))
     item_list.append(dmc.MenuDivider())
     item_list.append(
@@ -114,7 +114,7 @@ def add_cytoscape(cyto_id, elements):
         stylesheet=stylesheets.cyto_stylesheet))
 
 
-def add_cytoscape_layout():
+def add_cytoscape_layout(button_dict):
     elements = [
         {'data': {'id': 'power_strip'}, 'classes': 'power_strip_style'},
         {'data': {'id': 'plus', 'parent': 'power_strip'}, 'position': {'x': 75, 'y': 175},
@@ -146,14 +146,14 @@ def add_cytoscape_layout():
                                 dbc.Col([
                                     dmc.Menu([
                                         dmc.MenuTarget(html.Div(id='menu_target_bathroom')),
-                                        add_menu_dropdown('bathroom')
+                                        add_menu_dropdown('bathroom', button_dict)
                                     ], id='menu_devices_bathroom', position='left-start', withArrow=True),
                                     add_cytoscape('cyto_bathroom', elements)
                                 ], width=6),
                                 dbc.Col([
                                     dmc.Menu([
                                         dmc.MenuTarget(html.Div(id='menu_target_livingroom')),
-                                        add_menu_dropdown('livingroom')
+                                        add_menu_dropdown('livingroom', button_dict)
                                     ], id='menu_devices_livingroom', position='left-start', withArrow=True),
                                     add_cytoscape('cyto_livingroom', elements)
                                 ], width=6)
@@ -163,14 +163,14 @@ def add_cytoscape_layout():
                                 dbc.Col([
                                     dmc.Menu([
                                         dmc.MenuTarget(html.Div(id='menu_target_kitchen')),
-                                        add_menu_dropdown('kitchen')
+                                        add_menu_dropdown('kitchen', button_dict)
                                     ], id='menu_devices_kitchen', position='left-start', withArrow=True),
                                     add_cytoscape('cyto_kitchen', elements)
                                 ], width=6),
                                 dbc.Col([
                                     dmc.Menu([
                                         dmc.MenuTarget(html.Div(id='menu_target_office')),
-                                        add_menu_dropdown('office')
+                                        add_menu_dropdown('office', button_dict)
                                     ], id='menu_devices_office', position='left-start', withArrow=True),
                                     add_cytoscape('cyto_office', elements)
                                 ], width=6)

@@ -9,19 +9,21 @@ from callbacks.kitchen_callbacks import kitchen_callbacks
 from callbacks.livingroom_callbacks import livingroom_callbacks
 from callbacks.office_callbacks import office_callbacks
 from source.layout import app_layout
+from source.modules import get_button_dict
 
 app = Dash(__name__, suppress_callback_exceptions=True,
            external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
 app.title = 'PowerHouse'
 server = app.server
 
-app_layout(app)     # Get layout of app
+button_dict = get_button_dict()
+app_layout(app, button_dict)     # Get layout of app
 
 grid_callbacks(app)         # Include grid callbacks
-bathroom_callbacks(app)     # Include bathroom callbacks
-kitchen_callbacks(app)      # Include bathroom callbacks
-livingroom_callbacks(app)   # Include livingroom callbacks
-office_callbacks(app)       # Include office callbacks
+bathroom_callbacks(app, button_dict)     # Include bathroom callbacks
+kitchen_callbacks(app, button_dict)      # Include bathroom callbacks
+livingroom_callbacks(app, button_dict)   # Include livingroom callbacks
+office_callbacks(app, button_dict)       # Include office callbacks
 general_callbacks(app)      # Include general callbacks
 house_callbacks(app)        # Include House initial callbacks
 

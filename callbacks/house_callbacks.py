@@ -7,6 +7,7 @@ from dash.exceptions import PreventUpdate
 import source.dash_components as dash_components
 import source.modules as modules
 import source.objects as objects
+import source.sql_modules as sql_modules
 
 
 def house_callbacks(app):
@@ -147,13 +148,20 @@ def house_callbacks(app):
         except Exception as err:
             return no_update, err.args[0]
 
-    @app.callback(Output('store_menu_elements_house', 'data'),
-                  Input('interval_refresh', 'n_intervals'),
-                  State('store_menu_elements_house', 'data'),
-                  prevent_initial_call=True)
-    def generate_menu_buttons_house(interval, button_dict):
-        if button_dict is not None:
-            
-            return button_dict
-        else:
-            raise PreventUpdate
+    # @app.callback(Output('store_menu_elements_house', 'data'),
+    #               Input('interval_refresh', 'n_intervals'),
+    #               State('store_menu_elements_house', 'data'),
+    #               prevent_initial_call=True)
+    # def generate_menu_buttons_house(interval, button_dict):
+    #     if button_dict is None:
+    #         devices = sql_modules.get_button_dict('source/database_profiles.db')     # Get the dict from the database
+    #         button_dict = {}
+    #         for device in devices:
+    #             if device[1] not in button_dict:  # If room doesn't already exist in dict, create list for it
+    #                 button_dict[device[1]] = []
+    #             button_dict[device[1]].append([
+    #                 device[2], "button_add_" + device[0], device[4]
+    #             ])
+    #         return button_dict
+    #     else:
+    #         raise PreventUpdate     # If it was already created, skip
