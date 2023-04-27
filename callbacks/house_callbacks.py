@@ -146,3 +146,14 @@ def house_callbacks(app):
             return no_update, no_update
         except Exception as err:
             return no_update, err.args[0]
+
+    @app.callback(Output('store_menu_elements_house', 'data'),
+                  Input('interval_refresh', 'n_intervals'),
+                  State('store_menu_elements_house', 'data'),
+                  prevent_initial_call=True)
+    def generate_menu_buttons_house(interval, button_dict):
+        if button_dict is not None:
+            
+            return button_dict
+        else:
+            raise PreventUpdate

@@ -46,7 +46,8 @@ def add_storage_variables():
                      dcc.Store(id='store_results_house_power'), dcc.Store(id='store_settings', data={}),
                      dcc.Store(id='store_results_house_energy'),
                      dcc.Store(id='store_backup', storage_type='session'),
-                     dcc.Store(id='store_save_by_enter', data=None)])
+                     dcc.Store(id='store_save_by_enter', data=None),
+                     dcc.Store(id='store_menu_elements_house', storage_type='session')])
 
 
 def add_grid_object_button(object_id, name=None, linked_object=None, icon=None, enable=True):
@@ -878,8 +879,20 @@ def add_modal_graph():
 
 def add_modal_devices():
     return dmc.Modal(
-        id='modal_additional_devices',
-        opened=False
+        title="Weitere Geräte auswählen",
+        id='modal_additional_devices', opened=False,
+        children=[
+            dmc.Tabs([
+                dmc.TabsList([
+                    dmc.Tab("Weitere", value='additional', icon=DashIconify(icon='material-symbols:clear-all-rounded')),
+                    dmc.Tab("Eigene", value='own', icon=DashIconify(icon='mdi:user-outline')),
+                    dmc.Tab("Neues hinzufügen", value='new', icon=DashIconify(icon='mdi:package-variant-plus'))
+                ]),
+                dmc.TabsPanel(value='additional', id='tab_additional_devices'),
+                dmc.TabsPanel(value='own', id='tab_own_devices'),
+                dmc.TabsPanel(value='new', id='tab_new_devices'),
+            ])
+        ]
     )
 
 

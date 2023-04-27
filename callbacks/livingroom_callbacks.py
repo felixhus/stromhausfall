@@ -12,7 +12,7 @@ def livingroom_callbacks(app):
                   Input('button_additional_livingroom', 'n_clicks'),
                   prevent_initial_call=True)
     def menu_show(btn_additional):
-        return False, True
+        return False, True  # Show modal and close menu when button "Weitere" was clicked.
 
     @app.callback(Output('cyto_livingroom', 'elements'),
                   Output('store_device_dict', 'data', allow_duplicate=True),
