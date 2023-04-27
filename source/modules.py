@@ -282,47 +282,38 @@ def correct_cyto_edges(elements, graph):
     return elements
 
 
-def power_flow_statemachine(state, data, set_progress):
+def power_flow_statemachine(state, data):
     if state == 'init':
-        set_progress((9, "Initialisierung..."))
         if len(data['elements']) == 0:  # Check if there are any elements in the grid
             raise Exception('notification_emptygrid')
         return 'gen_dataframes', data, False
     elif state == 'gen_dataframes':
-        set_progress((18, "Daten vorbereiten..."))
         data['df_nodes'], data['df_edges'] = generate_grid_dataframes(data['elements'],
                                                                       data['grid_objects'])  # Generate DataFrames
         return 'gen_grid_graph', data, False
     elif state == 'gen_grid_graph':
-        set_progress((27, "Graph erstellen..."))
         data['grid_graph'] = generate_grid_graph(data['df_nodes'], data['df_edges'])  # Generate NetworkX Graph
         return 'check_isolates', data, False
     elif state == 'check_isolates':
-        set_progress((36, "Graph überprüfen..."))
         if nx.number_of_isolates(data['grid_graph']) > 0:  # Check if there are isolated (not connected) nodes
             raise Exception('notification_isolates')
         return 'check_tree', data, False
     elif state == 'check_tree':
-        set_progress((45, "Graph überprüfen..."))
         min_spanning_tree = nx.minimum_spanning_tree(data['grid_graph'])
         if data['grid_graph'].number_of_edges() != min_spanning_tree.number_of_edges():
             raise Exception('notification_cycles')
         return 'gen_directed_graph', data, False
     elif state == 'gen_directed_graph':
-        set_progress((54, "Gerichteten Graphen erstellen..."))
         data['grid_graph'] = generate_directed_graph(
             data['grid_graph'])  # Give graph edges directions, starting at external grid
         return 'check_power_profiles', data, False
     elif state == 'check_power_profiles':
-        set_progress((63, "Lastprofile interpolieren..."))
         data['grid_graph'] = check_power_profiles(data['grid_graph'])
         return 'gen_equations', data, False
     elif state == 'gen_equations':
-        set_progress((72, "Gleichungen erstellen..."))
         data['A'], data['df_power'] = generate_equations(data['grid_graph'])
         return 'calc_flow', data, False
     elif state == 'calc_flow':
-        set_progress((81, "Gleichungen lösen..."))
         column_names = []
         for edge in data['grid_graph'].edges:
             column_names.append(data['grid_graph'].edges[edge]['id'])
@@ -333,18 +324,16 @@ def power_flow_statemachine(state, data, set_progress):
         data['df_flow'] = df_flow
         return 'set_edge_labels', data, False
     elif state == 'set_edge_labels':
-        set_progress((90, "Beschriftungen erstellen..."))
         data['elements'] = correct_cyto_edges(data['elements'], data['grid_graph'])
         data['labels'] = data['df_flow'].loc[0].to_dict()
         return None, data, True
 
 
-def calculate_power_flow(elements, grid_object_dict, set_progress):
+def calculate_power_flow(elements, grid_object_dict):
     """
     Main function to calculate the power flows in the created and configured grid. Built as a state-machine
     :param grid_object_dict: List of objects in grid with id corresponding to node ids of cytoscape
     :param elements: Grid elements in form of cytoscape graph
-    :param set_progress:
     :return:
     """
     state = 'init'
@@ -352,22 +341,17 @@ def calculate_power_flow(elements, grid_object_dict, set_progress):
     data = {'elements': elements, 'grid_objects': grid_object_dict}
     while not ready:
         # print(state)
-        state, data, ready = power_flow_statemachine(state, data, set_progress)
+        state, data, ready = power_flow_statemachine(state, data)
         # print("Done")
     return data['df_flow'], data['labels'], data['elements']
 
 
-def calculate_house(device_dict, timesteps, set_progress):
-    progress = 0
-    set_progress((progress, "Daten vorbereiten..."))
-    progress += 9
+def calculate_house(device_dict, timesteps):
     df_power = pd.DataFrame(columns=timesteps)
     df_power.insert(0, 'room', None)  # Add column for room of device
     df_sum = pd.DataFrame(columns=timesteps)
     df_energy = pd.DataFrame(columns=['type', 'energy'])
     for room in device_dict['rooms']:
-        set_progress((progress, "Geräte in Raum berechnen..."))
-        progress += 9
         for dev in device_dict['rooms'][room]['devices']:  # Go through each device in the house
             device = device_dict['house1'][dev]  # Get device properties from dict
             if device['active']:  # If device is activated
@@ -377,18 +361,12 @@ def calculate_house(device_dict, timesteps, set_progress):
                 df_energy.loc[device['id']] = {'type': 'device', 'energy': energy}
             else:
                 df_energy.loc[device['id']] = {'type': 'device', 'energy': 0}
-        set_progress((progress, "Summe von Raum berechnen..."))
-        progress += 9
         df_sum.loc[room] = df_power.loc[df_power['room'] == room].sum().transpose()  # Get sum of all devices in room
         energy = df_sum.loc[room].sum() / 60 / 1000  # Calculate energy in kWh
         df_energy.loc[room] = {'type': 'room', 'energy': energy}
-    set_progress((progress, "Summe aller Räume berechnen..."))
-    progress += 9
     df_sum.loc['house1'] = df_sum.sum().transpose()  # Get sum of all rooms in house
     energy = df_sum.loc['house1'].sum() / 60 / 1000  # Calculate energy in kWh
     df_energy.loc['house1'] = {'type': 'house', 'energy': energy}
-    set_progress((progress, "Graphen erstellen..."))
-    progress += 9
     figures = plot.plot_all_devices_room(df_power, df_sum, df_energy, device_dict)
     return df_power, df_sum, df_energy, figures[0], figures[1]
 

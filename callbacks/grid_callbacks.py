@@ -28,35 +28,26 @@ compass_buttons = {'button_north': 0,
 weekdays = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"]
 
 
-# def set_progress(x):
-#     print(x)
-
-def grid_callbacks(app, background_callback_manager):
-    @dash.callback(Output('store_flow_data', 'data'),
-                   Output('tabs_menu', 'value'),
-                   Output('cyto1', 'stylesheet'),
-                   Output('cyto1', 'elements', allow_duplicate=True),
-                   Output('timestep_slider', 'max'),
-                   Output('store_edge_labels', 'data'),
-                   Output('store_notification', 'data', allow_duplicate=True),
-                   Input('button_calculate', 'n_clicks'),
-                   State('store_flow_data', 'data'),
-                   State('cyto1', 'elements'),
-                   State('store_grid_object_dict', 'data'),
-                   State('tabs_main', 'value'),
-                   progress=[Output('progress_bar', 'value'), Output('progress_text', 'children')],
-                   background=True,
-                   manager=background_callback_manager,
-                   prevent_initial_call=True)
-    def start_calculation_grid(set_progress, btn, flow, elements, gridObject_dict, tabs_main):
+def grid_callbacks(app):
+    @app.callback(Output('store_flow_data', 'data'),
+                  Output('tabs_menu', 'value'),
+                  Output('cyto1', 'stylesheet'),
+                  Output('cyto1', 'elements', allow_duplicate=True),
+                  Output('timestep_slider', 'max'),
+                  Output('store_edge_labels', 'data'),
+                  Output('store_notification', 'data', allow_duplicate=True),
+                  Input('button_calculate', 'n_clicks'),
+                  State('store_flow_data', 'data'),
+                  State('cyto1', 'elements'),
+                  State('store_grid_object_dict', 'data'),
+                  State('tabs_main', 'value'),
+                  prevent_initial_call=True)
+    def start_calculation_grid(btn, flow, elements, gridObject_dict, tabs_main):
         try:
             if tabs_main == 'grid':
-                set_progress((0, "Berechnung starten..."))
-                df_flow, labels, elements = calculate_power_flow(elements, gridObject_dict, set_progress)
+                df_flow, labels, elements = calculate_power_flow(elements, gridObject_dict)
                 labels = {k: round(v, 1) for k, v in labels.items()}  # Round numbers for better display
-                set_progress((99, "Daten umwandeln..."))
                 df_flow_json = df_flow.to_json(orient='index')
-                set_progress((100, "Fertig!"))
                 return df_flow_json, 'results', \
                        stylesheets.cyto_stylesheet_calculated, elements, len(df_flow.index), labels, no_update
             else:
@@ -64,7 +55,6 @@ def grid_callbacks(app, background_callback_manager):
         except PreventUpdate:
             return no_update, no_update, no_update, no_update, no_update, no_update, no_update
         except Exception as err:
-            set_progress((100, "Fertig!"))
             return no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('alert_externalgrid', 'children'),

@@ -14,7 +14,7 @@ import source.modules as modules
 from source.modules import days
 
 
-def general_callbacks(app, background_callback_manager):
+def general_callbacks(app):
     @app.callback(Output('store_device_dict', 'data', allow_duplicate=True),
                   Output('store_grid_object_dict', 'data', allow_duplicate=True),
                   Output('graph_pv', 'figure'),
@@ -88,42 +88,6 @@ def general_callbacks(app, background_callback_manager):
             return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
         except Exception as err:
             return no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
-
-    @dash.callback(Output('store_results_house_power', 'data'),
-                   Output('store_results_house_energy', 'data'),
-                   Output('graph_power_house', 'figure'),
-                   Output('graph_sunburst_house', 'figure'),
-                   Output('store_grid_object_dict', 'data', allow_duplicate=True),
-                   Output('store_notification', 'data', allow_duplicate=True),
-                   Input('button_calculate', 'n_clicks'),
-                   State('store_device_dict', 'data'),
-                   State('tabs_main', 'value'),
-                   State('store_grid_object_dict', 'data'),
-                   State('store_custom_house', 'data'),
-                   progress=[Output('progress_bar', 'value'), Output('progress_text', 'children')],
-                   background=True,
-                   manager=background_callback_manager,
-                   prevent_initial_call=True)
-    def start_calculation_house(set_progress, btn, device_dict, tabs_main, gridObject_dict, house):
-        try:
-            start_time = time.process_time()
-            if tabs_main == 'house1':
-                df_power, df_sum, df_energy, graph_power, graph_sunburst = modules.calculate_house(device_dict,
-                                                                                                   range(0, 7 * 1440),
-                                                                                                   set_progress)
-                set_progress((99, "Als Lastprofil von Haus speichern..."))
-                gridObject_dict[house]['power'] = df_sum.loc['house1'].values.flatten().tolist()
-                set_progress((100, "Fertig!"))
-                elapsed_time = time.process_time() - start_time
-                return df_power.to_json(orient='index'), df_energy.to_json(
-                    orient='index'), graph_power, graph_sunburst, gridObject_dict, f"Berechnungszeit: {elapsed_time}"
-            else:
-                raise PreventUpdate
-        except PreventUpdate:
-            return no_update, no_update, no_update, no_update, no_update, no_update
-        except Exception as err:
-            set_progress((100, "Fertig!"))
-            return no_update, no_update, no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('menu_parent_tabs', 'children'),
                   Output('menu_parent_tabs', 'value'),
@@ -295,16 +259,6 @@ def general_callbacks(app, background_callback_manager):
             return False, no_update
         else:
             raise PreventUpdate
-
-    @app.callback(Output('progress_bar', 'animate'),
-                  Output('progress_text', 'style'),
-                  Input('progress_bar', 'value'),
-                  prevent_initial_call=True)
-    def progress_bar_action(value):
-        if value == 100:
-            return False, {'display': 'none'}
-        else:
-            return True, {'display': 'block'}
 
     @app.callback(Output('store_settings', 'data'),
                   Input('input_week', 'value'),

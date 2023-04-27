@@ -283,11 +283,11 @@ def dash_navbar():
                 style={"textDecoration": "none"},
             ),
             dbc.NavbarToggler(id="navbar-toggler", n_clicks=0),
-            dmc.Group([
-                dmc.Progress(id='progress_bar', value=0, striped=True, animate=True, color='pink', style={'width': 250}),
-                dmc.Space(h=5),
-                dmc.Code("", id='progress_text', style={'display': 'none'})
-            ]),
+            # dmc.Group([
+            #     dmc.Progress(id='progress_bar', value=0, striped=True, animate=True, color='pink', style={'width': 250}),
+            #     dmc.Space(h=5),
+            #     dmc.Code("", id='progress_text', style={'display': 'none'})
+            # ]),
             dmc.Group([
                 dmc.Button("README", id='button_readme', n_clicks=0,
                            leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),

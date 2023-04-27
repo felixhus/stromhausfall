@@ -1,9 +1,11 @@
 import json
+import time
 
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
 
 import source.dash_components as dash_components
+import source.modules as modules
 import source.objects as objects
 
 
@@ -91,6 +93,35 @@ def house_callbacks(app):
 
         return cyto_bathroom, cyto_livingroom, cyto_kitchen, cyto_office, device_dict
 
+    @app.callback(Output('store_results_house_power', 'data'),
+                  Output('store_results_house_energy', 'data'),
+                  Output('graph_power_house', 'figure'),
+                  Output('graph_sunburst_house', 'figure'),
+                  Output('store_grid_object_dict', 'data', allow_duplicate=True),
+                  Output('store_notification', 'data', allow_duplicate=True),
+                  Input('button_calculate', 'n_clicks'),
+                  State('store_device_dict', 'data'),
+                  State('tabs_main', 'value'),
+                  State('store_grid_object_dict', 'data'),
+                  State('store_custom_house', 'data'),
+                  prevent_initial_call=True)
+    def start_calculation_house(btn, device_dict, tabs_main, gridObject_dict, house):
+        try:
+            start_time = time.process_time()
+            if tabs_main == 'house1':
+                df_power, df_sum, df_energy, graph_power, graph_sunburst = modules.calculate_house(device_dict,
+                                                                                                   range(0, 7 * 1440))
+                gridObject_dict[house]['power'] = df_sum.loc['house1'].values.flatten().tolist()
+                elapsed_time = time.process_time() - start_time
+                return df_power.to_json(orient='index'), df_energy.to_json(
+                    orient='index'), graph_power, graph_sunburst, gridObject_dict, f"Berechnungszeit: {elapsed_time}"
+            else:
+                raise PreventUpdate
+        except PreventUpdate:
+            return no_update, no_update, no_update, no_update, no_update, no_update
+        except Exception as err:
+            return no_update, no_update, no_update, no_update, no_update, err.args[0]
+
     @app.callback(Output('cost_tab', 'children'),
                   Output('store_notification', 'data', allow_duplicate=True),
                   Input('store_results_house_energy', 'data'),
@@ -107,8 +138,9 @@ def house_callbacks(app):
                     name = device_dict['house1'][element]['name']  # Get name of device
                     icon = device_dict['house1'][element]['icon']  # Get icon of device
                     device_costs.append((name, cost, icon))
-            device_costs = sorted(device_costs, key=lambda energy: energy[1], reverse=True)  # Sort devices by their cost
-            children = dash_components.add_device_costs(device_costs)           # Get dash components
+            device_costs = sorted(device_costs, key=lambda energy: energy[1],
+                                  reverse=True)  # Sort devices by their cost
+            children = dash_components.add_device_costs(device_costs)  # Get dash components
             return children, no_update
         except PreventUpdate:
             return no_update, no_update
