@@ -31,7 +31,7 @@ def add_storage_variables():
                      dcc.Store(id='store_results_house_energy'),
                      dcc.Store(id='store_backup', storage_type='session'),
                      dcc.Store(id='store_save_by_enter', data=None),
-                     dcc.Store(id='store_own_device_dict', data={'test': 1}, storage_type='session'),
+                     dcc.Store(id='store_own_device_dict', data={}, storage_type='session'),
                      dcc.Store(id='store_menu_elements_house', storage_type='session')])
 
 
@@ -882,7 +882,7 @@ def add_modal_devices():
                 dmc.TabsPanel(value='new', children=[dmc.Card(id='card_new_devices', children=[
                     add_card_new_device()
                 ])]),
-            ], value='additional')
+            ], id='tabs_additional_devices', value='additional')
         ]
     )
 
@@ -890,6 +890,8 @@ def add_modal_devices():
 def add_card_additional_devices(devices, radio_room):
     data = []
     for device in devices:
+        if type(device) is dict:    # if device is given as dict (own devices) -> Convert to tuple
+            device = (device['type'], None, device['name'], device['menu_type'], device['icon'])
         content = dmc.Group([
             DashIconify(icon=device[4], inline=True),
             device[2]

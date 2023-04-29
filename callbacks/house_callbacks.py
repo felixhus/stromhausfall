@@ -1,7 +1,9 @@
 import base64
+import io
 import json
 import time
 
+import pandas as pd
 from dash import Input, Output, State, ctx, html, no_update
 from dash.exceptions import PreventUpdate
 from dash_iconify import DashIconify
@@ -183,12 +185,21 @@ def house_callbacks(app):
                   Output('card_own_devices', 'children'),
                   Output('store_notification', 'data', allow_duplicate=True),
                   Input('button_load_own_devices', 'n_clicks'),
+                  Input('tabs_additional_devices', 'value'),
                   Input('upload_own_devices', 'filename'),
                   State('upload_own_devices', 'contents'),
+                  State('store_own_device_dict', 'data'),
                   prevent_initial_call=True)
-    def load_own_devices(btn_load, filename, upload_content):
+    def load_own_devices(btn_load, tab, filename, upload_content, own_device_dict):
         triggered_id = ctx.triggered_id
-        if triggered_id == 'button_load_own_devices':   # Load given file and check if its the right one
+        if triggered_id == 'tabs_additional_devices':
+            if tab == 'own':    # If "own" tab was clicked, check if there are already own devices in the store element, otherwise show elements to load file
+                if len(own_device_dict) > 0:
+                    devices = list(own_device_dict.values())
+                    children = dash_components.add_card_additional_devices(devices, None)
+                    return no_update, no_update, children, no_update
+            raise PreventUpdate
+        elif triggered_id == 'button_load_own_devices':   # Load given file and check if its the right one
             if btn_load is None:
                 raise PreventUpdate
             if filename is None:
@@ -233,14 +244,30 @@ def house_callbacks(app):
                 return no_update, no_update, 'notification_missing_input'
             if input_icon == '':
                 input_icon = 'ic:outline-device-unknown'    # if no icon was given, take standard one
-
-                
+            if filename is None:    # If no file was uploaded
+                return no_update, no_update, 'notification_no_file_selected'
+            elif not filename.endswith('.csv'):  # Check if the file format is .csv
+                return no_update, no_update, 'notification_wrong_file_format'
+            try:
+                content_type, content_string = upload_content.split(",")  # Three lines to get dict from content
+                decoded = base64.b64decode(content_string)
+                df_csv = pd.read_csv(io.StringIO(decoded.decode('utf-8')), delimiter=';')
+                df_csv["time"] = pd.to_datetime(df_csv.iloc[:, 0])
+                df_csv.set_index("time", inplace=True)
+                df_csv.fillna(0)   # Replace NaN with 0
+                df_resampled = df_csv.resample('1T').mean()     # resample profile to 1-minute steps
+                power_options = {col: {'key': col} for col in df_resampled.columns}
+                power_profiles = df_resampled.to_dict('list')
+            except Exception as err:
+                return no_update, no_update, 'notification_error_reading_csv'    # Show Error message
             device = {
                 'id': None,
                 'name': input_name,
                 'type': 'own_device_' + str(len(own_device_dict)),  # generate unique type name
                 'menu_type': input_menu_type,
-                'icon': input_icon
+                'icon': input_icon,
+                'power_options': power_options,
+                'power_profiles': power_profiles
             }
             own_device_dict[device['type']] = device
             return own_device_dict, no_update, no_update

@@ -521,6 +521,11 @@ def general_callbacks(app):
                                     "Mir fehlt eine Information bei deiner Eingabe."]
             icon = DashIconify(icon="ph:shooting-star")
             color = 'yellow'
+        elif data == 'notification_error_reading_csv':
+            notification_message = ["Fehler beim Lesen der Datei!",
+                                    "Scheinbar ist der Inhalt der csv-Datei nicht richtig formatiert."]
+            icon = DashIconify(icon="mdi:file-alert-outline")
+            color = 'red'
         else:
             notification_message = ["Fehler!", data]
             icon = DashIconify(icon="material-symbols:warning-outline-rounded")
