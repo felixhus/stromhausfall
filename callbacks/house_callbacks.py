@@ -215,3 +215,37 @@ def house_callbacks(app):
             raise PreventUpdate
         return DashIconify(icon=icon)
 
+    @app.callback(Output('store_own_device_dict', 'data', allow_duplicate=True),
+                  Output('text_filename_load_new', 'children'),
+                  Output('store_notification', 'data', allow_duplicate=True),
+                  Input('button_add_new_device', 'n_clicks'),
+                  Input('upload_new_device', 'filename'),
+                  State('input_new_name', 'value'),
+                  State('input_new_menu_type', 'value'),
+                  State('input_new_icon', 'value'),
+                  State('store_own_device_dict', 'data'),
+                  State('upload_new_device', 'contents'),
+                  prevent_initial_call=True)
+    def add_new_device(btn_add, filename, input_name, input_menu_type, input_icon, own_device_dict, upload_content):
+        triggered_id = ctx.triggered_id
+        if triggered_id == 'button_add_new_device':
+            if input_name == '' or input_menu_type is None:
+                return no_update, no_update, 'notification_missing_input'
+            if input_icon == '':
+                input_icon = 'ic:outline-device-unknown'    # if no icon was given, take standard one
+
+                
+            device = {
+                'id': None,
+                'name': input_name,
+                'type': 'own_device_' + str(len(own_device_dict)),  # generate unique type name
+                'menu_type': input_menu_type,
+                'icon': input_icon
+            }
+            own_device_dict[device['type']] = device
+            return own_device_dict, no_update, no_update
+        elif triggered_id == 'upload_new_device':
+            return no_update, filename, no_update
+        else:
+            raise PreventUpdate
+

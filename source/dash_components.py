@@ -954,13 +954,34 @@ def add_card_new_device():
         dmc.Space(h=10),
         dmc.Text("Art des Lastprofils"),
         dmc.ChipGroup(
-            [dmc.Chip(l, value=k) for k, l in [['preset', 'Konstant'], ['custom', 'Variabel']]],
-            value="preset", id='input_menu_type'
+            [dmc.Chip(l, value=k) for k, l in [['device_preset', 'Konstant'], ['device_custom', 'Variabel']]],
+            value=None, id='input_new_menu_type'
         ),
         dmc.Space(h=10),
         dmc.TextInput(id='input_new_icon', icon=DashIconify(icon='ic:outline-device-unknown'),
                       label=dcc.Link("Hier Icon auswählen", href="https://icon-sets.iconify.design/", target="_blank"),
                       placeholder='ic:outline-device-unknown'),
+        dmc.Space(h=10),
+        dmc.Text('CSV-Datei für Lastprofile'),
+        dcc.Upload(
+            id='upload_new_device',
+            children=html.Div([
+                'Hier ablegen oder ',
+                html.A('Auswählen')
+            ]),
+            style={
+                'width': '100%',
+                'height': '50px',
+                'lineHeight': '50px',
+                'borderWidth': '1px',
+                'borderStyle': 'dashed',
+                'borderRadius': '10px',
+                'textAlign': 'center',
+                'margin': '0px'
+            },
+            multiple=False
+        ),
+        dmc.Text(id='text_filename_load_new', color='#FF7F50', underline=True),
         dmc.Space(h=15),
         dmc.Button("Hinzufügen", id='button_add_new_device',
                    leftIcon=DashIconify(icon='material-symbols:add-box-outline'))

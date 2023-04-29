@@ -516,6 +516,11 @@ def general_callbacks(app):
                                     "Bitte einen Raum im Haus auswählen."]
             icon = DashIconify(icon="material-symbols:meeting-room-outline-rounded")
             color = 'yellow'
+        elif data == 'notification_missing_input':
+            notification_message = ["Leerer Raum!",
+                                    "Mir fehlt eine Information bei deiner Eingabe."]
+            icon = DashIconify(icon="ph:shooting-star")
+            color = 'yellow'
         else:
             notification_message = ["Fehler!", data]
             icon = DashIconify(icon="material-symbols:warning-outline-rounded")
