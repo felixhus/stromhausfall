@@ -1,3 +1,4 @@
+import base64
 import json
 import time
 
@@ -175,3 +176,31 @@ def house_callbacks(app):
                 return False, no_update
         else:
             raise PreventUpdate
+
+    @app.callback(Output('store_own_device_dict', 'data'),
+                  Output('text_filename_load_own', 'children', allow_duplicate=True),
+                  Output('store_notification', 'data', allow_duplicate=True),
+                  Input('button_load_own_devices', 'n_clicks'),
+                  Input('upload_own_devices', 'filename'),
+                  # State('upload_own_devices', 'filename'),
+                  State('upload_own_devices', 'contents'),
+                  prevent_initial_call=True)
+    def load_own_devices(btn_load, filename, upload_content):
+        triggered_id = ctx.triggered_id
+        if triggered_id == 'button_load_own_devices':   # Load given file and check if its the right one
+            if btn_load is None:
+                raise PreventUpdate
+            if filename is None:
+                return no_update, no_update, 'notification_no_file_selected'
+            if not filename.endswith('.json'):  # Check if the file format is .json
+                return no_update, no_update, 'notification_wrong_file_format'
+            else:
+                content_type, content_string = upload_content.split(",")  # Three lines to get dict from content
+                decoded = base64.b64decode(content_string)
+                content_dict = json.loads(decoded)
+            if 'own_devices_dict' not in content_dict:
+                return no_update, 'notification_wrong_file'
+            return content_dict['own_devices_dict'], no_update, no_update
+        elif triggered_id == 'upload_own_devices':  # Show filename of selected file
+            return no_update, filename, no_update
+

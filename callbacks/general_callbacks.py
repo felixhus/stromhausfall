@@ -213,7 +213,7 @@ def general_callbacks(app):
             index_stop = 7 * 24 * 60
             figure['layout']['xaxis']['range'] = [index_start, index_stop]
             figure_big = copy.deepcopy(figure)  # Get copy of small figure for the big modal
-            figure_big['layout']['height'] = None   # Set size of big figure to full size
+            figure_big['layout']['height'] = None  # Set size of big figure to full size
             figure_big['layout']['width'] = None
             return figure, figure_big, True
         else:  # Set range for one day
@@ -285,6 +285,7 @@ def general_callbacks(app):
                   Output('store_notification', 'data', allow_duplicate=True),
                   Input('menu_item_save', 'n_clicks'),
                   Input('menu_item_load', 'n_clicks'),
+                  Input('menu_item_own_devices', 'n_clicks'),
                   Input('button_start_load', 'n_clicks'),
                   Input('button_load_configuration', 'n_clicks'),
                   State('store_grid_object_dict', 'data'),
@@ -298,10 +299,12 @@ def general_callbacks(app):
                   State('upload_configuration', 'contents'),
                   State('store_settings', 'data'),
                   State('store_custom_house', 'data'),
+                  State('store_own_device_dict', 'data'),
                   prevent_initial_call=True)
-    def main_menu(btn_save, btn_load_menu, btn_load, btn_start_load, gridObject_dict, device_dict, elements_grid,
+    def main_menu(btn_save, btn_load_menu, btn_own, btn_load, btn_start_load, gridObject_dict, device_dict,
+                  elements_grid,
                   elements_bath, elements_kitchen, elements_livingroom, elements_office, filename, upload_content,
-                  settings_dict, custom_house):
+                  settings_dict, custom_house, own_devices):
         triggered_id = ctx.triggered_id
         if triggered_id == 'menu_item_save':
             save_dict = {'gridObject_dict': gridObject_dict,
@@ -313,8 +316,13 @@ def general_callbacks(app):
                          'cyto_office': elements_office,
                          'settings': settings_dict,
                          'custom_house': custom_house}
-            return dict(content=json.dumps(save_dict),
-                        filename="test.json"), no_update, no_update, no_update, no_update, no_update, no_update, \
+            return dict(content=json.dumps(save_dict), filename="konfiguration.json"), no_update, no_update, no_update, \
+                   no_update, no_update, no_update, \
+                   no_update, no_update, no_update, no_update, no_update, no_update, no_update
+        elif triggered_id == 'menu_item_own_devices':
+            save_dict = {'own_devices_dict': own_devices}
+            return dict(content=json.dumps(save_dict), filename="eigene_geraete.json"), no_update, no_update, no_update, \
+                   no_update, no_update, no_update, \
                    no_update, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'menu_item_load' or triggered_id == 'button_start_load':
             return no_update, True, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update

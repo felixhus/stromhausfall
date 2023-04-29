@@ -31,6 +31,7 @@ def add_storage_variables():
                      dcc.Store(id='store_results_house_energy'),
                      dcc.Store(id='store_backup', storage_type='session'),
                      dcc.Store(id='store_save_by_enter', data=None),
+                     dcc.Store(id='store_own_device_dict', data={'test': 1}, storage_type='session'),
                      dcc.Store(id='store_menu_elements_house', storage_type='session')])
 
 
@@ -875,7 +876,9 @@ def add_modal_devices():
                 dmc.TabsPanel(value='additional', children=[dmc.Card(id='card_additional_devices', children=[
                     add_card_additional_devices([], None)
                 ])]),
-                dmc.TabsPanel(value='own', id='tab_own_devices'),
+                dmc.TabsPanel(value='own', children=[dmc.Card(id='card_own_devices', children=[
+                    add_card_own_devices()
+                ])]),
                 dmc.TabsPanel(value='new', id='tab_new_devices'),
             ], value='additional')
         ]
@@ -908,7 +911,36 @@ def add_card_additional_devices(devices, radio_room):
             radio_devices, radio_rooms
         ], position='apart'),
         dmc.Space(h=20),
-        dmc.Button("Hinzufügen", id='button_add_additional_device', leftIcon=DashIconify(icon='material-symbols:add-box-outline'))
+        dmc.Button("Hinzufügen", id='button_add_additional_device',
+                   leftIcon=DashIconify(icon='material-symbols:add-box-outline'))
+    ])
+
+
+def add_card_own_devices():
+    return html.Div([
+        dcc.Upload(
+            id='upload_own_devices',
+            children=html.Div([
+                'Datei hier ablegen oder ',
+                html.A('Auswählen')
+            ]),
+            style={
+                'width': '100%',
+                'height': '100px',
+                'lineHeight': '100px',
+                'borderWidth': '1px',
+                'borderStyle': 'dashed',
+                'borderRadius': '10px',
+                'textAlign': 'center',
+                'margin': '10px'
+            },
+            multiple=False
+        ),
+        dmc.Text(id='text_filename_load_own', color='blue', underline=True),
+        dmc.Space(h=10),
+        dmc.Text("Datei mit zuvor heruntergeladenen eigenen Geräten auswählen."),
+        dmc.Space(h=10),
+        dmc.Button("Laden", id='button_load_own_devices', leftIcon=DashIconify(icon="iconoir:load-action-floppy"))
     ])
 
 
