@@ -872,7 +872,9 @@ def add_modal_devices():
                     dmc.Tab("Eigene", value='own', icon=DashIconify(icon='mdi:user-outline')),
                     dmc.Tab("Neues hinzufügen", value='new', icon=DashIconify(icon='mdi:package-variant-plus'))
                 ]),
-                dmc.TabsPanel(value='additional', children=[dmc.Card(id='card_additional_devices')]),
+                dmc.TabsPanel(value='additional', children=[dmc.Card(id='card_additional_devices', children=[
+                    add_card_additional_devices([], None)
+                ])]),
                 dmc.TabsPanel(value='own', id='tab_own_devices'),
                 dmc.TabsPanel(value='new', id='tab_new_devices'),
             ], value='additional')
@@ -880,7 +882,7 @@ def add_modal_devices():
     )
 
 
-def add_card_additional_devices(devices):
+def add_card_additional_devices(devices, radio_room):
     data = []
     for device in devices:
         content = dmc.Group([
@@ -897,7 +899,7 @@ def add_card_additional_devices(devices):
     data = [['bathroom', 'Bad'], ['livingroom', 'Wohnzimmer'], ['kitchen', 'Küche'], ['office', 'Büro']]
     radio_rooms = dmc.RadioGroup(
         [dmc.Radio(l, value=k) for k, l in data],
-        id='radiogroup_room',
+        id='radiogroup_room', value=radio_room,
         label="In Raum",
         size='sm', orientation='vertical'
     )
@@ -906,7 +908,7 @@ def add_card_additional_devices(devices):
             radio_devices, radio_rooms
         ], position='apart'),
         dmc.Space(h=20),
-        dmc.Button("Hinzufügen", id='button_add_additional_device')
+        dmc.Button("Hinzufügen", id='button_add_additional_device', leftIcon=DashIconify(icon='material-symbols:add-box-outline'))
     ])
 
 

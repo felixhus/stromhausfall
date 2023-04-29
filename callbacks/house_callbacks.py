@@ -149,16 +149,18 @@ def house_callbacks(app):
             return no_update, err.args[0]
 
     @app.callback(Output('card_additional_devices', 'children'),
-                  Input('modal_additional_devices', 'opened'))
-    def fill_device_modal(modal_open):
+                  Input('modal_additional_devices', 'opened'),
+                  State('radiogroup_room', 'value'))
+    def fill_device_modal(modal_open, radio_room):
         if modal_open:
             devices = sql_modules.get_all_devices('source/database_profiles.db')
-            childs_additional = dash_components.add_card_additional_devices(devices)
+            childs_additional = dash_components.add_card_additional_devices(devices, radio_room)
             return childs_additional
         else:
             raise PreventUpdate
 
-    @app.callback(Output('store_notification', 'data', allow_duplicate=True),
+    @app.callback(Output('modal_additional_devices', 'opened'),
+                  Output('store_notification', 'data', allow_duplicate=True),
                   Input('button_add_additional_device', 'n_clicks'),
                   State('radiogroup_devices', 'value'),
                   State('radiogroup_room', 'value'),
@@ -166,9 +168,10 @@ def house_callbacks(app):
     def add_additional_device(btn, radio_device, radio_room):
         if btn is not None:
             if radio_device is None:
-                return "notification_no_device_selected"
+                return no_update, "notification_no_device_selected"
             elif radio_room is None:
-                return "notification_no_room_selected"
-            raise PreventUpdate
+                return no_update, "notification_no_room_selected"
+            else:
+                return False, no_update
         else:
             raise PreventUpdate
