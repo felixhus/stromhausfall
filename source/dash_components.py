@@ -879,7 +879,9 @@ def add_modal_devices():
                 dmc.TabsPanel(value='own', children=[dmc.Card(id='card_own_devices', children=[
                     add_card_own_devices()
                 ])]),
-                dmc.TabsPanel(value='new', id='tab_new_devices'),
+                dmc.TabsPanel(value='new', children=[dmc.Card(id='card_new_devices', children=[
+                    add_card_new_device()
+                ])]),
             ], value='additional')
         ]
     )
@@ -942,6 +944,28 @@ def add_card_own_devices():
         dmc.Space(h=10),
         dmc.Button("Laden", id='button_load_own_devices', leftIcon=DashIconify(icon="iconoir:load-action-floppy"))
     ])
+
+
+def add_card_new_device():
+    children = html.Div([
+        dmc.Text("Eigenes Gerät hinzufügen:"),
+        dmc.Space(h=10),
+        dmc.TextInput(id='input_new_name', label="Gerätename *"),
+        dmc.Space(h=10),
+        dmc.Text("Art des Lastprofils"),
+        dmc.ChipGroup(
+            [dmc.Chip(l, value=k) for k, l in [['preset', 'Konstant'], ['custom', 'Variabel']]],
+            value="preset", id='input_menu_type'
+        ),
+        dmc.Space(h=10),
+        dmc.TextInput(id='input_new_icon', icon=DashIconify(icon='ic:outline-device-unknown'),
+                      label=dcc.Link("Hier Icon auswählen", href="https://icon-sets.iconify.design/", target="_blank"),
+                      placeholder='ic:outline-device-unknown'),
+        dmc.Space(h=15),
+        dmc.Button("Hinzufügen", id='button_add_new_device',
+                   leftIcon=DashIconify(icon='material-symbols:add-box-outline'))
+    ])
+    return children
 
 
 def add_modal_timeseries():
