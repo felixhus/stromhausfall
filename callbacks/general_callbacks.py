@@ -526,6 +526,11 @@ def general_callbacks(app):
                                     "Scheinbar ist der Inhalt der csv-Datei nicht richtig formatiert."]
             icon = DashIconify(icon="mdi:file-alert-outline")
             color = 'red'
+        elif data == 'notification_successful_added':
+            notification_message = ["Neues Gerät erfolgreich hinzugefügt!",
+                                    "Du findest es unter dem Reiter \"Eigene\"."]
+            icon = DashIconify(icon="material-symbols:check-circle-outline-rounded")
+            color = 'blue'
         else:
             notification_message = ["Fehler!", data]
             icon = DashIconify(icon="material-symbols:warning-outline-rounded")

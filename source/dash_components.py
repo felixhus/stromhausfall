@@ -876,9 +876,9 @@ def add_modal_devices():
                 dmc.TabsPanel(value='additional', children=[dmc.Card(id='card_additional_devices', children=[
                     add_card_additional_devices([], None)
                 ])]),
-                dmc.TabsPanel(value='own', children=[dmc.Card(id='card_own_devices', children=[
+                dmc.TabsPanel(value='own', children=[dmc.Card(id='card_own_devices_load', children=[
                     add_card_own_devices()
-                ])]),
+                ]), dmc.Card(id='card_own_devices_add')]),
                 dmc.TabsPanel(value='new', children=[dmc.Card(id='card_new_devices', children=[
                     add_card_new_device()
                 ])]),
@@ -913,7 +913,7 @@ def add_card_additional_devices(devices, radio_room):
     return html.Div([
         dmc.Group([
             radio_devices, radio_rooms
-        ], position='apart'),
+        ], position='apart', align='initial'),
         dmc.Space(h=20),
         dmc.Button("Hinzufügen", id='button_add_additional_device',
                    leftIcon=DashIconify(icon='material-symbols:add-box-outline'))
@@ -985,7 +985,7 @@ def add_card_new_device():
         ),
         dmc.Text(id='text_filename_load_new', color='#FF7F50', underline=True),
         dmc.Space(h=15),
-        dmc.Button("Hinzufügen", id='button_add_new_device',
+        dmc.Button("Erstellen", id='button_add_new_device',
                    leftIcon=DashIconify(icon='material-symbols:add-box-outline'))
     ])
     return children

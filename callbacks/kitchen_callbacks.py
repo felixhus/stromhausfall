@@ -8,10 +8,11 @@ import source.objects as objects
 def kitchen_callbacks(app, button_dict):
     @app.callback(Output('menu_devices_kitchen', 'opened', allow_duplicate=True),
                   Output('modal_additional_devices', 'opened', allow_duplicate=True),
+                  Output('radiogroup_room', 'value', allow_duplicate=True),
                   Input('button_additional_kitchen', 'n_clicks'),
                   prevent_initial_call=True)
     def menu_show(btn_additional):
-        return False, True  # Show modal and close menu when button "Weitere" was clicked.
+        return False, True, 'kitchen'  # Show modal and close menu when button "Weitere" was clicked.
 
     @app.callback(Output('cyto_kitchen', 'elements'),
                   Output('store_device_dict', 'data', allow_duplicate=True),
@@ -26,16 +27,19 @@ def kitchen_callbacks(app, button_dict):
                   State('tabs_main', 'value'),
                   State('menu_parent_tabs', 'children'),
                   State('store_selected_element_house', 'data'),
+                  State('radiogroup_room', 'value'),
+                  State('radiogroup_devices', 'value'),
                   Input('cyto_kitchen', 'tapNode'),
                   Input('edit_save_button', 'n_clicks'),
                   Input('edit_delete_button', 'n_clicks'),
                   Input('button_close_menu_kitchen', 'n_clicks'),
                   Input('active_switch_house', 'checked'),
+                  Input('button_add_additional_device', 'n_clicks'),
                   [Input(device[1], 'n_clicks') for device in button_dict['kitchen']],
                   prevent_initial_call='initial_duplicate')
-    def manage_devices_kitchen(elements, device_dict, tabs_main, children, selected_element, node, btn_save,
-                               btn_delete,
-                               btn_close, active_switch, *btn_add):  # Callback to handle Kitchen action
+    def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected_element, radio_room, radio_devices,
+                                node, btn_save, btn_delete,
+                                btn_close, active_switch, btn_additional, *btn_add):  # Callback to handle Kitchen action
         try:
             room = 'kitchen'
             triggered_id = ctx.triggered_id
@@ -67,8 +71,7 @@ def kitchen_callbacks(app, button_dict):
                         switch_state = no_update  # Otherwise don't update
                     return elements, device_dict, no_update, no_update, no_update, no_update, switch_state, no_update
                 else:  # A device was clicked
-                    switch_state = device_dict['house1'][node['data']['id']][
-                        'active']  # Return, which menu should be opened
+                    switch_state = device_dict['house1'][node['data']['id']]['active']  # Return, which menu should be opened
                     if node['data']['id'][:6] == "device":
                         menu_type = device_dict['house1'][node['data']['id']]['menu_type']
                         return no_update, no_update, no_update, no_update, menu_type, node['data'][
@@ -90,8 +93,14 @@ def kitchen_callbacks(app, button_dict):
                                 device_dict['house1'][ele['linked_device']]['active'] = False
                             break
                 return elements, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
-            elif triggered_id[:10] == 'button_add':  # A button in the menu was clicked
-                device_type = triggered_id[11:]  # Get type to add
+            elif triggered_id[:10] == 'button_add' or triggered_id == 'button_add_additional_device':  # A button in the menu was clicked or the add button in the additional modal
+                if triggered_id == 'button_add_additional_device':  # If this room was selected in the radio menu
+                    if radio_room == room and radio_devices is not None:
+                        device_type = radio_devices  # Get type to add
+                    else:
+                        raise PreventUpdate
+                else:
+                    device_type = triggered_id[11:]  # Get type to add
                 last_id = int(device_dict['last_id'])  # Get number of last id
                 device_dict['last_id'] = last_id + 1    # Increment the last id
                 socket_id = "socket" + str(last_id + 1)
@@ -107,7 +116,7 @@ def kitchen_callbacks(app, button_dict):
                     position_node = {'x': position['x'], 'y': position['y'] - 120}
                 new_node = {'data': {'id': device_id}, 'classes': 'room_node_style', 'position': position_node,
                             'linked_socket': socket_id,  # Generate new device
-                            'style': {'background-image': ['/assets/Icons/icon_' + triggered_id[11:] + '.png']}}
+                            'style': {'background-image': ['/assets/Icons/icon_' + device_type + '.png']}}
                 new_edge = {'data': {'source': socket_id, 'target': device_id}}  # Connect new device with new socket
                 new_device = objects.create_DeviceObject(device_id, device_type)
                 elements[1]['position'] = new_position_plus

@@ -182,7 +182,8 @@ def house_callbacks(app):
 
     @app.callback(Output('store_own_device_dict', 'data'),
                   Output('text_filename_load_own', 'children', allow_duplicate=True),
-                  Output('card_own_devices', 'children'),
+                  Output('card_own_devices_add', 'children'),
+                  Output('card_own_devices_load', 'style'),
                   Output('store_notification', 'data', allow_duplicate=True),
                   Input('button_load_own_devices', 'n_clicks'),
                   Input('tabs_additional_devices', 'value'),
@@ -197,26 +198,27 @@ def house_callbacks(app):
                 if len(own_device_dict) > 0:
                     devices = list(own_device_dict.values())
                     children = dash_components.add_card_additional_devices(devices, None)
-                    return no_update, no_update, children, no_update
+                    return no_update, no_update, children, {'display': 'none'}, no_update
             raise PreventUpdate
         elif triggered_id == 'button_load_own_devices':   # Load given file and check if its the right one
             if btn_load is None:
                 raise PreventUpdate
             if filename is None:
-                return no_update, no_update, no_update, 'notification_no_file_selected'
+                return no_update, no_update, no_update, no_update, 'notification_no_file_selected'
             if not filename.endswith('.json'):  # Check if the file format is .json
-                return no_update, no_update, no_update, 'notification_wrong_file_format'
+                return no_update, no_update, no_update, no_update, 'notification_wrong_file_format'
             else:
                 content_type, content_string = upload_content.split(",")  # Three lines to get dict from content
                 decoded = base64.b64decode(content_string)
                 content_dict = json.loads(decoded)
             if 'own_devices_dict' not in content_dict:
-                return no_update, no_update, no_update, 'notification_wrong_file'
+                return no_update, no_update, no_update, no_update, 'notification_wrong_file'
             else:
-                children = dash_components.add_card_additional_devices([], None)
-            return content_dict['own_devices_dict'], no_update, children, no_update
+                devices = list(content_dict['own_devices_dict'].values())
+                children = dash_components.add_card_additional_devices(devices, None)
+            return content_dict['own_devices_dict'], no_update, children, {'display': 'none'}, no_update
         elif triggered_id == 'upload_own_devices':  # Show filename of selected file
-            return no_update, filename, no_update, no_update
+            return no_update, filename, no_update, no_update, no_update
 
     @app.callback(Output('input_new_icon', 'icon'),
                   Input('input_new_icon', 'value'),
@@ -270,7 +272,7 @@ def house_callbacks(app):
                 'power_profiles': power_profiles
             }
             own_device_dict[device['type']] = device
-            return own_device_dict, no_update, no_update
+            return own_device_dict, no_update, 'notification_successful_added'
         elif triggered_id == 'upload_new_device':
             return no_update, filename, no_update
         else:
