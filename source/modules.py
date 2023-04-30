@@ -76,7 +76,21 @@ def connection_allowed(source, target, object_dict):
     return False
 
 
+def create_device_object(device_id, device_type, database):
+    device = sql_modules.get_device(database, device_type)
+    device = device[0]  # Get dict from result
+    json_data = device['power_options'].decode('utf-8-sig')
+    json_data = json_data.replace("'", "\"")
+    device['power_options'] = json.loads(json_data)   # Decode dictionary from bytes
+    device['active'] = True
+    device['selected_power_option'] = None
+    device['power'] = [0] * 24*60*7
+    device['id'] = device_id
+    return device
+
+
 def create_new_device(elements, device_dict, room, device_type):
+    database = 'source/database_profiles.db'
     last_id = int(device_dict['last_id'])  # Get number of last id
     device_dict['last_id'] = last_id + 1  # Increment the last id
     socket_id = "socket" + str(last_id + 1)
@@ -94,7 +108,7 @@ def create_new_device(elements, device_dict, room, device_type):
                 'linked_socket': socket_id,  # Generate new device
                 'style': {'background-image': ['/assets/Icons/icon_' + device_type + '.png']}}
     new_edge = {'data': {'source': socket_id, 'target': device_id}}  # Connect new device with new socket
-    new_device = objects.create_DeviceObject(device_id, device_type)
+    new_device = create_device_object(device_id, device_type, database)
     elements[1]['position'] = new_position_plus
     elements.append(new_socket)  # Append new nodes and edges to cytoscape elements
     elements.append(new_node)

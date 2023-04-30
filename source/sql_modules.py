@@ -5,6 +5,13 @@ import numpy as np
 from scipy import interpolate
 
 
+def dict_factory(cursor, row):  # To get dictionary from sql query
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+
 def get_coordinates(plz, database):
     """
     Get longitude and latitude coordinates of given postcode. The function also returns the city name.
@@ -105,4 +112,14 @@ def get_all_devices(database):
 
     query = "SELECT * FROM devices"  # Get all devices
     devices = conn.execute(query).fetchall()
+    return devices
+
+
+def get_device(database, device_type):
+    conn = sqlite3.connect(database)  # connect to the database
+    conn.row_factory = dict_factory
+    cursor = conn.cursor()
+
+    query = f"SELECT * FROM devices WHERE type = '{device_type}'"  # Get all devices
+    devices = cursor.execute(query).fetchall()
     return devices
