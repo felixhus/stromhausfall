@@ -454,8 +454,10 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
                         key = device_dict[house][selected_element]['power_options'][child['props']['value']]['key']
                         database = 'source/database_profiles.db'
                         table_name = device_dict[house][selected_element]['menu_type']  # From which SQLite-Table
-                        load_profile = sql_modules.get_load_profile(table_name, key,
-                                                                    database)  # Get load profile from sqlite database
+                        if 'power_profiles' in device_dict[house][selected_element]:  # Check if it is an own device -> profiles are stored in dict
+                            load_profile = device_dict[house][selected_element]['power_profiles'][key]
+                        else:  # If it is predefined device -> Get load profile from database
+                            load_profile = sql_modules.get_load_profile(table_name, key, database)  # Get load profile from sqlite database
                         load_profile *= 7   # Extend profile from one day to one week
                         device_dict[house][selected_element][
                             'power'] = load_profile  # Save loaded profile to device dictionary
@@ -475,11 +477,13 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
                         selected_power_option = device_dict[house][selected_element]['selected_power_option']
                         key = device_dict[house][selected_element]['power_options'][selected_power_option]['key']
                         database = 'source/database_profiles.db'
-                        load_profile = sql_modules.get_load_profile(table_name, key, database)  # Get load profile snippet from database
+                        if 'power_profiles' in device_dict[house][selected_element]:    # Check if it is an own device -> profiles are stored in dict
+                            load_profile = device_dict[house][selected_element]['power_profiles'][key]
+                        else:   # If it is predefined device -> Get load profile from database
+                            load_profile = sql_modules.get_load_profile(table_name, key, database)  # Get load profile snippet from database
                         standby_power = load_profile[0]     # Get standby power (first element of loaded profile)
                         load_profile = pd.Series(load_profile[1:])     # Delete first element (standby power)
                         power = pd.Series(device_dict[house][selected_element]['power'])    # Get current power profile
-                        # new_values = pd.Series([100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100])    # Development
                         index_pos = minutes - 1
                         power[index_pos:index_pos + len(load_profile)] = load_profile.values
                         device_dict[house][selected_element]['power'] = power.to_list()
