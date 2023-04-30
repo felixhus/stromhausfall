@@ -76,6 +76,34 @@ def connection_allowed(source, target, object_dict):
     return False
 
 
+def create_new_device(elements, device_dict, room, device_type):
+    last_id = int(device_dict['last_id'])  # Get number of last id
+    device_dict['last_id'] = last_id + 1  # Increment the last id
+    socket_id = "socket" + str(last_id + 1)
+    device_id = "device" + str(last_id + 1)
+    position = elements[1]['position']  # Get Position of plus-node
+    new_position_plus = {'x': position['x'] + 40, 'y': position['y']}  # Calculate new position of plus-node
+    new_socket = {'data': {'id': socket_id, 'parent': 'power_strip'}, 'position': position,
+                  'classes': 'socket_node_style_on',  # Generate new socket
+                  'linked_device': device_id}  # and link the connected device
+    if len(elements) % 6 - 2 > 0:
+        position_node = {'x': position['x'], 'y': position['y'] - 80}  # Get position of new device
+    else:
+        position_node = {'x': position['x'], 'y': position['y'] - 120}
+    new_node = {'data': {'id': device_id}, 'classes': 'room_node_style', 'position': position_node,
+                'linked_socket': socket_id,  # Generate new device
+                'style': {'background-image': ['/assets/Icons/icon_' + device_type + '.png']}}
+    new_edge = {'data': {'source': socket_id, 'target': device_id}}  # Connect new device with new socket
+    new_device = objects.create_DeviceObject(device_id, device_type)
+    elements[1]['position'] = new_position_plus
+    elements.append(new_socket)  # Append new nodes and edges to cytoscape elements
+    elements.append(new_node)
+    elements.append(new_edge)
+    device_dict['house1'][device_id] = new_device  # Add new device to device dictionary
+    device_dict['rooms'][room]['devices'].append(device_id)  # Add new device to room device list
+    return elements, device_dict
+
+
 def generate_grid_dataframes(elements, grid_objects):
     """
     Generate pandas DataFrames from given cytoscape elements.
