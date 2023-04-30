@@ -623,8 +623,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             ),
             dmc.Space(h=20),
             dmc.Select(
-                label=["Lastprofil ",
-                       dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
+                label=["Lastprofil "],
                 placeholder="Auswahl",
                 id='load_profile_select_preset',
                 value=element_dict[selected_element]['selected_power_option'],
@@ -669,9 +668,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             dmc.Space(h=20),
             dmc.Group([
                 dmc.Select(
-                    label=["Lastprofil ",
-                           dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True,
-                                     color='primary')],
+                    label=["Lastprofil "],
                     placeholder="Auswählen",
                     id='load_profile_select_custom',
                     disabled=False,  # Development
@@ -719,8 +716,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             ),
             dmc.Space(h=20),
             dmc.Select(
-                label=["Lastprofil ",
-                       dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
+                label=["Lastprofil "],
                 placeholder="Auswahl",
                 id='load_profile_select_preset',
                 value=element_dict[selected_element]['selected_power_option'],
@@ -1002,7 +998,7 @@ def add_card_new_device():
     return children
 
 
-def add_modal_timeseries():
+def add_modal_timeseries():     # Not in use!
     return dmc.Modal(
         title='Neue Lastkurve anlegen',
         id='modal_timeseries',

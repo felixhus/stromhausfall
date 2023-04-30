@@ -234,31 +234,31 @@ def general_callbacks(app):
             figure['layout']['showlegend'] = False
         return figure
 
-    @app.callback(Output('modal_timeseries', 'opened'),
-                  Output('timeseries_table', 'data'),
-                  Input('pill_add_profile', 'n_clicks'),
-                  Input('button_add_value', 'n_clicks'),
-                  Input('button_save_profile', 'n_clicks'),
-                  State('timeseries_table', 'data'),
-                  State('textinput_profile_name', 'value'),
-                  prevent_initial_call=True)
-    def modal_timeseries(pill, btn_add, btn_save, rows, name):
-        triggered_id = ctx.triggered_id
-        if triggered_id == 'pill_add_profile':  # Open modal to add timeseries
-            if pill is not None:
-                return True, no_update
-            else:
-                raise PreventUpdate
-        elif triggered_id == 'button_add_value':  # Add one empty row to the data table
-            rows.append({'time': '', 'power': ''})
-            return no_update, rows
-        elif triggered_id == 'button_save_profile':
-            # Funktionen zum Interpolieren und in Datenbank schreiben existieren in "sql_modules".
-            # Problem: Ich kann die neuen Lastprofile eigentlich nicht in die SQL-Datenbank schreiben, da die dann
-            # für alle verändert wird.
-            return False, no_update
-        else:
-            raise PreventUpdate
+    # @app.callback(Output('modal_timeseries', 'opened'),   # Not in use
+    #               Output('timeseries_table', 'data'),
+    #               Input('pill_add_profile', 'n_clicks'),
+    #               Input('button_add_value', 'n_clicks'),
+    #               Input('button_save_profile', 'n_clicks'),
+    #               State('timeseries_table', 'data'),
+    #               State('textinput_profile_name', 'value'),
+    #               prevent_initial_call=True)
+    # def modal_timeseries(pill, btn_add, btn_save, rows, name):
+    #     triggered_id = ctx.triggered_id
+    #     if triggered_id == 'pill_add_profile':  # Open modal to add timeseries
+    #         if pill is not None:
+    #             return True, no_update
+    #         else:
+    #             raise PreventUpdate
+    #     elif triggered_id == 'button_add_value':  # Add one empty row to the data table
+    #         rows.append({'time': '', 'power': ''})
+    #         return no_update, rows
+    #     elif triggered_id == 'button_save_profile':
+    #         # Funktionen zum Interpolieren und in Datenbank schreiben existieren in "sql_modules".
+    #         # Problem: Ich kann die neuen Lastprofile eigentlich nicht in die SQL-Datenbank schreiben, da die dann
+    #         # für alle verändert wird.
+    #         return False, no_update
+    #     else:
+    #         raise PreventUpdate
 
     @app.callback(Output('store_settings', 'data'),
                   Input('input_week', 'value'),
