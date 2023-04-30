@@ -158,7 +158,7 @@ def house_callbacks(app):
     def fill_device_modal(modal_open, radio_room):
         if modal_open:
             devices = sql_modules.get_all_devices('source/database_profiles.db')
-            childs_additional = dash_components.add_card_additional_devices(devices, radio_room)
+            childs_additional = dash_components.add_card_additional_devices(devices, radio_room, False)
             return childs_additional
         else:
             raise PreventUpdate
@@ -169,7 +169,7 @@ def house_callbacks(app):
                   State('radiogroup_devices', 'value'),
                   State('radiogroup_room', 'value'),
                   prevent_initial_call=True)
-    def add_additional_device(btn, radio_device, radio_room):
+    def add_additional_device(btn, radio_device, radio_room):   # Development
         if btn is not None:
             if radio_device is None:
                 return no_update, "notification_no_device_selected"
@@ -197,7 +197,7 @@ def house_callbacks(app):
             if tab == 'own':    # If "own" tab was clicked, check if there are already own devices in the store element, otherwise show elements to load file
                 if len(own_device_dict) > 0:
                     devices = list(own_device_dict.values())
-                    children = dash_components.add_card_additional_devices(devices, None)
+                    children = dash_components.add_card_additional_devices(devices, None, True)
                     return no_update, no_update, children, {'display': 'none'}, no_update
             raise PreventUpdate
         elif triggered_id == 'button_load_own_devices':   # Load given file and check if its the right one
@@ -215,7 +215,7 @@ def house_callbacks(app):
                 return no_update, no_update, no_update, no_update, 'notification_wrong_file'
             else:
                 devices = list(content_dict['own_devices_dict'].values())
-                children = dash_components.add_card_additional_devices(devices, None)
+                children = dash_components.add_card_additional_devices(devices, None, True)
             return content_dict['own_devices_dict'], no_update, children, {'display': 'none'}, no_update
         elif triggered_id == 'upload_own_devices':  # Show filename of selected file
             return no_update, filename, no_update, no_update, no_update

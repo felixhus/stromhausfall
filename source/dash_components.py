@@ -9,7 +9,8 @@ import source.plot as plot
 import source.stylesheets as stylesheets
 
 urls = {'cyto_bathroom': 'url(/assets/background_bathroom.png)', 'cyto_kitchen': 'url(/assets/background_kitchen.png)',
-        'cyto_livingroom': 'url(/assets/background_livingroom.png)', 'cyto_office': 'url(/assets/background_office.png)'}
+        'cyto_livingroom': 'url(/assets/background_livingroom.png)',
+        'cyto_office': 'url(/assets/background_office.png)'}
 
 device_dict_init = {'house1': {}, 'rooms': {}, 'last_id': 1}
 
@@ -49,7 +50,8 @@ def add_grid_object_button(object_id, name=None, linked_object=None, icon=None, 
         children = html.Img(src=icon, height=str(stylesheets.button_add_components_style['icon_width']))
     else:
         children = name
-    return dmc.Button(id=object_id, children=children, style=stylesheets.button_add_components_style, disabled=not enable)
+    return dmc.Button(id=object_id, children=children, style=stylesheets.button_add_components_style,
+                      disabled=not enable)
 
 
 def add_cytoscape_grid(nodes, edges):
@@ -185,7 +187,8 @@ def add_cytoscape_layout(button_dict):
                             style={"width": 250}
                         ),
                         dmc.Space(h=15),
-                        dmc.Button("Aktualisieren - Work in progress", disabled=True, id='button_update_settings', leftIcon=DashIconify(icon='ci:arrows-reload-01')),
+                        dmc.Button("Aktualisieren - Work in progress", disabled=True, id='button_update_settings',
+                                   leftIcon=DashIconify(icon='ci:arrows-reload-01')),
                     ], value='settings')
                 ],
                     id='tabs_main', value='grid', color="blue", orientation="horizontal", allowTabDeactivation=True)
@@ -283,13 +286,14 @@ def dash_navbar():
                            leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
                 dmc.Menu([
                     dmc.MenuTarget(dmc.Button("Menü", leftIcon=DashIconify(icon="material-symbols:menu-rounded"),
-                                              variant='gradient'),),
+                                              variant='gradient'), ),
                     dmc.MenuDropdown([
                         dmc.MenuItem("Konfiguration speichern", icon=DashIconify(icon="iconoir:save-action-floppy"),
                                      id='menu_item_save'),
                         dmc.MenuItem("Konfiguration laden", icon=DashIconify(icon="iconoir:load-action-floppy"),
                                      id='menu_item_load'),
-                        dmc.MenuItem("Download eigene Geräte", icon=DashIconify(icon="material-symbols:sim-card-download-outline"),
+                        dmc.MenuItem("Download eigene Geräte",
+                                     icon=DashIconify(icon="material-symbols:sim-card-download-outline"),
                                      id='menu_item_own_devices'),
                     ])
                 ], trigger='hover', openDelay=100, closeDelay=200, transition="rotate-right", transitionDuration=150),
@@ -458,7 +462,8 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                                        {'value': 'custom', 'label': "Selbst basteln"}]),
             dbc.Fade([
                 dmc.Space(h=20),
-                dmc.Checkbox(label="Beim Speichern zufälliges Lastprofil laden?", id='checkbox_random_profile', checked=checkbox_random)
+                dmc.Checkbox(label="Beim Speichern zufälliges Lastprofil laden?", id='checkbox_random_profile',
+                             checked=checkbox_random)
             ], id='house_fade', is_in=fade),
             dmc.Space(h=20),
             dmc.Group([
@@ -468,7 +473,8 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right'),
             dmc.Space(h=20),
-            dcc.Graph(figure=plot.plot_house_timeseries(element_dict[selected_element]['power'], 'rgb(64, 130, 109)'), id='graph_house',
+            dcc.Graph(figure=plot.plot_house_timeseries(element_dict[selected_element]['power'], 'rgb(64, 130, 109)'),
+                      id='graph_house',
                       style={'width': '100%'}),
             dmc.Space(h=20)
         ],
@@ -668,7 +674,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                                      color='primary')],
                     placeholder="Auswählen",
                     id='load_profile_select_custom',
-                    disabled=False, # Development
+                    disabled=False,  # Development
                     value=element_dict[selected_element]['selected_power_option'],
                     data=[
                         {'value': key, 'label': key}
@@ -801,7 +807,7 @@ def get_compass(orientation):
                 variant="transparent",
                 id='button_compass',
                 color='blue',
-                style={'transform': f'rotate({orientation-45}deg)'}
+                style={'transform': f'rotate({orientation - 45}deg)'}
             ),
             dmc.ActionIcon(
                 DashIconify(icon='gis:north-arrow', width=20, rotate=1),
@@ -874,11 +880,11 @@ def add_modal_devices():
                     dmc.Tab("Neues hinzufügen", value='new', icon=DashIconify(icon='mdi:package-variant-plus'))
                 ]),
                 dmc.TabsPanel(value='additional', children=[dmc.Card(id='card_additional_devices', children=[
-                    add_card_additional_devices([], None)
+                    add_card_additional_devices([], None, False)
                 ])]),
                 dmc.TabsPanel(value='own', children=[dmc.Card(id='card_own_devices_load', children=[
                     add_card_own_devices()
-                ]), dmc.Card(id='card_own_devices_add')]),
+                ]), dmc.Card(id='card_own_devices_add', children=html.P(id='button_add_own_device'))]),
                 dmc.TabsPanel(value='new', children=[dmc.Card(id='card_new_devices', children=[
                     add_card_new_device()
                 ])]),
@@ -887,10 +893,10 @@ def add_modal_devices():
     )
 
 
-def add_card_additional_devices(devices, radio_room):
+def add_card_additional_devices(devices, radio_room, own):
     data = []
     for device in devices:
-        if type(device) is dict:    # if device is given as dict (own devices) -> Convert to tuple
+        if type(device) is dict:  # if device is given as dict (own devices) -> Convert to tuple
             device = (device['type'], None, device['name'], device['menu_type'], device['icon'])
         content = dmc.Group([
             DashIconify(icon=device[4], inline=True),
@@ -910,13 +916,18 @@ def add_card_additional_devices(devices, radio_room):
         label="In Raum",
         size='sm', orientation='vertical'
     )
+    if not own:
+        button = dmc.Button("Hinzufügen", id='button_add_additional_device',
+                            leftIcon=DashIconify(icon='material-symbols:add-box-outline'))
+    else:
+        button = dmc.Button("Hinzufügen", id='button_add_own_device',
+                            leftIcon=DashIconify(icon='material-symbols:add-box-outline'))
     return html.Div([
         dmc.Group([
             radio_devices, radio_rooms
         ], position='apart', align='initial'),
         dmc.Space(h=20),
-        dmc.Button("Hinzufügen", id='button_add_additional_device',
-                   leftIcon=DashIconify(icon='material-symbols:add-box-outline'))
+        button
     ])
 
 

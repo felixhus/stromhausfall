@@ -76,20 +76,23 @@ def connection_allowed(source, target, object_dict):
     return False
 
 
-def create_device_object(device_id, device_type, database):
-    device = sql_modules.get_device(database, device_type)
-    device = device[0]  # Get dict from result
-    json_data = device['power_options'].decode('utf-8-sig')
-    json_data = json_data.replace("'", "\"")
-    device['power_options'] = json.loads(json_data)   # Decode dictionary from bytes
+def create_device_object(device_id, device_type, database, own, own_devices):
+    if not own:
+        device = sql_modules.get_device(database, device_type)
+        device = device[0]  # Get dict from result
+        json_data = device['power_options'].decode('utf-8-sig')
+        json_data = json_data.replace("'", "\"")
+        device['power_options'] = json.loads(json_data)   # Decode dictionary from bytes
+    else:
+        device = own_devices[device_type]
     device['active'] = True
     device['selected_power_option'] = None
-    device['power'] = [0] * 24*60*7
+    device['power'] = [0] * 24 * 60 * 7
     device['id'] = device_id
     return device
 
 
-def create_new_device(elements, device_dict, room, device_type):
+def create_new_device(elements, device_dict, room, device_type, own, own_devices=None):
     database = 'source/database_profiles.db'
     last_id = int(device_dict['last_id'])  # Get number of last id
     device_dict['last_id'] = last_id + 1  # Increment the last id
@@ -108,7 +111,7 @@ def create_new_device(elements, device_dict, room, device_type):
                 'linked_socket': socket_id,  # Generate new device
                 'style': {'background-image': ['/assets/Icons/icon_' + device_type + '.png']}}
     new_edge = {'data': {'source': socket_id, 'target': device_id}}  # Connect new device with new socket
-    new_device = create_device_object(device_id, device_type, database)
+    new_device = create_device_object(device_id, device_type, database, own, own_devices)
     elements[1]['position'] = new_position_plus
     elements.append(new_socket)  # Append new nodes and edges to cytoscape elements
     elements.append(new_node)

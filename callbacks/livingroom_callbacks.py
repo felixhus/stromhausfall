@@ -29,17 +29,19 @@ def livingroom_callbacks(app, button_dict):
                   State('store_selected_element_house', 'data'),
                   State('radiogroup_room', 'value'),
                   State('radiogroup_devices', 'value'),
+                  State('store_own_device_dict', 'data'),
                   Input('cyto_livingroom', 'tapNode'),
                   Input('edit_save_button', 'n_clicks'),
                   Input('edit_delete_button', 'n_clicks'),
                   Input('button_close_menu_livingroom', 'n_clicks'),
                   Input('active_switch_house', 'checked'),
                   Input('button_add_additional_device', 'n_clicks'),
+                  Input('button_add_own_device', 'n_clicks'),
                   [Input(device[1], 'n_clicks') for device in button_dict['livingroom']],
                   prevent_initial_call='initial_duplicate')
     def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected_element, radio_room, radio_devices,
-                                node, btn_save, btn_delete,
-                                btn_close, active_switch, btn_additional, *btn_add):  # Callback to handle livingroom action
+                                own_device_dict, node, btn_save, btn_delete,
+                                btn_close, active_switch, btn_additional, btn_own, *btn_add):  # Callback to handle livingroom action
         try:
             room = 'livingroom'
             triggered_id = ctx.triggered_id
@@ -93,15 +95,27 @@ def livingroom_callbacks(app, button_dict):
                                 device_dict['house1'][ele['linked_device']]['active'] = False
                             break
                 return elements, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
-            elif triggered_id[:10] == 'button_add' or triggered_id == 'button_add_additional_device':  # A button in the menu was clicked or the add button in the additional modal
+            elif triggered_id[:10] == 'button_add':  # A button to add a device was clicked. This could be either a menu button, the button_add_additional device or button_add_own_device
+                own = False
                 if triggered_id == 'button_add_additional_device':  # If this room was selected in the radio menu
+                    if btn_additional is None:
+                        raise PreventUpdate
                     if radio_room == room and radio_devices is not None:
                         device_type = radio_devices  # Get type to add
                     else:
                         raise PreventUpdate
+                elif triggered_id == 'button_add_own_device':  # The button to add an own device in the additional modal was clicked
+                    if btn_own is None:
+                        raise PreventUpdate
+                    if radio_room == room and radio_devices is not None:
+                        device_type = radio_devices  # Get type to add
+                        own = True
+                    else:
+                        raise PreventUpdate
                 else:
                     device_type = triggered_id[11:]  # Get type to add
-                elements, device_dict = modules.create_new_device(elements, device_dict, room, device_type)
+                elements, device_dict = modules.create_new_device(elements, device_dict, room, device_type, own,
+                                                                  own_devices=own_device_dict)
                 return elements, device_dict, no_update, False, ['empty',
                                                                  None], no_update, no_update, no_update  # Return elements and close menu
             elif triggered_id == 'edit_save_button':
