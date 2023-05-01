@@ -41,22 +41,23 @@ def add_grid_object_button(object_id, name=None, linked_object=None, icon=None, 
     Methode erzeugt einen Button für das Menü, um Grid-Objekte hinzuzufügen.
     :param object_id: Id des Buttons
     :param linked_object: Node, der beim Klicken zum Grid hinzugefügt wird.
-    :param name: Name des Buttons
+    :param name: Name des Buttons für Tooltip
     :param icon: Pfad zum anzuzeigenden Icon
     :param enable: Boolean, ob Button Enabled sein soll (False = Disabled)
     :param app:
-    :return: DBC Button
+    :return: DBC Button und Tooltip, das den Namen anzeigt
     """
     if icon is not None:
-        if icon.endswith('.png'):   # If a png picture is given as the logo
+        if icon.endswith('.png'):  # If a png picture is given as the logo
             icon = app.get_asset_url(icon)
             children = html.Img(src=icon, height=str(stylesheets.button_add_components_style['icon_width']) + 'px')
-        else:   # If a dash iconify icon is given
-            children = DashIconify(icon=icon, width=stylesheets.button_add_components_style['icon_width'], color='black')
+        else:  # If a dash iconify icon is given
+            children = DashIconify(icon=icon, width=stylesheets.button_add_components_style['icon_width'],
+                                   color='black')
     else:
         children = name
-    return dmc.Button(id=object_id, children=children, style=stylesheets.button_add_components_style,
-                      disabled=not enable)
+    return [dmc.Button(id=object_id, children=children, style=stylesheets.button_add_components_style,
+                       disabled=not enable), dbc.Tooltip(name, target=object_id)]
 
 
 def add_cytoscape_grid(nodes, edges):
@@ -1003,7 +1004,7 @@ def add_card_new_device():
     return children
 
 
-def add_modal_timeseries():     # Not in use!
+def add_modal_timeseries():  # Not in use!
     return dmc.Modal(
         title='Neue Lastkurve anlegen',
         id='modal_timeseries',
