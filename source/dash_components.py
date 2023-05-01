@@ -962,8 +962,32 @@ def add_card_own_devices():
 
 
 def add_card_new_device():
+    header = [html.Thead(html.Tr([html.Th("time"), html.Th("Profil 1"), html.Th("Profil 2")]))]
+    body = [html.Tbody([
+        html.Tr([html.Td("07:01:00"), html.Td("100"), html.Td("75")]),
+        html.Tr([html.Td("07:02:00"), html.Td("100"), html.Td("100")]),
+        html.Tr([html.Td("07:02:30"), html.Td("100"), html.Td("125")]),
+        html.Tr([html.Td("07:03:00"), html.Td("100"), html.Td("150")]),
+        html.Tr([html.Td("07:05:00"), html.Td("0"), html.Td("125")]),
+        html.Tr([html.Td("07:20:00"), html.Td("50"), html.Td("100")]),
+    ])]
     children = html.Div([
-        dmc.Text("Eigenes Gerät hinzufügen:"),
+        dmc.Group([
+            dmc.Text("Eigenes Gerät hinzufügen:"),
+            dmc.ThemeIcon(id='icon_help', children=DashIconify(icon='tabler:help-triangle'), variant='outline')
+        ], position='apart'),
+        dbc.Popover(
+            [
+                dbc.PopoverHeader("Hilfe beim Erstellen"),
+                dbc.PopoverBody([html.B("Gerätename: "), "Für welches Gerät fügst du Lastprofile hinzu?"]),
+                dbc.PopoverBody([html.B("Art des Lastprofils: "), html.U("Konstant: "), "Dein Gerät hat ein Lastprofil, das jeden Tag gleich ist (z.B. Kühlschrank). - ",
+                                html.U("Variabel: "), "Dein Gerät hat ein Lastprofil, welches immer unterschiedlich ist. Du willst einstellen können, wann das Gerät angeschaltet wird."]),
+                dbc.PopoverBody([html.B("Icon: "), "Klicke auf den Link und such dir ein Icon aus, das zu deinem Gerät passt. Füg dann hier den Namen des Icons ein."]),
+                dbc.PopoverBody([html.B("CSV-Datei: "), "Die Lastprofile lädst du in Form einer CSV-Datei hoch. Diese muss in der ersten Spalte (\"time\") die Zeitpunkte der Messungen enthalten, die weiteren Spaltennamen geben die Namen der Lastprofile des Geräts an. Die Einheit der Leistungen is [W]."]),
+                dbc.PopoverBody(dmc.Table(header + body))
+            ],
+            target='icon_help', trigger='legacy', body=True, style={'width': '500px'}
+        ),
         dmc.Space(h=10),
         dmc.TextInput(id='input_new_name', label="Gerätename *"),
         dmc.Space(h=10),
