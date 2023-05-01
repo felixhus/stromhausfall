@@ -28,6 +28,7 @@ def house_callbacks(app):
                   State('store_device_dict', 'data'),
                   prevent_initial_call=True)
     def initial_room_configuration(interval, cyto_bathroom, cyto_livingroom, cyto_kitchen, cyto_office, device_dict):
+        image_lamp_src = modules.get_icon_url('mdi:lightbulb-on-outline')
         # Bathroom elements
         device_dict['house1']['lamp_bathroom'] = objects.create_LampObject(
             'lamp_bathroom', "Bad")  # Add lamp to device dictionary
@@ -39,7 +40,7 @@ def house_callbacks(app):
                        'classes': 'socket_node_style_on', 'linked_device': 'lamp_bathroom'}
         lamp_node = {'data': {'id': 'lamp_bathroom'}, 'position': {'x': 35, 'y': 25},
                      'classes': 'room_node_style',
-                     'style': {'background-image': ['/assets/Icons/icon_bulb.png']}, 'linked_socket': 'socket1'}
+                     'style': {'background-image': image_lamp_src}, 'linked_socket': 'socket1'}
         lamp_edge = {'data': {'source': 'socket1', 'target': 'lamp_bathroom'}}
         cyto_bathroom.append(socket_node)
         cyto_bathroom.append(lamp_node)
@@ -56,7 +57,7 @@ def house_callbacks(app):
                        'classes': 'socket_node_style_on', 'linked_device': 'lamp_livingroom'}
         lamp_node = {'data': {'id': 'lamp_livingroom'}, 'position': {'x': 35, 'y': 25},
                      'classes': 'room_node_style',
-                     'style': {'background-image': ['/assets/Icons/icon_bulb.png']}, 'linked_socket': 'socket1'}
+                     'style': {'background-image': image_lamp_src}, 'linked_socket': 'socket1'}
         lamp_edge = {'data': {'source': 'socket1', 'target': 'lamp_livingroom'}}
         cyto_livingroom.append(socket_node)
         cyto_livingroom.append(lamp_node)
@@ -73,7 +74,7 @@ def house_callbacks(app):
                        'classes': 'socket_node_style_on', 'linked_device': 'lamp_kitchen'}
         lamp_node = {'data': {'id': 'lamp_kitchen'}, 'position': {'x': 35, 'y': 25},
                      'classes': 'room_node_style',
-                     'style': {'background-image': ['/assets/Icons/icon_bulb.png']}, 'linked_socket': 'socket1'}
+                     'style': {'background-image': image_lamp_src}, 'linked_socket': 'socket1'}
         lamp_edge = {'data': {'source': 'socket1', 'target': 'lamp_kitchen'}}
         cyto_kitchen.append(socket_node)
         cyto_kitchen.append(lamp_node)
@@ -90,7 +91,7 @@ def house_callbacks(app):
                        'classes': 'socket_node_style_on', 'linked_device': 'lamp_office'}
         lamp_node = {'data': {'id': 'lamp_office'}, 'position': {'x': 35, 'y': 25},
                      'classes': 'room_node_style',
-                     'style': {'background-image': ['/assets/Icons/icon_bulb.png']}, 'linked_socket': 'socket1'}
+                     'style': {'background-image': image_lamp_src}, 'linked_socket': 'socket1'}
         lamp_edge = {'data': {'source': 'socket1', 'target': 'lamp_office'}}
         cyto_office.append(socket_node)
         cyto_office.append(lamp_node)

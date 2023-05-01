@@ -2,6 +2,7 @@ import datetime
 import time
 
 import dash
+import modules
 import pandas as pd
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
@@ -113,7 +114,10 @@ def grid_callbacks(app):
         elif triggered_id == 'store_add_node':
             last_id = get_last_id(elements)
             new_gridobject = generate_grid_object(btn_add, 'node' + str(last_id[0] + 1), 'node' + str(last_id[0] + 1))
-            image_src = app.get_asset_url('Icons/' + new_gridobject['icon'])
+            if new_gridobject['icon'].endswith('.png'):     # If a png picture is given as the logo
+                image_src = app.get_asset_url('Icons/' + new_gridobject['icon'])
+            else:   # If a dash iconify icon is given
+                image_src = modules.get_icon_url(new_gridobject['icon'])
             gridObject_dict[new_gridobject['id']] = new_gridobject
             new_element = {'data': {'id': 'node' + str(last_id[0] + 1)},
                            'position': {'x': 50 + last_id[0] * 8, 'y': 50 + last_id[0] * 8}, 'classes': 'node_style',

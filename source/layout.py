@@ -6,14 +6,14 @@ from dash import dcc, html
 import source.dash_components as dash_components
 
 menu_objects = [
-    ['button_house', 'icon_house2.png', True],
-    ['button_transformer', 'icon_transformer.png', True],
-    ['button_externalgrid', 'icon_powerplant.png', True],
-    ['button_pv', 'icon_pv.png', True],
-    ['button_battery', 'icon_battery.png', False],
+    ['button_house', 'bi:house-door', True],
+    ['button_transformer', 'Icons/icon_transformer.png', True],
+    ['button_externalgrid', 'Icons/icon_powerplant.png', True],
+    ['button_pv', 'fa6-solid:solar-panel', True],
+    ['button_battery', 'material-symbols:battery-charging-20-outline', False],
     # ['button_smartmeter', 'icon_meter.png', True],
-    ['button_switch_cabinet', 'icon_switch_cabinet.png', True],
-    ['button_line', 'icon_line_lv.png', True],
+    ['button_switch_cabinet', 'icon-park-outline:connection-point', True],
+    ['button_line', 'mdi:powerline', True],
 ]
 
 
@@ -28,8 +28,7 @@ def app_layout(app, button_dict):
                     dmc.Card([
                         dbc.Row(dash_components.add_grid_object_button(object_id=menu_objects[i][0],
                                                                        enable=menu_objects[i][2],
-                                                                       icon=app.get_asset_url(
-                                                                           'Icons/' + menu_objects[i][1])))
+                                                                       icon=menu_objects[i][1], app=app))
                         for i in range(len(menu_objects))
                     ], id='grid_buttons', style={'display': 'block'}, withBorder=True, shadow="sm", radius="md"),
                 ], width=1),

@@ -183,7 +183,7 @@ cyto_stylesheet_calculated = [
 button_add_components_style = {
     'width': '60px',
     'height': '60px',
-    'icon_width': '40px',
+    'icon_width': 40,   # Dash Iconify needs an Integer
     'margin-top': '3px',
     'margin-bottom': '3px',
 }

@@ -98,6 +98,8 @@ def create_new_device(elements, device_dict, room, device_type, own, own_devices
     device_dict['last_id'] = last_id + 1  # Increment the last id
     socket_id = "socket" + str(last_id + 1)
     device_id = "device" + str(last_id + 1)
+    new_device = create_device_object(device_id, device_type, database, own, own_devices)
+    image_src = get_icon_url(new_device['icon'])
     position = elements[1]['position']  # Get Position of plus-node
     new_position_plus = {'x': position['x'] + 40, 'y': position['y']}  # Calculate new position of plus-node
     new_socket = {'data': {'id': socket_id, 'parent': 'power_strip'}, 'position': position,
@@ -109,9 +111,9 @@ def create_new_device(elements, device_dict, room, device_type, own, own_devices
         position_node = {'x': position['x'], 'y': position['y'] - 120}
     new_node = {'data': {'id': device_id}, 'classes': 'room_node_style', 'position': position_node,
                 'linked_socket': socket_id,  # Generate new device
-                'style': {'background-image': ['/assets/Icons/icon_' + device_type + '.png']}}
+                'style': {'background-image': image_src}}
     new_edge = {'data': {'source': socket_id, 'target': device_id}}  # Connect new device with new socket
-    new_device = create_device_object(device_id, device_type, database, own, own_devices)
+
     elements[1]['position'] = new_position_plus
     elements.append(new_socket)  # Append new nodes and edges to cytoscape elements
     elements.append(new_node)
@@ -612,6 +614,18 @@ def get_button_dict():
             device[2], "button_add_" + device[0], device[4]
         ])
     return button_dict
+
+
+def get_icon_url(icon_name):
+    """
+    Takes an icon name in the format "mdi:icon-name" and returns the Iconify URL for the icon.
+    :param icon_name: iconify name of icon
+    :return: url of icon
+    """
+    base_url = "https://api.iconify.design"
+    icon_url = f"{base_url}/{icon_name}.svg"
+    response = requests.get(icon_url)
+    return response.url
 
 
 def handle_error(err):

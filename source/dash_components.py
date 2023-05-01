@@ -36,7 +36,7 @@ def add_storage_variables():
                      dcc.Store(id='store_menu_elements_house', storage_type='session')])
 
 
-def add_grid_object_button(object_id, name=None, linked_object=None, icon=None, enable=True):
+def add_grid_object_button(object_id, name=None, linked_object=None, icon=None, enable=True, app=None):
     """
     Methode erzeugt einen Button für das Menü, um Grid-Objekte hinzuzufügen.
     :param object_id: Id des Buttons
@@ -44,10 +44,15 @@ def add_grid_object_button(object_id, name=None, linked_object=None, icon=None, 
     :param name: Name des Buttons
     :param icon: Pfad zum anzuzeigenden Icon
     :param enable: Boolean, ob Button Enabled sein soll (False = Disabled)
+    :param app:
     :return: DBC Button
     """
     if icon is not None:
-        children = html.Img(src=icon, height=str(stylesheets.button_add_components_style['icon_width']))
+        if icon.endswith('.png'):   # If a png picture is given as the logo
+            icon = app.get_asset_url(icon)
+            children = html.Img(src=icon, height=str(stylesheets.button_add_components_style['icon_width']) + 'px')
+        else:   # If a dash iconify icon is given
+            children = DashIconify(icon=icon, width=stylesheets.button_add_components_style['icon_width'], color='black')
     else:
         children = name
     return dmc.Button(id=object_id, children=children, style=stylesheets.button_add_components_style,
