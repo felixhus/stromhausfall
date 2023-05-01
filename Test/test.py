@@ -1,40 +1,22 @@
-import sqlite3
+import numpy as np
+import pandas as pd
 
-# Connect to the original database
-source_conn = sqlite3.connect(r"C:\Users\felix\Documents\HOME\Uni\02_Master\05_Masterthesis\02_Code\05_PowerHouse\source\database_profiles.db")
-source_cursor = source_conn.cursor()
+# create the first dataframe with one day in one-minute steps
+start = pd.Timestamp('2023-06-01').date()
+end = pd.Timestamp('2023-06-02')
+index = pd.date_range(start=start, periods=1440, freq='1T')
+df1 = pd.DataFrame(index=index)
 
-# Connect to the new database
-dest_conn = sqlite3.connect(r"C:\Users\felix\Documents\HOME\Uni\02_Master\05_Masterthesis\02_Code\05_PowerHouse\source\database_profiles.db")
-dest_cursor = dest_conn.cursor()
+# create the second dataframe with values at different minutes
+df2 = pd.DataFrame({'value': [1, 2, 3]}, index=[
+    pd.Timestamp('2023-06-01 00:02:00'),
+    pd.Timestamp('2023-06-01 00:05:00'),
+    pd.Timestamp('2023-06-01 00:10:00')
+])
 
-# Get the column names and types from the original table
-source_cursor.execute("PRAGMA table_info(device_preset_old)")
-columns = source_cursor.fetchall()
+# merge the two dataframes and fill missing values with zeros
+df = pd.merge(df1, df2, how='left', left_index=True, right_index=True)
+df['value'] = df['value'].fillna(0)
 
-# Build the CREATE TABLE statement for the new table
-create_table_statement = "CREATE TABLE device_preset ("
-for i, column in enumerate(columns):
-    if i == 1:
-        create_table_statement += "device_type TEXT,"
-    create_table_statement += f"{column[1]} {column[2]},"
-create_table_statement = create_table_statement[:-1] + ")"
-dest_cursor.execute(create_table_statement)
-
-# Copy the data from the original table to the new table
-insert_statement = f"INSERT INTO device_preset ({','.join([column[1] for column in columns])}) VALUES ({','.join(['?' for column in columns])})"
-data = source_cursor.execute("SELECT * FROM device_preset_old")
-dest_cursor.executemany(insert_statement, data)
-
-device_types = [('Refrigerator_Big', 'refrigerator'), ('Refrigerator_Small_New', 'refrigerator'), ('Refrigerator_Small_Old', 'refrigerator'),
-                ('water_boiler', 'boiler'), ('lamp_01', 'lamp'), ('lamp_02', 'lamp'), ('lamp_03', 'lamp'), ('lamp_04', 'lamp'),
-                ('desktop_pc_4h', 'desktop_pc'), ('desktop_pc_8h', 'desktop_pc'), ('desktop_pc_12h', 'desktop_pc')]
-
-for profile in device_types:
-    query = f"UPDATE device_preset SET device_type = '{profile[1]}' WHERE series_id = '{profile[0]}'"
-    dest_cursor.execute(query)
-
-# Commit and close the connections
-dest_conn.commit()
-dest_conn.close()
-source_conn.close()
+# print the resulting dataframe
+print(df)

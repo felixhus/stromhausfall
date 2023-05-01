@@ -255,13 +255,28 @@ def house_callbacks(app):
                 decoded = base64.b64decode(content_string)
                 df_csv = pd.read_csv(io.StringIO(decoded.decode('utf-8')), delimiter=';')
                 df_csv["time"] = pd.to_datetime(df_csv.iloc[:, 0])
+                date_start = df_csv["time"][0].date()
+                # df_csv["time"] = df_csv["time"].apply(lambda x: x.time())  # Extract time from timestamps
                 df_csv.set_index("time", inplace=True)
-                df_csv.fillna(0)   # Replace NaN with 0
-                df_resampled = df_csv.resample('1T').mean()     # resample profile to 1-minute steps
-                power_options = {col: {'key': col} for col in df_resampled.columns}
-                power_profiles = df_resampled.to_dict('list')
+                # df_csv.fillna(0)   # Replace NaN with 0
+                if input_menu_type == 'device_custom':  # If short profile
+                    df_final = df_csv.resample('1T').mean()     # resample profile to 1-minute steps and fill missing values with zero
+                    for profile in df_final:
+                        index_last_value = df_final[profile].last_valid_index()
+                        df_final[profile].loc[:index_last_value] = df_final[profile].loc[:index_last_value].fillna(0)
+                else:
+                    df_resampled = df_csv.resample('1T').mean()     # resample profile to 1-minute steps and fill missing values with zero
+                    index = pd.date_range(start=date_start, periods=1440, freq='1T')
+                    df_timestamps = pd.DataFrame(index=index)
+                    df_final = pd.merge(df_timestamps, df_resampled, how='left', left_index=True, right_index=True)
+                    df_final = df_final.fillna(0)
+                power_options = {col: {'key': col} for col in df_final.columns}
+                power_profiles = df_final.to_dict('list')
             except Exception as err:
                 return no_update, no_update, 'notification_error_reading_csv'    # Show Error message
+            for profile in power_profiles:
+                if len(power_profiles[profile]) > 1440:
+                    return no_update, no_update, 'notification_profile_length'
             device = {
                 'id': None,
                 'name': input_name,
