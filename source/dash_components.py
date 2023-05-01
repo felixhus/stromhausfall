@@ -873,7 +873,7 @@ def add_modal_graph():
 def add_modal_devices():
     return dmc.Modal(
         title="Weitere Geräte auswählen",
-        id='modal_additional_devices', opened=False,
+        id='modal_additional_devices', opened=False, size=600,
         children=[
             dmc.Tabs([
                 dmc.TabsList([
@@ -927,7 +927,7 @@ def add_card_additional_devices(devices, radio_room, own):
     return html.Div([
         dmc.Group([
             radio_devices, radio_rooms
-        ], position='apart', align='initial'),
+        ], align='initial', spacing=25),
         dmc.Space(h=20),
         button
     ])
@@ -972,58 +972,56 @@ def add_card_new_device():
         html.Tr([html.Td("07:20:00"), html.Td("50"), html.Td("100")]),
     ])]
     children = html.Div([
-        dmc.Group([
-            dmc.Text("Eigenes Gerät hinzufügen:"),
-            dmc.ThemeIcon(id='icon_help', children=DashIconify(icon='tabler:help-triangle'), variant='outline')
-        ], position='apart'),
-        dbc.Popover(
-            [
-                dbc.PopoverHeader("Hilfe beim Erstellen"),
-                dbc.PopoverBody([html.B("Gerätename: "), "Für welches Gerät fügst du Lastprofile hinzu?"]),
-                dbc.PopoverBody([html.B("Art des Lastprofils: "), html.U("Konstant: "), "Dein Gerät hat ein Lastprofil, das jeden Tag gleich ist (z.B. Kühlschrank). - ",
-                                html.U("Variabel: "), "Dein Gerät hat ein Lastprofil, welches immer unterschiedlich ist. Du willst einstellen können, wann das Gerät angeschaltet wird."]),
-                dbc.PopoverBody([html.B("Icon: "), "Klicke auf den Link und such dir ein Icon aus, das zu deinem Gerät passt. Füg dann hier den Namen des Icons ein."]),
-                dbc.PopoverBody([html.B("CSV-Datei: "), "Die Lastprofile lädst du in Form einer CSV-Datei hoch. Diese muss in der ersten Spalte (\"time\") die Zeitpunkte der Messungen enthalten, die weiteren Spaltennamen geben die Namen der Lastprofile des Geräts an. Die Einheit der Leistungen is [W]."]),
-                dbc.PopoverBody(dmc.Table(header + body))
-            ],
-            target='icon_help', trigger='legacy', body=True, style={'width': '500px'}
-        ),
-        dmc.Space(h=10),
-        dmc.TextInput(id='input_new_name', label="Gerätename *"),
-        dmc.Space(h=10),
-        dmc.Text("Art des Lastprofils"),
-        dmc.ChipGroup(
-            [dmc.Chip(l, value=k) for k, l in [['device_preset', 'Konstant'], ['device_custom', 'Variabel']]],
-            value=None, id='input_new_menu_type'
-        ),
-        dmc.Space(h=10),
-        dmc.TextInput(id='input_new_icon', icon=DashIconify(icon='ic:outline-device-unknown'),
-                      label=dcc.Link("Hier Icon auswählen", href="https://icon-sets.iconify.design/", target="_blank"),
-                      placeholder='ic:outline-device-unknown'),
-        dmc.Space(h=10),
-        dmc.Text('CSV-Datei für Lastprofile'),
-        dcc.Upload(
-            id='upload_new_device',
-            children=html.Div([
-                'Hier ablegen oder ',
-                html.A('Auswählen')
+        dmc.Group(spacing=25, children=[
+            html.Div([
+                dmc.Text("Eigenes Gerät hinzufügen:"),
+                dmc.Space(h=10),
+                dmc.TextInput(id='input_new_name', label="Gerätename *"),
+                dmc.Space(h=10),
+                dmc.Text("Art des Lastprofils"),
+                dmc.ChipGroup(
+                    [dmc.Chip(l, value=k) for k, l in [['device_preset', 'Konstant'], ['device_custom', 'Variabel']]],
+                    value=None, id='input_new_menu_type'
+                ),
+                dmc.Space(h=10),
+                dmc.TextInput(id='input_new_icon', icon=DashIconify(icon='ic:outline-device-unknown'),
+                              label=dcc.Link("Hier Icon auswählen", href="https://icon-sets.iconify.design/", target="_blank"),
+                              placeholder='ic:outline-device-unknown'),
+                dmc.Space(h=10),
+                dmc.Text('CSV-Datei für Lastprofile'),
+                dcc.Upload(
+                    id='upload_new_device',
+                    children=html.Div([
+                        'Hier ablegen oder ',
+                        html.A('Auswählen')
+                    ]),
+                    style={
+                        'width': '100%',
+                        'height': '50px',
+                        'lineHeight': '50px',
+                        'borderWidth': '1px',
+                        'borderStyle': 'dashed',
+                        'borderRadius': '10px',
+                        'textAlign': 'center',
+                        'margin': '0px'
+                    },
+                    multiple=False
+                ),
+                dmc.Text(id='text_filename_load_new', color='#FF7F50', underline=True),
+                dmc.Space(h=15),
+                dmc.Button("Erstellen", id='button_add_new_device',
+                           leftIcon=DashIconify(icon='material-symbols:add-box-outline'))
             ]),
-            style={
-                'width': '100%',
-                'height': '50px',
-                'lineHeight': '50px',
-                'borderWidth': '1px',
-                'borderStyle': 'dashed',
-                'borderRadius': '10px',
-                'textAlign': 'center',
-                'margin': '0px'
-            },
-            multiple=False
-        ),
-        dmc.Text(id='text_filename_load_new', color='#FF7F50', underline=True),
-        dmc.Space(h=15),
-        dmc.Button("Erstellen", id='button_add_new_device',
-                   leftIcon=DashIconify(icon='material-symbols:add-box-outline'))
+            dmc.Paper([
+                html.B("Hilfe beim Erstellen"),
+                html.B("Gerätename: "), "Für welches Gerät fügst du Lastprofile hinzu?",
+                html.B("Art des Lastprofils: "), html.U("Konstant: "), "Dein Gerät hat ein Lastprofil, das jeden Tag gleich ist (z.B. Kühlschrank). - ",
+                html.U("Variabel: "), "Dein Gerät hat ein Lastprofil, welches immer unterschiedlich ist. Du willst einstellen können, wann das Gerät angeschaltet wird.",
+                html.B("Icon: "), "Klicke auf den Link und such dir ein Icon aus, das zu deinem Gerät passt. Füg dann hier den Namen des Icons ein.",
+                html.B("CSV-Datei: "), "Die Lastprofile lädst du in Form einer CSV-Datei hoch. Diese muss in der ersten Spalte (\"time\") die Zeitpunkte der Messungen enthalten, die weiteren Spaltennamen geben die Namen der Lastprofile des Geräts an. Die Einheit der Leistungen is [W].",
+                dmc.Table(header + body)
+            ], withBorder=True, shadow='sm')
+        ])
     ])
     return children
 
