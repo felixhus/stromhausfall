@@ -450,7 +450,7 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
                 if child['props']['id'] == 'name_input':
                     device_dict[house][selected_element]['name'] = child['props']['value']
             elif child['type'] == 'Select':
-                if child['props']['id'] == 'load_profile_select_preset':
+                if child['props']['id'] == 'load_profile_select_preset':    # Only do this if it is a preset profile
                     if child['props']['value'] is not None:
                         device_dict[house][selected_element]['selected_power_option'] = child['props']['value']
                         key = device_dict[house][selected_element]['power_options'][child['props']['value']]['key']
@@ -485,6 +485,7 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
                             load_profile = sql_modules.get_load_profile(table_name, key, database)  # Get load profile snippet from database
                         standby_power = load_profile[0]     # Get standby power (first element of loaded profile)
                         load_profile = pd.Series(load_profile[1:])     # Delete first element (standby power)
+                        load_profile = load_profile.fillna(0)          # If there are nan values, fill them with zero
                         power = pd.Series(device_dict[house][selected_element]['power'])    # Get current power profile
                         index_pos = minutes - 1
                         power[index_pos:index_pos + len(load_profile)] = load_profile.values

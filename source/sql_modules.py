@@ -35,7 +35,13 @@ def get_load_profile(table_name, key, database):
     cursor = conn.cursor()  # Create a cursor object
     # Select the row of values from the table
     row = cursor.execute(f"SELECT * FROM {table_name} WHERE series_id = ?", (key,)).fetchone()
-    row = list(row[1:])  # remove series_id and convert to a list
+    row = list(row[2:])  # remove series_id and type and convert to a list
+    end_index = 0   # The SQL query gets all 1440 values from the database, also the many null values which are not filled by a profile
+    for index, value in enumerate(reversed(row)):   # Iterate backwards throw the list
+        if value is not None:                       # Find the last value of the profile
+            end_index = len(row) - index
+            break
+    row = row[:end_index]                           # Cut away the null part
     # Close the cursor and database connection
     cursor.close()
     conn.close()
