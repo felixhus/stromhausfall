@@ -8,24 +8,9 @@ from dash_iconify import DashIconify
 import source.plot as plot
 import source.stylesheets as stylesheets
 
-# devices = {'bathroom': [["Föhn", 'button_add_hairdryer', 'icon-park-outline:hair-dryer'],
-#                         ["Zahnbürste", 'button_add_toothbrush', 'mdi:toothbrush-electric'],
-#                         ["Bügeleisen", 'button_add_iron', 'tabler:ironing-1']],
-#            'kitchen': [["Kühlschrank", 'button_add_refrigerator', 'mdi:fridge-outline'],
-#                        ["Wasserkocher", 'button_add_kettle', 'material-symbols:kettle-outline'],
-#                        ["Kaffeemaschine", 'button_add_coffee', 'ic:outline-coffee'],
-#                        ["Ofen", 'button_add_oven', 'material-symbols:oven-gen-outline']]}
-
-devices = {'bathroom': [["Waschmaschine", 'button_add_washing_machine', 'icon-park-outline:washing-machine-one'],
-                        ["Boiler", 'button_add_boiler', 'mdi:water-boiler']],
-           'kitchen': [["Kühlschrank", 'button_add_refrigerator', 'mdi:fridge-outline'],
-                       ["Wasserkocher", 'button_add_kettle', 'material-symbols:kettle-outline'],
-                       ["Spülmaschine", 'button_add_dishwasher', 'fluent:dishwasher-20-regular']],
-           'livingroom': [["Fernseher", 'button_add_tv_lcd', 'mdi:tv-classic']],
-           'office': [["Desktop PC", 'button_add_desktop_pc', 'ph:desktop-tower']]}
-
 urls = {'cyto_bathroom': 'url(/assets/background_bathroom.png)', 'cyto_kitchen': 'url(/assets/background_kitchen.png)',
-        'cyto_livingroom': 'url(/assets/background_livingroom.png)', 'cyto_office': 'url(/assets/background_office.png)'}
+        'cyto_livingroom': 'url(/assets/background_livingroom.png)',
+        'cyto_office': 'url(/assets/background_office.png)'}
 
 device_dict_init = {'house1': {}, 'rooms': {}, 'last_id': 1}
 
@@ -46,24 +31,33 @@ def add_storage_variables():
                      dcc.Store(id='store_results_house_power'), dcc.Store(id='store_settings', data={}),
                      dcc.Store(id='store_results_house_energy'),
                      dcc.Store(id='store_backup', storage_type='session'),
-                     dcc.Store(id='store_save_by_enter', data=None)])
+                     dcc.Store(id='store_save_by_enter', data=None),
+                     dcc.Store(id='store_own_device_dict', data={}, storage_type='session'),
+                     dcc.Store(id='store_menu_elements_house', storage_type='session')])
 
 
-def add_grid_object_button(object_id, name=None, linked_object=None, icon=None, enable=True):
+def add_grid_object_button(object_id, name=None, linked_object=None, icon=None, enable=True, app=None):
     """
     Methode erzeugt einen Button für das Menü, um Grid-Objekte hinzuzufügen.
     :param object_id: Id des Buttons
     :param linked_object: Node, der beim Klicken zum Grid hinzugefügt wird.
-    :param name: Name des Buttons
+    :param name: Name des Buttons für Tooltip
     :param icon: Pfad zum anzuzeigenden Icon
     :param enable: Boolean, ob Button Enabled sein soll (False = Disabled)
-    :return: DBC Button
+    :param app:
+    :return: DBC Button und Tooltip, das den Namen anzeigt
     """
     if icon is not None:
-        children = html.Img(src=icon, height=str(stylesheets.button_add_components_style['icon_width']))
+        if icon.endswith('.png'):  # If a png picture is given as the logo
+            icon = app.get_asset_url(icon)
+            children = html.Img(src=icon, height=str(stylesheets.button_add_components_style['icon_width']) + 'px')
+        else:  # If a dash iconify icon is given
+            children = DashIconify(icon=icon, width=stylesheets.button_add_components_style['icon_width'],
+                                   color='black')
     else:
         children = name
-    return dmc.Button(id=object_id, children=children, style=stylesheets.button_add_components_style, disabled=not enable)
+    return [dmc.Button(id=object_id, children=children, style=stylesheets.button_add_components_style,
+                       disabled=not enable), dbc.Tooltip(name, target=object_id)]
 
 
 def add_cytoscape_grid(nodes, edges):
@@ -86,10 +80,14 @@ def add_cytoscape_grid(nodes, edges):
     return cytoscape
 
 
-def add_menu_dropdown(room_type):
+def add_menu_dropdown(room_type, button_dict):
     item_list = []
-    for item in devices[room_type]:
+    for item in button_dict[room_type]:
         item_list.append(dmc.MenuItem(item[0], id=item[1], icon=DashIconify(icon=item[2])))
+    item_list.append(dmc.MenuDivider())
+    item_list.append(
+        dmc.MenuItem("Weitere", id='button_additional_' + room_type,
+                     icon=DashIconify(icon='mdi:more-circle-outline')))
     item_list.append(dmc.MenuDivider())
     item_list.append(
         dmc.MenuItem("Schließen", id='button_close_menu_' + room_type,
@@ -109,7 +107,7 @@ def add_cytoscape(cyto_id, elements):
         stylesheet=stylesheets.cyto_stylesheet))
 
 
-def add_cytoscape_layout():
+def add_cytoscape_layout(button_dict):
     elements = [
         {'data': {'id': 'power_strip'}, 'classes': 'power_strip_style'},
         {'data': {'id': 'plus', 'parent': 'power_strip'}, 'position': {'x': 75, 'y': 175},
@@ -141,14 +139,14 @@ def add_cytoscape_layout():
                                 dbc.Col([
                                     dmc.Menu([
                                         dmc.MenuTarget(html.Div(id='menu_target_bathroom')),
-                                        add_menu_dropdown('bathroom')
+                                        add_menu_dropdown('bathroom', button_dict)
                                     ], id='menu_devices_bathroom', position='left-start', withArrow=True),
                                     add_cytoscape('cyto_bathroom', elements)
                                 ], width=6),
                                 dbc.Col([
                                     dmc.Menu([
                                         dmc.MenuTarget(html.Div(id='menu_target_livingroom')),
-                                        add_menu_dropdown('livingroom')
+                                        add_menu_dropdown('livingroom', button_dict)
                                     ], id='menu_devices_livingroom', position='left-start', withArrow=True),
                                     add_cytoscape('cyto_livingroom', elements)
                                 ], width=6)
@@ -158,14 +156,14 @@ def add_cytoscape_layout():
                                 dbc.Col([
                                     dmc.Menu([
                                         dmc.MenuTarget(html.Div(id='menu_target_kitchen')),
-                                        add_menu_dropdown('kitchen')
+                                        add_menu_dropdown('kitchen', button_dict)
                                     ], id='menu_devices_kitchen', position='left-start', withArrow=True),
                                     add_cytoscape('cyto_kitchen', elements)
                                 ], width=6),
                                 dbc.Col([
                                     dmc.Menu([
                                         dmc.MenuTarget(html.Div(id='menu_target_office')),
-                                        add_menu_dropdown('office')
+                                        add_menu_dropdown('office', button_dict)
                                     ], id='menu_devices_office', position='left-start', withArrow=True),
                                     add_cytoscape('cyto_office', elements)
                                 ], width=6)
@@ -195,7 +193,8 @@ def add_cytoscape_layout():
                             style={"width": 250}
                         ),
                         dmc.Space(h=15),
-                        dmc.Button("Aktualisieren - Work in progress", disabled=True, id='button_update_settings', leftIcon=DashIconify(icon='ci:arrows-reload-01')),
+                        dmc.Button("Aktualisieren - Work in progress", disabled=True, id='button_update_settings',
+                                   leftIcon=DashIconify(icon='ci:arrows-reload-01')),
                     ], value='settings')
                 ],
                     id='tabs_main', value='grid', color="blue", orientation="horizontal", allowTabDeactivation=True)
@@ -283,21 +282,29 @@ def dash_navbar():
                 style={"textDecoration": "none"},
             ),
             dbc.NavbarToggler(id="navbar-toggler", n_clicks=0),
+            # dmc.Group([
+            #     dmc.Progress(id='progress_bar', value=0, striped=True, animate=True, color='pink', style={'width': 250}),
+            #     dmc.Space(h=5),
+            #     dmc.Code("", id='progress_text', style={'display': 'none'})
+            # ]),
             dmc.Group([
                 dmc.Button("README", id='button_readme', n_clicks=0,
                            leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
                 dmc.Menu([
                     dmc.MenuTarget(dmc.Button("Menü", leftIcon=DashIconify(icon="material-symbols:menu-rounded"),
-                                              variant='gradient'),),
+                                              variant='gradient'), ),
                     dmc.MenuDropdown([
                         dmc.MenuItem("Konfiguration speichern", icon=DashIconify(icon="iconoir:save-action-floppy"),
                                      id='menu_item_save'),
                         dmc.MenuItem("Konfiguration laden", icon=DashIconify(icon="iconoir:load-action-floppy"),
                                      id='menu_item_load'),
+                        dmc.MenuItem("Download eigene Geräte",
+                                     icon=DashIconify(icon="material-symbols:sim-card-download-outline"),
+                                     id='menu_item_own_devices'),
                     ])
                 ], trigger='hover', openDelay=100, closeDelay=200, transition="rotate-right", transitionDuration=150),
-                # dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
-                #            gradient={"from": "grape", "to": "pink", "deg": 35})
+                dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
+                           gradient={"from": "grape", "to": "pink", "deg": 35})
             ], spacing=10
             ),
         ]), color="dark", dark=True
@@ -461,7 +468,8 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                                        {'value': 'custom', 'label': "Selbst basteln"}]),
             dbc.Fade([
                 dmc.Space(h=20),
-                dmc.Checkbox(label="Beim Speichern zufälliges Lastprofil laden?", id='checkbox_random_profile', checked=checkbox_random)
+                dmc.Checkbox(label="Beim Speichern zufälliges Lastprofil laden?", id='checkbox_random_profile',
+                             checked=checkbox_random)
             ], id='house_fade', is_in=fade),
             dmc.Space(h=20),
             dmc.Group([
@@ -471,7 +479,8 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right'),
             dmc.Space(h=20),
-            dcc.Graph(figure=plot.plot_house_timeseries(element_dict[selected_element]['power'], 'rgb(64, 130, 109)'), id='graph_house',
+            dcc.Graph(figure=plot.plot_house_timeseries(element_dict[selected_element]['power'], 'rgb(64, 130, 109)'),
+                      id='graph_house',
                       style={'width': '100%'}),
             dmc.Space(h=20)
         ],
@@ -620,8 +629,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             ),
             dmc.Space(h=20),
             dmc.Select(
-                label=["Lastprofil ",
-                       dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
+                label=["Lastprofil "],
                 placeholder="Auswahl",
                 id='load_profile_select_preset',
                 value=element_dict[selected_element]['selected_power_option'],
@@ -666,12 +674,10 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             dmc.Space(h=20),
             dmc.Group([
                 dmc.Select(
-                    label=["Lastprofil ",
-                           dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True,
-                                     color='primary')],
+                    label=["Lastprofil "],
                     placeholder="Auswählen",
                     id='load_profile_select_custom',
-                    disabled=False, # Development
+                    disabled=False,  # Development
                     value=element_dict[selected_element]['selected_power_option'],
                     data=[
                         {'value': key, 'label': key}
@@ -716,8 +722,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             ),
             dmc.Space(h=20),
             dmc.Select(
-                label=["Lastprofil ",
-                       dbc.Badge(DashIconify(icon="ic:round-plus"), id='pill_add_profile', pill=True, color='primary')],
+                label=["Lastprofil "],
                 placeholder="Auswahl",
                 id='load_profile_select_preset',
                 value=element_dict[selected_element]['selected_power_option'],
@@ -804,7 +809,7 @@ def get_compass(orientation):
                 variant="transparent",
                 id='button_compass',
                 color='blue',
-                style={'transform': f'rotate({orientation-45}deg)'}
+                style={'transform': f'rotate({orientation - 45}deg)'}
             ),
             dmc.ActionIcon(
                 DashIconify(icon='gis:north-arrow', width=20, rotate=1),
@@ -865,7 +870,163 @@ def add_modal_graph():
     )
 
 
-def add_modal_timeseries():
+def add_modal_devices():
+    return dmc.Modal(
+        title="Weitere Geräte auswählen",
+        id='modal_additional_devices', opened=False, size=500,
+        children=[
+            dmc.Tabs([
+                dmc.TabsList([
+                    dmc.Tab("Weitere", value='additional', icon=DashIconify(icon='material-symbols:clear-all-rounded')),
+                    dmc.Tab("Eigene", value='own', icon=DashIconify(icon='mdi:user-outline')),
+                    dmc.Tab("Neues hinzufügen", value='new', icon=DashIconify(icon='mdi:package-variant-plus'))
+                ]),
+                dmc.TabsPanel(value='additional', children=[dmc.Card(id='card_additional_devices', children=[
+                    add_card_additional_devices([], None, False)
+                ])]),
+                dmc.TabsPanel(value='own', children=[dmc.Card(id='card_own_devices_load', children=[
+                    add_card_own_devices()
+                ]), dmc.Card(id='card_own_devices_add', children=html.P(id='button_add_own_device'))]),
+                dmc.TabsPanel(value='new', children=[dmc.Card(id='card_new_devices', children=[
+                    add_card_new_device()
+                ])]),
+            ], id='tabs_additional_devices', value='additional')
+        ]
+    )
+
+
+def add_card_additional_devices(devices, radio_room, own):
+    data = []
+    for device in devices:
+        if type(device) is dict:  # if device is given as dict (own devices) -> Convert to tuple
+            device = (device['type'], None, device['name'], device['menu_type'], device['icon'])
+        content = dmc.Group([
+            DashIconify(icon=device[4], inline=True),
+            device[2]
+        ])
+        data.append([device[0], content])
+    radio_devices = dmc.RadioGroup(
+        [dmc.Radio(l, value=k) for k, l in data],
+        id='radiogroup_devices',
+        label="Gerät auswählen",
+        size='sm', orientation='vertical'
+    )
+    data = [['bathroom', 'Bad'], ['livingroom', 'Wohnzimmer'], ['kitchen', 'Küche'], ['office', 'Büro']]
+    radio_rooms = dmc.RadioGroup(
+        [dmc.Radio(l, value=k) for k, l in data],
+        id='radiogroup_room', value=radio_room,
+        label="In Raum",
+        size='sm', orientation='vertical'
+    )
+    if not own:
+        button = dmc.Button("Hinzufügen", id='button_add_additional_device',
+                            leftIcon=DashIconify(icon='material-symbols:add-box-outline'))
+    else:
+        button = dmc.Button("Hinzufügen", id='button_add_own_device',
+                            leftIcon=DashIconify(icon='material-symbols:add-box-outline'))
+    return html.Div([
+        dmc.Group([
+            radio_devices, radio_rooms
+        ], align='initial', spacing=25),
+        dmc.Space(h=20),
+        button
+    ])
+
+
+def add_card_own_devices():
+    return html.Div([
+        dcc.Upload(
+            id='upload_own_devices',
+            children=html.Div([
+                'Datei hier ablegen oder ',
+                html.A('Auswählen')
+            ]),
+            style={
+                'width': '100%',
+                'height': '100px',
+                'lineHeight': '100px',
+                'borderWidth': '1px',
+                'borderStyle': 'dashed',
+                'borderRadius': '10px',
+                'textAlign': 'center',
+                'margin': '10px'
+            },
+            multiple=False
+        ),
+        dmc.Text(id='text_filename_load_own', color='blue', underline=True),
+        dmc.Space(h=10),
+        dmc.Text("Datei mit zuvor heruntergeladenen eigenen Geräten auswählen."),
+        dmc.Space(h=10),
+        dmc.Button("Laden", id='button_load_own_devices', leftIcon=DashIconify(icon="iconoir:load-action-floppy"))
+    ])
+
+
+def add_card_new_device():
+    header = [html.Thead(html.Tr([html.Th("time"), html.Th("Profil 1"), html.Th("Profil 2")]))]
+    body = [html.Tbody([
+        html.Tr([html.Td("07:01:00"), html.Td("100"), html.Td("75")]),
+        html.Tr([html.Td("07:02:00"), html.Td("100"), html.Td("100")]),
+        html.Tr([html.Td("07:02:30"), html.Td("100"), html.Td("125")]),
+        html.Tr([html.Td("07:03:00"), html.Td("100"), html.Td("150")]),
+        html.Tr([html.Td("07:05:00"), html.Td("0"), html.Td("125")]),
+        html.Tr([html.Td("07:20:00"), html.Td("50"), html.Td("100")]),
+    ])]
+    children = html.Div([
+        html.Div([
+            dmc.Text("Eigenes Gerät hinzufügen:"),
+            dmc.Space(h=10),
+            dmc.TextInput(id='input_new_name', label="Gerätename *"),
+            dmc.Space(h=10),
+            dmc.Text("Art des Lastprofils"),
+            dmc.ChipGroup(
+                [dmc.Chip(l, value=k) for k, l in [['device_preset', 'Konstant'], ['device_custom', 'Variabel']]],
+                value=None, id='input_new_menu_type'
+            ),
+            dmc.Space(h=10),
+            dmc.TextInput(id='input_new_icon', icon=DashIconify(icon='ic:outline-device-unknown'),
+                          label=dcc.Link("Hier Icon auswählen", href="https://icon-sets.iconify.design/", target="_blank"),
+                          placeholder='ic:outline-device-unknown'),
+            dmc.Space(h=10),
+            dmc.Text('CSV-Datei für Lastprofile'),
+            dcc.Upload(
+                id='upload_new_device',
+                children=html.Div([
+                    'Hier ablegen oder ',
+                    html.A('Auswählen')
+                ]),
+                style={
+                    'width': '100%',
+                    'height': '50px',
+                    'lineHeight': '50px',
+                    'borderWidth': '1px',
+                    'borderStyle': 'dashed',
+                    'borderRadius': '10px',
+                    'textAlign': 'center',
+                    'margin': '0px'
+                },
+                multiple=False
+            ),
+            dmc.Text(id='text_filename_load_new', color='#FF7F50', underline=True),
+            dmc.Space(h=15),
+            dmc.Button("Erstellen", id='button_add_new_device',
+                       leftIcon=DashIconify(icon='material-symbols:add-box-outline'))
+        ]),
+        dmc.Space(h=25),
+        dmc.Paper([
+            html.B("Hilfe beim Erstellen"), html.Br(), html.Br(),
+            html.B("Gerätename: "), "Für welches Gerät fügst du Lastprofile hinzu?", html.Br(), html.Br(),
+            html.B("Art des Lastprofils: "), html.Br(), html.U("Konstant: "), "Dein Gerät hat ein Lastprofil, das jeden Tag gleich ist (z.B. Kühlschrank). - ", html.Br(),
+            html.U("Variabel: "), "Dein Gerät hat ein Lastprofil, welches immer unterschiedlich ist. Du willst einstellen können, wann das Gerät angeschaltet wird.", html.Br(), html.Br(),
+            html.B("Icon: "), "Klicke auf den Link und such dir ein Icon aus, das zu deinem Gerät passt. Füg dann hier den Namen des Icons ein.", html.Br(), html.Br(),
+            html.B("CSV-Datei: "), "Die Lastprofile lädst du in Form einer CSV-Datei hoch. Diese muss in der ersten Spalte (\"time\") die Zeitpunkte der Messungen enthalten, die weiteren Spaltennamen geben die Namen der Lastprofile des Geräts an. Die Einheit der Leistungen is [W].",
+            html.Br(), html.Br(),
+            dmc.Table(header + body)
+        ], withBorder=True, shadow='l', p=10)
+    ])
+    return children
+
+
+def add_modal_timeseries():  # Not in use!
     return dmc.Modal(
         title='Neue Lastkurve anlegen',
         id='modal_timeseries',

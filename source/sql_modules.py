@@ -5,6 +5,13 @@ import numpy as np
 from scipy import interpolate
 
 
+def dict_factory(cursor, row):  # To get dictionary from sql query
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+
 def get_coordinates(plz, database):
     """
     Get longitude and latitude coordinates of given postcode. The function also returns the city name.
@@ -28,7 +35,13 @@ def get_load_profile(table_name, key, database):
     cursor = conn.cursor()  # Create a cursor object
     # Select the row of values from the table
     row = cursor.execute(f"SELECT * FROM {table_name} WHERE series_id = ?", (key,)).fetchone()
-    row = list(row[1:])  # remove series_id and convert to a list
+    row = list(row[2:])  # remove series_id and type and convert to a list
+    end_index = 0   # The SQL query gets all 1440 values from the database, also the many null values which are not filled by a profile
+    for index, value in enumerate(reversed(row)):   # Iterate backwards throw the list
+        if value is not None:                       # Find the last value of the profile
+            end_index = len(row) - index
+            break
+    row = row[:end_index]                           # Cut away the null part
     # Close the cursor and database connection
     cursor.close()
     conn.close()
@@ -90,3 +103,29 @@ def get_household_profile(database, profile_number, date_start, date_stop):
         date = date + timedelta(days=1)
     conn.close()  # close connection
     return power
+
+
+def get_button_dict(database):
+    conn = sqlite3.connect(database)  # connect to the database
+
+    query = "SELECT * FROM devices WHERE standard_room IS NOT NULL" # Get all devices with a standard room
+    devices = conn.execute(query).fetchall()
+    return devices
+
+
+def get_all_devices(database):
+    conn = sqlite3.connect(database)  # connect to the database
+
+    query = "SELECT * FROM devices"  # Get all devices
+    devices = conn.execute(query).fetchall()
+    return devices
+
+
+def get_device(database, device_type):
+    conn = sqlite3.connect(database)  # connect to the database
+    conn.row_factory = dict_factory
+    cursor = conn.cursor()
+
+    query = f"SELECT * FROM devices WHERE type = '{device_type}'"  # Get all devices
+    devices = cursor.execute(query).fetchall()
+    return devices

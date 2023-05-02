@@ -1,12 +1,19 @@
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
 
-import source.dash_components as dash_components
 import source.modules as modules
 import source.objects as objects
 
 
-def kitchen_callbacks(app):
+def kitchen_callbacks(app, button_dict):
+    @app.callback(Output('menu_devices_kitchen', 'opened', allow_duplicate=True),
+                  Output('modal_additional_devices', 'opened', allow_duplicate=True),
+                  Output('radiogroup_room', 'value', allow_duplicate=True),
+                  Input('button_additional_kitchen', 'n_clicks'),
+                  prevent_initial_call=True)
+    def menu_show(btn_additional):
+        return False, True, 'kitchen'  # Show modal and close menu when button "Weitere" was clicked.
+
     @app.callback(Output('cyto_kitchen', 'elements'),
                   Output('store_device_dict', 'data', allow_duplicate=True),
                   Output('menu_devices_kitchen', 'style'),
@@ -20,16 +27,21 @@ def kitchen_callbacks(app):
                   State('tabs_main', 'value'),
                   State('menu_parent_tabs', 'children'),
                   State('store_selected_element_house', 'data'),
+                  State('radiogroup_room', 'value'),
+                  State('radiogroup_devices', 'value'),
+                  State('store_own_device_dict', 'data'),
                   Input('cyto_kitchen', 'tapNode'),
                   Input('edit_save_button', 'n_clicks'),
                   Input('edit_delete_button', 'n_clicks'),
                   Input('button_close_menu_kitchen', 'n_clicks'),
                   Input('active_switch_house', 'checked'),
-                  [Input(device[1], 'n_clicks') for device in dash_components.devices['kitchen']],
+                  Input('button_add_additional_device', 'n_clicks'),
+                  Input('button_add_own_device', 'n_clicks'),
+                  [Input(device[1], 'n_clicks') for device in button_dict['kitchen']],
                   prevent_initial_call='initial_duplicate')
-    def manage_devices_kitchen(elements, device_dict, tabs_main, children, selected_element, node, btn_save,
-                               btn_delete,
-                               btn_close, active_switch, *btn_add):  # Callback to handle Kitchen action
+    def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected_element, radio_room, radio_devices,
+                                own_device_dict, node, btn_save, btn_delete,
+                                btn_close, active_switch, btn_additional, btn_own, *btn_add):  # Callback to handle Kitchen action
         try:
             room = 'kitchen'
             triggered_id = ctx.triggered_id
@@ -61,8 +73,7 @@ def kitchen_callbacks(app):
                         switch_state = no_update  # Otherwise don't update
                     return elements, device_dict, no_update, no_update, no_update, no_update, switch_state, no_update
                 else:  # A device was clicked
-                    switch_state = device_dict['house1'][node['data']['id']][
-                        'active']  # Return, which menu should be opened
+                    switch_state = device_dict['house1'][node['data']['id']]['active']  # Return, which menu should be opened
                     if node['data']['id'][:6] == "device":
                         menu_type = device_dict['house1'][node['data']['id']]['menu_type']
                         return no_update, no_update, no_update, no_update, menu_type, node['data'][
@@ -84,32 +95,27 @@ def kitchen_callbacks(app):
                                 device_dict['house1'][ele['linked_device']]['active'] = False
                             break
                 return elements, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
-            elif triggered_id[:10] == 'button_add':  # A button in the menu was clicked
-                device_type = triggered_id[11:]  # Get type to add
-                last_id = int(device_dict['last_id'])  # Get number of last id
-                device_dict['last_id'] = last_id + 1    # Increment the last id
-                socket_id = "socket" + str(last_id + 1)
-                device_id = "device" + str(last_id + 1)
-                position = elements[1]['position']  # Get Position of plus-node
-                new_position_plus = {'x': position['x'] + 40, 'y': position['y']}  # Calculate new position of plus-node
-                new_socket = {'data': {'id': socket_id, 'parent': 'power_strip'}, 'position': position,
-                              'classes': 'socket_node_style_on',  # Generate new socket
-                              'linked_device': device_id}  # and link the connected device
-                if len(elements) % 6 - 2 > 0:
-                    position_node = {'x': position['x'], 'y': position['y'] - 80}  # Get position of new device
+            elif triggered_id[:10] == 'button_add':  # A button to add a device was clicked. This could be either a menu button, the button_add_additional device or button_add_own_device
+                own = False
+                if triggered_id == 'button_add_additional_device':  # If this room was selected in the radio menu
+                    if btn_additional is None:
+                        raise PreventUpdate
+                    if radio_room == room and radio_devices is not None:
+                        device_type = radio_devices  # Get type to add
+                    else:
+                        raise PreventUpdate
+                elif triggered_id == 'button_add_own_device':  # The button to add an own device in the additional modal was clicked
+                    if btn_own is None:
+                        raise PreventUpdate
+                    if radio_room == room and radio_devices is not None:
+                        device_type = radio_devices  # Get type to add
+                        own = True
+                    else:
+                        raise PreventUpdate
                 else:
-                    position_node = {'x': position['x'], 'y': position['y'] - 120}
-                new_node = {'data': {'id': device_id}, 'classes': 'room_node_style', 'position': position_node,
-                            'linked_socket': socket_id,  # Generate new device
-                            'style': {'background-image': ['/assets/Icons/icon_' + triggered_id[11:] + '.png']}}
-                new_edge = {'data': {'source': socket_id, 'target': device_id}}  # Connect new device with new socket
-                new_device = objects.create_DeviceObject(device_id, device_type)
-                elements[1]['position'] = new_position_plus
-                elements.append(new_socket)  # Append new nodes and edges to cytoscape elements
-                elements.append(new_node)
-                elements.append(new_edge)
-                device_dict['house1'][device_id] = new_device  # Add new device to device dictionary
-                device_dict['rooms'][room]['devices'].append(device_id)  # Add new device to room device list
+                    device_type = triggered_id[11:]  # Get type to add
+                elements, device_dict = modules.create_new_device(elements, device_dict, room, device_type, own,
+                                                                  own_devices=own_device_dict)
                 return elements, device_dict, no_update, False, ['empty',
                                                                  None], no_update, no_update, no_update  # Return elements and close menu
             elif triggered_id == 'edit_save_button':

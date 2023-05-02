@@ -76,6 +76,53 @@ def connection_allowed(source, target, object_dict):
     return False
 
 
+def create_device_object(device_id, device_type, database, own, own_devices):
+    if not own:
+        device = sql_modules.get_device(database, device_type)
+        device = device[0]  # Get dict from result
+        json_data = device['power_options'].decode('utf-8-sig')
+        json_data = json_data.replace("'", "\"")
+        device['power_options'] = json.loads(json_data)   # Decode dictionary from bytes
+    else:
+        device = own_devices[device_type]
+    device['active'] = True
+    device['selected_power_option'] = None
+    device['power'] = [0] * 24 * 60 * 7
+    device['id'] = device_id
+    return device
+
+
+def create_new_device(elements, device_dict, room, device_type, own, own_devices=None):
+    database = 'source/database_profiles.db'
+    last_id = int(device_dict['last_id'])  # Get number of last id
+    device_dict['last_id'] = last_id + 1  # Increment the last id
+    socket_id = "socket" + str(last_id + 1)
+    device_id = "device" + str(last_id + 1)
+    new_device = create_device_object(device_id, device_type, database, own, own_devices)
+    image_src = get_icon_url(new_device['icon'])
+    position = elements[1]['position']  # Get Position of plus-node
+    new_position_plus = {'x': position['x'] + 40, 'y': position['y']}  # Calculate new position of plus-node
+    new_socket = {'data': {'id': socket_id, 'parent': 'power_strip'}, 'position': position,
+                  'classes': 'socket_node_style_on',  # Generate new socket
+                  'linked_device': device_id}  # and link the connected device
+    if len(elements) % 6 - 2 > 0:
+        position_node = {'x': position['x'], 'y': position['y'] - 80}  # Get position of new device
+    else:
+        position_node = {'x': position['x'], 'y': position['y'] - 120}
+    new_node = {'data': {'id': device_id}, 'classes': 'room_node_style', 'position': position_node,
+                'linked_socket': socket_id,  # Generate new device
+                'style': {'background-image': image_src}}
+    new_edge = {'data': {'source': socket_id, 'target': device_id}}  # Connect new device with new socket
+
+    elements[1]['position'] = new_position_plus
+    elements.append(new_socket)  # Append new nodes and edges to cytoscape elements
+    elements.append(new_node)
+    elements.append(new_edge)
+    device_dict['house1'][device_id] = new_device  # Add new device to device dictionary
+    device_dict['rooms'][room]['devices'].append(device_id)  # Add new device to room device list
+    return elements, device_dict
+
+
 def generate_grid_dataframes(elements, grid_objects):
     """
     Generate pandas DataFrames from given cytoscape elements.
@@ -340,9 +387,9 @@ def calculate_power_flow(elements, grid_object_dict):
     ready = False
     data = {'elements': elements, 'grid_objects': grid_object_dict}
     while not ready:
-        print(state)
+        # print(state)
         state, data, ready = power_flow_statemachine(state, data)
-        print("Done")
+        # print("Done")
     return data['df_flow'], data['labels'], data['elements']
 
 
@@ -403,14 +450,16 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
                 if child['props']['id'] == 'name_input':
                     device_dict[house][selected_element]['name'] = child['props']['value']
             elif child['type'] == 'Select':
-                if child['props']['id'] == 'load_profile_select_preset':
+                if child['props']['id'] == 'load_profile_select_preset':    # Only do this if it is a preset profile
                     if child['props']['value'] is not None:
                         device_dict[house][selected_element]['selected_power_option'] = child['props']['value']
                         key = device_dict[house][selected_element]['power_options'][child['props']['value']]['key']
                         database = 'source/database_profiles.db'
                         table_name = device_dict[house][selected_element]['menu_type']  # From which SQLite-Table
-                        load_profile = sql_modules.get_load_profile(table_name, key,
-                                                                    database)  # Get load profile from sqlite database
+                        if 'power_profiles' in device_dict[house][selected_element]:  # Check if it is an own device -> profiles are stored in dict
+                            load_profile = device_dict[house][selected_element]['power_profiles'][key]
+                        else:  # If it is predefined device -> Get load profile from database
+                            load_profile = sql_modules.get_load_profile(table_name, key, database)  # Get load profile from sqlite database
                         load_profile *= 7   # Extend profile from one day to one week
                         device_dict[house][selected_element][
                             'power'] = load_profile  # Save loaded profile to device dictionary
@@ -430,11 +479,14 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
                         selected_power_option = device_dict[house][selected_element]['selected_power_option']
                         key = device_dict[house][selected_element]['power_options'][selected_power_option]['key']
                         database = 'source/database_profiles.db'
-                        load_profile = sql_modules.get_load_profile(table_name, key, database)  # Get load profile snippet from database
+                        if 'power_profiles' in device_dict[house][selected_element]:    # Check if it is an own device -> profiles are stored in dict
+                            load_profile = device_dict[house][selected_element]['power_profiles'][key]
+                        else:   # If it is predefined device -> Get load profile from database
+                            load_profile = sql_modules.get_load_profile(table_name, key, database)  # Get load profile snippet from database
                         standby_power = load_profile[0]     # Get standby power (first element of loaded profile)
                         load_profile = pd.Series(load_profile[1:])     # Delete first element (standby power)
+                        load_profile = load_profile.fillna(0)          # If there are nan values, fill them with zero
                         power = pd.Series(device_dict[house][selected_element]['power'])    # Get current power profile
-                        # new_values = pd.Series([100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100])    # Development
                         index_pos = minutes - 1
                         power[index_pos:index_pos + len(load_profile)] = load_profile.values
                         device_dict[house][selected_element]['power'] = power.to_list()
@@ -551,6 +603,30 @@ def get_monday_sunday_from_week(week_num, year):
     monday = monday_first_week + timedelta(weeks=week_num-2)    # calculate the date of the Monday of the given week
     sunday = monday + timedelta(days=6)     # calculate the date of the Sunday of the given week
     return monday.date(), sunday.date()
+
+
+def get_button_dict():
+    devices = sql_modules.get_button_dict('source/database_profiles.db')  # Get the dict from the database
+    button_dict = {}
+    for device in devices:
+        if device[1] not in button_dict:  # If room doesn't already exist in dict, create list for it
+            button_dict[device[1]] = []
+        button_dict[device[1]].append([
+            device[2], "button_add_" + device[0], device[4]
+        ])
+    return button_dict
+
+
+def get_icon_url(icon_name):
+    """
+    Takes an icon name in the format "mdi:icon-name" and returns the Iconify URL for the icon.
+    :param icon_name: iconify name of icon
+    :return: url of icon
+    """
+    base_url = "https://api.iconify.design"
+    icon_url = f"{base_url}/{icon_name}.svg"
+    response = requests.get(icon_url)
+    return response.url
 
 
 def handle_error(err):

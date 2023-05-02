@@ -6,7 +6,7 @@ def create_HouseObject(object_id, node_id):
         'voltage': 400,
         'object_type': 'house',
         'name': "Haus",
-        'icon': 'icon_house.png',
+        'icon': 'bi:house-door',
         'ui_color': '#6a93b0',
         'allowed_types_to_connect': ["transformer", "switch_cabinet", "battery", "pv", "smart_meter"],
         'active': True,
@@ -70,7 +70,7 @@ def create_BatteryObject(object_id, node_id):
         'power': [0],
         'object_type': 'battery',
         'name': "Batteriespeicher",
-        'icon': 'icon_battery.png',
+        'icon': 'material-symbols:battery-charging-20-outline',
         'ui_color': '#b5c8d7',
         'allowed_types_to_connect': ["transformer", "switch_cabinet", "house", "pv", "smartmeter"],
         'active': True
@@ -89,7 +89,7 @@ def create_PVObject(object_id, node_id):
         'rated_power': 0,
         'tilt': 0,
         'name': "Solaranlage",
-        'icon': 'icon_pv.png',
+        'icon': 'fa6-solid:solar-panel',
         'ui_color': '#b5c8d7',
         'allowed_types_to_connect': ["transformer", "switch_cabinet", "battery", "smartmeter"],
         'active': True
@@ -104,7 +104,7 @@ def create_SwitchCabinetObject(object_id, node_id):
         'power': [0],
         'object_type': 'switch_cabinet',
         'name': "Verteilerkasten",
-        'icon': 'icon_switch_cabinet.png',
+        'icon': 'icon-park-outline:connection-point',
         'ui_color': '#9cb6ca',
         'allowed_types_to_connect': ["transformer", "house", "battery", "pv", "smartmeter", "switch_cabinet"],
         'active': True

@@ -1,6 +1,7 @@
 import base64
 import copy
 import json
+import time
 
 import dash
 import dash_mantine_components as dmc
@@ -87,31 +88,6 @@ def general_callbacks(app):
             return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
         except Exception as err:
             return no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
-
-    @app.callback(Output('store_results_house_power', 'data'),
-                  Output('store_results_house_energy', 'data'),
-                  Output('graph_power_house', 'figure'),
-                  Output('graph_sunburst_house', 'figure'),
-                  Output('store_grid_object_dict', 'data', allow_duplicate=True),
-                  Output('store_notification', 'data', allow_duplicate=True),
-                  Input('button_calculate', 'n_clicks'),
-                  State('store_device_dict', 'data'),
-                  State('tabs_main', 'value'),
-                  State('store_grid_object_dict', 'data'),
-                  State('store_custom_house', 'data'),
-                  prevent_initial_call=True)
-    def start_calculation_house(btn, device_dict, tabs_main, gridObject_dict, house):
-        try:
-            if tabs_main == 'house1':
-                df_power, df_sum, df_energy, graph_power, graph_sunburst = modules.calculate_house(device_dict, range(0, 7 * 1440))
-                gridObject_dict[house]['power'] = df_sum.loc['house1'].values.flatten().tolist()
-                return df_power.to_json(orient='index'), df_energy.to_json(orient='index'), graph_power, graph_sunburst, gridObject_dict, no_update
-            else:
-                raise PreventUpdate
-        except PreventUpdate:
-            return no_update, no_update, no_update, no_update, no_update
-        except Exception as err:
-            return no_update, no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('menu_parent_tabs', 'children'),
                   Output('menu_parent_tabs', 'value'),
@@ -237,7 +213,7 @@ def general_callbacks(app):
             index_stop = 7 * 24 * 60
             figure['layout']['xaxis']['range'] = [index_start, index_stop]
             figure_big = copy.deepcopy(figure)  # Get copy of small figure for the big modal
-            figure_big['layout']['height'] = None   # Set size of big figure to full size
+            figure_big['layout']['height'] = None  # Set size of big figure to full size
             figure_big['layout']['width'] = None
             return figure, figure_big, True
         else:  # Set range for one day
@@ -258,31 +234,31 @@ def general_callbacks(app):
             figure['layout']['showlegend'] = False
         return figure
 
-    @app.callback(Output('modal_timeseries', 'opened'),
-                  Output('timeseries_table', 'data'),
-                  Input('pill_add_profile', 'n_clicks'),
-                  Input('button_add_value', 'n_clicks'),
-                  Input('button_save_profile', 'n_clicks'),
-                  State('timeseries_table', 'data'),
-                  State('textinput_profile_name', 'value'),
-                  prevent_initial_call=True)
-    def modal_timeseries(pill, btn_add, btn_save, rows, name):
-        triggered_id = ctx.triggered_id
-        if triggered_id == 'pill_add_profile':  # Open modal to add timeseries
-            if pill is not None:
-                return True, no_update
-            else:
-                raise PreventUpdate
-        elif triggered_id == 'button_add_value':  # Add one empty row to the data table
-            rows.append({'time': '', 'power': ''})
-            return no_update, rows
-        elif triggered_id == 'button_save_profile':
-            # Funktionen zum Interpolieren und in Datenbank schreiben existieren in "sql_modules".
-            # Problem: Ich kann die neuen Lastprofile eigentlich nicht in die SQL-Datenbank schreiben, da die dann
-            # für alle verändert wird.
-            return False, no_update
-        else:
-            raise PreventUpdate
+    # @app.callback(Output('modal_timeseries', 'opened'),   # Not in use
+    #               Output('timeseries_table', 'data'),
+    #               Input('pill_add_profile', 'n_clicks'),
+    #               Input('button_add_value', 'n_clicks'),
+    #               Input('button_save_profile', 'n_clicks'),
+    #               State('timeseries_table', 'data'),
+    #               State('textinput_profile_name', 'value'),
+    #               prevent_initial_call=True)
+    # def modal_timeseries(pill, btn_add, btn_save, rows, name):
+    #     triggered_id = ctx.triggered_id
+    #     if triggered_id == 'pill_add_profile':  # Open modal to add timeseries
+    #         if pill is not None:
+    #             return True, no_update
+    #         else:
+    #             raise PreventUpdate
+    #     elif triggered_id == 'button_add_value':  # Add one empty row to the data table
+    #         rows.append({'time': '', 'power': ''})
+    #         return no_update, rows
+    #     elif triggered_id == 'button_save_profile':
+    #         # Funktionen zum Interpolieren und in Datenbank schreiben existieren in "sql_modules".
+    #         # Problem: Ich kann die neuen Lastprofile eigentlich nicht in die SQL-Datenbank schreiben, da die dann
+    #         # für alle verändert wird.
+    #         return False, no_update
+    #     else:
+    #         raise PreventUpdate
 
     @app.callback(Output('store_settings', 'data'),
                   Input('input_week', 'value'),
@@ -300,6 +276,8 @@ def general_callbacks(app):
                   Output('cyto1', 'elements', allow_duplicate=True),
                   Output('cyto_bathroom', 'elements', allow_duplicate=True),
                   Output('cyto_kitchen', 'elements', allow_duplicate=True),
+                  Output('cyto_livingroom', 'elements', allow_duplicate=True),
+                  Output('cyto_office', 'elements', allow_duplicate=True),
                   Output('input_week', 'value'),
                   Output('input_year', 'value'),
                   Output('store_custom_house', 'data', allow_duplicate=True),
@@ -307,6 +285,7 @@ def general_callbacks(app):
                   Output('store_notification', 'data', allow_duplicate=True),
                   Input('menu_item_save', 'n_clicks'),
                   Input('menu_item_load', 'n_clicks'),
+                  Input('menu_item_own_devices', 'n_clicks'),
                   Input('button_start_load', 'n_clicks'),
                   Input('button_load_configuration', 'n_clicks'),
                   State('store_grid_object_dict', 'data'),
@@ -320,10 +299,12 @@ def general_callbacks(app):
                   State('upload_configuration', 'contents'),
                   State('store_settings', 'data'),
                   State('store_custom_house', 'data'),
+                  State('store_own_device_dict', 'data'),
                   prevent_initial_call=True)
-    def main_menu(btn_save, btn_load_menu, btn_load, btn_start_load, gridObject_dict, device_dict, elements_grid,
+    def main_menu(btn_save, btn_load_menu, btn_own, btn_load, btn_start_load, gridObject_dict, device_dict,
+                  elements_grid,
                   elements_bath, elements_kitchen, elements_livingroom, elements_office, filename, upload_content,
-                  settings_dict, custom_house):
+                  settings_dict, custom_house, own_devices):
         triggered_id = ctx.triggered_id
         if triggered_id == 'menu_item_save':
             save_dict = {'gridObject_dict': gridObject_dict,
@@ -335,16 +316,21 @@ def general_callbacks(app):
                          'cyto_office': elements_office,
                          'settings': settings_dict,
                          'custom_house': custom_house}
-            return dict(content=json.dumps(save_dict),
-                        filename="test.json"), no_update, no_update, no_update, no_update, no_update, no_update, \
-                   no_update, no_update, no_update, no_update, no_update
+            return dict(content=json.dumps(save_dict), filename="konfiguration.json"), no_update, no_update, no_update, \
+                   no_update, no_update, no_update, \
+                   no_update, no_update, no_update, no_update, no_update, no_update, no_update
+        elif triggered_id == 'menu_item_own_devices':
+            save_dict = {'own_devices_dict': own_devices}
+            return dict(content=json.dumps(save_dict), filename="eigene_geraete.json"), no_update, no_update, no_update, \
+                   no_update, no_update, no_update, \
+                   no_update, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'menu_item_load' or triggered_id == 'button_start_load':
-            return no_update, True, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
+            return no_update, True, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
         elif triggered_id == 'button_load_configuration':
             if filename is None:
-                return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_no_file_selected'
+                return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_no_file_selected'
             if not filename.endswith('.json'):  # Check if the file format is .json
-                return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file_format'
+                return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file_format'
             else:
                 content_type, content_string = upload_content.split(",")  # Three lines to get dict from content
                 decoded = base64.b64decode(content_string)
@@ -354,9 +340,10 @@ def general_callbacks(app):
                     custom_house_disabled = False
                 if not (
                         'gridObject_dict' in content_dict and 'device_dict' in content_dict and 'cyto_grid' in content_dict):  # Check if all dictionaries are there
-                    return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file'
+                    return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file'
                 return no_update, False, content_dict['gridObject_dict'], content_dict['device_dict'], \
                        content_dict['cyto_grid'], content_dict['cyto_bathroom'], content_dict['cyto_kitchen'], \
+                       content_dict['cyto_livingroom'], content_dict['cyto_office'], \
                        content_dict['settings']['week'], content_dict['settings'][
                            'year'], content_dict['custom_house'], custom_house_disabled, no_update
         else:
@@ -519,6 +506,37 @@ def general_callbacks(app):
                                     "Bitte ein Lastprofil auswählen."]
             icon = DashIconify(icon="mdi:chart-bell-curve")
             color = 'yellow'
+        elif data == 'notification_no_device_selected':
+            notification_message = ["Kein Gerät ausgewählt!",
+                                    "Bitte ein Gerät auswählen."]
+            icon = DashIconify(icon="material-symbols:device-unknown-outline-rounded")
+            color = 'yellow'
+        elif data == 'notification_no_room_selected':
+            notification_message = ["Kein Raum ausgewählt!",
+                                    "Bitte einen Raum im Haus auswählen."]
+            icon = DashIconify(icon="material-symbols:meeting-room-outline-rounded")
+            color = 'yellow'
+        elif data == 'notification_missing_input':
+            notification_message = ["Leerer Raum!",
+                                    "Mir fehlt eine Information bei deiner Eingabe."]
+            icon = DashIconify(icon="ph:shooting-star")
+            color = 'yellow'
+        elif data == 'notification_error_reading_csv':
+            notification_message = ["Fehler beim Lesen der Datei!",
+                                    "Scheinbar ist der Inhalt der csv-Datei nicht richtig formatiert."]
+            icon = DashIconify(icon="mdi:file-alert-outline")
+            color = 'red'
+        elif data == 'notification_profile_length':
+            notification_message = ["Lastprofil zu lang!",
+                                    "Eins der eingelesenen Lastprofile ist zu lang. Die maximale Länge ist ein Tag "
+                                    "(1440 Minuten)."]
+            icon = DashIconify(icon="mdi:chart-bell-curve")
+            color = 'red'
+        elif data == 'notification_successful_added':
+            notification_message = ["Neues Gerät erfolgreich hinzugefügt!",
+                                    "Du findest es unter dem Reiter \"Eigene\"."]
+            icon = DashIconify(icon="material-symbols:check-circle-outline-rounded")
+            color = 'blue'
         else:
             notification_message = ["Fehler!", data]
             icon = DashIconify(icon="material-symbols:warning-outline-rounded")
