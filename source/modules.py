@@ -76,7 +76,7 @@ def connection_allowed(source, target, object_dict):
     return False
 
 
-def create_device_object(device_id, device_type, database, own, own_devices):
+def create_device_object(device_id, device_type, database, own=False, own_devices=None):
     if not own:
         device = sql_modules.get_device(database, device_type)
         device = device[0]  # Get dict from result

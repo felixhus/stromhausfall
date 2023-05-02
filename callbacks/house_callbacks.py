@@ -10,7 +10,6 @@ from dash_iconify import DashIconify
 
 import source.dash_components as dash_components
 import source.modules as modules
-import source.objects as objects
 import source.sql_modules as sql_modules
 
 
@@ -28,10 +27,13 @@ def house_callbacks(app):
                   State('store_device_dict', 'data'),
                   prevent_initial_call=True)
     def initial_room_configuration(interval, cyto_bathroom, cyto_livingroom, cyto_kitchen, cyto_office, device_dict):
+        database = 'source/database_profiles.db'
         image_lamp_src = modules.get_icon_url('mdi:lightbulb-on-outline')
         # Bathroom elements
-        device_dict['house1']['lamp_bathroom'] = objects.create_LampObject(
-            'lamp_bathroom', "Bad")  # Add lamp to device dictionary
+        device_dict['house1']['lamp_bathroom'] = modules.create_device_object('lamp_bathroom', 'lamp', database)
+        device_dict['house1']['lamp_bathroom']['name'] = "Lampe Bad"
+        # device_dict['house1']['lamp_bathroom'] = objects.create_LampObject(
+        #     'lamp_bathroom', "Bad")  # Add lamp to device dictionary
         device_dict['rooms']['bathroom'] = {}
         device_dict['rooms']['bathroom']['name'] = 'Bad'  # Create roomname
         device_dict['rooms']['bathroom']['devices'] = [
@@ -47,8 +49,8 @@ def house_callbacks(app):
         cyto_bathroom.append(lamp_edge)
 
         # Livingroom elements
-        device_dict['house1']['lamp_livingroom'] = objects.create_LampObject(
-            'lamp_livingroom', "Wohnzimmer")  # Add lamp to device dictionary
+        device_dict['house1']['lamp_bathroom'] = modules.create_device_object('lamp_livingroom', 'lamp', database)
+        device_dict['house1']['lamp_bathroom']['name'] = "Lampe Wohnzimmer"
         device_dict['rooms']['livingroom'] = {}
         device_dict['rooms']['livingroom']['name'] = 'Wohnzimmer'  # Create roomname
         device_dict['rooms']['livingroom']['devices'] = [
@@ -64,8 +66,8 @@ def house_callbacks(app):
         cyto_livingroom.append(lamp_edge)
 
         # Kitchen elements
-        device_dict['house1']['lamp_kitchen'] = objects.create_LampObject(
-            'lamp_kitchen', "Küche")  # Add lamp to device dictionary
+        device_dict['house1']['lamp_bathroom'] = modules.create_device_object('lamp_kitchen', 'lamp', database)
+        device_dict['house1']['lamp_bathroom']['name'] = "Lampe Küche"
         device_dict['rooms']['kitchen'] = {}
         device_dict['rooms']['kitchen']['name'] = 'Küche'  # Create roomname
         device_dict['rooms']['kitchen']['devices'] = [
@@ -81,8 +83,8 @@ def house_callbacks(app):
         cyto_kitchen.append(lamp_edge)
 
         # Office elements
-        device_dict['house1']['lamp_office'] = objects.create_LampObject(
-            'lamp_office', "Büro")  # Add lamp to device dictionary
+        device_dict['house1']['lamp_bathroom'] = modules.create_device_object('lamp_office', 'lamp', database)
+        device_dict['house1']['lamp_bathroom']['name'] = "Lampe Büro"
         device_dict['rooms']['office'] = {}
         device_dict['rooms']['office']['name'] = 'Büro'  # Create roomname
         device_dict['rooms']['office']['devices'] = [
