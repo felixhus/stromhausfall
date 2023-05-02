@@ -1,20 +1,16 @@
 import datetime
-import time
 
-import dash
-import modules
 import pandas as pd
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
-from dash_iconify import DashIconify
 
-import source.example_grids as example_grids
 import source.objects as objects
 import source.stylesheets as stylesheets
 from source.layout import menu_objects
 from source.modules import (calculate_power_flow, connection_allowed,
                             generate_grid_object, get_connected_edges,
-                            get_last_id, get_monday_sunday_from_week)
+                            get_icon_url, get_last_id,
+                            get_monday_sunday_from_week)
 
 # Button Ids, azimuth angles, Icons and rotations for Compass buttons PV
 compass_buttons = {'button_north': 0,
@@ -117,7 +113,7 @@ def grid_callbacks(app):
             if new_gridobject['icon'].endswith('.png'):     # If a png picture is given as the logo
                 image_src = app.get_asset_url('Icons/' + new_gridobject['icon'])
             else:   # If a dash iconify icon is given
-                image_src = modules.get_icon_url(new_gridobject['icon'])
+                image_src = get_icon_url(new_gridobject['icon'])
             gridObject_dict[new_gridobject['id']] = new_gridobject
             new_element = {'data': {'id': 'node' + str(last_id[0] + 1)},
                            'position': {'x': 50 + last_id[0] * 8, 'y': 50 + last_id[0] * 8}, 'classes': 'node_style',
