@@ -115,14 +115,12 @@ def house_callbacks(app):
                   prevent_initial_call=True)
     def start_calculation_house(btn, device_dict, tabs_main, gridObject_dict, house):
         try:
-            start_time = time.process_time()
             if tabs_main == 'house1':
                 df_power, df_sum, df_energy, graph_power, graph_sunburst = modules.calculate_house(device_dict,
                                                                                                    range(0, 7 * 1440))
                 gridObject_dict[house]['power'] = df_sum.loc['house1'].values.flatten().tolist()
-                elapsed_time = time.process_time() - start_time
                 return df_power.to_json(orient='index'), df_energy.to_json(
-                    orient='index'), graph_power, graph_sunburst, gridObject_dict, f"Berechnungszeit: {elapsed_time}"
+                    orient='index'), graph_power, graph_sunburst, gridObject_dict, no_update
             else:
                 raise PreventUpdate
         except PreventUpdate:
