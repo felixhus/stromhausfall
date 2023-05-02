@@ -289,6 +289,7 @@ def house_callbacks(app):
                     temp_dict = df_final[df].to_dict('list')
                     power_profiles.update(temp_dict)
             except Exception as err:
+                print(err)
                 return no_update, no_update, 'notification_error_reading_csv'    # Show Error message
             for profile in power_profiles:
                 if len(power_profiles[profile]) > 1440:
