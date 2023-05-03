@@ -28,6 +28,7 @@ weekdays = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"
 def grid_callbacks(app):
     @app.callback(Output('store_flow_data', 'data'),
                   Output('tabs_menu', 'value'),
+                  Output('result_parent_tabs', 'value', allow_duplicate=True),
                   Output('cyto_grid', 'stylesheet'),
                   Output('cyto_grid', 'elements', allow_duplicate=True),
                   Output('timestep_slider', 'max'),
@@ -45,17 +46,16 @@ def grid_callbacks(app):
                 df_flow, labels, elements = calculate_power_flow(elements, gridObject_dict)
                 labels = {k: round(v, 1) for k, v in labels.items()}  # Round numbers for better display
                 df_flow_json = df_flow.to_json(orient='index')
-                return df_flow_json, 'results', \
+                return df_flow_json, 'results', 'grid', \
                        stylesheets.cyto_stylesheet_calculated, elements, len(df_flow.index), labels, no_update
             else:
                 raise PreventUpdate
         except PreventUpdate:
-            return no_update, no_update, no_update, no_update, no_update, no_update, no_update
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
         except Exception as err:
-            return no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('alert_externalgrid', 'children'),
-                  Output('alert_externalgrid', 'hide'),
                   Output('store_edge_labels', 'data', allow_duplicate=True),
                   Output('store_notification', 'data', allow_duplicate=True),
                   Input('timestep_slider', 'value'),
@@ -73,13 +73,13 @@ def grid_callbacks(app):
                     text_alert = "Es werden " + str(abs(external_grid_value)) + " W an das Netz abgegeben."
                 else:
                     text_alert = "Es werden " + str(abs(external_grid_value)) + " W aus dem Netz bezogen."
-                return text_alert, False, labels, no_update
+                return text_alert, labels, no_update
             else:
                 raise PreventUpdate
         except PreventUpdate:
-            return no_update, no_update, no_update, no_update
+            return no_update, no_update, no_update
         except Exception as err:
-            return no_update, no_update, no_update, err.args[0]
+            return no_update, no_update, err.args[0]
 
     @app.callback(Output('cyto_grid', 'elements'),  # Callback to change elements of cyto
                   Output('store_grid_object_dict', 'data'),
@@ -276,7 +276,6 @@ def grid_callbacks(app):
         return elements
 
     @app.callback(Output('alert_time', 'children'),
-                  Output('alert_time', 'hide'),
                   Input('timestep_slider', 'value'),
                   State('input_year', 'value'),
                   State('input_week', 'value'),
@@ -286,7 +285,7 @@ def grid_callbacks(app):
         time_start = datetime.datetime.combine(date_start, datetime.datetime.min.time())
         slider_time = time_start + datetime.timedelta(minutes=slider)
         text = slider_time.strftime(f"Am {weekdays[slider_time.weekday()]} %d.%m. um %H:%M")
-        return text, False
+        return text
 
     @app.callback(Output('store_grid_object_dict', 'data', allow_duplicate=True),
                   Output('button_compass', 'style'),

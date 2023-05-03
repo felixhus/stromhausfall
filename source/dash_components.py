@@ -436,14 +436,12 @@ def add_card_menu():
                     dmc.TabsPanel(children=[    # Results tab panel
                         dmc.Tabs(children=[
                             add_result_tab_panel('empty'),  # For more information see comments above
-                            add_result_tab_panel('house')
+                            add_result_tab_panel('house'),
+                            add_result_tab_panel('grid')
                         ], id='result_parent_tabs'),
-                        # dmc.Space(h=20),
-                        # dmc.Alert(children="", id="alert_externalgrid", color='primary', hide=True),
-                        # dmc.Space(h=10),
-                        # dmc.Alert(children="", id="alert_time", color='primary', hide=True),
                     ], value="results"),
-                    dmc.TabsPanel(children=[
+                    # TODO: Costs for grid objects
+                    dmc.TabsPanel(children=[    # Tabs Panel for energy costs
                         dmc.Text("Keine Kosten berechnet!")
                     ], value='costs', id='cost_tab')
                 ],
@@ -490,9 +488,11 @@ def add_result_tab_panel(tab_value):
     elif tab_value == 'grid':   # Tabs panel for the results of the grid calculation
         return dmc.TabsPanel([
             dmc.Space(h=20),
-            dmc.Alert(children="", id="alert_externalgrid", color='primary', hide=False),
+            dmc.Alert(children="Bitte einen Zeitpunkt mit dem Slider auswählen",
+                      id="alert_externalgrid", color='primary', hide=False),
             dmc.Space(h=10),
-            dmc.Alert(children="", id="alert_time", color='primary', hide=False)
+            dmc.Alert(children="Bitte einen Zeitpunkt mit dem Slider auswählen",
+                      id="alert_time", color='primary', hide=False)
         ], value=tab_value)
 
 

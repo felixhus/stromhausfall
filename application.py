@@ -46,5 +46,5 @@ house_callbacks(app)                        # Include House initial callbacks
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)     # Run app
+    app.run_server(debug=True)     # Run app
 
