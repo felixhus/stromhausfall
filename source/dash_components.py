@@ -36,17 +36,22 @@ def add_storage_variables():
                      dcc.Store(id='store_menu_elements_house', storage_type='session')])
 
 
-def add_grid_object_button(object_id, name=None, linked_object=None, icon=None, enable=True, app=None):
+def add_grid_object_button(object_id, name=None, icon=None, enable=True, app=None):
     """
-    Methode erzeugt einen Button für das Menü, um Grid-Objekte hinzuzufügen.
-    :param object_id: Id des Buttons
-    :param linked_object: Node, der beim Klicken zum Grid hinzugefügt wird.
-    :param name: Name des Buttons für Tooltip
-    :param icon: Pfad zum anzuzeigenden Icon
-    :param enable: Boolean, ob Button Enabled sein soll (False = Disabled)
-    :param app:
-    :return: DBC Button und Tooltip, das den Namen anzeigt
+    This function creates a button for the left menu to add a grid object.
+    :param object_id: dash-id of the button
+    :type object_id: str
+    :param name: Name of the button for the tooltip.
+    :type name: str
+    :param icon: In case of Iconify icon: iconify name; In case of png-Icon: path of the png-file
+    :type icon: str
+    :param enable: Boolean, if button should be enabled (False=Disabled)
+    :type enable: bool
+    :param app: Dash app
+    :return: DBC button and tooltip showing the name
+    :rtype: list
     """
+
     if icon is not None:
         if icon.endswith('.png'):  # If a png picture is given as the logo
             icon = app.get_asset_url(icon)
@@ -108,6 +113,12 @@ def add_cytoscape(cyto_id, elements):
 
 
 def add_cytoscape_layout(button_dict):
+    """
+
+    :param button_dict:
+    :return:
+    """
+    
     elements = [
         {'data': {'id': 'power_strip'}, 'classes': 'power_strip_style'},
         {'data': {'id': 'plus', 'parent': 'power_strip'}, 'position': {'x': 75, 'y': 175},

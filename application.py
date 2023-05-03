@@ -1,3 +1,8 @@
+"""
+application.py is the application entry point. Here, the dash app object and server are defined,
+the callbacks are included and the app is started.
+"""
+
 import dash_bootstrap_components as dbc
 from dash import Dash
 
@@ -13,19 +18,20 @@ from source.modules import get_button_dict
 
 app = Dash(__name__, suppress_callback_exceptions=True,
            external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
-app.title = 'PowerHouse'
+app.title = 'PowerHouse'    # Define title for browser tab
+
 server = app.server
 
-button_dict = get_button_dict()
+button_dict = get_button_dict()  # Get
 app_layout(app, button_dict)     # Get layout of app
 
-grid_callbacks(app)         # Include grid callbacks
-bathroom_callbacks(app, button_dict)     # Include bathroom callbacks
-kitchen_callbacks(app, button_dict)      # Include bathroom callbacks
-livingroom_callbacks(app, button_dict)   # Include livingroom callbacks
-office_callbacks(app, button_dict)       # Include office callbacks
-general_callbacks(app)      # Include general callbacks
-house_callbacks(app)        # Include House initial callbacks
+grid_callbacks(app)                         # Include grid callbacks
+bathroom_callbacks(app, button_dict)        # Include bathroom callbacks
+kitchen_callbacks(app, button_dict)         # Include bathroom callbacks
+livingroom_callbacks(app, button_dict)      # Include livingroom callbacks
+office_callbacks(app, button_dict)          # Include office callbacks
+general_callbacks(app)                      # Include general callbacks
+house_callbacks(app)                        # Include House initial callbacks
 
 
 # @app.callback(Output('graph_modal', 'figure'),
@@ -40,5 +46,5 @@ house_callbacks(app)        # Include House initial callbacks
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=False)     # Run app
 

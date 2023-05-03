@@ -106,6 +106,14 @@ def get_household_profile(database, profile_number, date_start, date_stop):
 
 
 def get_button_dict(database):
+    """
+    Load all devices from table "devices" of database, which have a standard room defined.
+    :param database: path of sql-database
+    :type database: str
+    :return: list of devices from database
+    :rtype: list
+    """
+
     conn = sqlite3.connect(database)  # connect to the database
 
     query = "SELECT * FROM devices WHERE standard_room IS NOT NULL" # Get all devices with a standard room

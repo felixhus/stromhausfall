@@ -1,3 +1,8 @@
+"""
+layout.py creates the whole website dash layout by defining dash components and importing them from
+dash_components.py.
+"""
+
 import dash_bootstrap_components as dbc
 import dash_extensions as dex
 import dash_mantine_components as dmc
@@ -5,6 +10,8 @@ from dash import dcc, html
 
 import source.dash_components as dash_components
 
+# this list defines the buttons to add components to the grid. Structure:
+# [dash button-id, iconify icon name, boolean if enabled or disabled, name for tooltip]
 menu_objects = [
     ['button_house', 'bi:house-door', True, "Wohnhaus/Wohnung"],
     ['button_transformer', 'Icons/icon_transformer.png', True, "Transformator"],
@@ -18,6 +25,16 @@ menu_objects = [
 
 
 def app_layout(app, button_dict):
+    """
+    Set layout of the given dash app. This function defines the whole layout by creating the main components in a grid,
+    adding all dash components defined in "dash_components.py" and creating intervals, notification handlers and more.
+    :param app: Dash app to add layout to
+    :type app: dash app
+    :param button_dict: Dictionary of menu buttons for the rooms.
+    :type button_dict: dict
+    :return: None
+    """
+
     app.layout = dmc.NotificationsProvider(dbc.Container([
         dbc.Col([
             dbc.Row(
@@ -36,7 +53,7 @@ def app_layout(app, button_dict):
                 dbc.Col([dash_components.add_cytoscape_layout(button_dict)], width=7),
                 dbc.Col([dash_components.card_start(), dash_components.card_menu()], width=True)
             ]),
-            dash_components.add_modal_readme(),
+            dash_components.add_modal_readme(),             # Import all components from dash_components.py
             dash_components.add_drawer_notifications(),
             dash_components.add_modal_voltage_level(),
             dash_components.add_storage_variables(),
@@ -44,7 +61,7 @@ def app_layout(app, button_dict):
             dash_components.add_modal_devices(),
             dash_components.add_modal_load_configuration(),
             dash_components.add_modal_graph(),
-            dcc.Download(id='download_json'),
+            dcc.Download(id='download_json'),               # Create downloads, intervals, event listeners etc.
             dcc.Interval(id='interval_refresh', interval=100, max_intervals=1),
             dcc.Interval(id='interval_backup', interval=10000),
             dex.EventListener(id='key_event_listener', events=[{'event': 'keydown', 'props': ["key"]}]),

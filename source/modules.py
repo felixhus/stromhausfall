@@ -1,3 +1,7 @@
+"""
+modules.py contains all kinds of functions used by other modules in the project.
+"""
+
 import base64
 import copy
 import io
@@ -17,7 +21,9 @@ import source.objects as objects
 import source.plot as plot
 import source.sql_modules as sql_modules
 
+# Dict to get the number of the day from the string-id of the day
 days = {'mo': 0, 'tu': 1, 'wd': 2, 'th': 3, 'fr': 4, 'sa': 5, 'su': 6}
+# The ids of the selected power profiles for househould from the izes-database
 profile_selection = [46, 4, 7, 9, 14, 15, 16, 17, 18, 19, 20, 22, 23, 27, 28, 32, 33, 39, 41, 73, 42, 45, 47, 58, 61, 62, 65]
 
 
@@ -606,6 +612,14 @@ def get_monday_sunday_from_week(week_num, year):
 
 
 def get_button_dict():
+    """
+    Get a dictionary of all the buttons of the rooms in the custom house. The dictionary is split into each room
+    and contains the menu-objects for each device. They consist of:
+    name, dash button-id, icon
+    :return: dictionary of buttons for the room menus
+    :rtype: dict
+    """
+
     devices = sql_modules.get_button_dict('source/database_profiles.db')  # Get the dict from the database
     button_dict = {}
     for device in devices:
