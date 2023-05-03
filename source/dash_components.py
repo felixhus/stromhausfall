@@ -17,6 +17,11 @@ device_dict_init = {'house1': {}, 'rooms': {}, 'last_id': 1}
 
 
 def add_storage_variables():
+    """
+    Here the DCC store objects are defined, which store different data throughout the app.
+    :return: All dash store objects.
+    """
+
     return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
                      dcc.Store(id='store_line_edit_active'), dcc.Store(id='store_selected_element_grid'),
                      dcc.Store(id='store_selected_element_house'),
@@ -66,37 +71,27 @@ def add_grid_object_button(object_id, name=None, icon=None, enable=True, app=Non
                        disabled=not enable), dbc.Tooltip(name, target=object_id)]
 
 
-def add_cytoscape_grid(nodes, edges):
-    cytoscape = dbc.Card(
-        children=[dbc.CardBody(
-            cyto.Cytoscape(
-                id='cyto1',
-                layout={'name': 'preset'},
-                autoRefreshLayout=False,
-                style={'width': '100%', 'height': '100%', 'background': '#e6ecf2', 'frame': 'blue'},
-                elements=edges + nodes,
-                stylesheet=stylesheets.cyto_stylesheet)),
-            dbc.CardFooter(dmc.Slider(
-                id='timestep_slider', value=0, updatemode='drag',
-                min=1, max=10, step=1))],
-        # withBorder=True,
-        # shadow="sm",
-        # radius="md",
-        style={'height': '100%'})
-    return cytoscape
-
-
-def add_menu_dropdown(room_type, button_dict):
+def add_menu_dropdown(room_type: str, button_dict: dict):
+    """
+    This function creates a menu dropdown containing the given devices from button_dict for a given room.
+    Only the devices are considered, which have a standard room named in the database.
+    The button_dict has to contain: Name, dash id, iconify icon.
+    :param room_type: One of the following room types: bathroom, livingroom, kitchen, office
+    :type room_type: str
+    :param button_dict: Dictionary of menu buttons for the rooms.
+    :type button_dict: dict
+    :return: DMC MenuDropdown
+    """
     item_list = []
-    for item in button_dict[room_type]:
+    for item in button_dict[room_type]:     # Create a menu item for each device in room
         item_list.append(dmc.MenuItem(item[0], id=item[1], icon=DashIconify(icon=item[2])))
     item_list.append(dmc.MenuDivider())
     item_list.append(
-        dmc.MenuItem("Weitere", id='button_additional_' + room_type,
+        dmc.MenuItem("Weitere", id='button_additional_' + room_type,    # Add a menu item for additional devices
                      icon=DashIconify(icon='mdi:more-circle-outline')))
     item_list.append(dmc.MenuDivider())
     item_list.append(
-        dmc.MenuItem("Schließen", id='button_close_menu_' + room_type,
+        dmc.MenuItem("Schließen", id='button_close_menu_' + room_type,  # Add a menu item to close the menu
                      icon=DashIconify(icon='material-symbols:close-rounded'),
                      color='red'))
     return dmc.MenuDropdown(item_list)
@@ -113,11 +108,15 @@ def add_cytoscape(cyto_id, elements):
         stylesheet=stylesheets.cyto_stylesheet))
 
 
-def add_cytoscape_layout(button_dict):
+def add_main_card_layout(button_dict: dict):
     """
-
-    :param button_dict:
-    :return:
+    This function adds the main card layout to the app. It contains the following tabs:
+    - Netz - Grid: The grid cytoscape to build your grid with drag&drop is added here.
+    - Haus - House: The rooms with their cytoscapes and add-device-menus are added here.
+    - Einstellungen - Settings: The dash components for settings inputs are added here.
+    :param button_dict: Dictionary of menu buttons for the rooms.
+    :type button_dict: dict
+    :return: Main card layout of the app
     """
     
     elements = [
@@ -128,7 +127,7 @@ def add_cytoscape_layout(button_dict):
     return dbc.Card(
         children=[
             dbc.CardBody(
-                dmc.Tabs([
+                dmc.Tabs([          # Tabs of main card in the middle: Grid, House, Settings
                     dmc.TabsList([
                         dmc.Tab("Netz", value="grid", icon=DashIconify(icon='tabler:chart-grid-dots')),
                         dmc.Tab("Haus", value="house1", disabled=True, id='tab_house',
@@ -136,8 +135,8 @@ def add_cytoscape_layout(button_dict):
                         dmc.Tab("Einstellungen", value="settings",
                                 icon=DashIconify(icon='material-symbols:settings-outline'))
                     ]),
-                    dmc.TabsPanel(children=[
-                        cyto.Cytoscape(
+                    dmc.TabsPanel(children=[    # Content of Grid-Tab
+                        cyto.Cytoscape(         # Grid Cytoscape
                             id='cyto1',
                             layout={'name': 'preset'},
                             autoRefreshLayout=False,
@@ -145,17 +144,17 @@ def add_cytoscape_layout(button_dict):
                             style={'background': '#e6ecf2', 'frame': 'blue', 'height': '400px'},
                             stylesheet=stylesheets.cyto_stylesheet)],
                         value='grid'),
-                    dmc.TabsPanel(children=[
+                    dmc.TabsPanel(children=[    # Content of the House-Tab
                         dbc.Container([
                             dbc.Row([
-                                dbc.Col([
+                                dbc.Col([   # Bathroom Cytoscape and menu to add devices
                                     dmc.Menu([
                                         dmc.MenuTarget(html.Div(id='menu_target_bathroom')),
                                         add_menu_dropdown('bathroom', button_dict)
                                     ], id='menu_devices_bathroom', position='left-start', withArrow=True),
                                     add_cytoscape('cyto_bathroom', elements)
                                 ], width=6),
-                                dbc.Col([
+                                dbc.Col([   # Livingroom Cytoscape and menu to add devices
                                     dmc.Menu([
                                         dmc.MenuTarget(html.Div(id='menu_target_livingroom')),
                                         add_menu_dropdown('livingroom', button_dict)
@@ -165,14 +164,14 @@ def add_cytoscape_layout(button_dict):
                             ]),
                             dmc.Space(h=20),
                             dbc.Row([
-                                dbc.Col([
+                                dbc.Col([   # Kitchen Cytoscape and menu to add devices
                                     dmc.Menu([
                                         dmc.MenuTarget(html.Div(id='menu_target_kitchen')),
                                         add_menu_dropdown('kitchen', button_dict)
                                     ], id='menu_devices_kitchen', position='left-start', withArrow=True),
                                     add_cytoscape('cyto_kitchen', elements)
                                 ], width=6),
-                                dbc.Col([
+                                dbc.Col([   # Office Cytoscape and menu to add devices
                                     dmc.Menu([
                                         dmc.MenuTarget(html.Div(id='menu_target_office')),
                                         add_menu_dropdown('office', button_dict)
@@ -182,36 +181,38 @@ def add_cytoscape_layout(button_dict):
                             ]),
                         ])
                     ], value='house1'),
-                    dmc.TabsPanel(children=[
+                    dmc.TabsPanel(children=[    # Content of the settings-Tab
                         dmc.Space(h=20),
-                        dmc.NumberInput(
+                        dmc.NumberInput(        # Number Input for the calendar week
                             id='input_week', label="Kalenderwoche",
                             value=1, step=1,
                             min=1, max=52, stepHoldDelay=500, stepHoldInterval=150,
                             style={"width": 250},
                         ),
                         dmc.Space(h=20),
-                        dmc.NumberInput(
-                            id='input_year', label="Jahr",
+                        dmc.NumberInput(        # Number Input for the year, disabled because current database
+                            id='input_year', label="Jahr",              # only has data for 2015
                             value=2015, step=1,
                             min=2015, max=2015, stepHoldDelay=500, stepHoldInterval=100,
                             style={"width": 250}, disabled=True
                         ),
                         dmc.Space(h=20),
-                        dmc.NumberInput(
+                        dmc.NumberInput(        # Number Input for the electrical energy costs in ct/kWh
                             id='input_cost_kwh', label="Stromkosten pro kWh in ct",
                             value=30, step=0.1,
                             min=0, max=300, stepHoldDelay=500, stepHoldInterval=100,
                             style={"width": 250}
                         ),
                         dmc.Space(h=15),
+                        # Button to update all settings. Disabled because not implemented yet
+                        # TODO: Implement update button of settings
                         dmc.Button("Aktualisieren - Work in progress", disabled=True, id='button_update_settings',
                                    leftIcon=DashIconify(icon='ci:arrows-reload-01')),
                     ], value='settings')
                 ],
                     id='tabs_main', value='grid', color="blue", orientation="horizontal", allowTabDeactivation=True)
             ),
-            dbc.CardFooter(dmc.Slider(
+            dbc.CardFooter(dmc.Slider(      # Slider to select timestep in grid calculation result
                 id='timestep_slider', value=0, updatemode='drag',
                 min=1, max=10, step=1))
         ], style={'height': '100%'}

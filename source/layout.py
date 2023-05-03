@@ -42,7 +42,7 @@ def app_layout(app, button_dict):
             ),
             dbc.Row([
                 dbc.Col([
-                    dmc.Card([
+                    dmc.Card([      # Button Card on the left
                         dbc.Row(dash_components.add_grid_object_button(object_id=menu_objects[i][0],
                                                                        enable=menu_objects[i][2],
                                                                        name=menu_objects[i][3],
@@ -50,14 +50,13 @@ def app_layout(app, button_dict):
                         for i in range(len(menu_objects))
                     ], id='grid_buttons', style={'display': 'block'}, withBorder=True, shadow="sm", radius="md"),
                 ], width=1),
-                dbc.Col([dash_components.add_cytoscape_layout(button_dict)], width=7),
-                dbc.Col([dash_components.card_start(), dash_components.card_menu()], width=True)
+                dbc.Col([dash_components.add_main_card_layout(button_dict)], width=7),  # Main Card in the middle
+                dbc.Col([dash_components.card_start(), dash_components.card_menu()], width=True)    # Menu card on the right
             ]),
             dash_components.add_modal_readme(),             # Import all components from dash_components.py
             dash_components.add_drawer_notifications(),
             dash_components.add_modal_voltage_level(),
             dash_components.add_storage_variables(),
-            # dash_components.add_modal_timeseries(),
             dash_components.add_modal_devices(),
             dash_components.add_modal_load_configuration(),
             dash_components.add_modal_graph(),

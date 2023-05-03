@@ -616,6 +616,7 @@ def get_button_dict():
     Get a dictionary of all the buttons of the rooms in the custom house. The dictionary is split into each room
     and contains the menu-objects for each device. They consist of:
     name, dash button-id, icon
+    Only the devices are considered, which have a standard room named in the database.
     :return: dictionary of buttons for the room menus
     :rtype: dict
     """
