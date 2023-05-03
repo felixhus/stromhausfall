@@ -9,10 +9,13 @@ import source.plot as plot
 import source.stylesheets as stylesheets
 from source.modules import get_icon_url
 
+# URLs of the background pictures of the rooms
+# TODO: Change these to open source, in best case to dynamically loaded pictures (like iconify)
 urls = {'cyto_bathroom': 'url(/assets/background_bathroom.png)', 'cyto_kitchen': 'url(/assets/background_kitchen.png)',
         'cyto_livingroom': 'url(/assets/background_livingroom.png)',
         'cyto_office': 'url(/assets/background_office.png)'}
 
+# Initial dict for the device dict to create the first level keys
 device_dict_init = {'house1': {}, 'rooms': {}, 'last_id': 1}
 
 
@@ -98,7 +101,7 @@ def add_menu_dropdown(room_type: str, button_dict: dict):
     return dmc.MenuDropdown(item_list)
 
 
-def add_cytoscape(cyto_id: str, elements: dict):
+def add_cytoscape(cyto_id: str, elements: list):
     """
     Returns a dash cytoscape with the given id and the given elements in it. These are the power strip
     and the plus-element in case of a room cytoscape.
@@ -253,6 +256,7 @@ def add_modal_voltage_level():
     components to connect is not specified.
     :return: DMC Modal
     """
+
     return dmc.Modal(
         title="Spannungsebene auswählen",
         id='modal_voltage',
@@ -272,6 +276,11 @@ def add_modal_voltage_level():
 
 
 def dash_navbar():
+    """
+    Creates the Navigation bar of the app.
+    :return: DBC Navbar
+    """
+
     navbar = dbc.Navbar(
         dbc.Container([
             html.A(
@@ -301,6 +310,7 @@ def dash_navbar():
                 style={"textDecoration": "none"},
             ),
             dbc.NavbarToggler(id="navbar-toggler", n_clicks=0),
+            # TODO: Implement a progress bar function properly. This was a first try:
             # dmc.Group([
             #     dmc.Progress(id='progress_bar', value=0, striped=True, animate=True, color='pink', style={'width': 250}),
             #     dmc.Space(h=5),
@@ -471,6 +481,7 @@ def add_result_tab_panel(tab_value):
     :type tab_value: str
     :return: DMC Tabs Panel
     """
+
     if tab_value == 'empty':    # Dummy tabs panel, empty
         return dmc.TabsPanel(
             value=tab_value
@@ -909,35 +920,56 @@ def get_compass(orientation: int):
     ])
 
 
-def add_cost_badge(name, cost, icon):
+def add_cost_badge(name, cost, icon=None):
+    """
+    Creates a cost badge for a device containing a DMC ThemeIcon and a DMC Badge showing the yearly energy cost for
+    the device. Also, a tooltip with the device name is created.
+    :param name:
+    :type name: str
+    :param cost:
+    :type cost: float
+    :param icon:
+    :type icon: str
+    :return: Html-Div
+    """
+
     cost = str(round(cost / 100, 2)) + "€"
-    return dmc.Tooltip(
-        label=name,
-        position='bottom', transition='slide-down', transitionDuration=300, closeDelay=0,
-        color='gray',
-        children=[
-            html.Div(children=[
-                dmc.ThemeIcon(
-                    size=70,
-                    color="indigo",
-                    variant="filled",
-                    children=DashIconify(icon=icon, width=40),
-                ),
-                html.Br(),
-                dmc.Badge(cost)
-            ], style={'margin-left': 10, 'margin-bottom': 10})
-        ])
+    badge = html.Div(children=[
+        dmc.ThemeIcon(
+            size=70,
+            color="indigo",
+            variant="filled",
+            children=DashIconify(icon=icon, width=40),
+        ),
+        html.Br(),
+        dmc.Badge(cost)
+    ], style={'margin-left': 10, 'margin-bottom': 10}, id='cost_badge_' + name)
+    tooltip = dbc.Tooltip(name, placement='bottom', target='cost_badge_' + name)
+    return html.Div([badge, tooltip])
 
 
 def add_device_costs(cost_tuple):
+    """
+    Creates a grid of device-cost badges. The given tuples have to contain (name, cost, icon).
+    Also creates a title for the cost page.
+    :param cost_tuple: list of tuples of costs of devices
+    :type cost_tuple: list
+    :return: Html-Div
+    """
+
     grid = dmc.Grid(children=[
         add_cost_badge(element[0], element[1], element[2])
         for element in cost_tuple
     ], gutter='lg')
-    return html.Div(children=[dmc.Space(h=30), grid])
+    return html.Div(children=[dmc.Space(h=20), dmc.Text("Jährliche Stromkosten pro Gerät:"), dmc.Space(h=25), grid])
 
 
 def add_modal_graph():
+    """
+    Modal to show a full screen version of a graph. Is used by outputting the "figure" property of "graph_modal".
+    :return: DMC Modal
+    """
+
     return dmc.Modal(
         id='modal_graph',
         fullScreen=True, zIndex=10000,
@@ -948,6 +980,12 @@ def add_modal_graph():
 
 
 def add_modal_devices():
+    """
+    Creates the modal to choose from all devices or create own ones. It is called by the "Weitere" button in a room
+    menu. It has three tabs: additional, own, new.
+    :return: DMC Modal
+    """
+
     return dmc.Modal(
         title="Weitere Geräte auswählen",
         id='modal_additional_devices', opened=False, size=500,
@@ -958,12 +996,16 @@ def add_modal_devices():
                     dmc.Tab("Eigene", value='own', icon=DashIconify(icon='mdi:user-outline')),
                     dmc.Tab("Neues hinzufügen", value='new', icon=DashIconify(icon='mdi:package-variant-plus'))
                 ]),
+                # Tabs Panel to add additional devices. Here one can choose from all devices, not just the
+                # room-standard ones as in the menu. You can also choose the room to add to.
                 dmc.TabsPanel(value='additional', children=[dmc.Card(id='card_additional_devices', children=[
                     add_card_additional_devices([], None, False)
                 ])]),
+                # Tabs panel to add one of your own devices. They are listed here or can be loaded from a json-file.
                 dmc.TabsPanel(value='own', children=[dmc.Card(id='card_own_devices_load', children=[
                     add_card_own_devices()
                 ]), dmc.Card(id='card_own_devices_add', children=html.P(id='button_add_own_device'))]),
+                # Tabs panel to add a new own device
                 dmc.TabsPanel(value='new', children=[dmc.Card(id='card_new_devices', children=[
                     add_card_new_device()
                 ])]),
@@ -972,16 +1014,29 @@ def add_modal_devices():
     )
 
 
-def add_card_additional_devices(devices, radio_room, own):
+def add_card_additional_devices(devices, radio_room, own=False):
+    """
+    Creates a card to select from a list of devices. It contains a radio-select of the devices, a radio-select
+    of the room to add to and a button to add a selected device.
+    :param devices: List of devices, either as tuples or as dicts
+    :type devices: list
+    :param radio_room: Preset value of the room radio-select
+    :param own: str
+    :return: HTML-Div
+    """
+
     data = []
     for device in devices:
-        if type(device) is dict:  # if device is given as dict (own devices) -> Convert to tuple
+        # if device is given as dict (own devices) -> Convert to tuple
+        if type(device) is dict:
             device = (device['type'], None, device['name'], device['menu_type'], device['icon'])
+        # create list of devices with their icons
         content = dmc.Group([
             DashIconify(icon=device[4], inline=True),
             device[2]
         ])
         data.append([device[0], content])
+    # Create radioGroup with devices
     radio_devices = dmc.RadioGroup(
         [dmc.Radio(l, value=k) for k, l in data],
         id='radiogroup_devices',
@@ -989,12 +1044,15 @@ def add_card_additional_devices(devices, radio_room, own):
         size='sm', orientation='vertical'
     )
     data = [['bathroom', 'Bad'], ['livingroom', 'Wohnzimmer'], ['kitchen', 'Küche'], ['office', 'Büro']]
+    # Create radioGroup with rooms
     radio_rooms = dmc.RadioGroup(
         [dmc.Radio(l, value=k) for k, l in data],
         id='radiogroup_room', value=radio_room,
         label="In Raum",
         size='sm', orientation='vertical'
     )
+    # Add button, the button-id is different depending on if this is the card to add additional devices or to add
+    # own devices.
     if not own:
         button = dmc.Button("Hinzufügen", id='button_add_additional_device',
                             leftIcon=DashIconify(icon='material-symbols:add-box-outline'))
@@ -1011,6 +1069,12 @@ def add_card_additional_devices(devices, radio_room, own):
 
 
 def add_card_own_devices():
+    """
+    This returns the card to load a json-file with own devices. If they are loaded, the function
+    "add_card_additional_devices" is used to create a list of them.
+    :return: Html-Div
+    """
+
     return html.Div([
         dcc.Upload(
             id='upload_own_devices',
@@ -1039,6 +1103,13 @@ def add_card_own_devices():
 
 
 def add_card_new_device():
+    """
+    This creates the card to add a new own device to the app. It creates inputs for the name, type, icon and
+    csv/xls/xlsx-file and displays a help section on how to create a device.
+    :return: Html-Div
+    """
+
+    # Create table for help section
     header = [html.Thead(html.Tr([html.Th("time"), html.Th("Profil 1"), html.Th("Profil 2")]))]
     body = [html.Tbody([
         html.Tr([html.Td("07:01:00"), html.Td("100"), html.Td("75")]),
@@ -1052,21 +1123,22 @@ def add_card_new_device():
         html.Div([
             dmc.Text("Eigenes Gerät hinzufügen:"),
             dmc.Space(h=10),
-            dmc.TextInput(id='input_new_name', label="Gerätename *"),
+            dmc.TextInput(id='input_new_name', label="Gerätename *"),   # Input for device name
             dmc.Space(h=10),
             dmc.Text("Art des Lastprofils"),
-            dmc.ChipGroup(
+            dmc.ChipGroup(      # Input for type of device (preset/custom)
                 [dmc.Chip(l, value=k) for k, l in [['device_preset', 'Konstant'], ['device_custom', 'Variabel']]],
                 value=None, id='input_new_menu_type'
             ),
             dmc.Space(h=10),
+            # Input for iconify icon of the device
             dmc.TextInput(id='input_new_icon', icon=DashIconify(icon='ic:outline-device-unknown'),
                           label=dcc.Link("Hier Icon auswählen", href="https://icon-sets.iconify.design/",
                                          target="_blank"),
                           placeholder='ic:outline-device-unknown'),
             dmc.Space(h=10),
             dmc.Text('CSV-Datei für Lastprofile'),
-            dcc.Upload(
+            dcc.Upload(         # Upload of csv- or xls/xlsx file with load profiles
                 id='upload_new_device',
                 children=html.Div([
                     'Hier ablegen oder ',
@@ -1090,6 +1162,7 @@ def add_card_new_device():
                        leftIcon=DashIconify(icon='material-symbols:add-box-outline'))
         ]),
         dmc.Space(h=25),
+        # Help section which describes how to add a device
         dmc.Paper([
             html.B("Hilfe beim Erstellen"), html.Br(), html.Br(),
             html.B("Gerätename: "), "Für welches Gerät fügst du Lastprofile hinzu?", html.Br(), html.Br(),
@@ -1102,7 +1175,9 @@ def add_card_new_device():
             "Klicke auf den Link und such dir ein Icon aus, das zu deinem Gerät passt. Füg dann hier den Namen des Icons ein.",
             html.Br(), html.Br(),
             html.B("CSV-Datei: "),
-            "Die Lastprofile lädst du in Form einer CSV-Datei hoch. Diese muss in der ersten Spalte (\"time\") die Zeitpunkte der Messungen enthalten, die weiteren Spaltennamen geben die Namen der Lastprofile des Geräts an. Die Einheit der Leistungen is [W].",
+            "Die Lastprofile lädst du in Form einer CSV-Datei hoch. Diese muss in der ersten Spalte (\"time\") "
+            "die Zeitpunkte der Messungen enthalten, die weiteren Spaltennamen geben die Namen der Lastprofile "
+            "des Geräts an. Die Einheit der Leistungen is [W].",
             html.Br(), html.Br(),
             dmc.Table(header + body)
         ], withBorder=True, shadow='l', p=10)
@@ -1110,7 +1185,14 @@ def add_card_new_device():
     return children
 
 
-def add_modal_timeseries():  # Not in use!
+def add_modal_timeseries():
+    """
+    NOT IN USE! This is a modal to create a load profile of a device inside the app with a dash data table.
+    Not running, under development.
+    :return: DMC Modal
+    """
+    # TODO complete this to create whole devices with load profiles in the app itself.
+
     return dmc.Modal(
         title='Neue Lastkurve anlegen',
         id='modal_timeseries',
@@ -1144,6 +1226,11 @@ def add_modal_timeseries():  # Not in use!
 
 
 def add_modal_load_configuration():
+    """
+    Modal to load a previously saved configuration. Takes a json-file as an upload.
+    :return: DMC Modal
+    """
+
     return dmc.Modal(
         title='Konfiguration laden',
         id='modal_load_configuration',
