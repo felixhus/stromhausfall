@@ -82,6 +82,7 @@ def add_menu_dropdown(room_type: str, button_dict: dict):
     :type button_dict: dict
     :return: DMC MenuDropdown
     """
+
     item_list = []
     for item in button_dict[room_type]:     # Create a menu item for each device in room
         item_list.append(dmc.MenuItem(item[0], id=item[1], icon=DashIconify(icon=item[2])))
@@ -97,7 +98,17 @@ def add_menu_dropdown(room_type: str, button_dict: dict):
     return dmc.MenuDropdown(item_list)
 
 
-def add_cytoscape(cyto_id, elements):
+def add_cytoscape(cyto_id: str, elements: dict):
+    """
+    Returns a dash cytoscape with the given id and the given elements in it. These are the power strip
+    and the plus-element in case of a room cytoscape.
+    :param cyto_id: dash id of cytoscape to add
+    :type cyto_id: str
+    :param elements: Elements to add to this cytoscape
+    :type elements: dict
+    :return: hmtl-Div with dash cytoscape in it
+    """
+
     return html.Div(cyto.Cytoscape(
         id=cyto_id,
         layout={'name': 'preset'},
@@ -118,7 +129,8 @@ def add_main_card_layout(button_dict: dict):
     :type button_dict: dict
     :return: Main card layout of the app
     """
-    
+
+    # Specifies the elements which are in the room cytoscapes on initialization, the power strip and plus button
     elements = [
         {'data': {'id': 'power_strip'}, 'classes': 'power_strip_style'},
         {'data': {'id': 'plus', 'parent': 'power_strip'}, 'position': {'x': 75, 'y': 175},
@@ -219,21 +231,6 @@ def add_main_card_layout(button_dict: dict):
     )
 
 
-def add_room(id_cyto, elements):
-    cytoscape_room = dbc.Card(
-        children=[
-            cyto.Cytoscape(
-                id=id_cyto,
-                layout={'name': 'preset'},
-                autoRefreshLayout=False,
-                style={'width': '100%', 'height': '100%', 'background': '#e6ecf2', 'frame': 'blue', },
-                # 'background-image': background_bath_url},
-                elements=elements,
-                stylesheet=stylesheets.cyto_stylesheet)],
-        style={'height': '100%'})
-    return cytoscape_room
-
-
 def add_modal_readme():
     with open('README.md', encoding='UTF-8') as file:
         content_readme = file.read()
@@ -325,7 +322,14 @@ def dash_navbar():
     return navbar
 
 
-def card_start():
+def add_card_start():
+    """
+    Creates the card which is shown when the app is loaded. It has buttons to either start the app
+    or load an existing configuration.
+    Returns an opened DMC Modal with the content card in it.
+    :return: DMC Modal
+    """
+
     card = dmc.Card(
         children=[
             dmc.CardSection(
@@ -335,7 +339,8 @@ def card_start():
             ),
             dmc.Group(
                 [
-                    dmc.Text("Power House Simulator", weight=500),
+                    dmc.Text("Strom-Haus-Fall", weight=500),
+                    # TODO: Remove the beta badge
                     dmc.Badge("Beta", color="blue", variant="light"),
                 ],
                 position="apart",
@@ -363,8 +368,13 @@ def card_start():
     return dmc.Modal([card], id='modal_start', opened=True, withCloseButton=False, radius=10)
 
 
-def card_menu():
-    card = dmc.Card(
+def add_card_menu():
+    """
+    Creates the card on the right side of the app, which contains all settings of components and results.
+    :return: DMC Card
+    """
+
+    return dmc.Card(
         children=[dmc.LoadingOverlay(
             dmc.Tabs(
                 [
@@ -431,7 +441,6 @@ def card_menu():
         radius="md",
         style={"height": '100%'},
     )
-    return html.Div([card], id='card_menu', style={'display': 'block'})
 
 
 def add_result_tab_panel(tab_value):

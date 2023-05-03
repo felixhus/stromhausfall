@@ -10,7 +10,7 @@ from dash import dcc, html
 
 import source.dash_components as dash_components
 
-# this list defines the buttons to add components to the grid. Structure:
+# This list defines the buttons to add components to the grid. Structure:
 # [dash button-id, iconify icon name, boolean if enabled or disabled, name for tooltip]
 menu_objects = [
     ['button_house', 'bi:house-door', True, "Wohnhaus/Wohnung"],
@@ -51,7 +51,7 @@ def app_layout(app, button_dict):
                     ], id='grid_buttons', style={'display': 'block'}, withBorder=True, shadow="sm", radius="md"),
                 ], width=1),
                 dbc.Col([dash_components.add_main_card_layout(button_dict)], width=7),  # Main Card in the middle
-                dbc.Col([dash_components.card_start(), dash_components.card_menu()], width=True)    # Menu card on the right
+                dbc.Col([dash_components.add_card_start(), dash_components.add_card_menu()], width=True)    # Menu card on the right
             ]),
             dash_components.add_modal_readme(),             # Import all components from dash_components.py
             dash_components.add_drawer_notifications(),
