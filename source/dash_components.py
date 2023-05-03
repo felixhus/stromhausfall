@@ -232,6 +232,10 @@ def add_main_card_layout(button_dict: dict):
 
 
 def add_modal_readme():
+    """
+    Adds a modal to the layout, which shows the README of the project for help.
+    :return: DMC Modal
+    """
     with open('README.md', encoding='UTF-8') as file:
         content_readme = file.read()
     return dmc.Modal(
@@ -244,6 +248,11 @@ def add_modal_readme():
 
 
 def add_modal_voltage_level():
+    """
+    Return modal to choose the voltage level of a grid component. This is necessary if the voltage level of both
+    components to connect is not specified.
+    :return: DMC Modal
+    """
     return dmc.Modal(
         title="Spannungsebene auswählen",
         id='modal_voltage',
@@ -1168,4 +1177,8 @@ def add_modal_load_configuration():
 
 
 def add_drawer_notifications():
+    """
+    Returns the drawer where the app notifications are shown.
+    :return: DMC Drawer
+    """
     return dmc.Drawer(title="Nachrichten:", id='drawer_notifications', padding="md", children=[])

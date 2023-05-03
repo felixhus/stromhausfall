@@ -134,6 +134,10 @@ def grid_callbacks(app):
                                 'voltage'] is None:  # Check if voltage level of connection is defined through one of the components
                                 return_temp = [start_object['id'], end_object['id']]
                                 modal_boolean = True
+                            elif start_object['voltage'] is None and start_object['object_type'] != 'transformer':
+                                start_object['voltage'] = end_object['voltage']
+                            elif end_object['voltage'] is None and end_object['object_type'] != 'transformer':
+                                end_object['voltage'] = start_object['voltage']
                             new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
                                                  'id': 'edge' + str(last_id[1] + 1), 'label': ''},
                                         'classes': 'line_style_new'}
