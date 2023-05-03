@@ -16,9 +16,12 @@ def get_coordinates(plz, database):
     """
     Get longitude and latitude coordinates of given postcode. The function also returns the city name.
     :param plz: postcode
+    :type plz: int
     :param database: path of database
+    :type database: str
     :return: lon, lat, city name
     """
+
     conn = sqlite3.connect(database)  # Connect to the database
     cursor = conn.cursor()  # Create a cursor object
     # Select the row of values from the table
@@ -30,13 +33,25 @@ def get_coordinates(plz, database):
     return data[0], data[1], data[2]  # return lon and lat and city name
 
 
-def get_load_profile(table_name, key, database):
+def get_load_profile(table_name: str, key: str, database: str):
+    """
+    Loads a power profile with a given key from a given database and table. Cuts away null values.
+    :param table_name: Name of the table to get profile from
+    :type table_name: str
+    :param key: Key of the profile to fetch
+    :type key: str
+    :param database: Database to read from
+    :type key: str
+    :return:
+    """
+
     conn = sqlite3.connect(database)  # Connect to the database
     cursor = conn.cursor()  # Create a cursor object
     # Select the row of values from the table
     row = cursor.execute(f"SELECT * FROM {table_name} WHERE series_id = ?", (key,)).fetchone()
     row = list(row[2:])  # remove series_id and type and convert to a list
-    end_index = 0   # The SQL query gets all 1440 values from the database, also the many null values which are not filled by a profile
+    end_index = 0
+    # The SQL query gets all 1440 values from the database, also the many null values which are not filled by a profile
     for index, value in enumerate(reversed(row)):   # Iterate backwards throw the list
         if value is not None:                       # Find the last value of the profile
             end_index = len(row) - index
@@ -70,6 +85,16 @@ def generate_time_series(power, timesteps, number_steps):
 
 
 def check_postcode(postcode, database):
+    """
+    Check whether a given postcode exist in database.
+    :param postcode: Postcode to check
+    :type postcode: int
+    :param database: Database to connect to
+    :type database: str
+    :return: Result of check if postcode exists
+    :rtype: bool
+    """
+
     if postcode is None:  # If the postcode is missing
         return False
     # connect to the database
@@ -86,9 +111,23 @@ def check_postcode(postcode, database):
 
 
 def get_household_profile(database, profile_number, date_start, date_stop):
+    """
+    Load a power profile from the given database. The profile-number is provided with the start and end date.
+    :param database: Database to fetch from
+    :type database: str
+    :param profile_number: Number of the profile, out of a predefined selection of profile numbers
+    :type profile_number: int
+    :param date_start: Start date of timeframe to fetch
+    :type date_start: date
+    :param date_stop: End date of timeframe to fetch
+    :type date_stop: date
+    :return: Power profile
+    :rtype: list
+    """
+
     if date_start.month > date_stop.month:
-        date = date_start + timedelta(
-            weeks=1)  # If it is week 1 of the year so some days are in the december before, use week 2
+        # If it is week 1 of the year so some days are in the december before, use week 2
+        date = date_start + timedelta(weeks=1)
     else:
         date = date_start
     conn = sqlite3.connect(database)  # connect to the database

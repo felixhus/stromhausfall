@@ -1,9 +1,11 @@
+"""
+general_callbacks.py contains all dash callbacks for general functions of the app.
+"""
+
 import base64
 import copy
 import json
-import time
 
-import dash
 import dash_mantine_components as dmc
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
@@ -40,45 +42,68 @@ def general_callbacks(app):
                   State('graph_house', 'figure'),
                   prevent_initial_call=True)
     def save_props_action(btn_save, key_save, tabs_main, device_dict, selected_element_house, selected_element_grid,
-                          children,
-                          day, gridObject_dict, year, week, used_profiles, checkbox, figure_pv, figure_house):
+                          children, day, gridObject_dict, year, week, used_profiles, checkbox, figure_pv, figure_house):
+        """
+        Callback to save all properties of a selected element when save-button or enter was pressed.
+        :param btn_save: Button to save properties
+        :param key_save: Event of Enter-click
+        :param tabs_main: Tab value of main tab, whether grid, house or settings mode is shown
+        :param device_dict: Dictionary containing all devices in the custom house
+        :param selected_element_house: Cytoscape element which was clicked in the house
+        :param selected_element_grid: Cytoscape element which was clicked in the grid
+        :param children: Children of the menu_parent_tabs, all Inputs of the component menu
+        :param day: Day selected in the pagination of the menu
+        :param gridObject_dict: Dictionary containing all grid objects
+        :param year: Year selected in settings
+        :param week: Week selected in settings
+        :param used_profiles: Already used random profiles from IZES
+        :param checkbox: Bool if checkbox to load random profile is checked
+        :param figure_pv: Figure element of graph_pv
+        :param figure_house: Figure element of graph_house
+        :return: [store_device_dict>data, store_grid_object_dict>data, graph_pv>figure, graph_house>figure,
+        store_used_profiles>data, checkbox_random_profile>checked, store_save_by_enter>data, store_notification>data]
+        """
+
         try:
-            triggered_id = ctx.triggered_id
-            if btn_save is None and key_save is None:
+            if btn_save is None and key_save is None:  # If button wasn't clicked and enter wasn't pressed
                 raise PreventUpdate
             if children[2] is None:  # Catch event that enter was pressed without an open menu
                 raise PreventUpdate
             else:
                 if tabs_main == 'house1':  # If button was clicked in house mode
+                    # Save settings of selected element to device_dict
                     device_dict = modules.save_settings_devices(children[2]['props']['children'], device_dict,
                                                                 selected_element_house, 'house1', day)
-                    return device_dict, no_update, no_update, no_update, no_update, no_update, no_update, no_update
+                    return device_dict, no_update, no_update, no_update, no_update, no_update, None, no_update
                 elif tabs_main == 'grid':  # If button was clicked in grid mode
                     if gridObject_dict[selected_element_grid]['object_type'] == 'pv':  # If PV is selected
+                        # Get updated gridObject_dict and optional notifications for PV
                         gridObject_dict, notif = modules.save_settings_pv(children[2]['props']['children'],
                                                                           gridObject_dict, selected_element_grid,
                                                                           year, week)
-                        figure_pv["data"][0]["y"] = [-i for i in gridObject_dict[selected_element_grid][
-                            'power']]  # Invert power for plot
+                        # Set plot of pv figure, but invert power for plot
+                        figure_pv["data"][0]["y"] = [-i for i in gridObject_dict[selected_element_grid]['power']]
                         if notif is not None:
-                            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, notif
+                            return no_update, no_update, no_update, no_update, no_update, no_update, None, notif
                         else:
-                            return no_update, gridObject_dict, figure_pv, no_update, no_update, no_update, None, no_update
+                            return no_update, gridObject_dict, figure_pv, no_update, \
+                                   no_update, no_update, None, no_update
                     elif gridObject_dict[selected_element_grid]['object_type'] == 'house':  # If House is selected
                         gridObject_dict, used_profiles = modules.save_settings_house(children[2]['props']['children'],
                                                                                      gridObject_dict,
                                                                                      selected_element_grid, year, week,
                                                                                      used_profiles, checkbox)
                         figure_house["data"][0]["y"] = gridObject_dict[selected_element_grid]['power']
-                        return no_update, gridObject_dict, no_update, figure_house, used_profiles, False, None, no_update
-                    elif gridObject_dict[selected_element_grid][
-                        'object_type'] == 'transformer':  # If Transformer is selected
+                        return no_update, gridObject_dict, no_update, figure_house, \
+                               used_profiles, False, None, no_update
+                    # If a transformer is selected
+                    elif gridObject_dict[selected_element_grid]['object_type'] == 'transformer':
                         childs = children[2]['props']['children']
                         gridObject_dict[selected_element_grid]['name'] = childs[0]['props']['value']
                         gridObject_dict[selected_element_grid]['rating'] = childs[2]['props']['value']
                         return no_update, gridObject_dict, no_update, no_update, no_update, no_update, None, no_update
-                    elif gridObject_dict[selected_element_grid][
-                        'object_type'] == 'switch_cabinet':  # If switch cabinet is selected
+                    # If a switch cabinet is selected
+                    elif gridObject_dict[selected_element_grid]['object_type'] == 'switch_cabinet':
                         childs = children[2]['props']['children']
                         gridObject_dict[selected_element_grid]['name'] = childs[0]['props']['value']
                         return no_update, gridObject_dict, no_update, no_update, no_update, no_update, None, no_update

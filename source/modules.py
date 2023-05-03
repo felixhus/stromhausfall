@@ -438,6 +438,17 @@ def interpolate_profile(values, number_steps, interpolation_type):
 
 
 def save_settings_devices(children, device_dict, selected_element, house, day):
+    """
+    Save all settings of the selected device. This is done by looping over all children of the menu tab.
+    After checking their type, it is selected what to do and how to save the input.
+    :param children: Children of the menu tab, all inputs of the selected device
+    :param device_dict: Dictionary containing all devices in the custom house
+    :param selected_element: Cytoscape element which was clicked in the house
+    :param house: house-id of house in which a device should be saved, 'house1'
+    :param day: Day selected in the pagination of the menu
+    :return: device_dict: Dictionary containing all devices in the custom house
+    """
+
     for child in children:  # Go through all components of the settings menu
         if child['type'] == 'Text':  # Do nothing on things like text or vertical spaces
             pass
@@ -449,8 +460,8 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
             pass
         elif child['type'] == 'SegmentedControl':
             pass
-        elif child['type'] == 'Group':
-            save_settings_devices(child['props']['children'], device_dict, selected_element, house, day)  # Recursive execution for all elements in group
+        elif child['type'] == 'Group':  # Recursive execution for all elements in group
+            save_settings_devices(child['props']['children'], device_dict, selected_element, house, day)
         else:  # Save values of input components to device dictionary
             if child['type'] == 'TextInput':
                 if child['props']['id'] == 'name_input':
@@ -459,57 +470,79 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
                 if child['props']['id'] == 'load_profile_select_preset':    # Only do this if it is a preset profile
                     if child['props']['value'] is not None:
                         device_dict[house][selected_element]['selected_power_option'] = child['props']['value']
+                        # Get key of the database entry from the power options of the device
                         key = device_dict[house][selected_element]['power_options'][child['props']['value']]['key']
                         database = 'source/database_profiles.db'
                         table_name = device_dict[house][selected_element]['menu_type']  # From which SQLite-Table
-                        if 'power_profiles' in device_dict[house][selected_element]:  # Check if it is an own device -> profiles are stored in dict
+                        # Check if it is an own device -> profiles are stored in dict
+                        if 'power_profiles' in device_dict[house][selected_element]:
                             load_profile = device_dict[house][selected_element]['power_profiles'][key]
-                        else:  # If it is predefined device -> Get load profile from database
-                            load_profile = sql_modules.get_load_profile(table_name, key, database)  # Get load profile from sqlite database
+                        else:  # If it is predefined device -> Get load profile from sql database
+                            load_profile = sql_modules.get_load_profile(table_name, key, database)
                         load_profile *= 7   # Extend profile from one day to one week
-                        device_dict[house][selected_element][
-                            'power'] = load_profile  # Save loaded profile to device dictionary
+                        # Save generated profile to device dictionary
+                        device_dict[house][selected_element]['power'] = load_profile
                     else:
+                        # Raise Exception that no profile is selected -> Notification is shown
                         raise Exception("notification_no_profile_selected")
                 elif child['props']['id'] == 'load_profile_select_custom':
+                    # If it's a custom profile, just set the selected power option, the profile is generated later on
                     device_dict[house][selected_element]['selected_power_option'] = child['props']['value']
             elif child['type'] == 'TimeInput':
                 if 'value' in child['props']:     # There is a time input -> Add to load profile
-                    if device_dict[house][selected_element]['selected_power_option'] is not None:    # If a profile was selected
+                    if device_dict[house][selected_element]['selected_power_option'] is not None:
                         day_ind = days[day]    # Get number of day in week (Monday=0, Tuesday=1, ...)
                         timestamp = child['props']['value']
-                        timestamp = timestamp[len(timestamp)-8:]    # Get time from input
+                        timestamp = timestamp[len(timestamp)-8:]                    # Get time from input
                         minutes = int(timestamp[:2]) * 60 + int(timestamp[3:5])     # calculate start in minutes
-                        minutes = minutes + day_ind * 24 * 60                           # Add offset due to different
+                        minutes = minutes + day_ind * 24 * 60                       # Add offset due to different days
                         table_name = device_dict[house][selected_element]['menu_type']  # From which SQLite-Table
                         selected_power_option = device_dict[house][selected_element]['selected_power_option']
+                        # Get key of the database entry from the power options of the device
                         key = device_dict[house][selected_element]['power_options'][selected_power_option]['key']
                         database = 'source/database_profiles.db'
-                        if 'power_profiles' in device_dict[house][selected_element]:    # Check if it is an own device -> profiles are stored in dict
+                        # Check if it is an own device -> profiles are stored in dict
+                        if 'power_profiles' in device_dict[house][selected_element]:
                             load_profile = device_dict[house][selected_element]['power_profiles'][key]
                         else:   # If it is predefined device -> Get load profile from database
-                            load_profile = sql_modules.get_load_profile(table_name, key, database)  # Get load profile snippet from database
+                            # Get load profile snippet from sql database
+                            load_profile = sql_modules.get_load_profile(table_name, key, database)
                         standby_power = load_profile[0]     # Get standby power (first element of loaded profile)
                         load_profile = pd.Series(load_profile[1:])     # Delete first element (standby power)
                         load_profile = load_profile.fillna(0)          # If there are nan values, fill them with zero
                         power = pd.Series(device_dict[house][selected_element]['power'])    # Get current power profile
                         index_pos = minutes - 1
+                        # Add loaded profile to power profile of the device and save
                         power[index_pos:index_pos + len(load_profile)] = load_profile.values
                         device_dict[house][selected_element]['power'] = power.to_list()
                     else:
+                        # Raise Exception that no profile is selected -> Notification is shown
                         raise Exception("notification_no_profile_selected")
                 else:
+                    # Raise Exception that no time is selected -> Notification is shown
                     raise Exception("notification_no_time_input")
     return device_dict
 
 
 def save_settings_house(children, gridObject_dict, selected_element, year, week, used_profiles, checkbox):
+    """
+    Save all settings of a selected house. Load random profile if wanted.
+    :param children: Children of the menu tab, all inputs of the selected object
+    :param gridObject_dict: Dictionary containing all grid objects and their properties
+    :param selected_element: Cytoscape element which was clicked in the grid
+    :param year: Year set in the settings tab
+    :param week: Week of year set in the settings tab
+    :param used_profiles: Already used random profiles from IZES
+    :param checkbox: Bool if checkbox to load random profile is checked
+    :return: Updated gridObject_dict, updated used_profiles
+    """
+
     if checkbox:    # If wanted, load a random household profile from the database
         date_start, date_stop = get_monday_sunday_from_week(week, year)
-        profile = random.choice(profile_selection)
+        profile = random.choice(profile_selection)  # Randomly choose one of the profiles provided
         while profile in used_profiles:     # Make sure to load a profile which wasn't used already
             profile = random.choice(profile_selection)
-        used_profiles.append(profile)
+        used_profiles.append(profile)   # Update list of used profiles
         power = sql_modules.get_household_profile('source/database_izes_reduced.db', profile, date_start, date_stop)
         gridObject_dict[selected_element]['power'] = power
         gridObject_dict[selected_element]['power_profile'] = profile
@@ -518,7 +551,21 @@ def save_settings_house(children, gridObject_dict, selected_element, year, week,
 
 
 def save_settings_pv(children, gridObject_dict, selected_element, year, week):
-    # Important: Changes here also have to be done in update_settings module
+    """
+    Saves the settings of a PV-module. After all data was checked and prepared, it loads the solar data from
+    renewables.ninja.
+    :param children: Children of the menu tab, all inputs of the selected object
+    :param gridObject_dict: Dictionary containing all grid objects and their properties
+    :param selected_element: Cytoscape element which was clicked in the grid
+    :param year: Year set in the settings tab
+    :param week: Week of year set in the settings tab
+    :return: Updated gridObject_dict, Notification
+    """
+    # TODO: Changes here also have to be done in update_settings module
+
+    # TODO: FETCHING SOLAR DATA IS LIMITED TO 50/hour. CHANGE TO FETCH FROM OWN DATABASE
+    # The modules from renewables.ninja to calculate electrical power from solar power can be used.
+
     postcode = children[2]['props']['value']
     tilt = children[4]['props']['children'][1]['props']['children'][1]['props']['children'][1]['props']['value']
     rated_power = children[4]['props']['children'][1]['props']['children'][0]['props']['children'][1]['props']['value']
@@ -528,10 +575,10 @@ def save_settings_pv(children, gridObject_dict, selected_element, year, week):
     sess.headers = {'Authorization': 'Token ' + token_rn}
     url = 'https://www.renewables.ninja/api/data/pv'
     if not sql_modules.check_postcode(postcode, database):  # Check if the given postcode exist in database
-        return gridObject_dict, 'notification_false_postcode'
+        return gridObject_dict, 'notification_false_postcode'   # If not, show error notification
     lon, lat, city = sql_modules.get_coordinates(postcode, database)    # Get coordinates from postcode
     if week == 1:   # Problem: Data only exist from 2019, week 1 starts in 2018
-        week = 2
+        week = 2    # Solution: use week 2 instead of week one TODO Solve week 1 problem properly
     date_start, date_stop = get_monday_sunday_from_week(week, year)
     azimuth = gridObject_dict[selected_element]['orientation']
     query_params = {
@@ -551,9 +598,9 @@ def save_settings_pv(children, gridObject_dict, selected_element, year, week):
     if response.status_code == 200:     # Check if the request was successful
         data_pd = pd.read_json(json.dumps(response.json()['data']), orient='index', typ='frame')
     else:
-        return gridObject_dict, 'notification_pv_api_error'
-    # Write data to selected element:
-    gridObject_dict[selected_element]['power'] = [-i * 1000 for i in data_pd['electricity'].values.tolist()]  # Inverted Power and unit changed to Watts
+        return gridObject_dict, 'notification_pv_api_error'     # Show an error notification
+    # Write data to selected element (Inverted Power and unit changed to Watts):
+    gridObject_dict[selected_element]['power'] = [-i * 1000 for i in data_pd['electricity'].values.tolist()]
     gridObject_dict[selected_element]['location'] = [postcode, lat, lon]
     gridObject_dict[selected_element]['name'] = children[0]['props']['value']
     gridObject_dict[selected_element]['rated_power'] = rated_power
@@ -603,9 +650,20 @@ def update_settings(gridObject_dict, selected_element, year, week):
 
 
 def get_monday_sunday_from_week(week_num, year):
+    """
+    Get the dates of monday and sunday of a given week in a given year.
+    :param week_num:
+    :type week_num: int
+    :param year:
+    :type year: int
+    :return: Dates of monday and sunday
+    :rtype: date
+    """
+
     first_day = datetime(year, 1, 1)    # get the date of the first day of the year
     days_to_first_monday = (7 - first_day.weekday()) % 7    # calculate the days to the first Monday of the year
-    monday_first_week = first_day + timedelta(days=days_to_first_monday)    # calculate the date of the Monday of the first week
+    # calculate the date of the Monday of the first week
+    monday_first_week = first_day + timedelta(days=days_to_first_monday)
     monday = monday_first_week + timedelta(weeks=week_num-2)    # calculate the date of the Monday of the given week
     sunday = monday + timedelta(days=6)     # calculate the date of the Sunday of the given week
     return monday.date(), sunday.date()

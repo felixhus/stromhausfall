@@ -30,23 +30,54 @@ def add_storage_variables():
     :return: All dash store objects.
     """
 
-    return html.Div([dcc.Store(id='start_of_line'), dcc.Store(id='store_add_node'),
-                     dcc.Store(id='store_line_edit_active'), dcc.Store(id='store_selected_element_grid'),
+    return html.Div([dcc.Store(id='start_of_line'),
+
+                     dcc.Store(id='store_add_node'),
+
+                     dcc.Store(id='store_line_edit_active'),
+                     # Store the id of the element of the node or edge which was clicked in the grid cytoscape
+                     dcc.Store(id='store_selected_element_grid'),
+                     # Store the id of the element of the node which was clicked in a room cytoscape
                      dcc.Store(id='store_selected_element_house'),
+                     # Store id of house in the grid which is the one configured in detail by the user
                      dcc.Store(id='store_custom_house', data=None, storage_type='session'),
+
                      dcc.Store(id='store_element_deleted'), dcc.Store(id='store_notification'),
-                     dcc.Store(id='store_get_voltage'), dcc.Store(id='store_update_switch'),
-                     dcc.Store(id='store_edge_labels'), dcc.Store(id='store_timestep'),
-                     dcc.Store(id='store_flow_data'), dcc.Store(id='store_menu_change_tab_grid'),
-                     dcc.Store(id='store_menu_change_tab_house'), dcc.Store(id='store_menu_inputs', data={}),
+
+                     dcc.Store(id='store_get_voltage'),
+
+                     dcc.Store(id='store_update_switch'),
+
+                     dcc.Store(id='store_edge_labels'),
+
+                     dcc.Store(id='store_timestep'),
+
+                     dcc.Store(id='store_flow_data'),
+
+                     dcc.Store(id='store_menu_change_tab_grid'),
+
+                     dcc.Store(id='store_menu_change_tab_house'),
+
+                     dcc.Store(id='store_menu_inputs', data={}),
+                     # Store the gridObject_dict, Dictionary with all grid objects in it
                      dcc.Store(id='store_grid_object_dict', data={}),
+                     # Store Already used random profiles from IZES
                      dcc.Store(id='store_used_profiles', data=[1], storage_type='session'),
+                     # Store the device_dict, dictionary with all device objects in it
                      dcc.Store(id='store_device_dict', data=device_dict_init),
-                     dcc.Store(id='store_results_house_power'), dcc.Store(id='store_settings', data={}),
+
+                     dcc.Store(id='store_results_house_power'),
+                     # Store the settings from the settings tab
+                     dcc.Store(id='store_settings', data={}),
+
                      dcc.Store(id='store_results_house_energy'),
+                     # Store a collection of all relevant data here to reload on a page refresh
                      dcc.Store(id='store_backup', storage_type='session'),
+                     # Changed if an enter press is detected. Is then resetted with None in the save-callbacks
                      dcc.Store(id='store_save_by_enter', data=None),
+
                      dcc.Store(id='store_own_device_dict', data={}, storage_type='session'),
+
                      dcc.Store(id='store_menu_elements_house', storage_type='session')])
 
 
@@ -395,7 +426,7 @@ def add_card_start():
 def add_card_menu():
     """
     Creates the card on the right side of the app, which contains all settings of components and results.
-    Also contains the loading overlay to display a loader when somethings is loading or calculating
+    Also contains the loading overlay to display a loader when something is loading or calculating
     :return: DMC Card
     """
 
