@@ -137,7 +137,7 @@ def add_main_card_layout(button_dict: dict):
                     ]),
                     dmc.TabsPanel(children=[    # Content of Grid-Tab
                         cyto.Cytoscape(         # Grid Cytoscape
-                            id='cyto1',
+                            id='cyto_grid',
                             layout={'name': 'preset'},
                             autoRefreshLayout=False,
                             elements=[],

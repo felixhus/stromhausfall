@@ -28,14 +28,14 @@ weekdays = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"
 def grid_callbacks(app):
     @app.callback(Output('store_flow_data', 'data'),
                   Output('tabs_menu', 'value'),
-                  Output('cyto1', 'stylesheet'),
-                  Output('cyto1', 'elements', allow_duplicate=True),
+                  Output('cyto_grid', 'stylesheet'),
+                  Output('cyto_grid', 'elements', allow_duplicate=True),
                   Output('timestep_slider', 'max'),
                   Output('store_edge_labels', 'data'),
                   Output('store_notification', 'data', allow_duplicate=True),
                   Input('button_calculate', 'n_clicks'),
                   State('store_flow_data', 'data'),
-                  State('cyto1', 'elements'),
+                  State('cyto_grid', 'elements'),
                   State('store_grid_object_dict', 'data'),
                   State('tabs_main', 'value'),
                   prevent_initial_call=True)
@@ -81,7 +81,7 @@ def grid_callbacks(app):
         except Exception as err:
             return no_update, no_update, no_update, err.args[0]
 
-    @app.callback(Output('cyto1', 'elements'),  # Callback to change elements of cyto
+    @app.callback(Output('cyto_grid', 'elements'),  # Callback to change elements of cyto
                   Output('store_grid_object_dict', 'data'),
                   Output('start_of_line', 'data'),
                   Output('store_element_deleted', 'data'),
@@ -89,12 +89,12 @@ def grid_callbacks(app):
                   Output('store_get_voltage', 'data'),
                   Output('modal_voltage', 'opened'),
                   Input('store_add_node', 'data'),
-                  Input('cyto1', 'selectedNodeData'),
+                  Input('cyto_grid', 'selectedNodeData'),
                   Input('edit_delete_button', 'n_clicks'),
                   Input('button_line', 'n_clicks'),
                   Input('button_voltage_hv', 'n_clicks'),
                   Input('button_voltage_lv', 'n_clicks'),
-                  State('cyto1', 'elements'),
+                  State('cyto_grid', 'elements'),
                   State('store_grid_object_dict', 'data'),
                   State('store_line_edit_active', 'data'),
                   State('start_of_line', 'data'),
@@ -120,7 +120,7 @@ def grid_callbacks(app):
                            'style': {'background-image': image_src, 'background-color': new_gridobject['ui_color']}}
             elements.append(new_element)
             return elements, gridObject_dict, no_update, no_update, no_update, no_update, no_update
-        elif triggered_id == 'cyto1':  # # Node was clicked
+        elif triggered_id == 'cyto_grid':  # # Node was clicked
             if not node == []:
                 if btn_line_active:  # Add-line-mode is on
                     if start_of_line is not None:
@@ -185,8 +185,8 @@ def grid_callbacks(app):
 
     @app.callback(Output('store_grid_object_dict', 'data', allow_duplicate=True),
                   Output('store_menu_change_tab_grid', 'data'),
-                  Output('cyto1', 'tapNodeData'),
-                  Output('cyto1', 'tapEdgeData'),
+                  Output('cyto_grid', 'tapNodeData'),
+                  Output('cyto_grid', 'tapEdgeData'),
                   Output('store_selected_element_grid', 'data'),
                   Output('tabs_main', 'value', allow_duplicate=True),
                   Output('house_fade', 'is_in'),
@@ -194,8 +194,8 @@ def grid_callbacks(app):
                   Output('tab_house', 'disabled'),
                   Output('house_mode', 'value'),
                   Output('store_notification', 'data', allow_duplicate=True),
-                  Input('cyto1', 'tapNodeData'),
-                  Input('cyto1', 'tapEdgeData'),
+                  Input('cyto_grid', 'tapNodeData'),
+                  Input('cyto_grid', 'tapEdgeData'),
                   Input('edit_save_button', 'n_clicks'),
                   Input('store_element_deleted', 'data'),
                   Input('house_mode', 'value'),
@@ -210,14 +210,14 @@ def grid_callbacks(app):
         try:
             triggered_id = ctx.triggered_id
             triggered = ctx.triggered
-            if triggered_id == 'cyto1':
-                if triggered[0]['prop_id'] == 'cyto1.tapNodeData':  # Node was clicked
+            if triggered_id == 'cyto_grid':
+                if triggered[0]['prop_id'] == 'cyto_grid.tapNodeData':  # Node was clicked
                     if not btn_line_active:
                         return no_update, gridObject_dict[node['id']]['object_type'], None, None, node['id'], \
                                no_update, no_update, no_update, no_update, no_update, no_update  # Reset tapNodeData and tapEdgeData and return type of node for tab in menu
                     else:
                         raise PreventUpdate
-                elif triggered[0]['prop_id'] == 'cyto1.tapEdgeData':  # Edge was clicked
+                elif triggered[0]['prop_id'] == 'cyto_grid.tapEdgeData':  # Edge was clicked
                     return no_update, gridObject_dict[edge['id']]['object_type'], None, None, edge['id'], \
                            no_update, no_update, no_update, no_update, no_update, no_update  # Reset tapNodeData and tapEdgeData and return type of edge for tab in menu
                 else:
@@ -258,9 +258,9 @@ def grid_callbacks(app):
             return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
                    err.args[0]
 
-    @app.callback(Output('cyto1', 'elements', allow_duplicate=True),
+    @app.callback(Output('cyto_grid', 'elements', allow_duplicate=True),
                   Input('store_edge_labels', 'data'),
-                  State('cyto1', 'elements'),
+                  State('cyto_grid', 'elements'),
                   prevent_initial_call=True)
     def edge_labels(labels, elements):
         for edge, label in labels.items():  # Set labels of edges with power values
@@ -303,7 +303,7 @@ def grid_callbacks(app):
         # icon = DashIconify(icon=compass_buttons[triggered_id][1], width=20, rotate=compass_buttons[triggered_id][2])
         return gridObject_dict, style
 
-    @app.callback(Output('cyto1', 'autoungrabify'),  # Callback to make Node ungrabbable when adding lines
+    @app.callback(Output('cyto_grid', 'autoungrabify'),  # Callback to make Node ungrabbable when adding lines
                   Output('store_line_edit_active', 'data'),
                   Output('button_line', 'variant'),
                   Input('button_line', 'n_clicks'),
@@ -324,9 +324,9 @@ def grid_callbacks(app):
             else:
                 raise PreventUpdate
 
-    @app.callback(Output('cyto1', 'elements', allow_duplicate=True),
+    @app.callback(Output('cyto_grid', 'elements', allow_duplicate=True),
                   Input('store_custom_house', 'data'),
-                  State('cyto1', 'elements'),
+                  State('cyto_grid', 'elements'),
                   prevent_initial_call=True)
     def custom_house_style(selected_element, elements):
         if selected_element is not None:
