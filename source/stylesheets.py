@@ -61,7 +61,7 @@ cyto_stylesheet = [
             'shape': 'roundrectangle',
             'width': 30,
             'height': 30,
-            'background-image': ['/assets/Icons/icon_socket.png'],
+            'background-image': 'https://api.iconify.design/mdi:power-socket-de.svg',
             'background-width': 20,
             'background-height': 20,
         }
@@ -73,7 +73,7 @@ cyto_stylesheet = [
             'shape': 'roundrectangle',
             'width': 30,
             'height': 30,
-            'background-image': ['/assets/Icons/icon_socket.png'],
+            'background-image': 'https://api.iconify.design/mdi:power-socket-de.svg',
             'background-width': 20,
             'background-height': 20,
         }
@@ -85,7 +85,7 @@ cyto_stylesheet = [
             'shape': 'roundrectangle',
             'width': 30,
             'height': 30,
-            'background-image': ['/assets/Icons/icon_socket.png'],
+            'background-image': 'https://api.iconify.design/mdi:power-socket-de.svg',
             'background-width': 20,
             'background-height': 20,
         }

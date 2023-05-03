@@ -7,6 +7,7 @@ from dash_iconify import DashIconify
 
 import source.plot as plot
 import source.stylesheets as stylesheets
+from source.modules import get_icon_url
 
 urls = {'cyto_bathroom': 'url(/assets/background_bathroom.png)', 'cyto_kitchen': 'url(/assets/background_kitchen.png)',
         'cyto_livingroom': 'url(/assets/background_livingroom.png)',
@@ -122,7 +123,7 @@ def add_cytoscape_layout(button_dict):
     elements = [
         {'data': {'id': 'power_strip'}, 'classes': 'power_strip_style'},
         {'data': {'id': 'plus', 'parent': 'power_strip'}, 'position': {'x': 75, 'y': 175},
-         'classes': 'room_node_style', 'style': {'background-image': ['/assets/Icons/icon_plus.png']}}]
+         'classes': 'room_node_style', 'style': {'background-image': get_icon_url('ic:round-plus')}}]
 
     return dbc.Card(
         children=[
