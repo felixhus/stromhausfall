@@ -1,3 +1,8 @@
+"""
+dash_components.py contains the functions to create the components of the layout. Most of them at the first
+loading of the app, some dynamically.
+"""
+
 import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 import dash_mantine_components as dmc

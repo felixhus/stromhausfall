@@ -409,6 +409,7 @@ def general_callbacks(app):
                   Output('input_year', 'value', allow_duplicate=True),
                   Output('store_custom_house', 'data', allow_duplicate=True),
                   Output('tab_house', 'disabled', allow_duplicate=True),
+                  Output('modal_start', 'opened', allow_duplicate=True),
                   Input('interval_refresh', 'n_intervals'),
                   State('store_backup', 'data'),
                   State('store_custom_house', 'data'),
@@ -423,7 +424,7 @@ def general_callbacks(app):
                    backup_dict['cyto_grid'], backup_dict['cyto_bathroom'], backup_dict['cyto_kitchen'], \
                    backup_dict['cyto_livingroom'], backup_dict['cyto_office'], \
                    backup_dict['settings']['week'], backup_dict['settings']['year'], backup_dict['custom_house'], \
-                   custom_house_disabled
+                   custom_house_disabled, False
         else:
             raise PreventUpdate
 

@@ -222,7 +222,7 @@ def generate_directed_graph(graph):
         raise Exception("Es sind mehr als ein externes Netz vorhanden.")
     elif number_of_ext_grids < 1:
         raise Exception("Es ist kein externes Netz vorhanden.")
-    bfs = nx.edge_bfs(graph, source_node, orientation="ignore")
+    # bfs = nx.edge_bfs(graph, source_node, orientation="ignore")
     for edge in nx.edge_bfs(graph, source_node, orientation="ignore"):
         edge_id = 'edge'
         for edge_undir in graph.edges:
@@ -255,7 +255,7 @@ def generate_equations(graph):
     for node in graph.nodes(data=True):     # Get power profile from each node
         df_power[node[0]] = node[1]['object']['power']
     inc = nx.incidence_matrix(graph, oriented=True).toarray()
-    idx = 0
+    idx, idx_ext = 0, 0
     for node in graph.nodes(data=True):
         if node[1]['object']['object_type'] == 'externalgrid':
             idx_ext = idx
@@ -632,12 +632,14 @@ def get_button_dict():
     return button_dict
 
 
-def get_icon_url(icon_name):
+def get_icon_url(icon_name: str):
     """
     Takes an icon name in the format "mdi:icon-name" and returns the Iconify URL for the icon.
     :param icon_name: iconify name of icon
+    :type icon_name: str
     :return: url of icon
     """
+
     base_url = "https://api.iconify.design"
     icon_url = f"{base_url}/{icon_name}.svg"
     response = requests.get(icon_url)

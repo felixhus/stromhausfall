@@ -49,8 +49,8 @@ def house_callbacks(app):
         cyto_bathroom.append(lamp_edge)
 
         # Livingroom elements
-        device_dict['house1']['lamp_bathroom'] = modules.create_device_object('lamp_livingroom', 'lamp', database)
-        device_dict['house1']['lamp_bathroom']['name'] = "Lampe Wohnzimmer"
+        device_dict['house1']['lamp_livingroom'] = modules.create_device_object('lamp_livingroom', 'lamp', database)
+        device_dict['house1']['lamp_livingroom']['name'] = "Lampe Wohnzimmer"
         device_dict['rooms']['livingroom'] = {}
         device_dict['rooms']['livingroom']['name'] = 'Wohnzimmer'  # Create roomname
         device_dict['rooms']['livingroom']['devices'] = [
@@ -66,8 +66,8 @@ def house_callbacks(app):
         cyto_livingroom.append(lamp_edge)
 
         # Kitchen elements
-        device_dict['house1']['lamp_bathroom'] = modules.create_device_object('lamp_kitchen', 'lamp', database)
-        device_dict['house1']['lamp_bathroom']['name'] = "Lampe Küche"
+        device_dict['house1']['lamp_kitchen'] = modules.create_device_object('lamp_kitchen', 'lamp', database)
+        device_dict['house1']['lamp_kitchen']['name'] = "Lampe Küche"
         device_dict['rooms']['kitchen'] = {}
         device_dict['rooms']['kitchen']['name'] = 'Küche'  # Create roomname
         device_dict['rooms']['kitchen']['devices'] = [
@@ -83,8 +83,8 @@ def house_callbacks(app):
         cyto_kitchen.append(lamp_edge)
 
         # Office elements
-        device_dict['house1']['lamp_bathroom'] = modules.create_device_object('lamp_office', 'lamp', database)
-        device_dict['house1']['lamp_bathroom']['name'] = "Lampe Büro"
+        device_dict['house1']['lamp_office'] = modules.create_device_object('lamp_office', 'lamp', database)
+        device_dict['house1']['lamp_office']['name'] = "Lampe Büro"
         device_dict['rooms']['office'] = {}
         device_dict['rooms']['office']['name'] = 'Büro'  # Create roomname
         device_dict['rooms']['office']['devices'] = [
