@@ -104,8 +104,9 @@ def general_callbacks(app):
                   State('store_selected_element_grid', 'data'),
                   State('store_selected_element_house', 'data'),
                   prevent_initial_call=True)
-    def manage_menu_containers(tab_value_house, tab_value_grid, tabs_main, switch_state, menu_children, gridObject_dict,
-                               device_dict, selected_element_grid, selected_element_house):
+    def manage_menu_tabs(tab_value_house, tab_value_grid, tabs_main, switch_state, menu_children, gridObject_dict,
+                         device_dict, selected_element_grid, selected_element_house):
+        # TODO: !!!!!!!!!!!!!!!!!!
         try:
             triggered_id = ctx.triggered_id
             if triggered_id == 'tabs_main':

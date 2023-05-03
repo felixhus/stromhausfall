@@ -84,11 +84,11 @@ def add_menu_dropdown(room_type: str, button_dict: dict):
     """
 
     item_list = []
-    for item in button_dict[room_type]:     # Create a menu item for each device in room
+    for item in button_dict[room_type]:  # Create a menu item for each device in room
         item_list.append(dmc.MenuItem(item[0], id=item[1], icon=DashIconify(icon=item[2])))
     item_list.append(dmc.MenuDivider())
     item_list.append(
-        dmc.MenuItem("Weitere", id='button_additional_' + room_type,    # Add a menu item for additional devices
+        dmc.MenuItem("Weitere", id='button_additional_' + room_type,  # Add a menu item for additional devices
                      icon=DashIconify(icon='mdi:more-circle-outline')))
     item_list.append(dmc.MenuDivider())
     item_list.append(
@@ -139,7 +139,7 @@ def add_main_card_layout(button_dict: dict):
     return dbc.Card(
         children=[
             dbc.CardBody(
-                dmc.Tabs([          # Tabs of main card in the middle: Grid, House, Settings
+                dmc.Tabs([  # Tabs of main card in the middle: Grid, House, Settings
                     dmc.TabsList([
                         dmc.Tab("Netz", value="grid", icon=DashIconify(icon='tabler:chart-grid-dots')),
                         dmc.Tab("Haus", value="house1", disabled=True, id='tab_house',
@@ -147,8 +147,8 @@ def add_main_card_layout(button_dict: dict):
                         dmc.Tab("Einstellungen", value="settings",
                                 icon=DashIconify(icon='material-symbols:settings-outline'))
                     ]),
-                    dmc.TabsPanel(children=[    # Content of Grid-Tab
-                        cyto.Cytoscape(         # Grid Cytoscape
+                    dmc.TabsPanel(children=[  # Content of Grid-Tab
+                        cyto.Cytoscape(  # Grid Cytoscape
                             id='cyto_grid',
                             layout={'name': 'preset'},
                             autoRefreshLayout=False,
@@ -156,17 +156,17 @@ def add_main_card_layout(button_dict: dict):
                             style={'background': '#e6ecf2', 'frame': 'blue', 'height': '400px'},
                             stylesheet=stylesheets.cyto_stylesheet)],
                         value='grid'),
-                    dmc.TabsPanel(children=[    # Content of the House-Tab
+                    dmc.TabsPanel(children=[  # Content of the House-Tab
                         dbc.Container([
                             dbc.Row([
-                                dbc.Col([   # Bathroom Cytoscape and menu to add devices
+                                dbc.Col([  # Bathroom Cytoscape and menu to add devices
                                     dmc.Menu([
                                         dmc.MenuTarget(html.Div(id='menu_target_bathroom')),
                                         add_menu_dropdown('bathroom', button_dict)
                                     ], id='menu_devices_bathroom', position='left-start', withArrow=True),
                                     add_cytoscape('cyto_bathroom', elements)
                                 ], width=6),
-                                dbc.Col([   # Livingroom Cytoscape and menu to add devices
+                                dbc.Col([  # Livingroom Cytoscape and menu to add devices
                                     dmc.Menu([
                                         dmc.MenuTarget(html.Div(id='menu_target_livingroom')),
                                         add_menu_dropdown('livingroom', button_dict)
@@ -176,14 +176,14 @@ def add_main_card_layout(button_dict: dict):
                             ]),
                             dmc.Space(h=20),
                             dbc.Row([
-                                dbc.Col([   # Kitchen Cytoscape and menu to add devices
+                                dbc.Col([  # Kitchen Cytoscape and menu to add devices
                                     dmc.Menu([
                                         dmc.MenuTarget(html.Div(id='menu_target_kitchen')),
                                         add_menu_dropdown('kitchen', button_dict)
                                     ], id='menu_devices_kitchen', position='left-start', withArrow=True),
                                     add_cytoscape('cyto_kitchen', elements)
                                 ], width=6),
-                                dbc.Col([   # Office Cytoscape and menu to add devices
+                                dbc.Col([  # Office Cytoscape and menu to add devices
                                     dmc.Menu([
                                         dmc.MenuTarget(html.Div(id='menu_target_office')),
                                         add_menu_dropdown('office', button_dict)
@@ -193,23 +193,23 @@ def add_main_card_layout(button_dict: dict):
                             ]),
                         ])
                     ], value='house1'),
-                    dmc.TabsPanel(children=[    # Content of the settings-Tab
+                    dmc.TabsPanel(children=[  # Content of the settings-Tab
                         dmc.Space(h=20),
-                        dmc.NumberInput(        # Number Input for the calendar week
+                        dmc.NumberInput(  # Number Input for the calendar week
                             id='input_week', label="Kalenderwoche",
                             value=1, step=1,
                             min=1, max=52, stepHoldDelay=500, stepHoldInterval=150,
                             style={"width": 250},
                         ),
                         dmc.Space(h=20),
-                        dmc.NumberInput(        # Number Input for the year, disabled because current database
-                            id='input_year', label="Jahr",              # only has data for 2015
+                        dmc.NumberInput(  # Number Input for the year, disabled because current database
+                            id='input_year', label="Jahr",  # only has data for 2015
                             value=2015, step=1,
                             min=2015, max=2015, stepHoldDelay=500, stepHoldInterval=100,
                             style={"width": 250}, disabled=True
                         ),
                         dmc.Space(h=20),
-                        dmc.NumberInput(        # Number Input for the electrical energy costs in ct/kWh
+                        dmc.NumberInput(  # Number Input for the electrical energy costs in ct/kWh
                             id='input_cost_kwh', label="Stromkosten pro kWh in ct",
                             value=30, step=0.1,
                             min=0, max=300, stepHoldDelay=500, stepHoldInterval=100,
@@ -224,7 +224,7 @@ def add_main_card_layout(button_dict: dict):
                 ],
                     id='tabs_main', value='grid', color="blue", orientation="horizontal", allowTabDeactivation=True)
             ),
-            dbc.CardFooter(dmc.Slider(      # Slider to select timestep in grid calculation result
+            dbc.CardFooter(dmc.Slider(  # Slider to select timestep in grid calculation result
                 id='timestep_slider', value=0, updatemode='drag',
                 min=1, max=10, step=1))
         ], style={'height': '100%'}
@@ -371,12 +371,13 @@ def add_card_start():
 def add_card_menu():
     """
     Creates the card on the right side of the app, which contains all settings of components and results.
+    Also contains the loading overlay to display a loader when somethings is loading or calculating
     :return: DMC Card
     """
 
     return dmc.Card(
-        children=[dmc.LoadingOverlay(
-            dmc.Tabs(
+        children=[dmc.LoadingOverlay(  # Loading overlay: Shows loader each time something in the card loads.
+            dmc.Tabs(  # Tabs of the card
                 [
                     dmc.TabsList(
                         [
@@ -386,15 +387,26 @@ def add_card_menu():
                             dmc.Tab("Kosten", value="costs", icon=DashIconify(icon="tabler:pig-money"))
                         ]
                     ),
-                    dmc.TabsPanel(children=[
+                    dmc.TabsPanel(children=[  # Edit Tab
                         dmc.Space(h=20),
+                        # This Tab contains a Tabbing components itself, but without visible tabs. This is used to
+                        # change between different menus for different components (grid or house devices).
+                        # The Tab Panels for the components are created dynamically while the app is running.
+                        # That's how it is possible to easily switch between different menus just by setting the
+                        # "value" of the "menu_parent_Tabs.
+                        # There are two tab panels initially added, one "empty" so there always is one.
+                        # One "init_ids" which is never visible but contains dummy components with dash ids, which
+                        # are used in callbacks as inputs, so they have to exist at rendering the app in the beginning.
+                        # If these components are created dynamically, a dummy one with the same id is created in the
+                        # "init_ids" tab so no exception is thrown.
                         dmc.Tabs(children=[
-                            add_menu_tab_panel('empty', None, None),
-                            add_menu_tab_panel('init_ids', None, None),
+                            add_menu_tab_panel('empty'),  # Add empty tab so one always exists
+                            add_menu_tab_panel('init_ids'),  # Add dummy components with needed ids
                         ], id='menu_parent_tabs'),
                         dmc.Space(h=20),
                         dmc.Group([
                             dmc.Button("Berechnen", id='button_calculate', rightIcon=DashIconify(icon="ph:gear-light")),
+                            # This switch can activate or disable each device, so that it is not used in calculation
                             dmc.Switch(
                                 id='active_switch_house',
                                 thumbIcon=DashIconify(
@@ -406,28 +418,30 @@ def add_card_menu():
                                 checked=False,
                                 style={'display': 'none'}
                             ),
+                            # TODO: This switch does not have a function implemented yet. It should turn on and off
+                            # TODO: grid components.
                             dmc.Switch(
                                 id='active_switch_grid',
                                 thumbIcon=DashIconify(
                                     icon="material-symbols:mode-off-on", width=16,
-                                    color=dmc.theme.DEFAULT_COLORS["orange"][5]
+                                    color=dmc.theme.DEFAULT_COLORS["gray"][5]
                                 ),
                                 size="md",
-                                color="orange",
+                                color="gray",
                                 checked=False,
                                 style={'display': 'block'}
                             )
                         ], position='apart')],
                         value="edit"),
-                    dmc.TabsPanel(children=[
+                    dmc.TabsPanel(children=[    # Results tab panel
                         dmc.Tabs(children=[
-                            add_result_tab_panel('empty'),
+                            add_result_tab_panel('empty'),  # For more information see comments above
                             add_result_tab_panel('house')
                         ], id='result_parent_tabs'),
-                        dmc.Space(h=20),
-                        dmc.Alert(children="", id="alert_externalgrid", color='primary', hide=True),
-                        dmc.Space(h=10),
-                        dmc.Alert(children="", id="alert_time", color='primary', hide=True),
+                        # dmc.Space(h=20),
+                        # dmc.Alert(children="", id="alert_externalgrid", color='primary', hide=True),
+                        # dmc.Space(h=10),
+                        # dmc.Alert(children="", id="alert_time", color='primary', hide=True),
                     ], value="results"),
                     dmc.TabsPanel(children=[
                         dmc.Text("Keine Kosten berechnet!")
@@ -444,11 +458,17 @@ def add_card_menu():
 
 
 def add_result_tab_panel(tab_value):
-    if tab_value == 'empty':
+    """
+    This function returns the tabs panels for results of calculations.
+    :param tab_value: Which tab panel should be created? Could be 'empty', 'house' or 'grid'
+    :type tab_value: str
+    :return: DMC Tabs Panel
+    """
+    if tab_value == 'empty':    # Dummy tabs panel, empty
         return dmc.TabsPanel(
             value=tab_value
         )
-    elif tab_value == 'house':
+    elif tab_value == 'house':  # Tabs panel for the results of the house calculation
         return dmc.TabsPanel([
             dmc.Space(h=20),
             dcc.Graph(id='graph_power_house'),
@@ -466,16 +486,39 @@ def add_result_tab_panel(tab_value):
             dmc.Space(h=10),
             dmc.Checkbox(label="Legende anzeigen", id='checkbox_show_legend'),
             dcc.Graph(id='graph_sunburst_house'),
-        ],
-            value=tab_value
-        )
+        ], value=tab_value)
+    elif tab_value == 'grid':   # Tabs panel for the results of the grid calculation
+        return dmc.TabsPanel([
+            dmc.Space(h=20),
+            dmc.Alert(children="", id="alert_externalgrid", color='primary', hide=False),
+            dmc.Space(h=10),
+            dmc.Alert(children="", id="alert_time", color='primary', hide=False)
+        ], value=tab_value)
 
 
-def add_menu_tab_panel(tab_value, selected_element, element_dict):
-    if tab_value == 'house':
+def add_menu_tab_panel(tab_value: str, selected_element=None, element_dict=None):
+    """
+    This function returns the tabs panels for clicked object (grid components or devices in the house).
+    It loads the stored properties from the element_dict and shows them in the inputs.
+    :param tab_value: Which tabs panel should be created? The tab value is the type of the object clicked
+    :type tab_value: str
+    :param selected_element: The id of the selected element in the cytoscape
+    :type selected_element: str
+    :param element_dict: The element dictionary which contains all information about the existing elements.
+    :type element_dict: dict
+    :return: DMC tab panel
+    """
+
+    # TODO: Currently on every click a new tab panel is created, even if the object type was clicked before.
+    # TODO: It would make the application faster, if only the values are loaded and the old tap panel was used.
+    # See general_callbacks.manage_menu_tabs
+
+    if selected_element is None:
+        selected_element = {}
+    if tab_value == 'house':  # Tab panel for house
         control, fade = 'preset', True  # Get values from element and show tab dependent on them
         checkbox_random = element_dict[selected_element]['power_profile'] is None
-        if element_dict[selected_element]['config_mode'] == 'custom':
+        if element_dict[selected_element]['config_mode'] == 'custom':  # Check if the house profile is custom
             control, fade = 'custom', False
         return dmc.TabsPanel([
             dmc.TextInput(
@@ -490,6 +533,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                                        {'value': 'custom', 'label': "Selbst basteln"}]),
             dbc.Fade([
                 dmc.Space(h=20),
+                # This checkbox is only shown for houses with random load profiles, not for a custom house
                 dmc.Checkbox(label="Beim Speichern zufälliges Lastprofil laden?", id='checkbox_random_profile',
                              checked=checkbox_random)
             ], id='house_fade', is_in=fade),
@@ -505,10 +549,9 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                       id='graph_house',
                       style={'width': '100%'}),
             dmc.Space(h=20)
-        ],
-            value=tab_value)
-    elif tab_value == 'pv':
-        postcode = element_dict[selected_element]['location'][0]
+        ], value=tab_value)
+    elif tab_value == 'pv':     # Tab panel for solar module
+        postcode = element_dict[selected_element]['location'][0]    # Get saved postcode
         if postcode is None:
             postcode = ""
         return dmc.TabsPanel([
@@ -523,7 +566,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                           value=postcode),
             dmc.Space(h=20),
             dmc.Group([
-                get_compass(element_dict[selected_element]['orientation']),
+                get_compass(element_dict[selected_element]['orientation']),     # Get button group (compass)
                 dmc.Stack([
                     dmc.Group([
                         dmc.Text("Leistung [kWp]"),
@@ -561,9 +604,8 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                                                      'rgb(255, 248, 94)'), id='graph_pv',
                       style={'width': '100%'}),
             dmc.Space(h=20)
-        ],
-            value=tab_value)
-    elif tab_value == 'transformer':
+        ], value=tab_value)
+    elif tab_value == 'transformer':    # Tab panel for transformer
         return dmc.TabsPanel([
             dmc.TextInput(
                 id='name_input',
@@ -572,6 +614,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 icon=DashIconify(icon="emojione-monotone:name-badge"),
             ),
             dmc.Space(h=20),
+            # TODO: The power setting has no effect, but with it a overload check could be implemented.
             dmc.Select(
                 label=["Leistung:"],
                 placeholder="Auswahl",
@@ -590,9 +633,8 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right'),
             dmc.Space(h=20),
-        ],
-            value=tab_value)
-    elif tab_value == 'externalgrid':
+        ], value=tab_value)
+    elif tab_value == 'externalgrid':   # Tab panel for the external grid
         return dmc.TabsPanel([
             dmc.TextInput(
                 id='name_input',
@@ -609,9 +651,8 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                            leftIcon=DashIconify(icon="material-symbols:save-outline"), disabled=True)
             ], position='right'),
             dmc.Space(h=20),
-        ],
-            value=tab_value)
-    elif tab_value == 'switch_cabinet':
+        ], value=tab_value)
+    elif tab_value == 'switch_cabinet':     # Tab panel for the switch_cabinet
         return dmc.TabsPanel([
             dmc.TextInput(
                 id='name_input',
@@ -629,7 +670,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             dmc.Space(h=20),
         ],
             value=tab_value)
-    elif tab_value == 'line':
+    elif tab_value == 'line':   # Tab panel for the line
         return dmc.TabsPanel([
             dmc.Text("Leitung"),
             dmc.Group([
@@ -640,9 +681,8 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             ], position='right')],
             value=tab_value
         )
-    elif tab_value == 'device_preset':
+    elif tab_value == 'device_preset':  # Tab panel for device with preset daily profile
         return dmc.TabsPanel([
-            # dmc.Text("Gerät Badezimmer"),
             dmc.TextInput(
                 id='name_input',
                 style={"width": 200},
@@ -673,7 +713,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                                                          'rgb(175, 173, 222)'), id='graph_device',
                       style={'width': '100%'}),
             dmc.Space(h=10),
-            dmc.SegmentedControl(
+            dmc.SegmentedControl(       # Control to select day of the week to plot
                 id='pagination_days_menu',
                 value='mo',
                 fullWidth=320,
@@ -683,9 +723,8 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                     {'value': 'su', 'label': 'SO'}
                 ]
             )
-        ],
-            value=tab_value)
-    elif tab_value == 'device_custom':
+        ], value=tab_value)
+    elif tab_value == 'device_custom':  # Tab panel for device with custom profile
         return dmc.TabsPanel([
             dmc.TextInput(
                 id='name_input',
@@ -722,7 +761,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                                                          'rgb(175, 173, 222)'), id='graph_device',
                       style={'width': '100%'}),
             dmc.Space(h=10),
-            dmc.SegmentedControl(
+            dmc.SegmentedControl(           # Control to select day of the week to plot
                 id='pagination_days_menu',
                 value='mo',
                 fullWidth=320,
@@ -734,7 +773,7 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
             )
         ],
             value=tab_value)
-    elif tab_value == 'lamp':
+    elif tab_value == 'lamp':   # Tab panel for a lamp device, identical to device_preset
         return dmc.TabsPanel([
             dmc.TextInput(
                 id='name_input',
@@ -752,7 +791,6 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                     {'value': key, 'label': key}
                     for key in element_dict[selected_element]['power_options']
                 ],
-                # style={"width": 200},
             ),
             dmc.Space(h=20),
             dmc.Group([
@@ -776,15 +814,13 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                     {'value': 'su', 'label': 'SO'}
                 ]
             )
-        ],
-            value=tab_value
-        )
-    elif tab_value == 'power_strip':
+        ], value=tab_value)
+    elif tab_value == 'power_strip':    # Tab panel for the power strip, only show info text
         return dmc.TabsPanel([
             dmc.Text([DashIconify(icon='mdi:power-socket-de'),
                       " Die einzelnen Steckdosen der Steckdosenleiste können durch Klicken an- und ausgeschaltet werden."])
         ], value=tab_value)
-    elif tab_value == 'empty':
+    elif tab_value == 'empty':      # Empty tab panel so that the delete and save buttons always exist.
         return dmc.TabsPanel([
             dmc.Group([
                 dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
@@ -792,12 +828,14 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
                 dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
                            leftIcon=DashIconify(icon="material-symbols:save-outline"))
             ], position='right', style={'display': 'none'})],
-            value=tab_value
-        )
-    elif tab_value == 'init_ids':  # If there are components in the menu tabs, which act as inputs or Outputs of
-        return dmc.TabsPanel([  # Callbacks, they are not present when the callback is created, because the tab
-            dmc.SegmentedControl(id='house_mode', data=[]),  # is only created when a node was clicked.
-            dbc.Fade(id='house_fade'),  # This hidden tab initializes the ids of these.
+            value=tab_value)
+    elif tab_value == 'init_ids':
+        # If there are components in the menu tabs, which act as inputs or Outputs of
+        # Callbacks, they are not present when the callback is created, because the tab
+        # is only created when a node was clicked. This hidden tab initializes the ids of these.
+        return dmc.TabsPanel([
+            dmc.SegmentedControl(id='house_mode', data=[]),
+            dbc.Fade(id='house_fade'),
             dmc.SegmentedControl(id='pagination_days_menu', data=[]),
             dcc.Graph(id='graph_pv'),
             dcc.Graph(id='graph_house'),
@@ -805,7 +843,15 @@ def add_menu_tab_panel(tab_value, selected_element, element_dict):
         ], value=tab_value)
 
 
-def get_compass(orientation):
+def get_compass(orientation: int):
+    """
+    Returns nine DMC ActionItems, which act as buttons in form of a compass. Each has the id "button_" followed
+    by the direction. The parameter "orientation" is used to set the rotation of the needle of the compass.
+    :param orientation: Orientation of the compass needle, (north: 0, east: 90, south: 180, west: 270)
+    :type orientation: int
+    :return: html-Div with 9 DMC Action Items in form of a compass
+    """
+
     return html.Div([dmc.Grid(children=[
         dmc.ActionIcon(
             DashIconify(icon=icon, width=20, rotate=rotation),
@@ -1006,7 +1052,8 @@ def add_card_new_device():
             ),
             dmc.Space(h=10),
             dmc.TextInput(id='input_new_icon', icon=DashIconify(icon='ic:outline-device-unknown'),
-                          label=dcc.Link("Hier Icon auswählen", href="https://icon-sets.iconify.design/", target="_blank"),
+                          label=dcc.Link("Hier Icon auswählen", href="https://icon-sets.iconify.design/",
+                                         target="_blank"),
                           placeholder='ic:outline-device-unknown'),
             dmc.Space(h=10),
             dmc.Text('CSV-Datei für Lastprofile'),
@@ -1037,10 +1084,16 @@ def add_card_new_device():
         dmc.Paper([
             html.B("Hilfe beim Erstellen"), html.Br(), html.Br(),
             html.B("Gerätename: "), "Für welches Gerät fügst du Lastprofile hinzu?", html.Br(), html.Br(),
-            html.B("Art des Lastprofils: "), html.Br(), html.U("Konstant: "), "Dein Gerät hat ein Lastprofil, das jeden Tag gleich ist (z.B. Kühlschrank). - ", html.Br(),
-            html.U("Variabel: "), "Dein Gerät hat ein Lastprofil, welches immer unterschiedlich ist. Du willst einstellen können, wann das Gerät angeschaltet wird.", html.Br(), html.Br(),
-            html.B("Icon: "), "Klicke auf den Link und such dir ein Icon aus, das zu deinem Gerät passt. Füg dann hier den Namen des Icons ein.", html.Br(), html.Br(),
-            html.B("CSV-Datei: "), "Die Lastprofile lädst du in Form einer CSV-Datei hoch. Diese muss in der ersten Spalte (\"time\") die Zeitpunkte der Messungen enthalten, die weiteren Spaltennamen geben die Namen der Lastprofile des Geräts an. Die Einheit der Leistungen is [W].",
+            html.B("Art des Lastprofils: "), html.Br(), html.U("Konstant: "),
+            "Dein Gerät hat ein Lastprofil, das jeden Tag gleich ist (z.B. Kühlschrank). - ", html.Br(),
+            html.U("Variabel: "),
+            "Dein Gerät hat ein Lastprofil, welches immer unterschiedlich ist. Du willst einstellen können, wann das Gerät angeschaltet wird.",
+            html.Br(), html.Br(),
+            html.B("Icon: "),
+            "Klicke auf den Link und such dir ein Icon aus, das zu deinem Gerät passt. Füg dann hier den Namen des Icons ein.",
+            html.Br(), html.Br(),
+            html.B("CSV-Datei: "),
+            "Die Lastprofile lädst du in Form einer CSV-Datei hoch. Diese muss in der ersten Spalte (\"time\") die Zeitpunkte der Messungen enthalten, die weiteren Spaltennamen geben die Namen der Lastprofile des Geräts an. Die Einheit der Leistungen is [W].",
             html.Br(), html.Br(),
             dmc.Table(header + body)
         ], withBorder=True, shadow='l', p=10)
