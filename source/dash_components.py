@@ -46,8 +46,6 @@ def add_storage_variables():
 
                      dcc.Store(id='store_get_voltage'),
 
-                     dcc.Store(id='store_update_switch'),
-
                      dcc.Store(id='store_edge_labels'),
 
                      dcc.Store(id='store_timestep'),

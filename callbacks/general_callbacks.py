@@ -122,14 +122,13 @@ def general_callbacks(app):
                   Input('store_menu_change_tab_house', 'data'),
                   Input('store_menu_change_tab_grid', 'data'),
                   Input('tabs_main', 'value'),
-                  Input('store_update_switch', 'data'),
                   State('menu_parent_tabs', 'children'),
                   State('store_grid_object_dict', 'data'),
                   State('store_device_dict', 'data'),
                   State('store_selected_element_grid', 'data'),
                   State('store_selected_element_house', 'data'),
                   prevent_initial_call=True)
-    def manage_menu_tabs(tab_value_house, tab_value_grid, tabs_main, switch_state, menu_children, gridObject_dict,
+    def manage_menu_tabs(tab_value_house, tab_value_grid, tabs_main, menu_children, gridObject_dict,
                          device_dict, selected_element_grid, selected_element_house):
         # TODO: !!!!!!!!!!!!!!!!!!
         try:
