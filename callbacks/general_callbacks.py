@@ -130,24 +130,43 @@ def general_callbacks(app):
                   prevent_initial_call=True)
     def manage_menu_tabs(tab_value_house, tab_value_grid, tabs_main, menu_children, gridObject_dict,
                          device_dict, selected_element_grid, selected_element_house):
-        # TODO: !!!!!!!!!!!!!!!!!!
+        """
+        Manages the menu tabs, which are shown when a grid object or house device was clicked.
+        It removes all tab panels and creates the new one to show
+        :param tab_value_house: Updated value of the house menu tab
+        :param tab_value_grid: Updated value of the grid menu tab
+        :param tabs_main: Tab value of main tab, whether grid, house or settings mode is shown
+        :param menu_children: Existing tab panels of the menu_parent_tab
+        :param gridObject_dict: Dictionary containing all grid objects and their properties
+        :param device_dict: Dictionary containing all devices in the custom house
+        :param selected_element_grid: Cytoscape element which was clicked in the grid
+        :param selected_element_house: Cytoscape element which was clicked in the house
+        :return: [menu_parent_tabs>children, menu_parent_tabs>value, active_switch_grid>style,
+        active_switch_house>style, store_notification>data]
+        """
+        # TODO: Change way of creating tab panels, so that already existing ones are used again
+        # This should make the application faster. Instead of popping all existing ones and every time create
+        # a new one, check if there already is a tab panel for the clicked component and update this one.
+
         try:
             triggered_id = ctx.triggered_id
-            if triggered_id == 'tabs_main':
-                if tabs_main == 'grid':
+            if triggered_id == 'tabs_main':     # If the main tabs were changed, this controls the active switches
+                if tabs_main == 'grid':         # It always shows the right one and hides the other one
                     return no_update, 'empty', {'display': 'block'}, {'display': 'none'}, no_update
                 elif tabs_main == 'house1':
                     return no_update, 'empty', {'display': 'none'}, {'display': 'block'}, no_update
                 else:
                     raise PreventUpdate
-            elif triggered_id == 'store_menu_change_tab_house':  # If a device in the house was clicked, prepare the variables
-                if tab_value_house == 'empty':
+                # If a device in the house was clicked, prepare the variables
+            elif triggered_id == 'store_menu_change_tab_house':
+                if tab_value_house == 'empty':  # If no tab should be shown, show empty one
                     return no_update, 'empty', no_update, no_update, no_update
                 tab_value = tab_value_house
                 selected_element = selected_element_house
                 elements_dict = device_dict['house1']
-            elif triggered_id == 'store_menu_change_tab_grid':  # If a device in the grid was clicked, prepare the variables
-                if tab_value_grid == 'empty':
+                # If a device in the grid was clicked, prepare the variables
+            elif triggered_id == 'store_menu_change_tab_grid':
+                if tab_value_grid == 'empty':   # If no tab should be shown, show empty one
                     return no_update, 'empty', no_update, no_update, no_update
                 tab_value = tab_value_grid
                 selected_element = selected_element_grid
@@ -156,8 +175,8 @@ def general_callbacks(app):
                 raise PreventUpdate
             while len(menu_children) > 2:  # Remove all tabs except the 'empty' tab and the 'init_ids' tab
                 menu_children.pop()
-            new_tab_panel = dash_components.add_menu_tab_panel(tab_value, selected_element,
-                                                               elements_dict)  # Get new tab panel
+            # Create new tab panel
+            new_tab_panel = dash_components.add_menu_tab_panel(tab_value, selected_element, elements_dict)
             menu_children = menu_children + [new_tab_panel]  # Add children of new tab panel
             return menu_children, tab_value, no_update, no_update, no_update
         except PreventUpdate:

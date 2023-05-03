@@ -51,11 +51,11 @@ def add_storage_variables():
                      dcc.Store(id='store_timestep'),
 
                      dcc.Store(id='store_flow_data'),
-
+                     # Store the menu tab of the grid to change to. Is changed if a node/edge of the grid was clicked
                      dcc.Store(id='store_menu_change_tab_grid'),
-
+                     # Store the menu tab of the house to change to. Is changed if a node of the house was clicked
                      dcc.Store(id='store_menu_change_tab_house'),
-
+                        # TODO Löschen
                      dcc.Store(id='store_menu_inputs', data={}),
                      # Store the gridObject_dict, Dictionary with all grid objects in it
                      dcc.Store(id='store_grid_object_dict', data={}),
