@@ -184,22 +184,6 @@ def general_callbacks(app):
         except Exception as err:
             return no_update, no_update, no_update, no_update, err.args[0]
 
-    @app.callback(Output('result_parent_tabs', 'value'),
-                  Output('tabs_menu', 'value', allow_duplicate=True),
-                  Output('store_notification', 'data', allow_duplicate=True),
-                  Input('graph_power_house', 'figure'),
-                  State('tabs_main', 'data'),
-                  prevent_initial_call=True)
-    def manage_result_containers(figure, tabs_main):
-        try:
-            triggered_id = ctx.triggered_id
-            if triggered_id == 'graph_power_house':
-                return 'house', 'results', no_update
-        except PreventUpdate:
-            return no_update, no_update, no_update
-        except Exception as err:
-            return no_update, no_update, err.args[0]
-
     @app.callback(Output('modal_readme', 'opened'),
                   Input('button_readme', 'n_clicks'),
                   prevent_initial_call=True)

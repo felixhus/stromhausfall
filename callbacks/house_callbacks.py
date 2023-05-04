@@ -105,6 +105,8 @@ def house_callbacks(app):
                   Output('store_results_house_energy', 'data'),
                   Output('graph_power_house', 'figure'),
                   Output('graph_sunburst_house', 'figure'),
+                  Output('result_parent_tabs', 'value'),
+                  Output('tabs_menu', 'value', allow_duplicate=True),
                   Output('store_grid_object_dict', 'data', allow_duplicate=True),
                   Output('store_notification', 'data', allow_duplicate=True),
                   Input('button_calculate', 'n_clicks'),
@@ -116,17 +118,17 @@ def house_callbacks(app):
     def start_calculation_house(btn, device_dict, tabs_main, gridObject_dict, house):
         try:
             if tabs_main == 'house1':
-                df_power, df_sum, df_energy, graph_power, graph_sunburst = modules.calculate_house(device_dict,
-                                                                                                   range(0, 7 * 1440))
+                df_power, df_sum, df_energy, graph_power, graph_sunburst = \
+                    modules.calculate_house(device_dict, range(0, 7 * 1440))
                 gridObject_dict[house]['power'] = df_sum.loc['house1'].values.flatten().tolist()
-                return df_power.to_json(orient='index'), df_energy.to_json(
-                    orient='index'), graph_power, graph_sunburst, gridObject_dict, no_update
+                return df_power.to_json(orient='index'), df_energy.to_json(orient='index'), \
+                       graph_power, graph_sunburst, 'house', 'results', gridObject_dict, no_update
             else:
                 raise PreventUpdate
         except PreventUpdate:
-            return no_update, no_update, no_update, no_update, no_update, no_update
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
         except Exception as err:
-            return no_update, no_update, no_update, no_update, no_update, err.args[0]
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('cost_tab', 'children'),
                   Output('store_notification', 'data', allow_duplicate=True),
