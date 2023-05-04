@@ -45,21 +45,21 @@ def general_callbacks(app):
                           children, day, gridObject_dict, year, week, used_profiles, checkbox, figure_pv, figure_house):
         """
         Callback to save all properties of a selected element when save-button or enter was pressed.
-        :param btn_save: Button to save properties
-        :param key_save: Event of Enter-click
-        :param tabs_main: Tab value of main tab, whether grid, house or settings mode is shown
-        :param device_dict: Dictionary containing all devices in the custom house
-        :param selected_element_house: Cytoscape element which was clicked in the house
-        :param selected_element_grid: Cytoscape element which was clicked in the grid
-        :param children: Children of the menu_parent_tabs, all Inputs of the component menu
-        :param day: Day selected in the pagination of the menu
-        :param gridObject_dict: Dictionary containing all grid objects
-        :param year: Year selected in settings
-        :param week: Week selected in settings
-        :param used_profiles: Already used random profiles from IZES
-        :param checkbox: Bool if checkbox to load random profile is checked
-        :param figure_pv: Figure element of graph_pv
-        :param figure_house: Figure element of graph_house
+        :param btn_save: [Input] Button to save properties
+        :param key_save: [Input] Event of Enter-click
+        :param tabs_main: [State] Tab value of main tab, whether grid, house or settings mode is shown
+        :param device_dict: [State] Dictionary containing all devices in the custom house
+        :param selected_element_house: [State] Cytoscape element which was clicked in the house
+        :param selected_element_grid: [State] Cytoscape element which was clicked in the grid
+        :param children: [State] Children of the menu_parent_tabs, all Inputs of the component menu
+        :param day: [State] Day selected in the pagination of the menu
+        :param gridObject_dict: [State] Dictionary containing all grid objects
+        :param year: [State] Year selected in settings
+        :param week: [State] Week selected in settings
+        :param used_profiles: [State] Already used random profiles from IZES
+        :param checkbox: [State] Bool if checkbox to load random profile is checked
+        :param figure_pv: [State] Figure element of graph_pv
+        :param figure_house: [State] Figure element of graph_house
         :return: [store_device_dict>data, store_grid_object_dict>data, graph_pv>figure, graph_house>figure,
         store_used_profiles>data, checkbox_random_profile>checked, store_save_by_enter>data, store_notification>data]
         """
@@ -133,14 +133,14 @@ def general_callbacks(app):
         """
         Manages the menu tabs, which are shown when a grid object or house device was clicked.
         It removes all tab panels and creates the new one to show
-        :param tab_value_house: Updated value of the house menu tab
-        :param tab_value_grid: Updated value of the grid menu tab
-        :param tabs_main: Tab value of main tab, whether grid, house or settings mode is shown
-        :param menu_children: Existing tab panels of the menu_parent_tab
-        :param gridObject_dict: Dictionary containing all grid objects and their properties
-        :param device_dict: Dictionary containing all devices in the custom house
-        :param selected_element_grid: Cytoscape element which was clicked in the grid
-        :param selected_element_house: Cytoscape element which was clicked in the house
+        :param tab_value_house: [Input] Updated value of the house menu tab
+        :param tab_value_grid: [Input] Updated value of the grid menu tab
+        :param tabs_main: [Input] Tab value of main tab, whether grid, house or settings mode is shown
+        :param menu_children: [State] Existing tab panels of the menu_parent_tab
+        :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
+        :param device_dict: [State] Dictionary containing all devices in the custom house
+        :param selected_element_grid: [State] Cytoscape element which was clicked in the grid
+        :param selected_element_house: [State] Cytoscape element which was clicked in the house
         :return: [menu_parent_tabs>children, menu_parent_tabs>value, active_switch_grid>style,
         active_switch_house>style, store_notification>data]
         """
@@ -190,7 +190,7 @@ def general_callbacks(app):
     def open_readme(btn):
         """
         Opens the readme modal.
-        :param btn: Button Readme input
+        :param btn: [Input] Button Readme input
         :return: True to open readme
         :rtype: bool
         """
@@ -205,7 +205,7 @@ def general_callbacks(app):
     def open_drawer_notifications(btn):
         """
         Opens the notification drawer when button is clicked.
-        :param btn: Button Notification input
+        :param btn: [Input] Button Notification input
         :return: True to open drawer
         :rtype: bool
         """
@@ -221,8 +221,8 @@ def general_callbacks(app):
     def open_start_card(btn, btn_load):
         """
         Closes the start modal which is shown on loading the app.
-        :param btn: Button to start the app
-        :param btn_load: Button to load a configuration
+        :param btn: [Input] Button to start the app
+        :param btn_load: [Input] Button to load a configuration
         :return: False to close the modal
         :rtype: bool
         """
@@ -258,22 +258,31 @@ def general_callbacks(app):
                   Input('pagination_days_results', 'value'),
                   State('graph_power_house', 'figure'),
                   prevent_initial_call=True)
-    def update_figure_devices(day, figure):  # Update the values of the graphs if another profile is chosen
+    def update_figure_devices(day, figure):
+        """
+        Update the values of the graphs if another day is chosen to be shown.
+        Also opens the modal with the full screen graph if the total timeframe is selected.
+        :param day: [Input] Selected day of the pagination below a figure
+        :param figure: [State] Figure to update
+        :return: [graph_power_house>figure, graph_modal>figure, modal_graph>opened]
+        """
+        # TODO: Implement the update-figure function with the Patch() functionality of dash.
+        # This functionality was introduced while developing and could speed up the app.
         # patched_fig = Patch()
-        # Patch scheint noch nicht zu funktionieren, vielleicht später nochmal probieren
-        if day == 'tot':  # Set total range
+
+        if day == 'tot':  # Set total range if selected
             index_start = 0
-            index_stop = 7 * 24 * 60
-            figure['layout']['xaxis']['range'] = [index_start, index_stop]
-            figure_big = copy.deepcopy(figure)  # Get copy of small figure for the big modal
-            figure_big['layout']['height'] = None  # Set size of big figure to full size
+            index_stop = 7 * 24 * 60    # Select full week
+            figure['layout']['xaxis']['range'] = [index_start, index_stop]      # Set x-axis of graph
+            figure_big = copy.deepcopy(figure)      # Get copy of small figure for the big modal
+            figure_big['layout']['height'] = None   # Set size of big figure to full size
             figure_big['layout']['width'] = None
             return figure, figure_big, True
         else:  # Set range for one day
             day_ind = days[day]
             index_start = day_ind * 24 * 60
             index_stop = index_start + 24 * 60
-            figure['layout']['xaxis']['range'] = [index_start, index_stop]
+            figure['layout']['xaxis']['range'] = [index_start, index_stop]  # Set x-axis of graph
             return figure, no_update, no_update
 
     @app.callback(Output('graph_power_house', 'figure', allow_duplicate=True),
@@ -283,8 +292,8 @@ def general_callbacks(app):
     def show_legend(checkbox, figure):
         """
         Controls the visibility of the legend of the graph_power_house figure.
-        :param checkbox: Input if legend should be visible
-        :param figure: Figure which the legend belongs to
+        :param checkbox: [Input] Input if legend should be visible
+        :param figure: [State] Figure which the legend belongs to
         :return: Boolean if the legend should be visible
         :rtype: bool
         """
@@ -328,12 +337,12 @@ def general_callbacks(app):
     def settings(week, year, settings_dict):
         """
         Store the settings to the dcc store object if changed
-        :param week: Week of the year
-        :param year: Year to get data from
+        :param week: [Input] Week of the year
+        :param year: [Input] Year to get data from
         :param settings_dict: DCC store object to save to
         :return: [store_settings>data]
         """
-        
+
         settings_dict['week'] = week
         settings_dict['year'] = year
         return settings_dict
@@ -371,52 +380,94 @@ def general_callbacks(app):
                   State('store_own_device_dict', 'data'),
                   prevent_initial_call=True)
     def main_menu(btn_save, btn_load_menu, btn_own, btn_load, btn_start_load, gridObject_dict, device_dict,
-                  elements_grid,
-                  elements_bath, elements_kitchen, elements_livingroom, elements_office, filename, upload_content,
-                  settings_dict, custom_house, own_devices):
-        triggered_id = ctx.triggered_id
-        if triggered_id == 'menu_item_save':
-            save_dict = {'gridObject_dict': gridObject_dict,
-                         'device_dict': device_dict,
-                         'cyto_grid': elements_grid,
-                         'cyto_bathroom': elements_bath,
-                         'cyto_kitchen': elements_kitchen,
-                         'cyto_livingroom': elements_livingroom,
-                         'cyto_office': elements_office,
-                         'settings': settings_dict,
-                         'custom_house': custom_house}
-            return dict(content=json.dumps(save_dict), filename="konfiguration.json"), no_update, no_update, no_update, \
-                   no_update, no_update, no_update, \
-                   no_update, no_update, no_update, no_update, no_update, no_update, no_update
-        elif triggered_id == 'menu_item_own_devices':
-            save_dict = {'own_devices_dict': own_devices}
-            return dict(content=json.dumps(save_dict), filename="eigene_geraete.json"), no_update, no_update, no_update, \
-                   no_update, no_update, no_update, \
-                   no_update, no_update, no_update, no_update, no_update, no_update, no_update
-        elif triggered_id == 'menu_item_load' or triggered_id == 'button_start_load':
-            return no_update, True, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
-        elif triggered_id == 'button_load_configuration':
-            if filename is None:
-                return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_no_file_selected'
-            if not filename.endswith('.json'):  # Check if the file format is .json
-                return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file_format'
+                  elements_grid, elements_bath, elements_kitchen, elements_livingroom, elements_office,
+                  filename, upload_content, settings_dict, custom_house, own_devices):
+        """
+        Handles all functions of the main menu (burger menu in the navbar). It saves the configuration to a
+        download-json file or loads an uploaded one. Also, it is handles the download of created own devices.
+        :param btn_save: [Input] Main Menu button to save a configuration
+        :param btn_load_menu: [Input] Main menu button to load a configuration
+        :param btn_own: [Input] Main menu button to download own devices
+        :param btn_load: [Input] Start Modal load button
+        :param btn_start_load: [Input] Button to start the upload of a configuration file
+        :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
+        :param device_dict: [State] Dictionary containing all house devices and their properties
+        :param elements_grid: [State] Elements of grid cytoscape
+        :param elements_bath: [State] Elements of bathroom cytoscape
+        :param elements_kitchen: [State] Elements of kitchen cytoscape
+        :param elements_livingroom: [State] Elements of livingroom cytoscape
+        :param elements_office: [State] Elements of office cytoscape
+        :param filename: [State] Filename of uploaded file
+        :param upload_content: [State] Content of uploaded file
+        :param settings_dict: [State] Dictionary containing the settings
+        :param custom_house: [State] Id of custom house
+        :param own_devices: [State] Dictionary containing all own devices
+        :return: [download_json>data, modal_load_configuration>opened, store_grid_object_dict>data,
+        store_device_dict>data, cyto_grid>elements, cyto_bathroom>elements, cyto_livingroom>elements,
+        cyto_kitchen>elements, cyto_office>elements, input_week>value, input_year>value, store_custom_house>data,
+        tab_house>disabled, store_notification>data]
+        """
+
+        try:
+            triggered_id = ctx.triggered_id
+            if triggered_id == 'menu_item_save':
+                save_dict = {'gridObject_dict': gridObject_dict,    # Collect all important data in one dictionary
+                             'device_dict': device_dict,
+                             'cyto_grid': elements_grid,
+                             'cyto_bathroom': elements_bath,
+                             'cyto_kitchen': elements_kitchen,
+                             'cyto_livingroom': elements_livingroom,
+                             'cyto_office': elements_office,
+                             'settings': settings_dict,
+                             'custom_house': custom_house}
+                # Give collected data to download component
+                return dict(content=json.dumps(save_dict), filename="konfiguration.json"), \
+                       no_update, no_update, no_update, no_update, no_update, no_update, \
+                       no_update, no_update, no_update, no_update, no_update, no_update, no_update
+            elif triggered_id == 'menu_item_own_devices':
+                save_dict = {'own_devices_dict': own_devices}   # Create dictionary with own devices in it
+                # Give collected data to download component
+                return dict(content=json.dumps(save_dict), filename="eigene_geraete.json"), \
+                       no_update, no_update, no_update, no_update, no_update, no_update, \
+                       no_update, no_update, no_update, no_update, no_update, no_update, no_update
+            elif triggered_id == 'menu_item_load' or triggered_id == 'button_start_load':
+                # If one of the buttons to load a configuration was clicked, open the loading modal
+                return no_update, True, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
+                       no_update, no_update, no_update, no_update, no_update
+            elif triggered_id == 'button_load_configuration':
+                # If the button in the loading modal to load a configuration was clicked, start the loading procedure
+                if filename is None:    # Check if a file was uploaded
+                    return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
+                           no_update, no_update, no_update, no_update, no_update, 'notification_no_file_selected'
+                if not filename.endswith('.json'):  # Check if the file format is .json
+                    return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
+                           no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file_format'
+                else:
+                    content_type, content_string = upload_content.split(",")  # Three lines to get dict from content
+                    decoded = base64.b64decode(content_string)
+                    content_dict = json.loads(decoded)
+                    # Check if there is a custom house existing, if so, activate house tab
+                    custom_house_disabled = True
+                    if content_dict['device_dict']['house1'] is not None:
+                        custom_house_disabled = False
+                    if not ('gridObject_dict' in content_dict and   # Check if all needed dictionaries are there
+                            'device_dict' in content_dict and 'cyto_grid' in content_dict):
+                        return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
+                               no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file'
+                    # write all read data into the dash components
+                    return no_update, False, content_dict['gridObject_dict'], content_dict['device_dict'], \
+                           content_dict['cyto_grid'], content_dict['cyto_bathroom'], content_dict['cyto_kitchen'], \
+                           content_dict['cyto_livingroom'], content_dict['cyto_office'], \
+                           content_dict['settings']['week'], content_dict['settings']['year'], \
+                           content_dict['custom_house'], custom_house_disabled, no_update
             else:
-                content_type, content_string = upload_content.split(",")  # Three lines to get dict from content
-                decoded = base64.b64decode(content_string)
-                content_dict = json.loads(decoded)
-                custom_house_disabled = True  # Look up if there is a house configured to activate house tab
-                if content_dict['device_dict']['house1'] is not None:
-                    custom_house_disabled = False
-                if not (
-                        'gridObject_dict' in content_dict and 'device_dict' in content_dict and 'cyto_grid' in content_dict):  # Check if all dictionaries are there
-                    return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file'
-                return no_update, False, content_dict['gridObject_dict'], content_dict['device_dict'], \
-                       content_dict['cyto_grid'], content_dict['cyto_bathroom'], content_dict['cyto_kitchen'], \
-                       content_dict['cyto_livingroom'], content_dict['cyto_office'], \
-                       content_dict['settings']['week'], content_dict['settings'][
-                           'year'], content_dict['custom_house'], custom_house_disabled, no_update
-        else:
-            raise PreventUpdate
+                raise PreventUpdate
+        except PreventUpdate:
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
+                   no_update, no_update, no_update, no_update, no_update, no_update
+        except Exception as err:
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
+                   no_update, no_update, no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('text_filename_load', 'children'),
                   Input('upload_configuration', 'filename'),
