@@ -41,8 +41,10 @@ def add_storage_variables():
                      dcc.Store(id='store_selected_element_house'),
                      # Store id of house in the grid which is the one configured in detail by the user
                      dcc.Store(id='store_custom_house', data=None, storage_type='session'),
-
-                     dcc.Store(id='store_element_deleted'), dcc.Store(id='store_notification'),
+                     # Store the id of a deleted cytoscape element, triggers a callback to clean up
+                     dcc.Store(id='store_element_deleted'),
+                     # Store the id of a notification that should be shown. Triggers this notification
+                     dcc.Store(id='store_notification'),
                      # Store ids of nodes to connect to pass them to the voltage modal
                      dcc.Store(id='store_get_voltage'),
                      # Store the generated edge labels and pass them to a callback which displays them
