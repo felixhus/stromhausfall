@@ -143,7 +143,7 @@ def grid_callbacks(app):
         :param btn_line_active: [State] Status of the line edit mode
         :param start_of_line: [State] First clicked node to add a line
         :param selected_element: [State] Selected element of the cyto_grid
-        :param node_ids: [State] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        :param node_ids: [State] Two node ids of nodes to connect, but voltage has to be set
         :param tabs_main: [State] Tab value of main tab, whether grid, house or settings mode is shown
         :return: [cyto_grid>elements, store_grid_object_dict>data, start_of_line>data, store_element_deleted>data,
         store_notification>data, store_get_voltage>data, modal_voltage>opened]
@@ -254,67 +254,93 @@ def grid_callbacks(app):
                   Output('store_notification', 'data', allow_duplicate=True),
                   Input('cyto_grid', 'tapNodeData'),
                   Input('cyto_grid', 'tapEdgeData'),
-                  Input('edit_save_button', 'n_clicks'),
                   Input('store_element_deleted', 'data'),
                   Input('house_mode', 'value'),
                   State('store_selected_element_grid', 'data'),
                   State('store_grid_object_dict', 'data'),
                   State('store_line_edit_active', 'data'),
-                  State('tabs_main', 'value'),
                   State('store_custom_house', 'data'),
                   prevent_initial_call=True)
-    def edit_grid_objects(node, edge, btn_save, element_deleted, control, selected_element,
-                          gridObject_dict, btn_line_active, tabs_main, custom_house):
+    def edit_grid_objects(node, edge, element_deleted, control, selected_element,
+                          gridObject_dict, btn_line_active, custom_house):
+        """
+        Callback which controls what happens when nodes or edges in the grid are clicked. Also, this callback handles
+        the selection of the house mode (preset or custom). If an element is deleted, it closes the connected tab.
+        :param node: [Input] Clicked node of cytoscape
+        :param edge: [Input] Clicked edge of cytoscape
+        :param element_deleted: [Input] Id of the element which was deleted
+        :param control: [Input] Segmented control if house mode is preset or custom
+        :param selected_element: [State] Selected element of the cyto_grid
+        :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
+        :param btn_line_active: [State] Status of the line edit mode
+        :param custom_house: [State] Id of custom configured house
+        :return: [store_grid_object_dict>data, store_menu_change_tab_grid>data, cyto_grid>tapNodeData,
+        cyto_grid>tapEdgeData, store_selected_element_grid>data, tabs_main>value, house_fade>is_in,
+        store_custom_house>data, tab_house>disabled, house_mode>value, store_notification>data]
+        """
+
         try:
             triggered_id = ctx.triggered_id
-            triggered = ctx.triggered
+            triggered = ctx.triggered   # Get which property triggered
             if triggered_id == 'cyto_grid':
                 if triggered[0]['prop_id'] == 'cyto_grid.tapNodeData':  # Node was clicked
-                    if not btn_line_active:
+                    if not btn_line_active:     # If button edit mode is not active
+                        # Reset tapNodeData and tapEdgeData and return type of node for tab in menu
                         return no_update, gridObject_dict[node['id']]['object_type'], None, None, node['id'], \
-                               no_update, no_update, no_update, no_update, no_update, no_update  # Reset tapNodeData and tapEdgeData and return type of node for tab in menu
+                               no_update, no_update, no_update, no_update, no_update, no_update
                     else:
                         raise PreventUpdate
                 elif triggered[0]['prop_id'] == 'cyto_grid.tapEdgeData':  # Edge was clicked
-                    return no_update, gridObject_dict[edge['id']]['object_type'], None, None, edge['id'], \
-                           no_update, no_update, no_update, no_update, no_update, no_update  # Reset tapNodeData and tapEdgeData and return type of edge for tab in menu
+                    if not btn_line_active:  # If button edit mode is not active
+                        # Reset tapNodeData and tapEdgeData and return type of edge for tab in menu
+                        return no_update, gridObject_dict[edge['id']]['object_type'], None, None, edge['id'], \
+                               no_update, no_update, no_update, no_update, no_update, no_update
+                    else:
+                        raise PreventUpdate
                 else:
                     raise Exception("Weder Node noch Edge wurde geklickt.")
             elif triggered_id == 'house_mode':  # New mode of house configuration was clicked (segmented control)
                 if custom_house is None:  # If no house is in custom-mode yet
                     if control == 'preset':
+                        # Set config mode, set fade to True (checkbox is visible)
                         gridObject_dict[selected_element]['config_mode'] = 'preset'
-                        return gridObject_dict, no_update, no_update, no_update, no_update, no_update, True, no_update, no_update, no_update, no_update
+                        return gridObject_dict, no_update, no_update, no_update, no_update, no_update, True, \
+                               no_update, no_update, no_update, no_update
                     elif control == 'custom':
+                        # Set config mode, set fade to False (checkbox is not visible)
+                        # Enable house tab and show it
                         gridObject_dict[selected_element]['config_mode'] = 'custom'
-                        return gridObject_dict, no_update, no_update, no_update, no_update, 'house1', False, selected_element, False, no_update, no_update
+                        return gridObject_dict, no_update, no_update, no_update, no_update, 'house1', False, \
+                               selected_element, False, no_update, no_update
                     else:
                         raise PreventUpdate
                 elif custom_house == selected_element:
                     if control == 'preset':
+                        # Set house from custom mode to preset mode, show checkbox and delete store_custom_house
                         gridObject_dict[selected_element]['config_mode'] = 'preset'
-                        return gridObject_dict, no_update, no_update, no_update, no_update, no_update, True, None, True, no_update, no_update
+                        return gridObject_dict, no_update, no_update, no_update, no_update, no_update, True, \
+                               None, True, no_update, no_update
                     else:
                         raise PreventUpdate
                 else:
+                    # If there already is a custom house, show notification and set control to preset
                     return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
                            no_update, 'preset', 'notification_custom_house'
-            elif triggered_id == 'edit_save_button':  # Save button was clicked in the menu
-                if tabs_main != 'grid' or btn_save is None:  # If it was clicked in house mode or is None do nothing
-                    raise PreventUpdate
-                raise PreventUpdate
-            elif triggered_id == 'store_element_deleted':
+            elif triggered_id == 'store_element_deleted':   # If an element was deleted
+                # Set menu tab to empty and write None to tapNode/EdgeData so that the next click could be handled
                 if element_deleted is not None:
-                    return no_update, 'empty', None, None, no_update, no_update, no_update, no_update, no_update, no_update, no_update
+                    return no_update, 'empty', None, None, no_update, no_update, no_update, no_update, no_update, \
+                           no_update, no_update
                 else:
                     raise PreventUpdate
             else:
                 raise PreventUpdate
         except PreventUpdate:
-            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
+                   no_update, no_update, no_update
         except Exception as err:
-            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
-                   err.args[0]
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
+                   no_update, no_update, err.args[0]
 
     @app.callback(Output('cyto_grid', 'elements', allow_duplicate=True),
                   Input('store_edge_labels', 'data'),

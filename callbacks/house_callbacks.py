@@ -1,10 +1,14 @@
+"""
+house_callbacks.py contains all dash callbacks for house functions of the app.
+"""
+# TODO: Write all room callbacks in a more efficient form than copying them for each room.
+
 import base64
 import io
 import json
-import time
 
 import pandas as pd
-from dash import Input, Output, State, ctx, html, no_update
+from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
 from dash_iconify import DashIconify
 
@@ -27,13 +31,22 @@ def house_callbacks(app):
                   State('store_device_dict', 'data'),
                   prevent_initial_call=True)
     def initial_room_configuration(interval, cyto_bathroom, cyto_livingroom, cyto_kitchen, cyto_office, device_dict):
+        """
+        
+        :param interval:
+        :param cyto_bathroom:
+        :param cyto_livingroom:
+        :param cyto_kitchen:
+        :param cyto_office:
+        :param device_dict:
+        :return:
+        """
+
         database = 'source/database_profiles.db'
         image_lamp_src = modules.get_icon_url('mdi:lightbulb-on-outline')
         # Bathroom elements
         device_dict['house1']['lamp_bathroom'] = modules.create_device_object('lamp_bathroom', 'lamp', database)
         device_dict['house1']['lamp_bathroom']['name'] = "Lampe Bad"
-        # device_dict['house1']['lamp_bathroom'] = objects.create_LampObject(
-        #     'lamp_bathroom', "Bad")  # Add lamp to device dictionary
         device_dict['rooms']['bathroom'] = {}
         device_dict['rooms']['bathroom']['name'] = 'Bad'  # Create roomname
         device_dict['rooms']['bathroom']['devices'] = [
