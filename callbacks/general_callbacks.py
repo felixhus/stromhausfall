@@ -188,11 +188,28 @@ def general_callbacks(app):
                   Input('button_readme', 'n_clicks'),
                   prevent_initial_call=True)
     def open_readme(btn):
-        return True
+        """
+        Opens the readme modal.
+        :param btn: Button Readme input
+        :return: True to open readme
+        :rtype: bool
+        """
+
+        if btn is not None:
+            return True
+        else:
+            raise PreventUpdate
 
     @app.callback(Output('drawer_notifications', 'opened'),
                   Input('button_notifications', 'n_clicks'))
     def open_drawer_notifications(btn):
+        """
+        Opens the notification drawer when button is clicked.
+        :param btn: Button Notification input
+        :return: True to open drawer
+        :rtype: bool
+        """
+
         if btn is not None:
             return True
         else:
@@ -201,7 +218,15 @@ def general_callbacks(app):
     @app.callback(Output('modal_start', 'opened'),
                   Input('button_start', 'n_clicks'),
                   Input('button_start_load', 'n_clicks'))
-    def open_menu_card(btn, btn_load):
+    def open_start_card(btn, btn_load):
+        """
+        Closes the start modal which is shown on loading the app.
+        :param btn: Button to start the app
+        :param btn_load: Button to load a configuration
+        :return: False to close the modal
+        :rtype: bool
+        """
+
         if btn is not None or btn_load is not None:
             return False
         else:
@@ -256,6 +281,14 @@ def general_callbacks(app):
                   State('graph_power_house', 'figure'),
                   prevent_initial_call=True)
     def show_legend(checkbox, figure):
+        """
+        Controls the visibility of the legend of the graph_power_house figure.
+        :param checkbox: Input if legend should be visible
+        :param figure: Figure which the legend belongs to
+        :return: Boolean if the legend should be visible
+        :rtype: bool
+        """
+
         if checkbox:
             figure['layout']['showlegend'] = True
         else:
@@ -293,6 +326,14 @@ def general_callbacks(app):
                   Input('input_year', 'value'),
                   State('store_settings', 'data'))
     def settings(week, year, settings_dict):
+        """
+        Store the settings to the dcc store object if changed
+        :param week: Week of the year
+        :param year: Year to get data from
+        :param settings_dict: DCC store object to save to
+        :return: [store_settings>data]
+        """
+        
         settings_dict['week'] = week
         settings_dict['year'] = year
         return settings_dict
