@@ -323,7 +323,7 @@ def dash_navbar():
                             [
                                 "Notifications",
                                 dbc.Badge(
-                                    id='bade_notifications',
+                                    id='badge_notifications',
                                     color="danger",
                                     pill=True,
                                     text_color="white",
