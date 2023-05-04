@@ -1,3 +1,7 @@
+"""
+grid_callbacks.py contains all dash callbacks for grid functions of the app.
+"""
+
 import datetime
 
 import pandas as pd
@@ -12,7 +16,7 @@ from source.modules import (calculate_power_flow, connection_allowed,
                             get_icon_url, get_last_id,
                             get_monday_sunday_from_week)
 
-# Button Ids, azimuth angles, Icons and rotations for Compass buttons PV
+# Button Ids and rotations for compass buttons PV
 compass_buttons = {'button_north': 0,
                    'button_north_east': 45,
                    'button_east': 90,
@@ -35,17 +39,29 @@ def grid_callbacks(app):
                   Output('store_edge_labels', 'data'),
                   Output('store_notification', 'data', allow_duplicate=True),
                   Input('button_calculate', 'n_clicks'),
-                  State('store_flow_data', 'data'),
                   State('cyto_grid', 'elements'),
                   State('store_grid_object_dict', 'data'),
                   State('tabs_main', 'value'),
                   prevent_initial_call=True)
-    def start_calculation_grid(btn, flow, elements, gridObject_dict, tabs_main):
+    def start_calculation_grid(btn, elements, gridObject_dict, tabs_main):
+        """
+
+        :param btn: [Input] Button to start calculation
+        :param elements: [State]
+        :param gridObject_dict: [State]
+        :param tabs_main: [State] Tab value of main tab, whether grid, house or settings mode is shown
+        :return: [store_flow_data>data, tabs_menu>value, result_parent_tabs>value, cyto_grid>stylesheet,
+        cyto_grid>elements, timestep_slider>max, store_edge_labels>data, store_notification>data]
+        """
+
         try:
-            if tabs_main == 'grid':
+            if tabs_main == 'grid':     # If button was clicked in grid mode, start calculation
                 df_flow, labels, elements = calculate_power_flow(elements, gridObject_dict)
-                labels = {k: round(v, 1) for k, v in labels.items()}  # Round numbers for better display
+                # Create labels for cytoscape edges/electrical lines and round numbers for better display
+                labels = {k: round(v, 1) for k, v in labels.items()}
+                # Convert to json to store in dcc store object
                 df_flow_json = df_flow.to_json(orient='index')
+                # Return calculation results and show 'result' tab. Activate edge labels by stylesheet
                 return df_flow_json, 'results', 'grid', \
                        stylesheets.cyto_stylesheet_calculated, elements, len(df_flow.index), labels, no_update
             else:

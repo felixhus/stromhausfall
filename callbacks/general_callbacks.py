@@ -17,26 +17,26 @@ from source.modules import days
 
 
 def general_callbacks(app):
-    @app.callback(Output('store_device_dict', 'notification_data', allow_duplicate=True),
-                  Output('store_grid_object_dict', 'notification_data', allow_duplicate=True),
+    @app.callback(Output('store_device_dict', 'data', allow_duplicate=True),
+                  Output('store_grid_object_dict', 'data', allow_duplicate=True),
                   Output('graph_pv', 'figure'),
                   Output('graph_house', 'figure'),
-                  Output('store_used_profiles', 'notification_data'),
+                  Output('store_used_profiles', 'data'),
                   Output('checkbox_random_profile', 'checked'),
-                  Output('store_save_by_enter', 'notification_data', allow_duplicate=True),
-                  Output('store_notification', 'notification_data', allow_duplicate=True),
+                  Output('store_save_by_enter', 'data', allow_duplicate=True),
+                  Output('store_notification', 'data', allow_duplicate=True),
                   Input('edit_save_button', 'n_clicks'),
-                  Input('store_save_by_enter', 'notification_data'),
+                  Input('store_save_by_enter', 'data'),
                   State('tabs_main', 'value'),
-                  State('store_device_dict', 'notification_data'),
-                  State('store_selected_element_house', 'notification_data'),
-                  State('store_selected_element_grid', 'notification_data'),
+                  State('store_device_dict', 'data'),
+                  State('store_selected_element_house', 'data'),
+                  State('store_selected_element_grid', 'data'),
                   State('menu_parent_tabs', 'children'),
                   State('pagination_days_menu', 'value'),
-                  State('store_grid_object_dict', 'notification_data'),
+                  State('store_grid_object_dict', 'data'),
                   State('input_year', 'value'),
                   State('input_week', 'value'),
-                  State('store_used_profiles', 'notification_data'),
+                  State('store_used_profiles', 'data'),
                   State('checkbox_random_profile', 'checked'),
                   State('graph_pv', 'figure'),
                   State('graph_house', 'figure'),
@@ -60,8 +60,8 @@ def general_callbacks(app):
         :param checkbox: [State] Bool if checkbox to load random profile is checked
         :param figure_pv: [State] Figure element of graph_pv
         :param figure_house: [State] Figure element of graph_house
-        :return: [store_device_dict>notification_data, store_grid_object_dict>notification_data, graph_pv>figure, graph_house>figure,
-        store_used_profiles>notification_data, checkbox_random_profile>checked, store_save_by_enter>notification_data, store_notification>notification_data]
+        :return: [store_device_dict>data, store_grid_object_dict>data, graph_pv>figure, graph_house>figure,
+        store_used_profiles>data, checkbox_random_profile>checked, store_save_by_enter>data, store_notification>data]
         """
 
         try:
@@ -82,7 +82,7 @@ def general_callbacks(app):
                                                                           gridObject_dict, selected_element_grid,
                                                                           year, week)
                         # Set plot of pv figure, but invert power for plot
-                        figure_pv["notification_data"][0]["y"] = [-i for i in gridObject_dict[selected_element_grid]['power']]
+                        figure_pv["data"][0]["y"] = [-i for i in gridObject_dict[selected_element_grid]['power']]
                         if notif is not None:
                             return no_update, no_update, no_update, no_update, no_update, no_update, None, notif
                         else:
@@ -93,7 +93,7 @@ def general_callbacks(app):
                                                                                      gridObject_dict,
                                                                                      selected_element_grid, year, week,
                                                                                      used_profiles, checkbox)
-                        figure_house["notification_data"][0]["y"] = gridObject_dict[selected_element_grid]['power']
+                        figure_house["data"][0]["y"] = gridObject_dict[selected_element_grid]['power']
                         return no_update, gridObject_dict, no_update, figure_house, \
                                used_profiles, False, None, no_update
                     # If a transformer is selected
@@ -118,15 +118,15 @@ def general_callbacks(app):
                   Output('menu_parent_tabs', 'value'),
                   Output('active_switch_grid', 'style'),
                   Output('active_switch_house', 'style'),
-                  Output('store_notification', 'notification_data', allow_duplicate=True),
-                  Input('store_menu_change_tab_house', 'notification_data'),
-                  Input('store_menu_change_tab_grid', 'notification_data'),
+                  Output('store_notification', 'data', allow_duplicate=True),
+                  Input('store_menu_change_tab_house', 'data'),
+                  Input('store_menu_change_tab_grid', 'data'),
                   Input('tabs_main', 'value'),
                   State('menu_parent_tabs', 'children'),
-                  State('store_grid_object_dict', 'notification_data'),
-                  State('store_device_dict', 'notification_data'),
-                  State('store_selected_element_grid', 'notification_data'),
-                  State('store_selected_element_house', 'notification_data'),
+                  State('store_grid_object_dict', 'data'),
+                  State('store_device_dict', 'data'),
+                  State('store_selected_element_grid', 'data'),
+                  State('store_selected_element_house', 'data'),
                   prevent_initial_call=True)
     def manage_menu_tabs(tab_value_house, tab_value_grid, tabs_main, menu_children, gridObject_dict,
                          device_dict, selected_element_grid, selected_element_house):
@@ -142,7 +142,7 @@ def general_callbacks(app):
         :param selected_element_grid: [State] Cytoscape element which was clicked in the grid
         :param selected_element_house: [State] Cytoscape element which was clicked in the house
         :return: [menu_parent_tabs>children, menu_parent_tabs>value, active_switch_grid>style,
-        active_switch_house>style, store_notification>notification_data]
+        active_switch_house>style, store_notification>data]
         """
         # TODO: Change way of creating tab panels, so that already existing ones are used again
         # This should make the application faster. Instead of popping all existing ones and every time create
@@ -204,7 +204,7 @@ def general_callbacks(app):
                   Input('button_notifications', 'n_clicks'))
     def open_drawer_notifications(btn):
         """
-        Opens the notification_data drawer when button is clicked.
+        Opens the data drawer when button is clicked.
         :param btn: [Input] Button Notification input
         :return: True to open drawer
         :rtype: bool
@@ -233,9 +233,9 @@ def general_callbacks(app):
             raise PreventUpdate
 
     @app.callback(Output('graph_device', 'figure'),
-                  Input('store_device_dict', 'notification_data'),
+                  Input('store_device_dict', 'data'),
                   Input('pagination_days_menu', 'value'),
-                  State('store_selected_element_house', 'notification_data'),
+                  State('store_selected_element_house', 'data'),
                   State('graph_device', 'figure'),
                   State('pagination_days_menu', 'value'),
                   prevent_initial_call=True)
@@ -257,7 +257,7 @@ def general_callbacks(app):
         index_start = day_ind * 24 * 60
         index_stop = index_start + 24 * 60
         if selected_element in data['house1']:  # Check if element is still in dict or if it was deleted
-            figure["notification_data"][0]["y"] = data['house1'][selected_element]['power'][index_start:index_stop]
+            figure["data"][0]["y"] = data['house1'][selected_element]['power'][index_start:index_stop]
         else:
             raise PreventUpdate
         return figure
@@ -315,11 +315,11 @@ def general_callbacks(app):
         return figure
 
     # @app.callback(Output('modal_timeseries', 'opened'),   # Not in use
-    #               Output('timeseries_table', 'notification_data'),
+    #               Output('timeseries_table', 'data'),
     #               Input('pill_add_profile', 'n_clicks'),
     #               Input('button_add_value', 'n_clicks'),
     #               Input('button_save_profile', 'n_clicks'),
-    #               State('timeseries_table', 'notification_data'),
+    #               State('timeseries_table', 'data'),
     #               State('textinput_profile_name', 'value'),
     #               prevent_initial_call=True)
     # def modal_timeseries(pill, btn_add, btn_save, rows, name):
@@ -329,7 +329,7 @@ def general_callbacks(app):
     #             return True, no_update
     #         else:
     #             raise PreventUpdate
-    #     elif triggered_id == 'button_add_value':  # Add one empty row to the notification_data table
+    #     elif triggered_id == 'button_add_value':  # Add one empty row to the data table
     #         rows.append({'time': '', 'power': ''})
     #         return no_update, rows
     #     elif triggered_id == 'button_save_profile':
@@ -340,27 +340,27 @@ def general_callbacks(app):
     #     else:
     #         raise PreventUpdate
 
-    @app.callback(Output('store_settings', 'notification_data'),
+    @app.callback(Output('store_settings', 'data'),
                   Input('input_week', 'value'),
                   Input('input_year', 'value'),
-                  State('store_settings', 'notification_data'))
+                  State('store_settings', 'data'))
     def settings(week, year, settings_dict):
         """
         Store the settings to the dcc store object if changed
         :param week: [Input] Week of the year
-        :param year: [Input] Year to get notification_data from
+        :param year: [Input] Year to get data from
         :param settings_dict: DCC store object to save to
-        :return: [store_settings>notification_data]
+        :return: [store_settings>data]
         """
 
         settings_dict['week'] = week
         settings_dict['year'] = year
         return settings_dict
 
-    @app.callback(Output('download_json', 'notification_data'),
+    @app.callback(Output('download_json', 'data'),
                   Output('modal_load_configuration', 'opened'),
-                  Output('store_grid_object_dict', 'notification_data', allow_duplicate=True),
-                  Output('store_device_dict', 'notification_data', allow_duplicate=True),
+                  Output('store_grid_object_dict', 'data', allow_duplicate=True),
+                  Output('store_device_dict', 'data', allow_duplicate=True),
                   Output('cyto_grid', 'elements', allow_duplicate=True),
                   Output('cyto_bathroom', 'elements', allow_duplicate=True),
                   Output('cyto_kitchen', 'elements', allow_duplicate=True),
@@ -368,16 +368,16 @@ def general_callbacks(app):
                   Output('cyto_office', 'elements', allow_duplicate=True),
                   Output('input_week', 'value'),
                   Output('input_year', 'value'),
-                  Output('store_custom_house', 'notification_data', allow_duplicate=True),
+                  Output('store_custom_house', 'data', allow_duplicate=True),
                   Output('tab_house', 'disabled', allow_duplicate=True),
-                  Output('store_notification', 'notification_data', allow_duplicate=True),
+                  Output('store_notification', 'data', allow_duplicate=True),
                   Input('menu_item_save', 'n_clicks'),
                   Input('menu_item_load', 'n_clicks'),
                   Input('menu_item_own_devices', 'n_clicks'),
                   Input('button_start_load', 'n_clicks'),
                   Input('button_load_configuration', 'n_clicks'),
-                  State('store_grid_object_dict', 'notification_data'),
-                  State('store_device_dict', 'notification_data'),
+                  State('store_grid_object_dict', 'data'),
+                  State('store_device_dict', 'data'),
                   State('cyto_grid', 'elements'),
                   State('cyto_bathroom', 'elements'),
                   State('cyto_kitchen', 'elements'),
@@ -385,9 +385,9 @@ def general_callbacks(app):
                   State('cyto_office', 'elements'),
                   State('upload_configuration', 'filename'),
                   State('upload_configuration', 'contents'),
-                  State('store_settings', 'notification_data'),
-                  State('store_custom_house', 'notification_data'),
-                  State('store_own_device_dict', 'notification_data'),
+                  State('store_settings', 'data'),
+                  State('store_custom_house', 'data'),
+                  State('store_own_device_dict', 'data'),
                   prevent_initial_call=True)
     def main_menu(btn_save, btn_load_menu, btn_own, btn_load, btn_start_load, gridObject_dict, device_dict,
                   elements_grid, elements_bath, elements_kitchen, elements_livingroom, elements_office,
@@ -412,16 +412,16 @@ def general_callbacks(app):
         :param settings_dict: [State] Dictionary containing the settings
         :param custom_house: [State] Id of custom house
         :param own_devices: [State] Dictionary containing all own devices
-        :return: [download_json>notification_data, modal_load_configuration>opened, store_grid_object_dict>notification_data,
-        store_device_dict>notification_data, cyto_grid>elements, cyto_bathroom>elements, cyto_livingroom>elements,
-        cyto_kitchen>elements, cyto_office>elements, input_week>value, input_year>value, store_custom_house>notification_data,
-        tab_house>disabled, store_notification>notification_data]
+        :return: [download_json>data, modal_load_configuration>opened, store_grid_object_dict>data,
+        store_device_dict>data, cyto_grid>elements, cyto_bathroom>elements, cyto_livingroom>elements,
+        cyto_kitchen>elements, cyto_office>elements, input_week>value, input_year>value, store_custom_house>data,
+        tab_house>disabled, store_notification>data]
         """
 
         try:
             triggered_id = ctx.triggered_id
             if triggered_id == 'menu_item_save':
-                save_dict = {'gridObject_dict': gridObject_dict,    # Collect all important notification_data in one dictionary
+                save_dict = {'gridObject_dict': gridObject_dict,    # Collect all important data in one dictionary
                              'device_dict': device_dict,
                              'cyto_grid': elements_grid,
                              'cyto_bathroom': elements_bath,
@@ -430,13 +430,13 @@ def general_callbacks(app):
                              'cyto_office': elements_office,
                              'settings': settings_dict,
                              'custom_house': custom_house}
-                # Give collected notification_data to download component
+                # Give collected data to download component
                 return dict(content=json.dumps(save_dict), filename="konfiguration.json"), \
                        no_update, no_update, no_update, no_update, no_update, no_update, \
                        no_update, no_update, no_update, no_update, no_update, no_update, no_update
             elif triggered_id == 'menu_item_own_devices':
                 save_dict = {'own_devices_dict': own_devices}   # Create dictionary with own devices in it
-                # Give collected notification_data to download component
+                # Give collected data to download component
                 return dict(content=json.dumps(save_dict), filename="eigene_geraete.json"), \
                        no_update, no_update, no_update, no_update, no_update, no_update, \
                        no_update, no_update, no_update, no_update, no_update, no_update, no_update
@@ -464,7 +464,7 @@ def general_callbacks(app):
                             'device_dict' in content_dict and 'cyto_grid' in content_dict):
                         return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
                                no_update, no_update, no_update, no_update, no_update, 'notification_wrong_file'
-                    # write all read notification_data into the dash components
+                    # write all read data into the dash components
                     return no_update, False, content_dict['gridObject_dict'], content_dict['device_dict'], \
                            content_dict['cyto_grid'], content_dict['cyto_bathroom'], content_dict['cyto_kitchen'], \
                            content_dict['cyto_livingroom'], content_dict['cyto_office'], \
@@ -491,11 +491,11 @@ def general_callbacks(app):
 
         return filename
 
-    @app.callback(Output('store_device_dict', 'notification_data', allow_duplicate=True),
-                  Output('store_grid_object_dict', 'notification_data', allow_duplicate=True),
-                  Output('store_notification', 'notification_data', allow_duplicate=True),
+    @app.callback(Output('store_device_dict', 'data', allow_duplicate=True),
+                  Output('store_grid_object_dict', 'data', allow_duplicate=True),
+                  Output('store_notification', 'data', allow_duplicate=True),
                   Input('button_update_settings', 'n_clicks'),
-                  State('store_grid_object_dict', 'notification_data'),
+                  State('store_grid_object_dict', 'data'),
                   State('input_week', 'value'),
                   State('input_year', 'value'),
                   prevent_initial_call=True)
@@ -506,7 +506,7 @@ def general_callbacks(app):
         :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
         :param week: [State] Input week of year
         :param year: [State] Input year
-        :return: [store_device_dict>notification_data, store_grid_object_dict>notification_data, store_notification>notification_data]
+        :return: [store_device_dict>data, store_grid_object_dict>data, store_notification>data]
         """
         # TODO: Implement update of settings properly. Also see modules>update_settings
         # Does not work yet, not in use, button_update_settings is disabled
@@ -519,22 +519,22 @@ def general_callbacks(app):
         except Exception as err:
             return no_update, no_update, err.args[0]
 
-    @app.callback(Output('store_backup', 'notification_data'),
+    @app.callback(Output('store_backup', 'data'),
                   Input('interval_backup', 'n_intervals'),
-                  State('store_grid_object_dict', 'notification_data'),
-                  State('store_device_dict', 'notification_data'),
+                  State('store_grid_object_dict', 'data'),
+                  State('store_device_dict', 'data'),
                   State('cyto_grid', 'elements'),
                   State('cyto_bathroom', 'elements'),
                   State('cyto_kitchen', 'elements'),
                   State('cyto_livingroom', 'elements'),
                   State('cyto_office', 'elements'),
-                  State('store_settings', 'notification_data'),
-                  State('store_custom_house', 'notification_data'),
+                  State('store_settings', 'data'),
+                  State('store_custom_house', 'data'),
                   prevent_initial_call=True)
     def backup(interval, gridObject_dict, device_dict, elements_grid, elements_bath, elements_kitchen,
                elements_livingroom, elements_office, settings_dict, custom_house):
         """
-        Stores all relevant notification_data in DCC store components, which stays stored for the whole session, even on a reload.
+        Stores all relevant data in DCC store components, which stays stored for the whole session, even on a reload.
         Is triggered by an intervall (e.g. every 10 seconds).
         :param interval: [Input] Interval to trigger the backup
         :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
@@ -546,9 +546,9 @@ def general_callbacks(app):
         :param elements_office: [State] Elements of office cytoscape
         :param settings_dict: [State] Dictionary containing the settings
         :param custom_house: [State] Id of custom house
-        :return: [store_backup>notification_data]
+        :return: [store_backup>data]
         """
-        save_dict = {'gridObject_dict': gridObject_dict,    # Collect all relevant notification_data in a dictionary
+        save_dict = {'gridObject_dict': gridObject_dict,    # Collect all relevant data in a dictionary
                      'device_dict': device_dict,
                      'cyto_grid': elements_grid,
                      'cyto_bathroom': elements_bath,
@@ -559,8 +559,8 @@ def general_callbacks(app):
                      'custom_house': custom_house}
         return json.dumps(save_dict)
 
-    @app.callback(Output('store_grid_object_dict', 'notification_data', allow_duplicate=True),
-                  Output('store_device_dict', 'notification_data', allow_duplicate=True),
+    @app.callback(Output('store_grid_object_dict', 'data', allow_duplicate=True),
+                  Output('store_device_dict', 'data', allow_duplicate=True),
                   Output('cyto_grid', 'elements', allow_duplicate=True),
                   Output('cyto_bathroom', 'elements', allow_duplicate=True),
                   Output('cyto_livingroom', 'elements', allow_duplicate=True),
@@ -568,21 +568,21 @@ def general_callbacks(app):
                   Output('cyto_office', 'elements', allow_duplicate=True),
                   Output('input_week', 'value', allow_duplicate=True),
                   Output('input_year', 'value', allow_duplicate=True),
-                  Output('store_custom_house', 'notification_data', allow_duplicate=True),
+                  Output('store_custom_house', 'data', allow_duplicate=True),
                   Output('tab_house', 'disabled', allow_duplicate=True),
                   Output('modal_start', 'opened', allow_duplicate=True),
                   Input('interval_refresh', 'n_intervals'),
-                  State('store_backup', 'notification_data'),
+                  State('store_backup', 'data'),
                   prevent_initial_call=True)
     def refresh(interval, backup_dict):
         """
-        Loads all backup notification_data on a refresh, if exisiting. Is triggered once by an interval. Closes the start-modal
-        if it is a refresh with backup notification_data.
+        Loads all backup data on a refresh, if exisiting. Is triggered once by an interval. Closes the start-modal
+        if it is a refresh with backup data.
         :param interval: [Input] Interval which is only triggered once at a refresh
-        :param backup_dict: [State] Stored backup notification_data
-        :return: [store_grid_object_dict>notification_data,
-        store_device_dict>notification_data, cyto_grid>elements, cyto_bathroom>elements, cyto_livingroom>elements,
-        cyto_kitchen>elements, cyto_office>elements, input_week>value, input_year>value, store_custom_house>notification_data,
+        :param backup_dict: [State] Stored backup data
+        :return: [store_grid_object_dict>data,
+        store_device_dict>data, cyto_grid>elements, cyto_bathroom>elements, cyto_livingroom>elements,
+        cyto_kitchen>elements, cyto_office>elements, input_week>value, input_year>value, store_custom_house>data,
         tab_house>disabled, modal_start>opened]
         """
 
@@ -599,7 +599,7 @@ def general_callbacks(app):
         else:
             raise PreventUpdate
 
-    @app.callback(Output('store_save_by_enter', 'notification_data'),
+    @app.callback(Output('store_save_by_enter', 'data'),
                   Input('key_event_listener', 'n_events'),
                   State('key_event_listener', 'event'),
                   prevent_initial_call=True)
@@ -608,7 +608,7 @@ def general_callbacks(app):
         Listen to Enter events and change store_save_by_enter to trigger save action.
         :param key_n: [Input] Key event listener n_events
         :param key_event: [State] Key event listener event
-        :return: [store_save_by_enter>notification_data]
+        :return: [store_save_by_enter>data]
         """
 
         if key_event['key'] == 'Enter':
@@ -619,7 +619,7 @@ def general_callbacks(app):
     @app.callback(Output('notification_container', 'children'),
                   Output('drawer_notifications', 'children'),
                   Output('badge_notifications', 'children'),
-                  Input('store_notification', 'notification_data'),
+                  Input('store_notification', 'data'),
                   State('drawer_notifications', 'children'))
     def notification(notification_data, notif_list):
         """
