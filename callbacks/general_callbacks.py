@@ -239,10 +239,20 @@ def general_callbacks(app):
                   State('graph_device', 'figure'),
                   State('pagination_days_menu', 'value'),
                   prevent_initial_call=True)
-    def update_figure_house(data, day_control, selected_element, figure,
-                            day):  # Update the values of the graphs if another profile is chosen
+    def update_figure_house(data, day_control, selected_element, figure, day):
+        """
+        Update the values of the device graph if another day is chosen to be shown or the device dict is changed.
+        :param data: [Input] Dictionary containing all house devices and their properties
+        :param day_control: [Input] Day from pagination below device power profile
+        :param selected_element: [State] Cytoscape element which was clicked in the house
+        :param figure: [State] Figure of graph which shows power profile of device
+        :param day: [State] Day from pagination below device power profile
+        :return: [graph_device>figure]
+        """
+        # TODO: Implement the update-figure function with the Patch() functionality of dash.
+        # This functionality was introduced while developing and could speed up the app.
         # patched_fig = Patch()
-        # Patch scheint noch nicht zu funktionieren, vielleicht später nochmal probieren
+
         day_ind = days[day]
         index_start = day_ind * 24 * 60
         index_stop = index_start + 24 * 60
@@ -260,7 +270,7 @@ def general_callbacks(app):
                   prevent_initial_call=True)
     def update_figure_devices(day, figure):
         """
-        Update the values of the graphs if another day is chosen to be shown.
+        Update the values of the result graphs if another day is chosen to be shown.
         Also opens the modal with the full screen graph if the total timeframe is selected.
         :param day: [Input] Selected day of the pagination below a figure
         :param figure: [State] Figure to update
@@ -473,6 +483,12 @@ def general_callbacks(app):
                   Input('upload_configuration', 'filename'),
                   prevent_initial_call=True)
     def filename_upload(filename):
+        """
+        Shows the filename of an uploaded file below the upload area to show the user that it was uploaded.
+        :param filename: [Input] Filename of uploaded file
+        :return: [text_filename_load>children]
+        """
+
         return filename
 
     @app.callback(Output('store_device_dict', 'data', allow_duplicate=True),
@@ -484,6 +500,17 @@ def general_callbacks(app):
                   State('input_year', 'value'),
                   prevent_initial_call=True)
     def update_settings(btn_update, gridObject_dict, week, year):
+        """
+        Updates all components with the new settings.
+        :param btn_update: [Input] Button to update the settings
+        :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
+        :param week: [State] Input week of year
+        :param year: [State] Input year
+        :return: [store_device_dict>data, store_grid_object_dict>data, store_notification>data]
+        """
+        # TODO: Implement update of settings properly. Also see modules>update_settings
+        # Does not work yet, not in use, button_update_settings is disabled
+
         try:
             dict_temp = gridObject_dict
             for obj in gridObject_dict:
@@ -506,7 +533,22 @@ def general_callbacks(app):
                   prevent_initial_call=True)
     def backup(interval, gridObject_dict, device_dict, elements_grid, elements_bath, elements_kitchen,
                elements_livingroom, elements_office, settings_dict, custom_house):
-        save_dict = {'gridObject_dict': gridObject_dict,
+        """
+        Stores all relevant data in DCC store components, which stays stored for the whole session, even on a reload.
+        Is triggered by an intervall (e.g. every 10 seconds).
+        :param interval: [Input] Interval to trigger the backup
+        :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
+        :param device_dict: [State] Dictionary containing all house devices and their properties
+        :param elements_grid: [State] Elements of grid cytoscape
+        :param elements_bath: [State] Elements of bathroom cytoscape
+        :param elements_kitchen: [State] Elements of kitchen cytoscape
+        :param elements_livingroom: [State] Elements of livingroom cytoscape
+        :param elements_office: [State] Elements of office cytoscape
+        :param settings_dict: [State] Dictionary containing the settings
+        :param custom_house: [State] Id of custom house
+        :return: [store_backup>data]
+        """
+        save_dict = {'gridObject_dict': gridObject_dict,    # Collect all relevant data in a dictionary
                      'device_dict': device_dict,
                      'cyto_grid': elements_grid,
                      'cyto_bathroom': elements_bath,
@@ -521,8 +563,8 @@ def general_callbacks(app):
                   Output('store_device_dict', 'data', allow_duplicate=True),
                   Output('cyto_grid', 'elements', allow_duplicate=True),
                   Output('cyto_bathroom', 'elements', allow_duplicate=True),
-                  Output('cyto_kitchen', 'elements', allow_duplicate=True),
                   Output('cyto_livingroom', 'elements', allow_duplicate=True),
+                  Output('cyto_kitchen', 'elements', allow_duplicate=True),
                   Output('cyto_office', 'elements', allow_duplicate=True),
                   Output('input_week', 'value', allow_duplicate=True),
                   Output('input_year', 'value', allow_duplicate=True),
@@ -531,17 +573,27 @@ def general_callbacks(app):
                   Output('modal_start', 'opened', allow_duplicate=True),
                   Input('interval_refresh', 'n_intervals'),
                   State('store_backup', 'data'),
-                  State('store_custom_house', 'data'),
                   prevent_initial_call=True)
-    def refresh(interval, backup_dict, custom_house):
-        custom_house_disabled = True
-        if custom_house is not None:
-            custom_house_disabled = False
+    def refresh(interval, backup_dict):
+        """
+        Loads all backup data on a refresh, if exisiting. Is triggered once by an interval. Closes the start-modal
+        if it is a refresh with backup data.
+        :param interval: [Input] Interval which is only triggered once at a refresh
+        :param backup_dict: [State] Stored backup data
+        :return: [store_grid_object_dict>data,
+        store_device_dict>data, cyto_grid>elements, cyto_bathroom>elements, cyto_livingroom>elements,
+        cyto_kitchen>elements, cyto_office>elements, input_week>value, input_year>value, store_custom_house>data,
+        tab_house>disabled, modal_start>opened]
+        """
+
         if backup_dict is not None:
             backup_dict = json.loads(backup_dict)
+            custom_house_disabled = True
+            if backup_dict['custom_house'] is not None:
+                custom_house_disabled = False
             return backup_dict['gridObject_dict'], backup_dict['device_dict'], \
-                   backup_dict['cyto_grid'], backup_dict['cyto_bathroom'], backup_dict['cyto_kitchen'], \
-                   backup_dict['cyto_livingroom'], backup_dict['cyto_office'], \
+                   backup_dict['cyto_grid'], backup_dict['cyto_bathroom'], backup_dict['cyto_livingroom'], \
+                   backup_dict['cyto_kitchen'], backup_dict['cyto_office'], \
                    backup_dict['settings']['week'], backup_dict['settings']['year'], backup_dict['custom_house'], \
                    custom_house_disabled, False
         else:

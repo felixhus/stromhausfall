@@ -609,6 +609,22 @@ def save_settings_pv(children, gridObject_dict, selected_element, year, week):
 
 
 def update_settings(gridObject_dict, selected_element, year, week):
+    """
+    Updates the selected element with the stored settings year and week.
+    :param gridObject_dict: Dictionary containing all grid objects and their properties
+    :type gridObject_dict: dict
+    :param selected_element: Element to update
+    :type selected_element: str
+    :param year: Year to fetch data from
+    :type year: int
+    :param week: Week of the year
+    :type week: int
+    :return: Updated gridObject_dict
+    :rtype: dict
+    """
+    # TODO: Implement update of settings properly.
+    # Does not work yet, not in use, button_update_settings is disabled
+
     date_start, date_stop = get_monday_sunday_from_week(week, year)
     if gridObject_dict[selected_element]['object_type'] == 'house':
         profile = gridObject_dict[selected_element]['power_profile']
