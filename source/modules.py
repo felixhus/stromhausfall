@@ -133,9 +133,12 @@ def generate_grid_dataframes(elements, grid_objects):
     """
     Generate pandas DataFrames from given cytoscape elements.
     :param elements: Cytoscape element list, nodes and edges
+    :type elements: list
     :param grid_objects: Dict of all grid objects to link them to the nodes
+    :type grid_objects: dict
     :return df_nodes: DataFrame containing all nodes of the grid; df_edges: DataFrame containing all edges of the grid.
     """
+
     nodes = []
     edges = []
     for ele in elements:  # Divide elements into nodes and edges
@@ -143,15 +146,13 @@ def generate_grid_dataframes(elements, grid_objects):
             edges.append(ele['data'])  # Extract needed data from edges
         else:
             ele['data']['linkedObject'] = grid_objects[ele['data']['id']]
-            # for go in grid_objects:  # Find grid object with the same id and link it to the node
-            #     if go.id == ele['data']['id']:
-            #         ele['data']['linkedObject'] = go
             nodes.append(ele['data'])  # Extract needed data from nodes
     df_nodes = pd.DataFrame(nodes)  # Generate DataFrames from extracted data, which describe the grid
     for edge in edges:
+        # Get voltages of source and target node of edge
         source_voltage = df_nodes.loc[df_nodes['id'] == edge['source']]['linkedObject'].values[0]['voltage']
-        x = df_nodes.loc[df_nodes['id'] == edge['target']]['linkedObject'].values[0]
         target_voltage = df_nodes.loc[df_nodes['id'] == edge['target']]['linkedObject'].values[0]['voltage']
+        # Check if a voltage for the node is defined and write voltage of line/edge
         if source_voltage is None and target_voltage is None:
             warnings.warn("Keine Spannungsebene für Leitung durch Knoten definiert!")
         if source_voltage is None:
@@ -168,33 +169,44 @@ def generate_grid_dataframes(elements, grid_objects):
 
 def generate_grid_graph(df_nodes, df_edges):
     """
-    Generate a NetworkX graph from the given DataFrames for nodes and edges
+    Generate a NetworkX graph from the given DataFrames for nodes and edges.
     :param df_nodes: DataFrame containing nodes with 'id' and 'linkedObject'
+    :type df_nodes: dataframe
     :param df_edges: DataFrame containing nodes with 'source', 'target' and 'id
+    :type df_edges: dataframe
     :return: NetworkX graph of the given grid
     """
+
     graph = nx.MultiGraph()
     graph.add_nodes_from(df_nodes['id'].tolist())
-    nx.set_node_attributes(graph, pd.Series(df_nodes.linkedObject.values, index=df_nodes.id).to_dict(),
-                           name="object")
+    nx.set_node_attributes(graph, pd.Series(df_nodes.linkedObject.values, index=df_nodes.id).to_dict(), name="object")
     nodes = copy.deepcopy(graph.nodes(data=True))
+    # Search for transformer nodes and add a transformer helper node for each transformer node.
+    # For more details see thesis.
     for node in nodes:
         if node[1]['object']['object_type'] == 'transformer':
             node_id = "transformer_" + node[0]
             node_object = objects.create_TransformerHelperNodeObject()
             graph.add_node(node_id, object=node_object)
             graph.add_edge(node[0], node_id, impedance=12, id='transformer_edge_' + node_id[16:])
+    # Reconnect the edged which are connected to the transformer
     for idx in range(len(df_edges.index)):
-        if df_edges.loc[idx, 'source'] in graph.nodes \
-                and df_edges.loc[idx, 'target'] in graph.nodes:  # Check if source and target node exist
+        # Check if source and target node exist
+        if df_edges.loc[idx, 'source'] in graph.nodes and df_edges.loc[idx, 'target'] in graph.nodes:
+            # Search for edges with source transformer
             if graph.nodes(data=True)[df_edges.loc[idx, 'source']]['object']['object_type'] == 'transformer':
+                # If edge is 400V -> Reconnect to transformer_helper_node (low voltage side of transformer)
+                # else -> Connect to transformer node (high voltage side of transformer)
                 if df_edges.loc[idx, 'voltage'] == 400:
                     graph.add_edge("transformer_" + df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'],
                                    id=df_edges.loc[idx, 'id'])
                 else:
                     graph.add_edge(df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'],
                                    id=df_edges.loc[idx, 'id'])
+            # Search for edges with target transformer
             elif graph.nodes(data=True)[df_edges.loc[idx, 'target']]['object']['object_type'] == 'transformer':
+                # If edge is 400V -> Reconnect to transformer_helper_node (low voltage side of transformer)
+                # else -> Connect to transformer node (high voltage side of transformer)
                 if df_edges.loc[idx, 'voltage'] == 400:
                     graph.add_edge(df_edges.loc[idx, 'source'], "transformer_" + df_edges.loc[idx, 'target'],
                                    id=df_edges.loc[idx, 'id'])
@@ -202,44 +214,60 @@ def generate_grid_graph(df_nodes, df_edges):
                     graph.add_edge(df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'],
                                    id=df_edges.loc[idx, 'id'])
             else:
+                # If edge wasn't connected to a transformer, just add it to the graph as it is.
                 graph.add_edge(df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'], id=df_edges.loc[idx, 'id'])
-                edge_id = graph.edges[(df_edges.loc[idx, 'source'], df_edges.loc[idx, 'target'], 0)]
         else:
             raise Exception("Kante mit nicht existierendem Knoten")
     return graph
 
 
 def generate_directed_graph(graph):
+    """
+    Generates a directed graph out of the undirected one. Performs a bfs for this and takes the external grid as
+    the starting point. Checks if there are more ore less than one external grids.
+    :param graph: Undirected graph
+    :type graph: NetworkX graph
+    :return: Directed NetworkX graph
+    """
+
     number_of_ext_grids = 0
     graph_dir = nx.MultiDiGraph()
     nodes_and_attributes = [(n, d) for n, d in graph.nodes(data=True)]
     graph_dir.add_nodes_from(nodes_and_attributes)
-    for node in graph.nodes(data=True):
+    for node in graph.nodes(data=True):     # Find all external grids
         if node[1]['object']['object_type'] == "externalgrid":
             number_of_ext_grids += 1
-            source_node = node[0]
+            source_node = node[0]   # Set external grid as source node
     if number_of_ext_grids > 1:
         raise Exception("Es sind mehr als ein externes Netz vorhanden.")
     elif number_of_ext_grids < 1:
         raise Exception("Es ist kein externes Netz vorhanden.")
-    # bfs = nx.edge_bfs(graph, source_node, orientation="ignore")
+    # Perform a directed, breadth-first-search of edges to go through all edges, starting at external grid
     for edge in nx.edge_bfs(graph, source_node, orientation="ignore"):
         edge_id = 'edge'
         for edge_undir in graph.edges:
+            # Find id of corresponding undirected edge
             if (edge[0] == edge_undir[0] and edge[1] == edge_undir[1] and edge[2] == edge_undir[2]) or \
                     (edge[0] == edge_undir[1] and edge[1] == edge_undir[0] and edge[2] == edge_undir[2]):
                 edge_id = graph.edges[edge_undir]['id']
                 break
         if edge[3] == 'reverse':
-            graph_dir.add_edge(edge[1], edge[0], id=edge_id)
+            graph_dir.add_edge(edge[1], edge[0], id=edge_id)    # Add edge to directed graph in direction as undirected
         else:
-            graph_dir.add_edge(edge[0], edge[1], id=edge_id)
+            graph_dir.add_edge(edge[0], edge[1], id=edge_id)    # Add edge to directed graph in direction as undirected
     return graph_dir
 
 
 def check_power_profiles(graph):
+    """
+    Finds the power profile with the most timesteps and interpolate all other profiles to this length.
+    :param graph: Directed NetworkX graph
+    :type graph: NetworkX graph
+    :return: Updated NetworkX graph
+    """
+
     max_length = 0
-    for node in graph.nodes(data=True):     # Get length of longest power profile (most timesteps)
+    for node in graph.nodes(data=True):     # Get length of the longest power profile (most timesteps)
         if node[0][:11] != 'transformer':   # Don't check for transformer helper node
             if len(node[1]['object']['power']) > max_length:
                 max_length = len(node[1]['object']['power'])
@@ -336,34 +364,50 @@ def correct_cyto_edges(elements, graph):
 
 
 def power_flow_statemachine(state, data):
+    """
+    State machine of grid calculation. Executes all checks and steps necessary.
+    :param state: Statemachine state to execute in this step
+    :type state: str
+    :param data: All needed data for the calculation
+    :type data: dict
+    :return: Next statemachine state; updated data dict; flag if calculation is done (bool)
+    """
+
     if state == 'init':
         if len(data['elements']) == 0:  # Check if there are any elements in the grid
             raise Exception('notification_emptygrid')
         return 'gen_dataframes', data, False
     elif state == 'gen_dataframes':
-        data['df_nodes'], data['df_edges'] = generate_grid_dataframes(data['elements'],
-                                                                      data['grid_objects'])  # Generate DataFrames
+        # Generate dataframes of the nodes and edges for the calculation
+        data['df_nodes'], data['df_edges'] = generate_grid_dataframes(data['elements'], data['grid_objects'])
         return 'gen_grid_graph', data, False
     elif state == 'gen_grid_graph':
-        data['grid_graph'] = generate_grid_graph(data['df_nodes'], data['df_edges'])  # Generate NetworkX Graph
+        # Generate NetworkX graph of the grid
+        data['grid_graph'] = generate_grid_graph(data['df_nodes'], data['df_edges'])
         return 'check_isolates', data, False
     elif state == 'check_isolates':
-        if nx.number_of_isolates(data['grid_graph']) > 0:  # Check if there are isolated (not connected) nodes
+        # Check if there are isolated (not connected) nodes
+        if nx.number_of_isolates(data['grid_graph']) > 0:
             raise Exception('notification_isolates')
         return 'check_tree', data, False
     elif state == 'check_tree':
+        # Check if the graph/grid structure is a tree. If not, there are cycles in the grid.
+        # TODO: IMPLEMENT FUNCTIONS TO HANDLE CYCLES AND PARALLEL GRID STRUCTURES. See thesis for more information.
+        # Check by generating minimum spanning tree and compare number of edges
         min_spanning_tree = nx.minimum_spanning_tree(data['grid_graph'])
         if data['grid_graph'].number_of_edges() != min_spanning_tree.number_of_edges():
             raise Exception('notification_cycles')
         return 'gen_directed_graph', data, False
     elif state == 'gen_directed_graph':
-        data['grid_graph'] = generate_directed_graph(
-            data['grid_graph'])  # Give graph edges directions, starting at external grid
+        # Generate directed graph from undirected graph to handle power flow directions. Starting at external grid.
+        data['grid_graph'] = generate_directed_graph(data['grid_graph'])
         return 'check_power_profiles', data, False
     elif state == 'check_power_profiles':
+        # Check length of power profiles and adjust them all to the longest length.
         data['grid_graph'] = check_power_profiles(data['grid_graph'])
         return 'gen_equations', data, False
     elif state == 'gen_equations':
+        # Generate the equations to solve for the power flow
         data['A'], data['df_power'] = generate_equations(data['grid_graph'])
         return 'calc_flow', data, False
     elif state == 'calc_flow':
@@ -384,11 +428,14 @@ def power_flow_statemachine(state, data):
 
 def calculate_power_flow(elements, grid_object_dict):
     """
-    Main function to calculate the power flows in the created and configured grid. Built as a state-machine
+    Main function to calculate the power flows in the created and configured grid. Built as a state-machine.
     :param grid_object_dict: List of objects in grid with id corresponding to node ids of cytoscape
+    :type grid_object_dict: dict
     :param elements: Grid elements in form of cytoscape graph
-    :return:
+    :type elements: list
+    :return: Dataframe Flow, edge labels
     """
+
     state = 'init'
     ready = False
     data = {'elements': elements, 'grid_objects': grid_object_dict}
@@ -396,7 +443,7 @@ def calculate_power_flow(elements, grid_object_dict):
         # print(state)
         state, data, ready = power_flow_statemachine(state, data)
         # print("Done")
-    return data['df_flow'], data['labels'], data['elements']
+    return data['df_flow'], data['labels']
 
 
 def calculate_house(device_dict, timesteps):
@@ -425,15 +472,25 @@ def calculate_house(device_dict, timesteps):
 
 
 def interpolate_profile(values, number_steps, interpolation_type):
-    # possible kinds: linear, nearest, nearest-up, zero, slinear, quadratic, cubic, previous, next
-    if len(values) < 2:
+    """
+    Interpolates a given profile to a given number of timesteps. The interpolation method can be defined.
+    Possible kinds of interpolation: linear, nearest, nearest-up, zero, slinear, quadratic, cubic, previous, next
+    :param values: Original values of profile
+    :type values: list
+    :param number_steps: Number of steps of final profile
+    :type number_steps: int
+    :param interpolation_type: Type of interpolation
+    :type interpolation_type:str
+    :return: Final interpolated profile
+    :rtype: list
+    """
+
+    if len(values) == 1:     # If profile consists of only one value, add the same to make interpolation possible
         values = np.append(values, values[0])
     timesteps_values = np.linspace(0, number_steps-1, num=len(values), endpoint=True)
     f_inter = interpolate.interp1d(timesteps_values, values, kind=interpolation_type)
     x_new = np.linspace(0, number_steps, num=number_steps, endpoint=False)
     y_new = f_inter(x_new)
-    plt.plot(y_new)
-    # plt.show()
     return y_new
 
 

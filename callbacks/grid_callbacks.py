@@ -45,7 +45,7 @@ def grid_callbacks(app):
                   prevent_initial_call=True)
     def start_calculation_grid(btn, elements, gridObject_dict, tabs_main):
         """
-
+        Starts the calculation of the grid and calls all necessary functions.
         :param btn: [Input] Button to start calculation
         :param elements: [State]
         :param gridObject_dict: [State]
@@ -56,7 +56,7 @@ def grid_callbacks(app):
 
         try:
             if tabs_main == 'grid':     # If button was clicked in grid mode, start calculation
-                df_flow, labels, elements = calculate_power_flow(elements, gridObject_dict)
+                df_flow, labels = calculate_power_flow(elements, gridObject_dict)
                 # Create labels for cytoscape edges/electrical lines and round numbers for better display
                 labels = {k: round(v, 1) for k, v in labels.items()}
                 # Convert to json to store in dcc store object
