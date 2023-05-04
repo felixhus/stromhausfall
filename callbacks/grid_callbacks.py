@@ -47,8 +47,8 @@ def grid_callbacks(app):
         """
         Starts the calculation of the grid and calls all necessary functions.
         :param btn: [Input] Button to start calculation
-        :param elements: [State]
-        :param gridObject_dict: [State]
+        :param elements: [State] Elements of grid cytoscape
+        :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
         :param tabs_main: [State] Tab value of main tab, whether grid, house or settings mode is shown
         :return: [store_flow_data>data, tabs_menu>value, result_parent_tabs>value, cyto_grid>stylesheet,
         cyto_grid>elements, timestep_slider>max, store_edge_labels>data, store_notification>data]
@@ -78,6 +78,15 @@ def grid_callbacks(app):
                   State('store_flow_data', 'data'),
                   prevent_initial_call=True)
     def update_labels(slider, flow):
+        """
+        If flow was calculated and the slider set to a new timestep, this function generates the cytoscape edge labels
+        for this timestep from the flow results. It rounds them and get the power, which is taken or given to the
+        external grid. This is then shown on the alert components in the grid result section.
+        :param slider: [Input] Timestep set by slider
+        :param flow: [State] The calculated flow data
+        :return: [alert_externalgrid>children, store_edge_labels>data, store_notification>data]
+        """
+
         try:
             if flow is not None:
                 df_flow = pd.read_json(flow, orient='index')
@@ -97,7 +106,7 @@ def grid_callbacks(app):
         except Exception as err:
             return no_update, no_update, err.args[0]
 
-    @app.callback(Output('cyto_grid', 'elements'),  # Callback to change elements of cyto
+    @app.callback(Output('cyto_grid', 'elements'),
                   Output('store_grid_object_dict', 'data'),
                   Output('start_of_line', 'data'),
                   Output('store_element_deleted', 'data'),
@@ -120,40 +129,64 @@ def grid_callbacks(app):
                   prevent_initial_call=True)
     def edit_grid(btn_add, node, btn_delete, btn_line, button_hv, button_lv, elements,
                   gridObject_dict, btn_line_active, start_of_line, selected_element, node_ids, tabs_main):
+        """
+        This callback manages all the edit action of the grid cytoscape. It adds new nodes and lines and
+        deletes them if wanted.
+        :param btn_add: [Input] Id of pressed add object button
+        :param node: [Input] Pressed node of cyto_grid
+        :param btn_delete: [Input] Button to delete an object
+        :param btn_line: [Input] Button to activate line edit mode
+        :param button_hv: [Input] Button to select the high voltage side of the transformer
+        :param button_lv: [Input] Button to select the low voltage side of the transformer
+        :param elements: [State] Elements of grid cytoscape
+        :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
+        :param btn_line_active: [State] Status of the line edit mode
+        :param start_of_line: [State] First clicked node to add a line
+        :param selected_element: [State] Selected element of the cyto_grid
+        :param node_ids: [State] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        :param tabs_main: [State] Tab value of main tab, whether grid, house or settings mode is shown
+        :return: [cyto_grid>elements, store_grid_object_dict>data, start_of_line>data, store_element_deleted>data,
+        store_notification>data, store_get_voltage>data, modal_voltage>opened]
+        """
+
         triggered_id = ctx.triggered_id
-        if triggered_id == 'button_line':  # Start line edit mode, set 'start_of_line' as None
-            return no_update, no_update, None, no_update, no_update, no_update, no_update
-        elif triggered_id == 'store_add_node':
-            last_id = get_last_id(elements)
+        if triggered_id == 'store_add_node':    # A button to add a grid object was clicked
+            last_id = get_last_id(elements)     # Get last used id
             new_gridobject = generate_grid_object(btn_add, 'node' + str(last_id[0] + 1), 'node' + str(last_id[0] + 1))
             if new_gridobject['icon'].endswith('.png'):     # If a png picture is given as the logo
                 image_src = app.get_asset_url('Icons/' + new_gridobject['icon'])
             else:   # If a dash iconify icon is given
                 image_src = get_icon_url(new_gridobject['icon'])
+            # Add new object to grid object dictionary
             gridObject_dict[new_gridobject['id']] = new_gridobject
-            new_element = {'data': {'id': 'node' + str(last_id[0] + 1)},
-                           'position': {'x': 50 + last_id[0] * 8, 'y': 50 + last_id[0] * 8}, 'classes': 'node_style',
-                           'style': {'background-image': image_src, 'background-color': new_gridobject['ui_color']}}
-            elements.append(new_element)
+            # Create new cytoscape node with the necessary content
+            new_node = {'data': {'id': 'node' + str(last_id[0] + 1)},
+                        'position': {'x': 50 + last_id[0] * 8, 'y': 50 + last_id[0] * 8}, 'classes': 'node_style',
+                        'style': {'background-image': image_src, 'background-color': new_gridobject['ui_color']}}
+            elements.append(new_node)
             return elements, gridObject_dict, no_update, no_update, no_update, no_update, no_update
-        elif triggered_id == 'cyto_grid':  # # Node was clicked
+        elif triggered_id == 'button_line':  # Start line edit mode, set 'start_of_line' as None
+            return no_update, no_update, None, no_update, no_update, no_update, no_update
+        elif triggered_id == 'cyto_grid':  # Node was clicked
             if not node == []:
                 if btn_line_active:  # Add-line-mode is on
-                    if start_of_line is not None:
+                    if start_of_line is not None:   # If the start of the line already is set
+                        # Check if connection is allowed
                         if connection_allowed(start_of_line[0]['id'], node[0]['id'], gridObject_dict):
-                            last_id = get_last_id(elements)
-                            return_temp = no_update
-                            modal_boolean = False
+                            last_id = get_last_id(elements)     # Get last edge id
+                            return_temp = no_update             # Temporary variable
+                            modal_boolean = False               # Boolean if voltage modal has to be shown
                             start_object = gridObject_dict[start_of_line[0]['id']]
                             end_object = gridObject_dict[node[0]['id']]
-                            if start_object['voltage'] is None and end_object[
-                                'voltage'] is None:  # Check if voltage level of connection is defined through one of the components
-                                return_temp = [start_object['id'], end_object['id']]
-                                modal_boolean = True
+                            # Check if voltage level of connection is defined through one of the components
+                            if start_object['voltage'] is None and end_object['voltage'] is None:
+                                return_temp = [start_object['id'], end_object['id']]    # Pass ids to voltage modal
+                                modal_boolean = True    # Set boolean to show voltage modal
                             elif start_object['voltage'] is None and start_object['object_type'] != 'transformer':
                                 start_object['voltage'] = end_object['voltage']
                             elif end_object['voltage'] is None and end_object['object_type'] != 'transformer':
                                 end_object['voltage'] = start_object['voltage']
+                            # Create new cytoscape edge with necessary content
                             new_edge = {'data': {'source': start_of_line[0]['id'], 'target': node[0]['id'],
                                                  'id': 'edge' + str(last_id[1] + 1), 'label': ''},
                                         'classes': 'line_style_new'}
@@ -162,44 +195,49 @@ def grid_callbacks(app):
                             elements.append(new_edge)
                             return elements, gridObject_dict, None, no_update, no_update, return_temp, modal_boolean
                         else:
-                            return elements, no_update, None, no_update, "notification_false_connection", no_update, no_update
+                            # If the connection is not allowed, abort line adding and show notification
+                            return elements, no_update, None, no_update, "notification_false_connection", \
+                                   no_update, no_update
                     else:
+                        # If no start node is selected yet, store the now selected as the start node
                         return elements, no_update, node, no_update, no_update, no_update, no_update
-                else:  # Node is clicked in normal mode
+                else:  # Node is clicked in normal mode, do nothing
                     raise PreventUpdate
             else:
                 raise PreventUpdate
+        elif triggered_id == 'button_voltage_hv':   # The high voltage side was selected in the voltage modal
+            for node_id in node_ids:                # Find nodes in gridObject_dict and set the selected voltage
+                obj = gridObject_dict[node_id]
+                if obj['object_type'] != "transformer":
+                    obj['voltage'] = 20000
+            return no_update, gridObject_dict, no_update, no_update, no_update, no_update, False
+        elif triggered_id == 'button_voltage_lv':   # The low voltage side was selected in the voltage modal
+            for node_id in node_ids:                # Find nodes in gridObject_dict and set the selected voltage
+                obj = gridObject_dict[node_id]
+                if obj['object_type'] != "transformer":
+                    obj['voltage'] = 400
+            return no_update, gridObject_dict, no_update, no_update, no_update, no_update, False
         elif triggered_id == 'edit_delete_button':  # Delete Object
             if tabs_main == 'grid':  # Check if it was clicked in grid mode
                 if btn_delete is not None:
                     index = 0
-                    for ele in elements:
+                    for ele in elements:        # Find element to delete
                         if ele['data']['id'] == selected_element:
                             break
                         index += 1
                     if 'position' in elements[index]:  # Check if it is node
+                        # Find connected edges of the node
                         connected_edges = get_connected_edges(elements, elements[index])
-                        for edge in connected_edges:
+                        for edge in connected_edges:    # And delete them as well
                             elements.pop(elements.index(edge))
-                    elements.pop(index)
+                    # TODO: Also delete connected edges from the grid object dictionary!
+                    elements.pop(index)                    # Delete selected element from cytoscape
                     del gridObject_dict[selected_element]  # Remove element from grid object dict
                     return elements, gridObject_dict, no_update, selected_element, no_update, no_update, no_update
                 else:
                     raise PreventUpdate
             else:
-                raise PreventUpdate  # Button was clicked in other mode than grid
-        elif triggered_id == 'button_voltage_hv':
-            for node_id in node_ids:
-                obj = gridObject_dict[node_id]
-                if obj['object_type'] != "transformer":
-                    obj['voltage'] = 20000
-            return no_update, gridObject_dict, no_update, no_update, no_update, no_update, False
-        elif triggered_id == 'button_voltage_lv':
-            for node_id in node_ids:
-                obj = gridObject_dict[node_id]
-                if obj['object_type'] != "transformer":
-                    obj['voltage'] = 400
-            return no_update, gridObject_dict, no_update, no_update, no_update, no_update, False
+                raise PreventUpdate  # Button was clicked in other mode than grid, do nothing
         else:
             raise PreventUpdate
 
@@ -283,6 +321,14 @@ def grid_callbacks(app):
                   State('cyto_grid', 'elements'),
                   prevent_initial_call=True)
     def edge_labels(labels, elements):
+        """
+        Takes generated edge labels, sets them for each edge, sets the direction of the edge arrow and returns
+        the updates cytoscape elements.
+        :param labels: [Input] Generated edge labels
+        :param elements: [State] Cytoscape grid elements
+        :return: [cyto_grid>elements]
+        """
+
         for edge, label in labels.items():  # Set labels of edges with power values
             reverse = label < 0  # If power over edge is negative -> Reverse
             for ele in elements:
@@ -301,6 +347,15 @@ def grid_callbacks(app):
                   State('input_week', 'value'),
                   prevent_initial_call=True)
     def time_slider(slider, year, week):
+        """
+        If the slider selects a new timestep, this callback displays the weekday, date and time of the step
+        in the grid result section.
+        :param slider: [Input] Timestep slider value
+        :param year: [State] Year from settings
+        :param week: [State] Week of the year from settings
+        :return: [alert_time>children]
+        """
+
         date_start, date_stop = get_monday_sunday_from_week(week, year)
         time_start = datetime.datetime.combine(date_start, datetime.datetime.min.time())
         slider_time = time_start + datetime.timedelta(minutes=slider)
@@ -314,12 +369,20 @@ def grid_callbacks(app):
                   [Input(button, 'n_clicks') for button in compass_buttons.keys()],
                   prevent_initial_call=True)
     def compass_action(gridObject_dict, selected_element, *args):
-        triggered_id = ctx.triggered_id
+        """
+        If a button of the PV compass was clicked, the corresponding orientation is written to the PV object
+        and the compass needle is rotated to the clicked orientation.
+        :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
+        :param selected_element: [State] Cytoscape element which was clicked in the grid
+        :param args: [Input] One Input per button of the compass
+        :return: [store_grid_object_grid>data, button_compass>style]
+        """
+
+        triggered_id = ctx.triggered_id     # Get which button was clicked
         if all(ele is None for ele in args):  # If no button was clicked
             raise PreventUpdate
         gridObject_dict[selected_element]['orientation'] = compass_buttons[triggered_id]
         style = {'transform': f'rotate({compass_buttons[triggered_id] - 45}deg)'}
-        # icon = DashIconify(icon=compass_buttons[triggered_id][1], width=20, rotate=compass_buttons[triggered_id][2])
         return gridObject_dict, style
 
     @app.callback(Output('cyto_grid', 'autoungrabify'),  # Callback to make Node ungrabbable when adding lines
@@ -331,15 +394,25 @@ def grid_callbacks(app):
                   State('store_line_edit_active', 'data'),
                   prevent_initial_call=True)
     def edit_mode(btn_line, n_events, event, btn_active):
+        """
+        This callback activates or deactivates the line edit mode with the line button and the ESC key.
+        It also sets the style of the button if it is activated or not.
+        :param btn_line: [Input] Button to add a line between grid objects
+        :param n_events: [Input] Key event listener n_events
+        :param event: [State] Key event listener event
+        :param btn_active: [State] Status of line edit mode
+        :return: [cyto_grid>autoungrabify, store_line_edit_active>data, button_line>variant]
+        """
+
         triggered_id = ctx.triggered_id
         if triggered_id == 'button_line':
-            if not btn_active:
-                return True, True, 'light'
+            if not btn_active:      # If line edit mode is inactive
+                return True, True, 'light'      # -> Activate it
             else:
-                return False, False, 'filled'
-        elif triggered_id == 'key_event_listener':
+                return False, False, 'filled'   # If its active -> Deactivate it
+        elif triggered_id == 'key_event_listener':  # If line edit mode is active and "ESC" is pressed
             if event['key'] == 'Escape' and btn_active:
-                return False, False, 'filled'
+                return False, False, 'filled'       # -> Deactivate it
             else:
                 raise PreventUpdate
 
@@ -348,10 +421,18 @@ def grid_callbacks(app):
                   State('cyto_grid', 'elements'),
                   prevent_initial_call=True)
     def custom_house_style(selected_element, elements):
+        """
+        Sets the style of a house which is selected as custom. It changes the shape from a rounded rectangle to a
+        normal one.
+        :param selected_element: [Input] Id of house which was selected as custom
+        :param elements: [State]
+        :return: [cyto_grid>elements]
+        """
+
         if selected_element is not None:
-            for ele in elements:
+            for ele in elements:    # Find custom house
                 if ele['data']['id'] == selected_element:
-                    ele['classes'] = 'node_style_custom'
+                    ele['classes'] = 'node_style_custom'    # Set new node style
                     break
             return elements
         raise PreventUpdate
@@ -360,6 +441,13 @@ def grid_callbacks(app):
                   [Input(object_id[0], 'n_clicks') for object_id in menu_objects],
                   prevent_initial_call=True)
     def button_add_pressed(*args):
+        """
+        Takes the id of a pressed button to add a grid object and passes it to the store element. A change of this
+        then triggers another callback to add the object.
+        :param args: [Input] Add grid object buttons
+        :return: [store_add_node>data]
+        """
+
         triggered_id = ctx.triggered_id
         if triggered_id == 'button_line':
             raise PreventUpdate

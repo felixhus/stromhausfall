@@ -28,6 +28,14 @@ profile_selection = [46, 4, 7, 9, 14, 15, 16, 17, 18, 19, 20, 22, 23, 27, 28, 32
 
 
 def get_last_id(elements):
+    """
+    Returns the last used id in a list of elements. It returns two ids, one for the nodes, one for the edges
+    :param elements: List of elements with ids
+    :type elements: list
+    :return: Last used ids of [nodes, edges]
+    :rtype: list[int]
+    """
+
     last_id = [0, 0]
     for ele in elements:
         if 'source' not in ele['data']:
@@ -46,6 +54,16 @@ def get_object_from_id(node_id, objects):
 
 
 def get_connected_edges(elements, selected_element):
+    """
+    Find edges which are connected to a cytoscape node
+    :param elements: Cytoscape elements
+    :type elements: list
+    :param selected_element: Node to search for
+    :type selected_element: dict
+    :return: List of connected edges
+    :rtype: list
+    """
+
     id_element = selected_element['data']['id']
     result = []
     for ele in elements:
@@ -56,6 +74,18 @@ def get_connected_edges(elements, selected_element):
 
 
 def generate_grid_object(object_type, object_id, node_id):
+    """
+    Creates a grid object from the function in objects.py.
+    :param object_type: Type of object that should be created
+    :type object_type: str
+    :param object_id: Id of the object
+    :type object_id: str
+    :param node_id: Id of the cytoscape node which it is linked to
+    :type node_id: str
+    :return: Grid object
+    """
+    # TODO: Get grid objects from a sql database, not hard coded from objects.py. See how it is solved for house devices
+
     if object_type == "button_house":
         return objects.create_HouseObject(object_id, node_id)
     elif object_type == "button_transformer":
@@ -75,7 +105,18 @@ def generate_grid_object(object_type, object_id, node_id):
 
 
 def connection_allowed(source, target, object_dict):
-    """ Check if the connection which is about to be added is allowed. """
+    """
+    Check if the connection which is about to be added is allowed.
+    :param source: Id of source node
+    :type source: str
+    :param target: Id of target node
+    :type target: str
+    :param object_dict: Dictionary containing all grid objects and their properties
+    :type object_dict: dict
+    :return: The result of the check, True if allowed
+    :rtype: bool
+    """
+
     target_type = object_dict[target]['object_type']
     if target_type in object_dict[source]['allowed_types_to_connect']:
         return True
@@ -279,16 +320,23 @@ def check_power_profiles(graph):
 
 
 def generate_equations(graph):
+    """
+    Generates the incidence matrix of the directed graph and adds a column to make it quadratic
+    Also returns a dataframe with each power profile in it.
+    :param graph: Directed NetworkX graph
+    :return: inc: Incidence matrix; df_power: Dataframe with all power profiles
+    """
+
     df_power = pd.DataFrame()
     for node in graph.nodes(data=True):     # Get power profile from each node
         df_power[node[0]] = node[1]['object']['power']
-    inc = nx.incidence_matrix(graph, oriented=True).toarray()
+    inc = nx.incidence_matrix(graph, oriented=True).toarray()   # Generate incidence matrix
     idx, idx_ext = 0, 0
-    for node in graph.nodes(data=True):
+    for node in graph.nodes(data=True):     # Find position of external grid node
         if node[1]['object']['object_type'] == 'externalgrid':
             idx_ext = idx
         idx += 1
-    # b = s + t
+    # Create new column for external grid to make incidence matrix quadratical
     new_column = np.array([np.zeros(np.shape(inc)[0])])
     new_column[0][idx_ext] = -1
     inc = np.append(inc, np.transpose(new_column), axis=1)
@@ -296,6 +344,14 @@ def generate_equations(graph):
 
 
 def solve_flow(A, b):
+    """
+    Solves the load flow with a given incidence matrix and result vector. Checks if the matrix is quadratic.
+    :param A: Incidence Matrix = equations to solve
+    :param b: Result vector
+    :return: Flow vector
+    :rtype: ndarray
+    """
+
     if np.shape(A)[0] != np.shape(A)[1]:
         raise Exception("Inzidenzmatrix ist nicht quadratisch!")
     flow = np.linalg.solve(A, b)
@@ -328,13 +384,15 @@ def plot_graph(graph):
 
 def correct_cyto_edges(elements, graph):
     """
-    Function takes the elements of the grid cytoscape and corrects all edges, so the point in the same direction as in the directed graph of the grid.
+    Function takes the elements of the grid cytoscape and corrects all edges, so the point in the same direction as in
+    the directed graph of the grid.
     Needed for the display of arrows.
     :param elements: Element list of dash cytoscape
     :param graph: Directed Graph of the grid.
     :return: Edited Element list of dash cytoscape
+    :rtype: list
     """
-    # elements_new = copy.deepcopy(elements)
+
     for idx, ele in enumerate(elements):
         if 'source' in ele['data']:     # If element is edge
             start_node = None
@@ -411,16 +469,18 @@ def power_flow_statemachine(state, data):
         data['A'], data['df_power'] = generate_equations(data['grid_graph'])
         return 'calc_flow', data, False
     elif state == 'calc_flow':
+        # Calculate the powerflow for every timestep
         column_names = []
-        for edge in data['grid_graph'].edges:
+        for edge in data['grid_graph'].edges:   # Get column names, one column name for each edge
             column_names.append(data['grid_graph'].edges[edge]['id'])
-        column_names.append("external_grid")
-        df_flow = pd.DataFrame(columns=column_names)
-        for step, row in data['df_power'].iterrows():
+        column_names.append("external_grid")    # Add column name for external grid
+        df_flow = pd.DataFrame(columns=column_names)    # Create dataframe for flow results with column names
+        for step, row in data['df_power'].iterrows():   # Solve power flow for each timestep (=row) in df_power
             df_flow.loc[step] = solve_flow(data['A'], row)
         data['df_flow'] = df_flow
         return 'set_edge_labels', data, False
     elif state == 'set_edge_labels':
+        # Set the direction of cytoscape edges to point in the right direction and set labels with power in timestep
         data['elements'] = correct_cyto_edges(data['elements'], data['grid_graph'])
         data['labels'] = data['df_flow'].loc[0].to_dict()
         return None, data, True
@@ -769,6 +829,7 @@ def get_icon_url(icon_name: str):
     :param icon_name: iconify name of icon
     :type icon_name: str
     :return: url of icon
+    :rtype: str
     """
 
     base_url = "https://api.iconify.design"

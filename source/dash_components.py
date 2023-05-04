@@ -31,9 +31,9 @@ def add_storage_variables():
     """
 
     return html.Div([dcc.Store(id='start_of_line'),
-
+                     # Store the id of a pressed button to add a grid object. Triggers the Callback to add the object.
                      dcc.Store(id='store_add_node'),
-
+                     # Store if the line edit mode is active or not
                      dcc.Store(id='store_line_edit_active'),
                      # Store the id of the element of the node or edge which was clicked in the grid cytoscape
                      dcc.Store(id='store_selected_element_grid'),
@@ -43,9 +43,9 @@ def add_storage_variables():
                      dcc.Store(id='store_custom_house', data=None, storage_type='session'),
 
                      dcc.Store(id='store_element_deleted'), dcc.Store(id='store_notification'),
-
+                     # Store ids of nodes to connect to pass them to the voltage modal
                      dcc.Store(id='store_get_voltage'),
-
+                     # Store the generated edge labels and pass them to a callback which displays them
                      dcc.Store(id='store_edge_labels'),
 
                      dcc.Store(id='store_timestep'),
