@@ -300,6 +300,8 @@ def grid_callbacks(app):
                 else:
                     raise Exception("Weder Node noch Edge wurde geklickt.")
             elif triggered_id == 'house_mode':  # New mode of house configuration was clicked (segmented control)
+                if triggered[0]['value'] is None:   # If value of segmented control is none, do nothing
+                    raise PreventUpdate
                 if custom_house is None:  # If no house is in custom-mode yet
                     if control == 'preset':
                         # Set config mode, set fade to True (checkbox is visible)

@@ -4,15 +4,13 @@ the callbacks are included and the app is started.
 """
 
 import dash_bootstrap_components as dbc
+import room_callbacks
 from dash import Dash
 
-from callbacks.bathroom_callbacks import bathroom_callbacks
 from callbacks.general_callbacks import general_callbacks
 from callbacks.grid_callbacks import grid_callbacks
 from callbacks.house_callbacks import house_callbacks
-from callbacks.kitchen_callbacks import kitchen_callbacks
-from callbacks.livingroom_callbacks import livingroom_callbacks
-from callbacks.office_callbacks import office_callbacks
+from callbacks.room_callbacks import room_callbacks
 from source.layout import app_layout
 from source.modules import get_button_dict
 
@@ -26,12 +24,9 @@ button_dict = get_button_dict()  # Get
 app_layout(app, button_dict)     # Get layout of app
 
 grid_callbacks(app)                         # Include grid callbacks
-bathroom_callbacks(app, button_dict)        # Include bathroom callbacks
-kitchen_callbacks(app, button_dict)         # Include bathroom callbacks
-livingroom_callbacks(app, button_dict)      # Include livingroom callbacks
-office_callbacks(app, button_dict)          # Include office callbacks
 general_callbacks(app)                      # Include general callbacks
-house_callbacks(app)                        # Include House initial callbacks
+house_callbacks(app)                        # Include House callbacks
+room_callbacks(app, button_dict)            # Include room callbacks
 
 
 # @app.callback(Output('graph_modal', 'figure'),

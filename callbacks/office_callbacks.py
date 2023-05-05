@@ -9,19 +9,19 @@ import source.modules as modules
 
 
 def office_callbacks(app, button_dict):
-    @app.callback(Output('menu_devices_office', 'opened', allow_duplicate=True),
-                  Output('modal_additional_devices', 'opened', allow_duplicate=True),
-                  Output('radiogroup_room', 'value', allow_duplicate=True),
-                  Input('button_additional_office', 'n_clicks'),
-                  prevent_initial_call=True)
-    def menu_show(btn_additional):
-        """
-        Opens the additional devices modal, closes the room menu and passes the room as a preset to the room radio
-        :param btn_additional: [Input] Button to open the additional device menu
-        :return: [menu_devices_office>opened, modal_additional_devices>opened, radiogroup_room>value]
-        """
-
-        return False, True, 'office'  # Show modal and close menu when button "Weitere" was clicked.
+    # @app.callback(Output('menu_devices_office', 'opened', allow_duplicate=True),
+    #               Output('modal_additional_devices', 'opened', allow_duplicate=True),
+    #               Output('radiogroup_room', 'value', allow_duplicate=True),
+    #               Input('button_additional_office', 'n_clicks'),
+    #               prevent_initial_call=True)
+    # def menu_show(btn_additional):
+    #     """
+    #     Opens the additional devices modal, closes the room menu and passes the room as a preset to the room radio
+    #     :param btn_additional: [Input] Button to open the additional device menu
+    #     :return: [menu_devices_office>opened, modal_additional_devices>opened, radiogroup_room>value]
+    #     """
+    #
+    #     return False, True, 'office'  # Show modal and close menu when button "Weitere" was clicked.
 
     @app.callback(Output('cyto_office', 'elements'),
                   Output('store_device_dict', 'data', allow_duplicate=True),
