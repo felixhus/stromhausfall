@@ -6,7 +6,6 @@ from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
 
 import source.modules as modules
-import source.objects as objects
 
 
 def livingroom_callbacks(app, button_dict):
