@@ -1,3 +1,7 @@
+"""
+livingroom_callbacks.py contains all dash callbacks for livingroom functions of the app.
+"""
+
 from dash import Input, Output, State, ctx, no_update
 from dash.exceptions import PreventUpdate
 
@@ -12,6 +16,12 @@ def livingroom_callbacks(app, button_dict):
                   Input('button_additional_livingroom', 'n_clicks'),
                   prevent_initial_call=True)
     def menu_show(btn_additional):
+        """
+        Opens the additional devices modal, closes the room menu and passes the room as a preset to the room radio
+        :param btn_additional: [Input] Button to open the additional device menu
+        :return: [menu_devices_office>opened, modal_additional_devices>opened, radiogroup_room>value]
+        """
+
         return False, True, 'livingroom'  # Show modal and close menu when button "Weitere" was clicked.
 
     @app.callback(Output('cyto_livingroom', 'elements'),
@@ -25,7 +35,6 @@ def livingroom_callbacks(app, button_dict):
                   State('cyto_livingroom', 'elements'),
                   State('store_device_dict', 'data'),
                   State('tabs_main', 'value'),
-                  State('menu_parent_tabs', 'children'),
                   State('store_selected_element_house', 'data'),
                   State('radiogroup_room', 'value'),
                   State('radiogroup_devices', 'value'),
@@ -39,9 +48,9 @@ def livingroom_callbacks(app, button_dict):
                   Input('button_add_own_device', 'n_clicks'),
                   [Input(device[1], 'n_clicks') for device in button_dict['livingroom']],
                   prevent_initial_call='initial_duplicate')
-    def manage_devices_bathroom(elements, device_dict, tabs_main, children, selected_element, radio_room, radio_devices,
+    def manage_devices_bathroom(elements, device_dict, tabs_main, selected_element, radio_room, radio_devices,
                                 own_device_dict, node, btn_save, btn_delete,
-                                btn_close, active_switch, btn_additional, btn_own, *btn_add):  # Callback to handle livingroom action
+                                btn_close, active_switch, btn_additional, btn_own, *btn_add):
         try:
             room = 'livingroom'
             triggered_id = ctx.triggered_id
