@@ -1,22 +1,21 @@
-import matplotlib.pyplot as plt
-import networkx as nx
 import numpy as np
-import plotly.express as px
 import plotly.graph_objects as go
 
 colors = ['rgb(245, 149, 178)', 'rgb(255, 179, 179)', 'rgb(255, 241, 186)', 'rgb(190, 227, 237)', 'rgb(175, 173, 222)']
 
 
-def plot_graph(graph):
-    nx.draw(graph)
-    # plt.show()
-
-
-def empty_figure():
-    return go.Figure()
-
-
 def plot_device_timeseries(timesteps, load, color):
+    """
+    Creates the figure to plot the power profile of a device.
+    :param timesteps: List with timesteps to plot
+    :type timesteps: list[int]
+    :param load: Timeseries of device power
+    :type load: list[int]
+    :param color: Color of plot
+    :type color: color
+    :return: Figure
+    """
+
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         name="P",
@@ -34,6 +33,17 @@ def plot_device_timeseries(timesteps, load, color):
 
 
 def plot_pv_timeseries(timesteps, power, color):
+    """
+    Creates figure to display the infeed solar power. The power is inverted to positive for the graph.
+    :param timesteps: List with timesteps to plot
+    :type timesteps: list[int]
+    :param power: Timeseries of infeed pv power
+    :type power: list[int]
+    :param color: Color of plot
+    :type color: color
+    :return: Figure
+    """
+
     tick_text = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
     tick_values = [12, 36, 60, 84, 106, 130, 154]
     fig = go.Figure()
@@ -54,15 +64,23 @@ def plot_pv_timeseries(timesteps, power, color):
 
 
 def plot_house_timeseries(power, color):
+    """
+    Creates the figure to plot the power profile of a house.
+    :param power: Timeseries of house power
+    :type power: list[int]
+    :param color: Color of plot
+    :type color: color
+    :return: Figure
+    """
+
     tick_text = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
     tick_values = [720, 2160, 3600, 5040, 6480, 7920, 9360]
-    power = power
     timesteps = np.linspace(0, len(power), num=len(power), endpoint=False)
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         name="P",
         x=timesteps,
-        y=power,     # Invert power for plot
+        y=power,
         stackgroup='one',
         fillcolor=color,
         mode='none'  # this remove the lines
@@ -76,7 +94,22 @@ def plot_house_timeseries(power, color):
 
 
 def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
-    fig = go.Figure()
+    """
+    Creates plots from the results of the house calculation.
+    Plot 1: Stacked scatter plot of the power timeseries of all devices
+    Plot 2: Sunburst plot showing the energy use of each room and devices in the rooms
+    :param df_devices: Dataframe with power timeseries of each device
+    :type df_devices: dataframe
+    :param df_sum: Dataframe with sum of power for each room and house
+    :type df_sum: dataframe
+    :param df_energy: Dataframe with used energy of devices, rooms and house
+    :type df_energy: dataframe
+    :param device_dict: Dictionary containing all devices in the custom house
+    :type device_dict: dict
+    :return: figure scatter plot; figure sunburst plot
+    """
+
+    fig = go.Figure()   # Crate scatter plot
     color_index = 0
     for index, row in df_devices.iterrows():
         fig.add_trace(go.Scatter(
@@ -85,6 +118,7 @@ def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
             y=row,
             stackgroup='one',
             fillcolor=colors[color_index],
+            # TODO: Add more colors
             mode='none'  # this remove the lines
         ))
         color_index += 1
@@ -116,8 +150,9 @@ def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
         ),
         showlegend=False
     )
-    # fig.show()
 
+    # TODO: Use same colors in sunburst for devices as in scatter plot
+    # Create labels, parents and values for sunburst plot
     sunburst_labels, sunburst_parents, sunburst_values = [], [], []
     sunburst_labels.append('Mein Haus')
     sunburst_parents.append('')
@@ -131,7 +166,7 @@ def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
             sunburst_parents.append(device_dict['rooms'][room]['name'])
             sunburst_values.append(df_energy.loc[device]['energy'])
 
-    fig_sunburst = go.Figure(go.Sunburst(
+    fig_sunburst = go.Figure(go.Sunburst(   # Create sunburst plot
         labels=sunburst_labels,
         parents=sunburst_parents,
         values=sunburst_values,
@@ -142,4 +177,3 @@ def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
     fig_sunburst.update_layout(margin=dict(t=0, l=0, r=0, b=0), width=320)
 
     return fig, fig_sunburst
-    # fig_sunburst.show()

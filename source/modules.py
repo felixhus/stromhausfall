@@ -489,7 +489,7 @@ def power_flow_statemachine(state, data):
 def calculate_power_flow(elements, grid_object_dict):
     """
     Main function to calculate the power flows in the created and configured grid. Built as a state-machine.
-    :param grid_object_dict: List of objects in grid with id corresponding to node ids of cytoscape
+    :param grid_object_dict: Dictionary of objects in grid with id corresponding to node ids of cytoscape
     :type grid_object_dict: dict
     :param elements: Grid elements in form of cytoscape graph
     :type elements: list
@@ -507,26 +507,44 @@ def calculate_power_flow(elements, grid_object_dict):
 
 
 def calculate_house(device_dict, timesteps):
-    df_power = pd.DataFrame(columns=timesteps)
-    df_power.insert(0, 'room', None)  # Add column for room of device
-    df_sum = pd.DataFrame(columns=timesteps)
-    df_energy = pd.DataFrame(columns=['type', 'energy'])
-    for room in device_dict['rooms']:
+    """
+    Takes all devices and calculates: The sum of all devices per room and house; The energy used by devices,
+    rooms and house.
+    :param device_dict: Dictionary containing all devices in the custom house
+    :type device_dict: dict
+    :param timesteps: Number of timesteps
+    :type timesteps: range
+    :return: df_power: Dataframe with power of each device in each timestep;
+    df_sum: Dataframe with sum power of all rooms and house per timestep;
+    df_energy: Dataframe with overall energy per room and house;
+    figure[0]: Scatter plot of results; figure[1]: Sunburst plot of energys
+    """
+
+    df_power = pd.DataFrame(columns=timesteps)  # Prepare dataframe with one column per timestep
+    df_power.insert(0, 'room', '')  # Add column for room of device
+    df_sum = pd.DataFrame(columns=timesteps)    # Prepare dataframe with one column per timestep
+    df_energy = pd.DataFrame(columns=['type', 'energy'])    # Prepare dataframe
+    for room in device_dict['rooms']:   # Iterate through each room
         for dev in device_dict['rooms'][room]['devices']:  # Go through each device in the house
             device = device_dict['house1'][dev]  # Get device properties from dict
             if device['active']:  # If device is activated
+                # Get device power profile as row
                 df_power.loc[device['id'], df_power.columns != 'room'] = device['power']
+                # Get room of device to room column
                 df_power.loc[device['id'], df_power.columns == 'room'] = room
-                energy = df_power.loc[device['id'], df_power.columns != 'room'].sum() / 60 / 1000  # Calculate energy in kWh
+                # Calculate energy in kWh
+                energy = df_power.loc[device['id'], df_power.columns != 'room'].sum() / 60 / 1000
                 df_energy.loc[device['id']] = {'type': 'device', 'energy': energy}
-            else:
+            else:   # If device is deactivated
                 df_energy.loc[device['id']] = {'type': 'device', 'energy': 0}
-        df_sum.loc[room] = df_power.loc[df_power['room'] == room].sum().transpose()  # Get sum of all devices in room
-        energy = df_sum.loc[room].sum() / 60 / 1000  # Calculate energy in kWh
+        # Get sum of all devices in room
+        df_sum.loc[room] = df_power.loc[df_power['room'] == room].sum().transpose()
+        energy = df_sum.loc[room].sum() / 60 / 1000  # Calculate energy in kWh for room
         df_energy.loc[room] = {'type': 'room', 'energy': energy}
     df_sum.loc['house1'] = df_sum.sum().transpose()  # Get sum of all rooms in house
-    energy = df_sum.loc['house1'].sum() / 60 / 1000  # Calculate energy in kWh
+    energy = df_sum.loc['house1'].sum() / 60 / 1000  # Calculate energy in kWh for house
     df_energy.loc['house1'] = {'type': 'house', 'energy': energy}
+    # Plot the results
     figures = plot.plot_all_devices_room(df_power, df_sum, df_energy, device_dict)
     return df_power, df_sum, df_energy, figures[0], figures[1]
 

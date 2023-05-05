@@ -137,7 +137,7 @@ def house_callbacks(app):
                   prevent_initial_call=True)
     def start_calculation_house(btn, device_dict, tabs_main, gridObject_dict, house):
         """
-
+        Start the calculation of the powers and energys in the rooms of the house.
         :param btn: [Input] Button to start calculation
         :param device_dict: [State] Dictionary containing all devices in the custom house
         :param tabs_main: [State] Tab value of main tab, whether grid, house or settings mode is shown
@@ -153,7 +153,6 @@ def house_callbacks(app):
                 # Start calculation of house and save all results
                 df_power, df_sum, df_energy, graph_power, graph_sunburst = \
                     modules.calculate_house(device_dict, range(0, 7 * 1440))
-                # FIXME: Documentation of calculate_house
                 # Set calculated power profile as profile of the house in the grid
                 gridObject_dict[house]['power'] = df_sum.loc['house1'].values.flatten().tolist()
                 return df_power.to_json(orient='index'), df_energy.to_json(orient='index'), \
