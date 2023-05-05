@@ -1,5 +1,5 @@
 """
-room_callbacks.py contains all dash callbacks for room functions of the app.
+room_callbacks.py creates all dash callbacks for room functions of the app.
 """
 
 from dash import Input, Output, State, ctx, no_update
@@ -7,10 +7,21 @@ from dash.exceptions import PreventUpdate
 
 import source.modules as modules
 
-rooms = ['bathroom', 'livingroom', 'kitchen', 'office']
 
+def room_callbacks(app, button_dict, rooms):
+    """
+    Functions creates room callbacks for the rooms of the house. For each room, the same callbacks with different
+    Inputs and outputs are created. It is important that the room name has to match the room identifying string in
+    the dash component ids (for example cyto_{room} creates cyto_bathroom, cyto_kitchen and so forth).
+    :param app: Dash Application to add callbacks to
+    :type app: Dash App
+    :param button_dict: Dictionary with buttons to create grid objects
+    :type button_dict: dict
+    :param rooms: Names of rooms in the house
+    :type rooms: list[str]
+    :return: Nothing
+    """
 
-def room_callbacks(app, button_dict):
     for room in rooms:
         create_menu_show_callbacks(room, app)
         create_manage_devices_callback(app, button_dict, room)
@@ -49,7 +60,6 @@ def create_manage_devices_callback(app, button_dict, room):
                   State('radiogroup_devices', 'value'),
                   State('store_own_device_dict', 'data'),
                   Input(f'cyto_{room}', 'tapNode'),
-                  Input('edit_save_button', 'n_clicks'),
                   Input('edit_delete_button', 'n_clicks'),
                   Input(f'button_close_menu_{room}', 'n_clicks'),
                   Input('active_switch_house', 'checked'),
@@ -57,75 +67,102 @@ def create_manage_devices_callback(app, button_dict, room):
                   Input('button_add_own_device', 'n_clicks'),
                   [Input(device[1], 'n_clicks') for device in button_dict[room]],
                   prevent_initial_call='initial_duplicate')
-    def manage_devices_bathroom(elements, device_dict, tabs_main, selected_element, radio_room, radio_devices,
-                                own_device_dict, node, btn_save, btn_delete,
-                                btn_close, active_switch, btn_additional, btn_own, *btn_add):
+    def manage_devices_room(elements, device_dict, tabs_main, selected_element, radio_room, radio_devices,
+                            own_device_dict, node, btn_delete,
+                            btn_close, active_switch, btn_additional, btn_own, *btn_add):
+        """
+
+        :param elements: [State] Elements of the room cytoscape
+        :param device_dict: [State] Dictionary containing all devices in the custom house
+        :param tabs_main: [State] Tab value of main tab, whether grid, house or settings mode is shown
+        :param selected_element: [State] Cytoscape element which was clicked in the house
+        :param radio_room: [State] Selected room by radiogroup
+        :param radio_devices: [State] Selected device by radiogroup
+        :param own_device_dict: [State] Dictionary to store the own devices
+        :param node: [Input] Node that was clicked in a room cytoscape
+        :param btn_delete: [Input] Button to delete device
+        :param btn_close: [Input] Button to close the menu in a room
+        :param active_switch: [Input] Slider to activate or deactivate a device
+        :param btn_additional: [Input] Button to add an additional devices modal
+        :param btn_own: [Input] Button to add an own device
+        :param btn_add: [Inputs] Button to add a device from a room menu
+        :return: [cyto{room}>elements, store_device_dict>data, menu_devices{room}>style, menu_devices{room}>opened,
+        store_menu_change_tab_house>data, store_selected_element_house>data, active_switch_house>checked,
+        store_notification>data]
+        """
+
         try:
             triggered_id = ctx.triggered_id
             if triggered_id is None:  # Initial call
                 raise PreventUpdate
-            if triggered_id == f'cyto_{room}':
-                if node['data']['id'] == 'plus':  # Open Menu with Devices to add
-                    position = elements[1]['position']
-                    return no_update, no_update, {"position": "relative", "top": position['y'], "left": position['x']}, \
+            if triggered_id == f'cyto_{room}':    # If a node in the room cytoscape was clicked
+                if node['data']['id'] == 'plus':  # Open Menu with Devices to add if plus was clicked
+                    position = elements[1]['position']  # Set position of menu
+                    return no_update, no_update, {"position": "relative", "top": position['y'],
+                                                  "left": position['x']}, \
                            True, no_update, no_update, no_update, no_update
-                elif node['data']['id'] == 'power_strip':
+                elif node['data']['id'] == 'power_strip':   # If power strip was clicked, open power strip menu
                     return no_update, no_update, no_update, no_update, 'power_strip', no_update, no_update, no_update
                 elif node['data']['id'][:6] == "socket":  # A socket was clicked, switch this one on/off
                     linked_device = None
-                    for ele in elements:
+                    for ele in elements:    # Find linked device
                         if ele['data']['id'] == node['data']['id']:
                             linked_device = ele['linked_device']
-                            if ele['classes'] == 'socket_node_style_on':
+                            if ele['classes'] == 'socket_node_style_on':    # If socket is on, turn off
                                 ele['classes'] = 'socket_node_style_off'
-                                device_dict['house1'][ele['linked_device']][
-                                    'active'] = False  # Store new mode in device_dict
+                                # Store new mode in device_dict
+                                device_dict['house1'][ele['linked_device']]['active'] = False
                             else:
-                                ele['classes'] = 'socket_node_style_on'
+                                ele['classes'] = 'socket_node_style_on'     # If socket is off, turn on
                                 device_dict['house1'][ele['linked_device']]['active'] = True
                             break
-                    if linked_device is not None and linked_device == selected_element:  # If the socket of the selected element was clicked
+                    # If the socket of the selected element was clicked
+                    if linked_device is not None and linked_device == selected_element:
                         switch_state = device_dict['house1'][linked_device]['active']  # Update the switch state
                     else:
                         switch_state = no_update  # Otherwise don't update
                     return elements, device_dict, no_update, no_update, no_update, no_update, switch_state, no_update
                 else:  # A device was clicked
-                    switch_state = device_dict['house1'][node['data']['id']][
-                        'active']  # Return, which menu should be opened
+                    # Return, which menu should be opened
+                    switch_state = device_dict['house1'][node['data']['id']]['active']
                     if node['data']['id'][:6] == "device":
-                        menu_type = device_dict['house1'][node['data']['id']]['menu_type']
-                        return no_update, no_update, no_update, no_update, menu_type, node['data'][
-                            'id'], switch_state, no_update
+                        menu_type = device_dict['house1'][node['data']['id']]['menu_type']  # Get menu type of device
+                        return no_update, no_update, no_update, no_update, menu_type, \
+                               node['data']['id'], switch_state, no_update
                     elif node['data']['id'][:4] == "lamp":
-                        return no_update, no_update, no_update, no_update, 'lamp', node['data'][
-                            'id'], switch_state, no_update
+                        return no_update, no_update, no_update, no_update, 'lamp', \
+                               node['data']['id'], switch_state, no_update
                     else:
                         raise PreventUpdate
-            elif triggered_id == 'active_switch_house':
+            elif triggered_id == 'active_switch_house':     # If the slider was changed
                 for ele in elements:
-                    if 'linked_device' in ele:
-                        if ele['linked_device'] == selected_element:  # search for socket connected to device
-                            if active_switch:
+                    if 'linked_device' in ele:  # Find socket connected to selected device
+                        if ele['linked_device'] == selected_element:
+                            if active_switch:   # If switch was turned on
                                 ele['classes'] = 'socket_node_style_on'
                                 device_dict['house1'][ele['linked_device']]['active'] = True
-                            else:
+                            else:               # If switch was turned off
                                 ele['classes'] = 'socket_node_style_off'
                                 device_dict['house1'][ele['linked_device']]['active'] = False
                             break
                 return elements, device_dict, no_update, no_update, no_update, no_update, no_update, no_update
-            elif triggered_id[
-                 :10] == 'button_add':  # A button to add a device was clicked. This could be either a menu button, the button_add_additional device or button_add_own_device
+            # A button to add a device was clicked. This could be either a menu button,
+            # the button_add_additional device or button_add_own_device
+            elif triggered_id[:10] == 'button_add':
                 own = False
-                if triggered_id == 'button_add_additional_device':  # If this room was selected in the radio menu
+                if triggered_id == 'button_add_additional_device':
                     if btn_additional is None:
                         raise PreventUpdate
+                    # If this room was selected in the radio menu
                     if radio_room == room and radio_devices is not None:
                         device_type = radio_devices  # Get type to add
                     else:
                         raise PreventUpdate
-                elif triggered_id == 'button_add_own_device':  # The button to add an own device in the additional modal was clicked
+                # The button to add an own device in the additional modal was clicked
+                elif triggered_id == 'button_add_own_device':
                     if btn_own is None:
                         raise PreventUpdate
+                    # If this room was selected in the radio menu
                     if radio_room == room and radio_devices is not None:
                         device_type = radio_devices  # Get type to add
                         own = True
@@ -133,17 +170,16 @@ def create_manage_devices_callback(app, button_dict, room):
                         raise PreventUpdate
                 else:
                     device_type = triggered_id[11:]  # Get type to add
-                elements, device_dict = modules.create_new_device(elements, device_dict, room, device_type, own,
-                                                                  own_devices=own_device_dict)
-                return elements, device_dict, no_update, False, ['empty',
-                                                                 None], no_update, no_update, no_update  # Return elements and close menu
-            elif triggered_id == 'edit_save_button':
-                raise PreventUpdate
-            elif triggered_id == 'edit_delete_button':
-                if tabs_main != 'house1' or btn_delete is None:  # If button was clicked in grid mode or is None do nothing
+                elements, device_dict = modules.add_device(elements, device_dict, room, device_type, own,
+                                                           own_devices=own_device_dict)
+                # Return elements and close menu
+                return elements, device_dict, no_update, False, ['empty', None], no_update, no_update, no_update
+            elif triggered_id == 'edit_delete_button':  # Button to delete a device was clicked
+                # If button was clicked in grid mode or is None do nothing
+                if tabs_main != 'house1' or btn_delete is None:
                     raise PreventUpdate
-                if selected_element not in device_dict['rooms'][room][
-                    'devices']:  # If delete button was clicked on device in another room
+                # If delete button was clicked on device in another room, do nothing
+                if selected_element not in device_dict['rooms'][room]['devices']:
                     raise PreventUpdate
                 index_device, index_socket, index_edge = 0, 0, 0
                 for ele in elements:
@@ -177,7 +213,8 @@ def create_manage_devices_callback(app, button_dict, room):
                         elements[i]['position']['x'] = elements[i]['position']['x'] - 40  # shift node to the left
                 device_dict['rooms'][room]['devices'].remove(selected_element)  # remove device from room list
                 return elements, device_dict, no_update, no_update, ['empty', None], no_update, no_update, no_update
-            elif triggered_id == f'button_close_menu_{room}':  # The button "close" of the menu was clicked, close the menu
+            # The button "close" of the menu was clicked, close the menu
+            elif triggered_id == f'button_close_menu_{room}':
                 return no_update, no_update, no_update, False, no_update, no_update, no_update, no_update
             else:
                 raise PreventUpdate

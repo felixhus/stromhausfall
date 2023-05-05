@@ -48,7 +48,7 @@ def house_callbacks(app):
         :return: [cyto_bathroom>data, cyto_livingroom>data, cyto_kitchen>data, cyto_office>data, store_device_dict>data]
         """
 
-        if backup is not None:
+        if backup is None:
             database = 'source/database_profiles.db'
             image_lamp_src = modules.get_icon_url('mdi:lightbulb-on-outline')
             # Bathroom elements
@@ -207,7 +207,7 @@ def house_callbacks(app):
         """
         Load all devices from sql database and show them as additional devices in the additional devices modal.
         :param modal_open: [Input] The opening of the modal_additional_devices triggers this callback
-        :param radio_room: [State] Selected room
+        :param radio_room: [State] Selected room by radiogroup
         :return: [card_additional_devices>children]
         """
         if modal_open:

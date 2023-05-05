@@ -6,6 +6,13 @@ from scipy import interpolate
 
 
 def dict_factory(cursor, row):  # To get dictionary from sql query
+    """
+    Define row factory for cursor
+    :param cursor: SQLite cursor
+    :param row:
+    :return: Row factory for cursor
+    """
+
     d = {}
     for idx, col in enumerate(cursor.description):
         d[col[0]] = row[idx]
@@ -161,6 +168,11 @@ def get_button_dict(database):
 
 
 def get_all_devices(database):
+    """
+    Get all devices that are stored in the database given.
+    :param database: Database to fetch from
+    :return: List of devices
+    """
     conn = sqlite3.connect(database)  # connect to the database
 
     query = "SELECT * FROM devices"  # Get all devices
@@ -169,10 +181,16 @@ def get_all_devices(database):
 
 
 def get_device(database, device_type):
+    """
+    Get device from SQL database
+    :param database: Database to fetch from
+    :param device_type: Type of device to fetch
+    :return: List of devices
+    """
     conn = sqlite3.connect(database)  # connect to the database
     conn.row_factory = dict_factory
     cursor = conn.cursor()
 
     query = f"SELECT * FROM devices WHERE type = '{device_type}'"  # Get all devices
-    devices = cursor.execute(query).fetchall()
-    return devices
+    device = cursor.execute(query).fetchall()
+    return device

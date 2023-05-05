@@ -49,9 +49,9 @@ def add_storage_variables():
                      dcc.Store(id='store_get_voltage'),
                      # Store the generated edge labels and pass them to a callback which displays them
                      dcc.Store(id='store_edge_labels'),
-
+                     # Store timestep selected by slider
                      dcc.Store(id='store_timestep'),
-
+                     # Store result of grid flow calculation
                      dcc.Store(id='store_flow_data'),
                      # Store the menu tab of the grid to change to. Is changed if a node/edge of the grid was clicked
                      dcc.Store(id='store_menu_change_tab_grid'),
@@ -63,20 +63,20 @@ def add_storage_variables():
                      dcc.Store(id='store_used_profiles', data=[1], storage_type='session'),
                      # Store the device_dict, dictionary with all device objects in it
                      dcc.Store(id='store_device_dict', data=device_dict_init),
-
+                     # Store results of house power calculation
                      dcc.Store(id='store_results_house_power'),
                      # Store the settings from the settings tab
                      dcc.Store(id='store_settings', data={}),
-
+                     # Store results of house energy calculation
                      dcc.Store(id='store_results_house_energy'),
                      # Store a collection of all relevant data here to reload on a page refresh
                      dcc.Store(id='store_backup', storage_type='session'),
                      # Changed if an enter press is detected. Is then resetted with None in the save-callbacks
                      dcc.Store(id='store_save_by_enter', data=None),
-
-                     dcc.Store(id='store_own_device_dict', data={}, storage_type='session'),
-
-                     dcc.Store(id='store_menu_elements_house', storage_type='session')])
+                     # Store dictionary containing all own devices and their properties
+                     dcc.Store(id='store_own_device_dict', data={}, storage_type='session')])
+                     # Store elements of the menu of a room
+                     # dcc.Store(id='store_menu_elements_house', storage_type='session')])
 
 
 def add_grid_object_button(object_id, name=None, icon=None, enable=True, app=None):

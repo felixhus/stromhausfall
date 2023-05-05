@@ -20,15 +20,18 @@ app.title = 'PowerHouse'    # Define title for browser tab
 
 server = app.server
 
+rooms = ['bathroom', 'livingroom', 'kitchen', 'office']
 button_dict = get_button_dict()  # Get
 app_layout(app, button_dict)     # Get layout of app
 
 grid_callbacks(app)                         # Include grid callbacks
 general_callbacks(app)                      # Include general callbacks
 house_callbacks(app)                        # Include House callbacks
-room_callbacks(app, button_dict)            # Include room callbacks
+room_callbacks(app, button_dict, rooms)     # Include room callbacks
 
-
+# Debug callback for development. Can be used to inspect all sort of states.
+# Input is the debug button (has to be commentet in in dash_components) and by choosing states one can
+# Inspect objects at all time.
 # @app.callback(Output('graph_modal', 'figure'),
 #               Output('modal_graph', 'opened'),
 #               Input('debug_button', 'n_clicks'),

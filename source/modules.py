@@ -124,22 +124,57 @@ def connection_allowed(source, target, object_dict):
 
 
 def create_device_object(device_id, device_type, database, own=False, own_devices=None):
-    if not own:
-        device = sql_modules.get_device(database, device_type)
+    """
+    Creates a dictionary containing all properties of a device. Chooses source of the data
+    regarding own or standard devices.
+    :param device_id: Id to set to device
+    :type device_id: str
+    :param device_type: Type of device to create
+    :type device_type: str
+    :param database: SQL database to fetch device properties from
+    :type database: str
+    :param own: Boolean if the device to create is an own device
+    :type own: bool
+    :param own_devices: Dictionary of existing own devices
+    :type own_devices: dict
+    :return: Device as a dictionary
+    :rtype: dict
+    """
+
+    if not own:     # If it is not an own device -> It is a device from the database
+        device = sql_modules.get_device(database, device_type)      # Get device properties from the database
         device = device[0]  # Get dict from result
-        json_data = device['power_options'].decode('utf-8-sig')
+        json_data = device['power_options'].decode('utf-8-sig')     # Decode string with power options from database
         json_data = json_data.replace("'", "\"")
         device['power_options'] = json.loads(json_data)   # Decode dictionary from bytes
     else:
-        device = own_devices[device_type]
-    device['active'] = True
+        device = own_devices[device_type]       # If it is an own device -> Get from dictionary
+    device['active'] = True                     # Set all other properties
     device['selected_power_option'] = None
     device['power'] = [0] * 24 * 60 * 7
     device['id'] = device_id
     return device
 
 
-def create_new_device(elements, device_dict, room, device_type, own, own_devices=None):
+def add_device(elements, device_dict, room, device_type, own, own_devices=None):
+    """
+    This function adds a device of the given type to the cytoscape (including the socket and repositioning of
+    the plus-node) and attaches it to the device dictionary.
+    :param elements: Elements of the room cytoscape
+    :type elements: list
+    :param device_dict: Dictionary containing all devices in the custom house
+    :type device_dict: dict
+    :param room: Room to add device to
+    :type room: str
+    :param device_type: Type of device to add
+    :type device_type: str
+    :param own: Boolean if the device to add is an own device
+    :type own: bool
+    :param own_devices: Dictionary of existing own devices
+    :type own_devices: dict
+    :return: elements: Updated element list of cytoscape; device_dict: Updated dictionary of devices
+    """
+
     database = 'source/database_profiles.db'
     last_id = int(device_dict['last_id'])  # Get number of last id
     device_dict['last_id'] = last_id + 1  # Increment the last id
@@ -359,6 +394,12 @@ def solve_flow(A, b):
 
 
 def plot_graph(graph):
+    """
+    Plots the NetworkX graph which is created from the grid cytoscape.
+    :param graph: NetworkX graph
+    :return: base64 string of png picture
+    """
+
     edge_labels = {}
     for edge in graph.edges:
         edge_labels[edge[0:2]] = graph.edges[edge]['id']
@@ -854,7 +895,3 @@ def get_icon_url(icon_name: str):
     icon_url = f"{base_url}/{icon_name}.svg"
     response = requests.get(icon_url)
     return response.url
-
-
-def handle_error(err):
-    print("Error: ", err)
