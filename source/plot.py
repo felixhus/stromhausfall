@@ -109,6 +109,8 @@ def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
     :return: figure scatter plot; figure sunburst plot
     """
 
+    tick_text = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
+    tick_values = [720, 2160, 3600, 5040, 6480, 7920, 9360]
     fig = go.Figure()   # Crate scatter plot
     color_index = 0
     for index, row in df_devices.iterrows():
@@ -132,6 +134,7 @@ def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
         y=df_sum.loc['house1']
     ))
     fig.update_layout(xaxis_range=[0, len(df_sum.columns)], template='plotly_white', margin=dict(l=0, r=0, b=0, t=0), width=320, height=320)
+    fig.update_layout(xaxis=dict(tickmode='array', tickvals=tick_values, ticktext=tick_text))
     fig.update_xaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True)
     fig.update_yaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True,
                      rangemode='nonnegative')

@@ -3,7 +3,6 @@ general_callbacks.py contains all dash callbacks for general functions of the ap
 """
 
 import base64
-import copy
 import json
 
 import dash_mantine_components as dmc
@@ -13,7 +12,6 @@ from dash_iconify import DashIconify
 
 import source.dash_components as dash_components
 import source.modules as modules
-from source.modules import days
 
 
 def general_callbacks(app):
@@ -231,88 +229,6 @@ def general_callbacks(app):
             return False
         else:
             raise PreventUpdate
-
-    @app.callback(Output('graph_device', 'figure'),
-                  Input('store_device_dict', 'data'),
-                  Input('pagination_days_menu', 'value'),
-                  State('store_selected_element_house', 'data'),
-                  State('graph_device', 'figure'),
-                  State('pagination_days_menu', 'value'),
-                  prevent_initial_call=True)
-    def update_figure_house(data, day_control, selected_element, figure, day):
-        """
-        Update the values of the device graph if another day is chosen to be shown or the device dict is changed.
-        :param data: [Input] Dictionary containing all house devices and their properties
-        :param day_control: [Input] Day from pagination below device power profile
-        :param selected_element: [State] Cytoscape element which was clicked in the house
-        :param figure: [State] Figure of graph which shows power profile of device
-        :param day: [State] Day from pagination below device power profile
-        :return: [graph_device>figure]
-        """
-        # TODO: Implement the update-figure function with the Patch() functionality of dash.
-        # This functionality was introduced while developing and could speed up the app.
-        # patched_fig = Patch()
-
-        day_ind = days[day]
-        index_start = day_ind * 24 * 60
-        index_stop = index_start + 24 * 60
-        if selected_element in data['house1']:  # Check if element is still in dict or if it was deleted
-            figure["data"][0]["y"] = data['house1'][selected_element]['power'][index_start:index_stop]
-        else:
-            raise PreventUpdate
-        return figure
-
-    @app.callback(Output('graph_power_house', 'figure', allow_duplicate=True),
-                  Output('graph_modal', 'figure'),
-                  Output('modal_graph', 'opened'),
-                  Input('pagination_days_results', 'value'),
-                  State('graph_power_house', 'figure'),
-                  prevent_initial_call=True)
-    def update_figure_devices(day, figure):
-        """
-        Update the values of the result graphs if another day is chosen to be shown.
-        Also opens the modal with the full screen graph if the total timeframe is selected.
-        :param day: [Input] Selected day of the pagination below a figure
-        :param figure: [State] Figure to update
-        :return: [graph_power_house>figure, graph_modal>figure, modal_graph>opened]
-        """
-        # TODO: Implement the update-figure function with the Patch() functionality of dash.
-        # This functionality was introduced while developing and could speed up the app.
-        # patched_fig = Patch()
-
-        if day == 'tot':  # Set total range if selected
-            index_start = 0
-            index_stop = 7 * 24 * 60    # Select full week
-            figure['layout']['xaxis']['range'] = [index_start, index_stop]      # Set x-axis of graph
-            figure_big = copy.deepcopy(figure)      # Get copy of small figure for the big modal
-            figure_big['layout']['height'] = None   # Set size of big figure to full size
-            figure_big['layout']['width'] = None
-            return figure, figure_big, True
-        else:  # Set range for one day
-            day_ind = days[day]
-            index_start = day_ind * 24 * 60
-            index_stop = index_start + 24 * 60
-            figure['layout']['xaxis']['range'] = [index_start, index_stop]  # Set x-axis of graph
-            return figure, no_update, no_update
-
-    @app.callback(Output('graph_power_house', 'figure', allow_duplicate=True),
-                  Input('checkbox_show_legend', 'checked'),
-                  State('graph_power_house', 'figure'),
-                  prevent_initial_call=True)
-    def show_legend(checkbox, figure):
-        """
-        Controls the visibility of the legend of the graph_power_house figure.
-        :param checkbox: [Input] Input if legend should be visible
-        :param figure: [State] Figure which the legend belongs to
-        :return: Boolean if the legend should be visible
-        :rtype: bool
-        """
-
-        if checkbox:
-            figure['layout']['showlegend'] = True
-        else:
-            figure['layout']['showlegend'] = False
-        return figure
 
     # @app.callback(Output('modal_timeseries', 'opened'),   # Not in use
     #               Output('timeseries_table', 'data'),

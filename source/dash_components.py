@@ -527,7 +527,7 @@ def add_result_tab_panel(tab_value):
             dmc.Space(h=10),
             dmc.SegmentedControl(
                 id='pagination_days_results',
-                value='mo',
+                value='tot',
                 fullWidth=320,
                 data=[
                     {'value': 'mo', 'label': 'MO'}, {'value': 'tu', 'label': 'DI'}, {'value': 'wd', 'label': 'MI'},
