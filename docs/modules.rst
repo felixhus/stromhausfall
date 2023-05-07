@@ -1,4 +1,4 @@
 .. autosummary::
    :toctree: generated
 
-   source/modules
+   source.modules
