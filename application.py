@@ -4,7 +4,6 @@ the callbacks are included and the app is started.
 """
 
 import dash_bootstrap_components as dbc
-import room_callbacks
 from dash import Dash
 
 from callbacks.general_callbacks import general_callbacks

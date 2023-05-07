@@ -1,4 +1,4 @@
-.. automodule:: source.modules
+.. automodule:: source
    :members:
 
 
