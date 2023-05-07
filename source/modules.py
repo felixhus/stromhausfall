@@ -21,6 +21,8 @@ import source.objects as objects
 import source.plot as plot
 import source.sql_modules as sql_modules
 
+root_path = '/home/stromhausfall/mysite/'
+
 # Dict to get the number of the day from the string-id of the day
 days = {'mo': 0, 'tu': 1, 'wd': 2, 'th': 3, 'fr': 4, 'sa': 5, 'su': 6}
 # The ids of the selected power profiles for househould from the izes-database
@@ -175,7 +177,7 @@ def add_device(elements, device_dict, room, device_type, own, own_devices=None):
     :return: elements: Updated element list of cytoscape; device_dict: Updated dictionary of devices
     """
 
-    database = 'source/database_profiles.db'
+    database = root_path + 'source/database_profiles.db'
     last_id = int(device_dict['last_id'])  # Get number of last id
     device_dict['last_id'] = last_id + 1  # Increment the last id
     socket_id = "socket" + str(last_id + 1)
@@ -648,7 +650,7 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
                         device_dict[house][selected_element]['selected_power_option'] = child['props']['value']
                         # Get key of the database entry from the power options of the device
                         key = device_dict[house][selected_element]['power_options'][child['props']['value']]['key']
-                        database = 'source/database_profiles.db'
+                        database = root_path + 'source/database_profiles.db'
                         table_name = device_dict[house][selected_element]['menu_type']  # From which SQLite-Table
                         # Check if it is an own device -> profiles are stored in dict
                         if 'power_profiles' in device_dict[house][selected_element]:
@@ -676,7 +678,7 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
                         selected_power_option = device_dict[house][selected_element]['selected_power_option']
                         # Get key of the database entry from the power options of the device
                         key = device_dict[house][selected_element]['power_options'][selected_power_option]['key']
-                        database = 'source/database_profiles.db'
+                        database = root_path + 'source/database_profiles.db'
                         # Check if it is an own device -> profiles are stored in dict
                         if 'power_profiles' in device_dict[house][selected_element]:
                             load_profile = device_dict[house][selected_element]['power_profiles'][key]
@@ -719,7 +721,8 @@ def save_settings_house(children, gridObject_dict, selected_element, year, week,
         while profile in used_profiles:     # Make sure to load a profile which wasn't used already
             profile = random.choice(profile_selection)
         used_profiles.append(profile)   # Update list of used profiles
-        power = sql_modules.get_household_profile('source/database_izes_reduced.db', profile, date_start, date_stop)
+        power = sql_modules.get_household_profile(root_path + 'source/database_izes_reduced.db',
+                                                  profile, date_start, date_stop)
         gridObject_dict[selected_element]['power'] = power
         gridObject_dict[selected_element]['power_profile'] = profile
     gridObject_dict[selected_element]['name'] = children[0]['props']['value']
@@ -745,7 +748,7 @@ def save_settings_pv(children, gridObject_dict, selected_element, year, week):
     postcode = children[2]['props']['value']
     tilt = children[4]['props']['children'][1]['props']['children'][1]['props']['children'][1]['props']['value']
     rated_power = children[4]['props']['children'][1]['props']['children'][0]['props']['children'][1]['props']['value']
-    database = 'source/database_pv.db'
+    database = root_path + 'source/database_pv.db'
     token_rn = '9d539337969f016d51d3c637ddba49bbc9fe6e71'   # Authorization renewables.ninja
     sess = requests.session()
     sess.headers = {'Authorization': 'Token ' + token_rn}
@@ -804,7 +807,8 @@ def update_settings(gridObject_dict, selected_element, year, week):
     date_start, date_stop = get_monday_sunday_from_week(week, year)
     if gridObject_dict[selected_element]['object_type'] == 'house':
         profile = gridObject_dict[selected_element]['power_profile']
-        power = sql_modules.get_household_profile('source/database_izes_reduced.db', profile, date_start, date_stop)
+        power = sql_modules.get_household_profile(root_path + 'source/database_izes_reduced.db',
+                                                  profile, date_start, date_stop)
         gridObject_dict[selected_element]['power'] = power
     elif gridObject_dict[selected_element]['object_type'] == 'pv':
         lat = gridObject_dict[selected_element]['location'][1]
@@ -871,7 +875,7 @@ def get_button_dict():
     :rtype: dict
     """
 
-    devices = sql_modules.get_button_dict('source/database_profiles.db')  # Get the dict from the database
+    devices = sql_modules.get_button_dict(root_path + 'source/database_profiles.db')  # Get the dict from the database
     button_dict = {}
     for device in devices:
         if device[1] not in button_dict:  # If room doesn't already exist in dict, create list for it

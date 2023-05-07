@@ -10,12 +10,14 @@ from dash import dcc, html
 
 import source.dash_components as dash_components
 
+root_path = '/home/stromhausfall/mysite/'
+
 # This list defines the buttons to add components to the grid. Structure:
 # [dash button-id, iconify icon name, boolean if enabled or disabled, name for tooltip]
 menu_objects = [
     ['button_house', 'bi:house-door', True, "Wohnhaus/Wohnung"],
-    ['button_transformer', 'Icons/icon_transformer.png', True, "Transformator"],
-    ['button_externalgrid', 'Icons/icon_powerplant.png', True, "Das Stromnetz"],
+    ['button_transformer', 'assets/Icons/icon_transformer.png', True, "Transformator"],
+    ['button_externalgrid', 'assets/Icons/icon_powerplant.png', True, "Das Stromnetz"],
     ['button_pv', 'fa6-solid:solar-panel', True, "Solaranlage"],
     ['button_battery', 'material-symbols:battery-charging-20-outline', False, "Batteriespeicher"],
     # ['button_smartmeter', 'icon_meter.png', True, "Smart Meter"],

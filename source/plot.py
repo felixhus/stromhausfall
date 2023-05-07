@@ -8,9 +8,7 @@ def plot_device_timeseries(timesteps, load, color):
     """
     Creates the figure to plot the power profile of a device.
     :param timesteps: List with timesteps to plot
-    :type timesteps: list[int]
     :param load: Timeseries of device power
-    :type load: list[int]
     :param color: Color of plot
     :type color: color
     :return: Figure
@@ -36,9 +34,7 @@ def plot_pv_timeseries(timesteps, power, color):
     """
     Creates figure to display the infeed solar power. The power is inverted to positive for the graph.
     :param timesteps: List with timesteps to plot
-    :type timesteps: list[int]
     :param power: Timeseries of infeed pv power
-    :type power: list[int]
     :param color: Color of plot
     :type color: color
     :return: Figure

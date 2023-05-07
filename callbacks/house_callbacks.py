@@ -18,6 +18,7 @@ import source.modules as modules
 import source.sql_modules as sql_modules
 from source.modules import days
 
+root_path = '/home/stromhausfall/mysite/'
 
 def house_callbacks(app):
     @app.callback(Output('cyto_bathroom', 'elements', allow_duplicate=True),
@@ -49,7 +50,7 @@ def house_callbacks(app):
         """
 
         if backup is None:
-            database = 'source/database_profiles.db'
+            database = root_path + 'source/database_profiles.db'
             image_lamp_src = modules.get_icon_url('mdi:lightbulb-on-outline')
             # Bathroom elements
             device_dict['house1']['lamp_bathroom'] = modules.create_device_object('lamp_bathroom', 'lamp', database)
@@ -211,7 +212,7 @@ def house_callbacks(app):
         :return: [card_additional_devices>children]
         """
         if modal_open:
-            devices = sql_modules.get_all_devices('source/database_profiles.db')
+            devices = sql_modules.get_all_devices(root_path + 'source/database_profiles.db')
             childs_additional = dash_components.add_card_additional_devices(devices, radio_room, False)
             return childs_additional
         else:

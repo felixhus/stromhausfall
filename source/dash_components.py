@@ -14,9 +14,13 @@ import source.plot as plot
 import source.stylesheets as stylesheets
 from source.modules import get_icon_url
 
+# root_path = '/home/stromhausfall/mysite/'
+root_path = ''
+
 # URLs of the background pictures of the rooms
 # TODO: Change these to open source, in best case to dynamically loaded pictures (like iconify)
-urls = {'cyto_bathroom': 'url(/assets/background_bathroom.png)', 'cyto_kitchen': 'url(/assets/background_kitchen.png)',
+urls = {'cyto_bathroom': 'url(/assets/background_bathroom.png)',
+        'cyto_kitchen': 'url(/assets/background_kitchen.png)',
         'cyto_livingroom': 'url(/assets/background_livingroom.png)',
         'cyto_office': 'url(/assets/background_office.png)'}
 
@@ -97,7 +101,7 @@ def add_grid_object_button(object_id, name=None, icon=None, enable=True, app=Non
 
     if icon is not None:
         if icon.endswith('.png'):  # If a png picture is given as the logo
-            icon = app.get_asset_url(icon)
+            # icon = app.get_asset_url(icon)
             children = html.Img(src=icon, height=str(stylesheets.button_add_components_style['icon_width']) + 'px')
         else:  # If a dash iconify icon is given
             children = DashIconify(icon=icon, width=stylesheets.button_add_components_style['icon_width'],
@@ -273,7 +277,7 @@ def add_modal_readme():
     Adds a modal to the layout, which shows the README of the project for help.
     :return: DMC Modal
     """
-    with open('README.md', encoding='UTF-8') as file:
+    with open(root_path + 'README.md', encoding='UTF-8') as file:
         content_readme = file.read()
     return dmc.Modal(
         title="Readme",
