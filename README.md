@@ -1,3 +1,5 @@
+[![Documentation Status](https://readthedocs.org/projects/stromhausfall/badge/?version=latest)](https://stromhausfall.readthedocs.io/en/latest/?badge=latest)
+
 # Power House ⚡ #
 
 Dies ist der aktuelle Stand der Webapp meiner Masterthesis. Folgende Funktionen sind bereits implementiert und können ausprobiert werden:

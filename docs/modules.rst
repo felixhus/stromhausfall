@@ -1,4 +1,8 @@
+.. automodule:: source.modules
+   :members:
+
+
 .. autosummary::
    :toctree: generated
 
-   source.modules
+   modules
