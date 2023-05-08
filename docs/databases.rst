@@ -66,6 +66,27 @@ The following columns exist in the table ``device_csv_connection`` (see :ref:`Tr
 
 Database Households
 ~~~~~~~~~~~~~~~~~~~
+This database is called ``database_izes_reduced.db`` and contains the following tables:
+
+.. csv-table::
+   :header: "Table Name", "Description"
+
+   "load_1min", "Measured household power profiles with a time resolution of 1min for 1 year"
+
+The following columns exist in the table ``load_1min``:
+
+.. csv-table::
+   :header: "Name", "Datatype", "Primary Key", "Description"
+   
+   "month", "INT", "No", "Month in year"
+   "day", "INT", "No", "Day in month"
+   "profile_4", "INT", "No", "First household profile"
+   "...", "...", "...", "A total of 27 profiles, not each id is exisiting"
+   "profile_73", "TEXT", "No", "Last household profile"
+
+The profiles contain one year of power in Watts in 1 minute resolution. They are a selection from a dataset provided by the Institute for Future Energy Systems (IZES). The dataset and its documentation can be found `here`_.
+
+.. _here: https://solar.htw-berlin.de/elektrische-lastprofile-fuer-wohngebaeude/
 
 Database PV
 ~~~~~~~~~~~
@@ -92,12 +113,48 @@ The source of this data is a data dump of the old "OpenGeoDB"-project (`Here on 
 .. _Here on Github: https://github.com/brnbio/opengeodb/tree/main
 
 
-Database Scripts
+SQL Modules
 ----------------
+
+.. automodule:: sql_modules
+   :members:
 
 Renewables.ninja
 ----------------
 
+The solar power data is fetched from the `Renewables.ninja`_ service. This is done with an API key. 
+
+.. note:: The number of requests is limited to 50/hour.
+
+The code for getting the data can be found in :meth:`modules.save_settings_pv`:
+
+.. code-block:: python
+   :linenos:
+
+   token_rn = 'your-api-token'   # Authorization renewables.ninja
+   sess = requests.session()
+   sess.headers = {'Authorization': 'Token ' + token_rn}
+   url = 'https://www.renewables.ninja/api/data/pv'
+   query_params = {
+      # Set all parameters in here (see source code)
+   }
+   response = sess.get(url, params=query_params)   # Send the GET request and get the response
+
+.. _Renewables.ninja: https://www.renewables.ninja/
+
 .. _target_tracebase:
+
 Tracebase Dataset
 -----------------
+
+"The tracebase data set is a collection of power consumption traces which can be used in energy analytics research. Traces have been collected from individual electrical appliances, at an average reporting rate of one sample per second." - Readme of Tracebase
+
+You can find the documentation and data in the |github-icon| `Tracebase Github repsitory`_.
+
+.. _Tracebase Github repsitory: https://github.com/areinhardt/tracebase
+
+.. |github-icon| image:: _static/github-mark.png
+   :scale: 8 %
+
+The resolution of in average one second is way to high for this project. This is why the used profiles were resampled to 1min resolution using ``pandas.DataFrame.resample``. You can find an example for the resampling in :meth:`house_callbacks.add_new_device`.
+

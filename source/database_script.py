@@ -27,7 +27,7 @@ def generate_time_series(power, timesteps, number_steps):
 
 def write_to_database(database, values, series_id):
     # connect to the database
-    conn = sqlite3.connect('database_profiles.db')
+    conn = sqlite3.connect(database)
     c = conn.cursor()
     # values = values.tolist()
 
@@ -83,7 +83,7 @@ def izes_csv_to_sqlite():
     conn.close()
 
 
-def write_part_profile_to_database(start_index, end_index, values, series_id, standby):
+def write_part_profile_to_database(database, start_index, end_index, values, series_id, standby):
     # Connect to the database
     conn = sqlite3.connect('database_profiles.db')
     cursor = conn.cursor()

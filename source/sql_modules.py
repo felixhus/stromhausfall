@@ -1,3 +1,6 @@
+"""
+sql_modules.py contains all modules to get different kind of data out of different SQL databases.
+"""
 import sqlite3
 from datetime import timedelta
 
@@ -8,6 +11,7 @@ from scipy import interpolate
 def dict_factory(cursor, row):  # To get dictionary from sql query
     """
     Define row factory for cursor
+
     :param cursor: SQLite cursor
     :param row:
     :return: Row factory for cursor
@@ -22,6 +26,7 @@ def dict_factory(cursor, row):  # To get dictionary from sql query
 def get_coordinates(plz, database):
     """
     Get longitude and latitude coordinates of given postcode. The function also returns the city name.
+
     :param plz: postcode
     :type plz: int
     :param database: path of database
@@ -43,13 +48,15 @@ def get_coordinates(plz, database):
 def get_load_profile(table_name: str, key: str, database: str):
     """
     Loads a power profile with a given key from a given database and table. Cuts away null values.
+
     :param table_name: Name of the table to get profile from
     :type table_name: str
     :param key: Key of the profile to fetch
     :type key: str
     :param database: Database to read from
     :type key: str
-    :return:
+    :return: Load profile
+    :rtype: list
     """
 
     conn = sqlite3.connect(database)  # Connect to the database
@@ -94,6 +101,7 @@ def generate_time_series(power, timesteps, number_steps):
 def check_postcode(postcode, database):
     """
     Check whether a given postcode exist in database.
+
     :param postcode: Postcode to check
     :type postcode: int
     :param database: Database to connect to
@@ -120,6 +128,7 @@ def check_postcode(postcode, database):
 def get_household_profile(database, profile_number, date_start, date_stop):
     """
     Load a power profile from the given database. The profile-number is provided with the start and end date.
+
     :param database: Database to fetch from
     :type database: str
     :param profile_number: Number of the profile, out of a predefined selection of profile numbers
@@ -154,6 +163,7 @@ def get_household_profile(database, profile_number, date_start, date_stop):
 def get_button_dict(database):
     """
     Load all devices from table "devices" of database, which have a standard room defined.
+
     :param database: path of sql-database
     :type database: str
     :return: list of devices from database
@@ -162,7 +172,7 @@ def get_button_dict(database):
 
     conn = sqlite3.connect(database)  # connect to the database
 
-    query = "SELECT * FROM devices WHERE standard_room IS NOT NULL" # Get all devices with a standard room
+    query = "SELECT * FROM devices WHERE standard_room IS NOT NULL"     # Get all devices with a standard room
     devices = conn.execute(query).fetchall()
     return devices
 
@@ -170,9 +180,11 @@ def get_button_dict(database):
 def get_all_devices(database):
     """
     Get all devices that are stored in the database given.
+
     :param database: Database to fetch from
     :return: List of devices
     """
+
     conn = sqlite3.connect(database)  # connect to the database
 
     query = "SELECT * FROM devices"  # Get all devices
@@ -183,10 +195,12 @@ def get_all_devices(database):
 def get_device(database, device_type):
     """
     Get device from SQL database
+
     :param database: Database to fetch from
     :param device_type: Type of device to fetch
     :return: List of devices
     """
+
     conn = sqlite3.connect(database)  # connect to the database
     conn.row_factory = dict_factory
     cursor = conn.cursor()

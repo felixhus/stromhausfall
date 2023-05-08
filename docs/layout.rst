@@ -24,3 +24,12 @@ Dash Components
 
 .. automodule:: dash_components
    :members:
+
+Stylesheets
+-----------
+
+.. automodule:: stylesheets
+
+More information can be found in the `dash documentation on stylesheets`_.
+
+.. _dash documentation on stylesheets: https://dash.plotly.com/external-resources

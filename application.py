@@ -20,7 +20,7 @@ app.title = 'PowerHouse'    # Define title for browser tab
 server = app.server
 
 rooms = ['bathroom', 'livingroom', 'kitchen', 'office']
-button_dict = get_button_dict()  # Get
+button_dict = get_button_dict()  # Get button dict
 app_layout(app, button_dict)     # Get layout of app
 
 grid_callbacks(app)                         # Include grid callbacks

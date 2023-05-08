@@ -1,3 +1,8 @@
+"""
+stylesheets.py contains the different css stylesheets of the app. They define the appearance of components and are
+given as lists of python dictionaries. They are split into Group and Class selectors.
+"""
+
 cyto_stylesheet = [
     # Group selectors
     {
