@@ -6,12 +6,5 @@ Welcome to Stromhausfall's documentation!
    :caption: Contents:
 
    modules
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   callbacks
+   tools

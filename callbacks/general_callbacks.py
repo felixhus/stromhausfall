@@ -15,6 +15,13 @@ import source.modules as modules
 
 
 def general_callbacks(app):
+    """
+    General Callbacks
+
+    :param app:
+    :return:
+    """
+
     @app.callback(Output('store_device_dict', 'data', allow_duplicate=True),
                   Output('store_grid_object_dict', 'data', allow_duplicate=True),
                   Output('graph_pv', 'figure'),
@@ -43,6 +50,7 @@ def general_callbacks(app):
                           children, day, gridObject_dict, year, week, used_profiles, checkbox, figure_pv, figure_house):
         """
         Callback to save all properties of a selected element when save-button or enter was pressed.
+
         :param btn_save: [Input] Button to save properties
         :param key_save: [Input] Event of Enter-click
         :param tabs_main: [State] Tab value of main tab, whether grid, house or settings mode is shown
