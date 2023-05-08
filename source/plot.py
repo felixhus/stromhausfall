@@ -1,3 +1,7 @@
+"""
+plot.py contains different functions to plot data in different graph types.
+"""
+
 import numpy as np
 import plotly.graph_objects as go
 
@@ -7,6 +11,7 @@ colors = ['rgb(245, 149, 178)', 'rgb(255, 179, 179)', 'rgb(255, 241, 186)', 'rgb
 def plot_device_timeseries(timesteps, load, color):
     """
     Creates the figure to plot the power profile of a device.
+
     :param timesteps: List with timesteps to plot
     :param load: Timeseries of device power
     :param color: Color of plot
@@ -33,6 +38,7 @@ def plot_device_timeseries(timesteps, load, color):
 def plot_pv_timeseries(timesteps, power, color):
     """
     Creates figure to display the infeed solar power. The power is inverted to positive for the graph.
+
     :param timesteps: List with timesteps to plot
     :param power: Timeseries of infeed pv power
     :param color: Color of plot
@@ -62,6 +68,7 @@ def plot_pv_timeseries(timesteps, power, color):
 def plot_house_timeseries(power, color):
     """
     Creates the figure to plot the power profile of a house.
+
     :param power: Timeseries of house power
     :type power: list[int]
     :param color: Color of plot
@@ -92,8 +99,10 @@ def plot_house_timeseries(power, color):
 def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
     """
     Creates plots from the results of the house calculation.
-    Plot 1: Stacked scatter plot of the power timeseries of all devices
-    Plot 2: Sunburst plot showing the energy use of each room and devices in the rooms
+
+    * Plot 1: Stacked scatter plot of the power timeseries of all devices
+    * Plot 2: Sunburst plot showing the energy use of each room and devices in the rooms
+
     :param df_devices: Dataframe with power timeseries of each device
     :type df_devices: dataframe
     :param df_sum: Dataframe with sum of power for each room and house

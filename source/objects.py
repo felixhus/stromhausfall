@@ -1,4 +1,20 @@
+"""
+objects.py contains functions to create grid objects. Each function returns a dictionary with all properties of the
+object.
+"""
+
+
 def create_HouseObject(object_id, node_id):
+    """
+    Create a dictionary with properties of a house object
+
+    :param object_id: unique id of the object
+    :type object_id: str
+    :param node_id: id of the linked cytoscape node
+    :type node_id: str
+    :return: Dictionary with object properties
+    """
+
     return {
         'id': object_id,
         'linkedNode': node_id,
@@ -16,6 +32,16 @@ def create_HouseObject(object_id, node_id):
 
 
 def create_TransformerObject(object_id, node_id):
+    """
+    Create a dictionary with properties of a transformer object
+
+    :param object_id: unique id of the object
+    :type object_id: str
+    :param node_id: id of the linked cytoscape node
+    :type node_id: str
+    :return: Dictionary with object properties
+    """
+
     return {
         'id': object_id,
         'linkedNode': node_id,
@@ -33,6 +59,16 @@ def create_TransformerObject(object_id, node_id):
 
 
 def create_SmartMeterObject(object_id, node_id):
+    """
+    Create a dictionary with properties of a smart-meter object
+
+    :param object_id: unique id of the object
+    :type object_id: str
+    :param node_id: id of the linked cytoscape node
+    :type node_id: str
+    :return: Dictionary with object properties
+    """
+
     return {
         'id': object_id,
         'linkedNode': node_id,
@@ -48,6 +84,16 @@ def create_SmartMeterObject(object_id, node_id):
 
 
 def create_ExternalGridObject(object_id, node_id):
+    """
+    Create a dictionary with properties of a external grid object
+
+    :param object_id: unique id of the object
+    :type object_id: str
+    :param node_id: id of the linked cytoscape node
+    :type node_id: str
+    :return: Dictionary with object properties
+    """
+
     return {
         'id': object_id,
         'linkedNode': node_id,
@@ -63,6 +109,16 @@ def create_ExternalGridObject(object_id, node_id):
 
 
 def create_BatteryObject(object_id, node_id):
+    """
+    Create a dictionary with properties of a battery object
+
+    :param object_id: unique id of the object
+    :type object_id: str
+    :param node_id: id of the linked cytoscape node
+    :type node_id: str
+    :return: Dictionary with object properties
+    """
+
     return {
         'id': object_id,
         'linkedNode': node_id,
@@ -78,6 +134,16 @@ def create_BatteryObject(object_id, node_id):
 
 
 def create_PVObject(object_id, node_id):
+    """
+    Create a dictionary with properties of a PV object
+
+    :param object_id: unique id of the object
+    :type object_id: str
+    :param node_id: id of the linked cytoscape node
+    :type node_id: str
+    :return: Dictionary with object properties
+    """
+
     return {
         'id': object_id,
         'linkedNode': node_id,
@@ -97,6 +163,16 @@ def create_PVObject(object_id, node_id):
 
 
 def create_SwitchCabinetObject(object_id, node_id):
+    """
+    Create a dictionary with properties of a switch cabinet object
+
+    :param object_id: unique id of the object
+    :type object_id: str
+    :param node_id: id of the linked cytoscape node
+    :type node_id: str
+    :return: Dictionary with object properties
+    """
+
     return {
         'id': object_id,
         'linkedNode': node_id,
@@ -112,6 +188,12 @@ def create_SwitchCabinetObject(object_id, node_id):
 
 
 def create_TransformerHelperNodeObject():
+    """
+    Create a dictionary with properties of a transformer helper node object
+
+    :return: Dictionary with object properties
+    """
+
     return {
         'power': 0,
         'object_type': 'transformer_helper',
@@ -119,6 +201,16 @@ def create_TransformerHelperNodeObject():
 
 
 def create_LineObject(object_id, edge_id):
+    """
+    Create a dictionary with properties of a house object
+
+    :param object_id: unique id of the object
+    :type object_id: str
+    :param edge_id: id of linked cytoscape edge
+    :type edge_id: str
+    :return: Dictionary with object properties
+    """
+
     return {
         'id': object_id,
         'linkedEdge': edge_id,
