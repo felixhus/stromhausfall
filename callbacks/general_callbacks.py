@@ -15,13 +15,6 @@ import source.modules as modules
 
 
 def general_callbacks(app):
-    """
-    General Callbacks
-
-    :param app:
-    :return:
-    """
-
     @app.callback(Output('store_device_dict', 'data', allow_duplicate=True),
                   Output('store_grid_object_dict', 'data', allow_duplicate=True),
                   Output('graph_pv', 'figure'),
@@ -66,8 +59,14 @@ def general_callbacks(app):
         :param checkbox: [State] Bool if checkbox to load random profile is checked
         :param figure_pv: [State] Figure element of graph_pv
         :param figure_house: [State] Figure element of graph_house
-        :return: [store_device_dict>data, store_grid_object_dict>data, graph_pv>figure, graph_house>figure,
-        store_used_profiles>data, checkbox_random_profile>checked, store_save_by_enter>data, store_notification>data]
+        :return: store_device_dict > data
+        :return: store_grid_object_dict > data
+        :return: graph_pv > figure
+        :return: graph_house > figure
+        :return: store_used_profiles > data
+        :return: checkbox_random_profile > checked
+        :return: store_save_by_enter > data
+        :return: store_notification > data
         """
 
         try:
@@ -138,7 +137,8 @@ def general_callbacks(app):
                          device_dict, selected_element_grid, selected_element_house):
         """
         Manages the menu tabs, which are shown when a grid object or house device was clicked.
-        It removes all tab panels and creates the new one to show
+        It removes all tab panels and creates the new one to show.
+
         :param tab_value_house: [Input] Updated value of the house menu tab
         :param tab_value_grid: [Input] Updated value of the grid menu tab
         :param tabs_main: [Input] Tab value of main tab, whether grid, house or settings mode is shown
@@ -147,8 +147,11 @@ def general_callbacks(app):
         :param device_dict: [State] Dictionary containing all devices in the custom house
         :param selected_element_grid: [State] Cytoscape element which was clicked in the grid
         :param selected_element_house: [State] Cytoscape element which was clicked in the house
-        :return: [menu_parent_tabs>children, menu_parent_tabs>value, active_switch_grid>style,
-        active_switch_house>style, store_notification>data]
+        :return: menu_parent_tabs > children
+        :return: menu_parent_tabs > value
+        :return: active_switch_grid > style
+        :return: active_switch_house > style
+        :return: store_notification > data
         """
         # TODO: Change way of creating tab panels, so that already existing ones are used again
         # This should make the application faster. Instead of popping all existing ones and every time create
@@ -196,6 +199,7 @@ def general_callbacks(app):
     def open_readme(btn):
         """
         Opens the readme modal.
+
         :param btn: [Input] Button Readme input
         :return: True to open readme
         :rtype: bool
@@ -211,6 +215,7 @@ def general_callbacks(app):
     def open_drawer_notifications(btn):
         """
         Opens the data drawer when button is clicked.
+
         :param btn: [Input] Button Notification input
         :return: True to open drawer
         :rtype: bool
@@ -227,6 +232,7 @@ def general_callbacks(app):
     def open_start_card(btn, btn_load):
         """
         Closes the start modal which is shown on loading the app.
+
         :param btn: [Input] Button to start the app
         :param btn_load: [Input] Button to load a configuration
         :return: False to close the modal
@@ -270,11 +276,12 @@ def general_callbacks(app):
                   State('store_settings', 'data'))
     def settings(week, year, settings_dict):
         """
-        Store the settings to the dcc store object if changed
+        Store the settings to the dcc store object if changed.
+
         :param week: [Input] Week of the year
         :param year: [Input] Year to get data from
         :param settings_dict: DCC store object to save to
-        :return: [store_settings>data]
+        :return: store_settings > data
         """
 
         settings_dict['week'] = week
@@ -319,6 +326,7 @@ def general_callbacks(app):
         """
         Handles all functions of the main menu (burger menu in the navbar). It saves the configuration to a
         download-json file or loads an uploaded one. Also, it is handles the download of created own devices.
+
         :param btn_save: [Input] Main Menu button to save a configuration
         :param btn_load_menu: [Input] Main menu button to load a configuration
         :param btn_own: [Input] Main menu button to download own devices
@@ -336,10 +344,20 @@ def general_callbacks(app):
         :param settings_dict: [State] Dictionary containing the settings
         :param custom_house: [State] Id of custom house
         :param own_devices: [State] Dictionary containing all own devices
-        :return: [download_json>data, modal_load_configuration>opened, store_grid_object_dict>data,
-        store_device_dict>data, cyto_grid>elements, cyto_bathroom>elements, cyto_livingroom>elements,
-        cyto_kitchen>elements, cyto_office>elements, input_week>value, input_year>value, store_custom_house>data,
-        tab_house>disabled, store_notification>data]
+        :return: download_json > data
+        :return: modal_load_configuration > opened
+        :return: store_grid_object_dict > data
+        :return: store_device_dict > data
+        :return: cyto_grid > elements
+        :return: cyto_bathroom > elements
+        :return: cyto_livingroom > elements
+        :return: cyto_kitchen > elements
+        :return: cyto_office > elements
+        :return: input_week > value
+        :return: input_year > value
+        :return: store_custom_house > data
+        :return: tab_house > disabled
+        :return: store_notification > data
         """
 
         try:
@@ -409,8 +427,9 @@ def general_callbacks(app):
     def filename_upload(filename):
         """
         Shows the filename of an uploaded file below the upload area to show the user that it was uploaded.
+
         :param filename: [Input] Filename of uploaded file
-        :return: [text_filename_load>children]
+        :return: text_filename_load > children
         """
 
         return filename
@@ -426,11 +445,14 @@ def general_callbacks(app):
     def update_settings(btn_update, gridObject_dict, week, year):
         """
         Updates all components with the new settings.
+
         :param btn_update: [Input] Button to update the settings
         :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
         :param week: [State] Input week of year
         :param year: [State] Input year
-        :return: [store_device_dict>data, store_grid_object_dict>data, store_notification>data]
+        :return: store_device_dict > data
+        :return: store_grid_object_dict > data
+        :return: store_notification > data
         """
         # TODO: Implement update of settings properly. Also see modules>update_settings
         # Does not work yet, not in use, button_update_settings is disabled
@@ -460,6 +482,7 @@ def general_callbacks(app):
         """
         Stores all relevant data in DCC store components, which stays stored for the whole session, even on a reload.
         Is triggered by an intervall (e.g. every 10 seconds).
+
         :param interval: [Input] Interval to trigger the backup
         :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
         :param device_dict: [State] Dictionary containing all house devices and their properties
@@ -470,8 +493,9 @@ def general_callbacks(app):
         :param elements_office: [State] Elements of office cytoscape
         :param settings_dict: [State] Dictionary containing the settings
         :param custom_house: [State] Id of custom house
-        :return: [store_backup>data]
+        :return: store_backup > data
         """
+
         save_dict = {'gridObject_dict': gridObject_dict,    # Collect all relevant data in a dictionary
                      'device_dict': device_dict,
                      'cyto_grid': elements_grid,
@@ -500,14 +524,23 @@ def general_callbacks(app):
                   prevent_initial_call=True)
     def refresh(interval, backup_dict):
         """
-        Loads all backup data on a refresh, if exisiting. Is triggered once by an interval. Closes the start-modal
+        Loads all backup data on a refresh, if existing. Is triggered once by an interval. Closes the start-modal
         if it is a refresh with backup data.
+
         :param interval: [Input] Interval which is only triggered once at a refresh
         :param backup_dict: [State] Stored backup data
-        :return: [store_grid_object_dict>data,
-        store_device_dict>data, cyto_grid>elements, cyto_bathroom>elements, cyto_livingroom>elements,
-        cyto_kitchen>elements, cyto_office>elements, input_week>value, input_year>value, store_custom_house>data,
-        tab_house>disabled, modal_start>opened]
+        :return: store_grid_object_dict > data
+        :return: store_device_dict > data
+        :return: cyto_grid > elements
+        :return: cyto_bathroom > elements
+        :return: cyto_livingroom > elements
+        :return: cyto_kitchen > elements
+        :return: cyto_office > elements
+        :return: input_week > value
+        :return: input_year > value
+        :return: store_custom_house > data
+        :return: tab_house > disabled
+        :return: modal_start > opened
         """
 
         if backup_dict is not None:
@@ -530,9 +563,10 @@ def general_callbacks(app):
     def enter_save(key_n, key_event):
         """
         Listen to Enter events and change store_save_by_enter to trigger save action.
+
         :param key_n: [Input] Key event listener n_events
         :param key_event: [State] Key event listener event
-        :return: [store_save_by_enter>data]
+        :return: store_save_by_enter > data
         """
 
         if key_event['key'] == 'Enter':
@@ -551,9 +585,12 @@ def general_callbacks(app):
         and the notification is found. If not, the notification_data itself is shown in the notification.
         Also, the notification is added to the list in the drawer and the pill showing the number of notifications
         is updated.
+
         :param notification_data: [Input] Raised notification data
         :param notif_list: [State] List of notifications raised before
-        :return: [notification_container>children, drawer_notifications>children, badge_notifications>children]
+        :return: notification_container > children
+        :return: drawer_notifications > children
+        :return: badge_notifications > children
         """
 
         duration = 5000     # Duration of notification shown in the right bottom corner of the app

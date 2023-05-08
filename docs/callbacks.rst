@@ -31,7 +31,7 @@ General Callbacks
 -----------------
 
 .. automodule:: general_callbacks
-.. autofunction:: save_props_action
+   :members:
 
 Grid Callbacks
 --------------
