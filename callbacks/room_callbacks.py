@@ -13,6 +13,7 @@ def room_callbacks(app, button_dict, rooms):
     Functions creates room callbacks for the rooms of the house. For each room, the same callbacks with different
     Inputs and outputs are created. It is important that the room name has to match the room identifying string in
     the dash component ids (for example cyto_{room} creates cyto_bathroom, cyto_kitchen and so forth).
+
     :param app: Dash Application to add callbacks to
     :type app: Dash App
     :param button_dict: Dictionary with buttons to create grid objects
@@ -36,8 +37,11 @@ def create_menu_show_callbacks(room, app):
     def menu_show(btn_additional):
         """
         Opens the additional devices modal, closes the room menu and passes the room as a preset to the room radio
+
         :param btn_additional: [Input] Button to open the additional device menu
-        :return: [menu_devices_{room}>opened, modal_additional_devices>opened, radiogroup_room>value]
+        :return: menu_devices_{room} > opened
+        :return: modal_additional_devices > opened
+        :return: radiogroup_room > value
         """
 
         return False, True, room  # Show modal and close menu when button "Weitere" was clicked.
@@ -71,6 +75,10 @@ def create_manage_devices_callback(app, button_dict, room):
                             own_device_dict, node, btn_delete,
                             btn_close, active_switch, btn_additional, btn_own, *btn_add):
         """
+        Manages all functions of a device in a room. If a node of the cytoscape was clicked, it either opens the
+        corresponding menu tab or the add device menu. It updates and synchronizes the active state of a device
+        with the socket state and the slider in the menu. It adds devices to the room and deletes them with their
+        socket and connection.
 
         :param elements: [State] Elements of the room cytoscape
         :param device_dict: [State] Dictionary containing all devices in the custom house
@@ -86,9 +94,14 @@ def create_manage_devices_callback(app, button_dict, room):
         :param btn_additional: [Input] Button to add an additional devices modal
         :param btn_own: [Input] Button to add an own device
         :param btn_add: [Inputs] Button to add a device from a room menu
-        :return: [cyto{room}>elements, store_device_dict>data, menu_devices{room}>style, menu_devices{room}>opened,
-        store_menu_change_tab_house>data, store_selected_element_house>data, active_switch_house>checked,
-        store_notification>data]
+        :return: cyto{room} > elements
+        :return: store_device_dict > data
+        :return: menu_devices{room} > style
+        :return: menu_devices{room} > opened
+        :return: store_menu_change_tab_house > data
+        :return: store_selected_element_house > data
+        :return: active_switch_house > checked,
+        :return: store_notification > data
         """
 
         try:

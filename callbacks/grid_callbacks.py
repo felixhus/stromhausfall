@@ -48,12 +48,19 @@ def grid_callbacks(app):
     def start_calculation_grid(btn, elements, gridObject_dict, tabs_main):
         """
         Starts the calculation of the grid and calls all necessary functions.
+
         :param btn: [Input] Button to start calculation
         :param elements: [State] Elements of grid cytoscape
         :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
         :param tabs_main: [State] Tab value of main tab, whether grid, house or settings mode is shown
-        :return: [store_flow_data>data, tabs_menu>value, result_parent_tabs>value, cyto_grid>stylesheet,
-        cyto_grid>elements, timestep_slider>max, store_edge_labels>data, store_notification>data]
+        :return: store_flow_data > data
+        :return: tabs_menu > value
+        :return: result_parent_tabs > value
+        :return: cyto_grid > stylesheet
+        :return: cyto_grid > elements
+        :return: timestep_slider > max
+        :return: store_edge_labels > data
+        :return: store_notification > data
         """
 
         try:
@@ -84,9 +91,12 @@ def grid_callbacks(app):
         If flow was calculated and the slider set to a new timestep, this function generates the cytoscape edge labels
         for this timestep from the flow results. It rounds them and get the power, which is taken or given to the
         external grid. This is then shown on the alert components in the grid result section.
+
         :param slider: [Input] Timestep set by slider
         :param flow: [State] The calculated flow data
-        :return: [alert_externalgrid>children, store_edge_labels>data, store_notification>data]
+        :return: alert_externalgrid > children
+        :return: store_edge_labels > data
+        :return: store_notification > data
         """
 
         try:
@@ -134,6 +144,7 @@ def grid_callbacks(app):
         """
         This callback manages all the edit action of the grid cytoscape. It adds new nodes and lines and
         deletes them if wanted.
+
         :param btn_add: [Input] Id of pressed add object button
         :param node: [Input] Pressed node of cyto_grid
         :param btn_delete: [Input] Button to delete an object
@@ -147,8 +158,13 @@ def grid_callbacks(app):
         :param selected_element: [State] Selected element of the cyto_grid
         :param node_ids: [State] Two node ids of nodes to connect, but voltage has to be set
         :param tabs_main: [State] Tab value of main tab, whether grid, house or settings mode is shown
-        :return: [cyto_grid>elements, store_grid_object_dict>data, start_of_line>data, store_element_deleted>data,
-        store_notification>data, store_get_voltage>data, modal_voltage>opened]
+        :return: cyto_grid > elements
+        :return: store_grid_object_dict > data
+        :return: start_of_line > data
+        :return: store_element_deleted > data,
+        :return: store_notification > data
+        :return: store_get_voltage > data
+        :return: modal_voltage > opened
         """
 
         triggered_id = ctx.triggered_id
@@ -268,6 +284,7 @@ def grid_callbacks(app):
         """
         Callback which controls what happens when nodes or edges in the grid are clicked. Also, this callback handles
         the selection of the house mode (preset or custom). If an element is deleted, it closes the connected tab.
+
         :param node: [Input] Clicked node of cytoscape
         :param edge: [Input] Clicked edge of cytoscape
         :param element_deleted: [Input] Id of the element which was deleted
@@ -276,9 +293,17 @@ def grid_callbacks(app):
         :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
         :param btn_line_active: [State] Status of the line edit mode
         :param custom_house: [State] Id of custom configured house
-        :return: [store_grid_object_dict>data, store_menu_change_tab_grid>data, cyto_grid>tapNodeData,
-        cyto_grid>tapEdgeData, store_selected_element_grid>data, tabs_main>value, house_fade>is_in,
-        store_custom_house>data, tab_house>disabled, house_mode>value, store_notification>data]
+        :return: store_grid_object_dict > data
+        :return: store_menu_change_tab_grid > data
+        :return: cyto_grid > tapNodeData,
+        :return: cyto_grid > tapEdgeData
+        :return: store_selected_element_grid > data
+        :return: tabs_main > value
+        :return: house_fade > is_in,
+        :return: store_custom_house > data
+        :return: tab_house > disabled
+        :return: house_mode > value
+        :return: store_notification > data
         """
 
         try:
@@ -354,9 +379,10 @@ def grid_callbacks(app):
         """
         Takes generated edge labels, sets them for each edge, sets the direction of the edge arrow and returns
         the updates cytoscape elements.
+
         :param labels: [Input] Generated edge labels
         :param elements: [State] Cytoscape grid elements
-        :return: [cyto_grid>elements]
+        :return: cyto_grid > elements
         """
 
         for edge, label in labels.items():  # Set labels of edges with power values
@@ -380,10 +406,11 @@ def grid_callbacks(app):
         """
         If the slider selects a new timestep, this callback displays the weekday, date and time of the step
         in the grid result section.
+
         :param slider: [Input] Timestep slider value
         :param year: [State] Year from settings
         :param week: [State] Week of the year from settings
-        :return: [alert_time>children]
+        :return: alert_time > children
         """
 
         date_start, date_stop = get_monday_sunday_from_week(week, year)
@@ -402,10 +429,12 @@ def grid_callbacks(app):
         """
         If a button of the PV compass was clicked, the corresponding orientation is written to the PV object
         and the compass needle is rotated to the clicked orientation.
+
         :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
         :param selected_element: [State] Cytoscape element which was clicked in the grid
         :param args: [Input] One Input per button of the compass
-        :return: [store_grid_object_grid>data, button_compass>style]
+        :return: store_grid_object_grid > data
+        :return: button_compass > style
         """
 
         triggered_id = ctx.triggered_id     # Get which button was clicked
@@ -427,11 +456,14 @@ def grid_callbacks(app):
         """
         This callback activates or deactivates the line edit mode with the line button and the ESC key.
         It also sets the style of the button if it is activated or not.
+
         :param btn_line: [Input] Button to add a line between grid objects
         :param n_events: [Input] Key event listener n_events
         :param event: [State] Key event listener event
         :param btn_active: [State] Status of line edit mode
-        :return: [cyto_grid>autoungrabify, store_line_edit_active>data, button_line>variant]
+        :return: cyto_grid > autoungrabify
+        :return: store_line_edit_active > data
+        :return: button_line > variant
         """
 
         triggered_id = ctx.triggered_id
@@ -454,9 +486,10 @@ def grid_callbacks(app):
         """
         Sets the style of a house which is selected as custom. It changes the shape from a rounded rectangle to a
         normal one.
+
         :param selected_element: [Input] Id of house which was selected as custom
         :param elements: [State]
-        :return: [cyto_grid>elements]
+        :return: cyto_grid > elements
         """
 
         if selected_element is not None:
@@ -474,8 +507,9 @@ def grid_callbacks(app):
         """
         Takes the id of a pressed button to add a grid object and passes it to the store element. A change of this
         then triggers another callback to add the object.
+
         :param args: [Input] Add grid object buttons
-        :return: [store_add_node>data]
+        :return: store_add_node > data
         """
 
         triggered_id = ctx.triggered_id
