@@ -30,6 +30,7 @@ def app_layout(app, button_dict):
     """
     Set layout of the given dash app. This function defines the whole layout by creating the main components in a grid,
     adding all dash components defined in "dash_components.py" and creating intervals, notification handlers and more.
+
     :param app: Dash app to add layout to
     :type app: dash app
     :param button_dict: Dictionary of menu buttons for the rooms.

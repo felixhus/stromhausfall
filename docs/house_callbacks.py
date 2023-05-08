@@ -100,8 +100,10 @@ def add_new_device(btn_add, filename, input_name, input_menu_type, input_icon, o
     """
 Callback to add a new custom device to the app. The user has to input the name, type, icon and a file, which
 contains the power profiles in Watts. There are two possibilities for this file:
+
 * CSV-File: First column are timestamps. Every following column is read as a separate power profile
 * XLS-File: First column are timestamps. Every following column is read as a separate power profile.
+
 Also, the file can contain several sheets, which will be read separately. This can be useful if
 the user wants to add several power profiles which don't share the same timestamps.
 In general the profiles can contain several values per minute, they are resampled to 1-min-steps.

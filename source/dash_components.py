@@ -31,6 +31,7 @@ device_dict_init = {'house1': {}, 'rooms': {}, 'last_id': 1}
 def add_storage_variables():
     """
     Here the DCC store objects are defined, which store different data throughout the app.
+
     :return: All dash store objects.
     """
 
@@ -86,6 +87,7 @@ def add_storage_variables():
 def add_grid_object_button(object_id, name=None, icon=None, enable=True, app=None):
     """
     This function creates a button for the left menu to add a grid object.
+
     :param object_id: dash-id of the button
     :type object_id: str
     :param name: Name of the button for the tooltip.
@@ -117,6 +119,7 @@ def add_menu_dropdown(room_type: str, button_dict: dict):
     This function creates a menu dropdown containing the given devices from button_dict for a given room.
     Only the devices are considered, which have a standard room named in the database.
     The button_dict has to contain: Name, dash id, iconify icon.
+
     :param room_type: One of the following room types: bathroom, livingroom, kitchen, office
     :type room_type: str
     :param button_dict: Dictionary of menu buttons for the rooms.
@@ -143,11 +146,12 @@ def add_cytoscape(cyto_id: str, elements: list):
     """
     Returns a dash cytoscape with the given id and the given elements in it. These are the power strip
     and the plus-element in case of a room cytoscape.
+
     :param cyto_id: dash id of cytoscape to add
     :type cyto_id: str
     :param elements: Elements to add to this cytoscape
     :type elements: dict
-    :return: hmtl-Div with dash cytoscape in it
+    :return: HTML-Div with dash cytoscape in it
     """
 
     return html.Div(cyto.Cytoscape(
@@ -166,6 +170,7 @@ def add_main_card_layout(button_dict: dict):
     - Netz - Grid: The grid cytoscape to build your grid with drag&drop is added here.
     - Haus - House: The rooms with their cytoscapes and add-device-menus are added here.
     - Einstellungen - Settings: The dash components for settings inputs are added here.
+
     :param button_dict: Dictionary of menu buttons for the rooms.
     :type button_dict: dict
     :return: Main card layout of the app
@@ -275,6 +280,7 @@ def add_main_card_layout(button_dict: dict):
 def add_modal_readme():
     """
     Adds a modal to the layout, which shows the README of the project for help.
+
     :return: DMC Modal
     """
     with open(root_path + 'README.md', encoding='UTF-8') as file:
@@ -316,6 +322,7 @@ def add_modal_voltage_level():
 def dash_navbar():
     """
     Creates the Navigation bar of the app.
+
     :return: DBC Navbar
     """
 
@@ -384,6 +391,7 @@ def add_card_start():
     Creates the card which is shown when the app is loaded. It has buttons to either start the app
     or load an existing configuration.
     Returns an opened DMC Modal with the content card in it.
+
     :return: DMC Modal
     """
 
@@ -428,7 +436,8 @@ def add_card_start():
 def add_card_menu():
     """
     Creates the card on the right side of the app, which contains all settings of components and results.
-    Also contains the loading overlay to display a loader when something is loading or calculating
+    Also contains the loading overlay to display a loader when something is loading or calculating.
+
     :return: DMC Card
     """
 
@@ -515,6 +524,7 @@ def add_card_menu():
 def add_result_tab_panel(tab_value):
     """
     This function returns the tabs panels for results of calculations.
+
     :param tab_value: Which tab panel should be created? Could be 'empty', 'house' or 'grid'
     :type tab_value: str
     :return: DMC Tabs Panel
@@ -558,6 +568,7 @@ def add_menu_tab_panel(tab_value: str, selected_element=None, element_dict=None)
     """
     This function returns the tabs panels for clicked object (grid components or devices in the house).
     It loads the stored properties from the element_dict and shows them in the inputs.
+
     :param tab_value: Which tabs panel should be created? The tab value is the type of the object clicked
     :type tab_value: str
     :param selected_element: The id of the selected element in the cytoscape
@@ -903,11 +914,12 @@ def add_menu_tab_panel(tab_value: str, selected_element=None, element_dict=None)
 
 def get_compass(orientation: int):
     """
-    Returns nine DMC ActionItems, which act as buttons in form of a compass. Each has the id "button_" followed
+    Returns nine DMC ActionItems, which act as buttons in form of a compass. Each has the id "button\_" followed
     by the direction. The parameter "orientation" is used to set the rotation of the needle of the compass.
+
     :param orientation: Orientation of the compass needle, (north: 0, east: 90, south: 180, west: 270)
     :type orientation: int
-    :return: html-Div with 9 DMC Action Items in form of a compass
+    :return: HTML-Div with 9 DMC Action Items in form of a compass
     """
 
     return html.Div([dmc.Grid(children=[
@@ -962,13 +974,14 @@ def add_cost_badge(name, cost, icon=None):
     """
     Creates a cost badge for a device containing a DMC ThemeIcon and a DMC Badge showing the yearly energy cost for
     the device. Also, a tooltip with the device name is created.
+
     :param name:
     :type name: str
     :param cost:
     :type cost: float
     :param icon:
     :type icon: str
-    :return: Html-Div
+    :return: HTML-Div
     """
 
     cost = str(round(cost / 100, 2)) + "€"
@@ -990,9 +1003,10 @@ def add_device_costs(cost_tuple):
     """
     Creates a grid of device-cost badges. The given tuples have to contain (name, cost, icon).
     Also creates a title for the cost page.
+
     :param cost_tuple: list of tuples of costs of devices
     :type cost_tuple: list
-    :return: Html-Div
+    :return: HTML-Div
     """
 
     grid = dmc.Grid(children=[
@@ -1005,6 +1019,7 @@ def add_device_costs(cost_tuple):
 def add_modal_graph():
     """
     Modal to show a full screen version of a graph. Is used by outputting the "figure" property of "graph_modal".
+
     :return: DMC Modal
     """
 
@@ -1021,6 +1036,7 @@ def add_modal_devices():
     """
     Creates the modal to choose from all devices or create own ones. It is called by the "Weitere" button in a room
     menu. It has three tabs: additional, own, new.
+
     :return: DMC Modal
     """
 
@@ -1056,6 +1072,7 @@ def add_card_additional_devices(devices, radio_room, own=False):
     """
     Creates a card to select from a list of devices. It contains a radio-select of the devices, a radio-select
     of the room to add to and a button to add a selected device.
+
     :param devices: List of devices, either as tuples or as dicts
     :type devices: list
     :param radio_room: Preset value of the room radio-select
@@ -1110,7 +1127,8 @@ def add_card_own_devices():
     """
     This returns the card to load a json-file with own devices. If they are loaded, the function
     "add_card_additional_devices" is used to create a list of them.
-    :return: Html-Div
+
+    :return: HTML-Div
     """
 
     return html.Div([
@@ -1144,7 +1162,8 @@ def add_card_new_device():
     """
     This creates the card to add a new own device to the app. It creates inputs for the name, type, icon and
     csv/xls/xlsx-file and displays a help section on how to create a device.
-    :return: Html-Div
+
+    :return: HTML-Div
     """
 
     # Create table for help section
@@ -1161,7 +1180,7 @@ def add_card_new_device():
         html.Div([
             dmc.Text("Eigenes Gerät hinzufügen:"),
             dmc.Space(h=10),
-            dmc.TextInput(id='input_new_name', label="Gerätename *"),   # Input for device name
+            dmc.TextInput(id='input_new_name', label="Gerätename"),   # Input for device name
             dmc.Space(h=10),
             dmc.Text("Art des Lastprofils"),
             dmc.ChipGroup(      # Input for type of device (preset/custom)
@@ -1227,6 +1246,7 @@ def add_modal_timeseries():
     """
     NOT IN USE! This is a modal to create a load profile of a device inside the app with a dash data table.
     Not running, under development.
+
     :return: DMC Modal
     """
     # TODO complete this to create whole devices with load profiles in the app itself.
@@ -1266,6 +1286,7 @@ def add_modal_timeseries():
 def add_modal_load_configuration():
     """
     Modal to load a previously saved configuration. Takes a json-file as an upload.
+
     :return: DMC Modal
     """
 
@@ -1304,6 +1325,7 @@ def add_modal_load_configuration():
 def add_drawer_notifications():
     """
     Returns the drawer where the app notifications are shown.
+
     :return: DMC Drawer
     """
     return dmc.Drawer(title="Nachrichten:", id='drawer_notifications', padding="md", children=[])

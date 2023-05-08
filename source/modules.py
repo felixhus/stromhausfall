@@ -619,7 +619,6 @@ def calculate_house(device_dict, timesteps):
 def interpolate_profile(values, number_steps, interpolation_type):
     """
     Interpolates a given profile to a given number of timesteps. The interpolation method can be defined.
-
     Possible kinds of interpolation: linear, nearest, nearest-up, zero, slinear, quadratic, cubic, previous, next
 
     :param values: Original values of profile
@@ -627,7 +626,7 @@ def interpolate_profile(values, number_steps, interpolation_type):
     :param number_steps: Number of steps of final profile
     :type number_steps: int
     :param interpolation_type: Type of interpolation
-    :type interpolation_type:str
+    :type interpolation_type: str
     :return: Final interpolated profile
     :rtype: list
     """
