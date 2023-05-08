@@ -1,5 +1,6 @@
 """
 modules.py contains all kinds of functions used by other modules in the project.
+For detailed functionality of the modules, see the comments in the code itself.
 """
 
 import base64
@@ -25,13 +26,14 @@ root_path = '/home/stromhausfall/mysite/'
 
 # Dict to get the number of the day from the string-id of the day
 days = {'mo': 0, 'tu': 1, 'wd': 2, 'th': 3, 'fr': 4, 'sa': 5, 'su': 6}
-# The ids of the selected power profiles for househould from the izes-database
+# The ids of the selected power profiles for household from the izes-database
 profile_selection = [46, 4, 7, 9, 14, 15, 16, 17, 18, 19, 20, 22, 23, 27, 28, 32, 33, 39, 41, 73, 42, 45, 47, 58, 61, 62, 65]
 
 
 def get_last_id(elements):
     """
-    Returns the last used id in a list of elements. It returns two ids, one for the nodes, one for the edges
+    Returns the last used id in a list of elements. It returns two ids, one for the nodes, one for the edges.
+
     :param elements: List of elements with ids
     :type elements: list
     :return: Last used ids of [nodes, edges]
@@ -57,7 +59,8 @@ def get_object_from_id(node_id, objects):
 
 def get_connected_edges(elements, selected_element):
     """
-    Find edges which are connected to a cytoscape node
+    Find edges which are connected to a cytoscape node.
+
     :param elements: Cytoscape elements
     :type elements: list
     :param selected_element: Node to search for
@@ -78,6 +81,7 @@ def get_connected_edges(elements, selected_element):
 def generate_grid_object(object_type, object_id, node_id):
     """
     Creates a grid object from the function in objects.py.
+
     :param object_type: Type of object that should be created
     :type object_type: str
     :param object_id: Id of the object
@@ -109,6 +113,7 @@ def generate_grid_object(object_type, object_id, node_id):
 def connection_allowed(source, target, object_dict):
     """
     Check if the connection which is about to be added is allowed.
+
     :param source: Id of source node
     :type source: str
     :param target: Id of target node
@@ -129,6 +134,7 @@ def create_device_object(device_id, device_type, database, own=False, own_device
     """
     Creates a dictionary containing all properties of a device. Chooses source of the data
     regarding own or standard devices.
+
     :param device_id: Id to set to device
     :type device_id: str
     :param device_type: Type of device to create
@@ -162,6 +168,7 @@ def add_device(elements, device_dict, room, device_type, own, own_devices=None):
     """
     This function adds a device of the given type to the cytoscape (including the socket and repositioning of
     the plus-node) and attaches it to the device dictionary.
+
     :param elements: Elements of the room cytoscape
     :type elements: list
     :param device_dict: Dictionary containing all devices in the custom house
@@ -174,7 +181,8 @@ def add_device(elements, device_dict, room, device_type, own, own_devices=None):
     :type own: bool
     :param own_devices: Dictionary of existing own devices
     :type own_devices: dict
-    :return: elements: Updated element list of cytoscape; device_dict: Updated dictionary of devices
+    :return: elements: Updated element list of cytoscape
+    :return: device_dict: Updated dictionary of devices
     """
 
     database = root_path + 'source/database_profiles.db'
@@ -210,11 +218,13 @@ def add_device(elements, device_dict, room, device_type, own, own_devices=None):
 def generate_grid_dataframes(elements, grid_objects):
     """
     Generate pandas DataFrames from given cytoscape elements.
+
     :param elements: Cytoscape element list, nodes and edges
     :type elements: list
     :param grid_objects: Dict of all grid objects to link them to the nodes
     :type grid_objects: dict
-    :return df_nodes: DataFrame containing all nodes of the grid; df_edges: DataFrame containing all edges of the grid.
+    :return: df_nodes: DataFrame containing all nodes of the grid
+    :return: df_edges: DataFrame containing all edges of the grid.
     """
 
     nodes = []
@@ -248,6 +258,7 @@ def generate_grid_dataframes(elements, grid_objects):
 def generate_grid_graph(df_nodes, df_edges):
     """
     Generate a NetworkX graph from the given DataFrames for nodes and edges.
+
     :param df_nodes: DataFrame containing nodes with 'id' and 'linkedObject'
     :type df_nodes: dataframe
     :param df_edges: DataFrame containing nodes with 'source', 'target' and 'id
@@ -303,6 +314,7 @@ def generate_directed_graph(graph):
     """
     Generates a directed graph out of the undirected one. Performs a bfs for this and takes the external grid as
     the starting point. Checks if there are more ore less than one external grids.
+
     :param graph: Undirected graph
     :type graph: NetworkX graph
     :return: Directed NetworkX graph
@@ -339,6 +351,7 @@ def generate_directed_graph(graph):
 def check_power_profiles(graph):
     """
     Finds the power profile with the most timesteps and interpolate all other profiles to this length.
+
     :param graph: Directed NetworkX graph
     :type graph: NetworkX graph
     :return: Updated NetworkX graph
@@ -360,8 +373,10 @@ def generate_equations(graph):
     """
     Generates the incidence matrix of the directed graph and adds a column to make it quadratic
     Also returns a dataframe with each power profile in it.
+
     :param graph: Directed NetworkX graph
-    :return: inc: Incidence matrix; df_power: Dataframe with all power profiles
+    :return: inc: Incidence matrix
+    :return: df_power: Dataframe with all power profiles
     """
 
     df_power = pd.DataFrame()
@@ -383,6 +398,7 @@ def generate_equations(graph):
 def solve_flow(A, b):
     """
     Solves the load flow with a given incidence matrix and result vector. Checks if the matrix is quadratic.
+
     :param A: Incidence Matrix = equations to solve
     :param b: Result vector
     :return: Flow vector
@@ -398,6 +414,7 @@ def solve_flow(A, b):
 def plot_graph(graph):
     """
     Plots the NetworkX graph which is created from the grid cytoscape.
+
     :param graph: NetworkX graph
     :return: base64 string of png picture
     """
@@ -430,6 +447,7 @@ def correct_cyto_edges(elements, graph):
     Function takes the elements of the grid cytoscape and corrects all edges, so the point in the same direction as in
     the directed graph of the grid.
     Needed for the display of arrows.
+
     :param elements: Element list of dash cytoscape
     :param graph: Directed Graph of the grid.
     :return: Edited Element list of dash cytoscape
@@ -467,11 +485,14 @@ def correct_cyto_edges(elements, graph):
 def power_flow_statemachine(state, data):
     """
     State machine of grid calculation. Executes all checks and steps necessary.
+
     :param state: Statemachine state to execute in this step
     :type state: str
     :param data: All needed data for the calculation
     :type data: dict
-    :return: Next statemachine state; updated data dict; flag if calculation is done (bool)
+    :return: Next statemachine state
+    :return: updated data dict
+    :return: flag if calculation is done (bool)
     """
 
     if state == 'init':
@@ -532,6 +553,7 @@ def power_flow_statemachine(state, data):
 def calculate_power_flow(elements, grid_object_dict):
     """
     Main function to calculate the power flows in the created and configured grid. Built as a state-machine.
+
     :param grid_object_dict: Dictionary of objects in grid with id corresponding to node ids of cytoscape
     :type grid_object_dict: dict
     :param elements: Grid elements in form of cytoscape graph
@@ -553,14 +575,16 @@ def calculate_house(device_dict, timesteps):
     """
     Takes all devices and calculates: The sum of all devices per room and house; The energy used by devices,
     rooms and house.
+
     :param device_dict: Dictionary containing all devices in the custom house
     :type device_dict: dict
     :param timesteps: Number of timesteps
     :type timesteps: range
-    :return: df_power: Dataframe with power of each device in each timestep;
-    df_sum: Dataframe with sum power of all rooms and house per timestep;
-    df_energy: Dataframe with overall energy per room and house;
-    figure[0]: Scatter plot of results; figure[1]: Sunburst plot of energys
+    :return: df_power: Dataframe with power of each device in each timestep
+    :return: df_sum: Dataframe with sum power of all rooms and house per timestep
+    :return: df_energy: Dataframe with overall energy per room and house
+    :return: figure[0]: Scatter plot of results
+    :return: figure[1]: Sunburst plot of energies
     """
 
     df_power = pd.DataFrame(columns=timesteps)  # Prepare dataframe with one column per timestep
@@ -595,7 +619,9 @@ def calculate_house(device_dict, timesteps):
 def interpolate_profile(values, number_steps, interpolation_type):
     """
     Interpolates a given profile to a given number of timesteps. The interpolation method can be defined.
+
     Possible kinds of interpolation: linear, nearest, nearest-up, zero, slinear, quadratic, cubic, previous, next
+
     :param values: Original values of profile
     :type values: list
     :param number_steps: Number of steps of final profile
@@ -619,6 +645,7 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
     """
     Save all settings of the selected device. This is done by looping over all children of the menu tab.
     After checking their type, it is selected what to do and how to save the input.
+
     :param children: Children of the menu tab, all inputs of the selected device
     :param device_dict: Dictionary containing all devices in the custom house
     :param selected_element: Cytoscape element which was clicked in the house
@@ -705,6 +732,7 @@ def save_settings_devices(children, device_dict, selected_element, house, day):
 def save_settings_house(children, gridObject_dict, selected_element, year, week, used_profiles, checkbox):
     """
     Save all settings of a selected house. Load random profile if wanted.
+
     :param children: Children of the menu tab, all inputs of the selected object
     :param gridObject_dict: Dictionary containing all grid objects and their properties
     :param selected_element: Cytoscape element which was clicked in the grid
@@ -712,7 +740,8 @@ def save_settings_house(children, gridObject_dict, selected_element, year, week,
     :param week: Week of year set in the settings tab
     :param used_profiles: Already used random profiles from IZES
     :param checkbox: Bool if checkbox to load random profile is checked
-    :return: Updated gridObject_dict, updated used_profiles
+    :return: Updated gridObject_dict
+    :return: Updated used_profiles
     """
 
     if checkbox:    # If wanted, load a random household profile from the database
@@ -733,12 +762,14 @@ def save_settings_pv(children, gridObject_dict, selected_element, year, week):
     """
     Saves the settings of a PV-module. After all data was checked and prepared, it loads the solar data from
     renewables.ninja.
+
     :param children: Children of the menu tab, all inputs of the selected object
     :param gridObject_dict: Dictionary containing all grid objects and their properties
     :param selected_element: Cytoscape element which was clicked in the grid
     :param year: Year set in the settings tab
     :param week: Week of year set in the settings tab
-    :return: Updated gridObject_dict, Notification
+    :return: Updated gridObject_dict
+    :return: Notification
     """
     # TODO: Changes here also have to be done in update_settings module
 
@@ -790,6 +821,7 @@ def save_settings_pv(children, gridObject_dict, selected_element, year, week):
 def update_settings(gridObject_dict, selected_element, year, week):
     """
     Updates the selected element with the stored settings year and week.
+
     :param gridObject_dict: Dictionary containing all grid objects and their properties
     :type gridObject_dict: dict
     :param selected_element: Element to update
@@ -848,11 +880,13 @@ def update_settings(gridObject_dict, selected_element, year, week):
 def get_monday_sunday_from_week(week_num, year):
     """
     Get the dates of monday and sunday of a given week in a given year.
+
     :param week_num:
     :type week_num: int
     :param year:
     :type year: int
-    :return: Dates of monday and sunday
+    :return: Date of monday
+    :return: Date of sunday
     :rtype: date
     """
 
@@ -871,6 +905,7 @@ def get_button_dict():
     and contains the menu-objects for each device. They consist of:
     name, dash button-id, icon
     Only the devices are considered, which have a standard room named in the database.
+
     :return: dictionary of buttons for the room menus
     :rtype: dict
     """
@@ -889,6 +924,7 @@ def get_button_dict():
 def get_icon_url(icon_name: str):
     """
     Takes an icon name in the format "mdi:icon-name" and returns the Iconify URL for the icon.
+
     :param icon_name: iconify name of icon
     :type icon_name: str
     :return: url of icon
