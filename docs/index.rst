@@ -1,8 +1,17 @@
-Welcome to StromHausFall's documentation!
+Welcome to Stromhausfall's documentation!
 =========================================
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   modules
 
 
-.. note::
 
-   This project is under active development.
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
