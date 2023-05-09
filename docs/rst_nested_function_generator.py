@@ -74,8 +74,9 @@ def get_nested_function_docstrings_room(filename, output_file_name, function_nam
                         output_file.write(f'\ndef {inner_node.name}({args}):\n    """'
                                           f'\n{ast.get_docstring(inner_node)}\n"""\n    pass\n')
 
-# Replace with the path to your Python file
-filename = None
+
+# Replace with the path to your source Python file
+filename = "house_callbacks.py"
 # Replace with the name of the function that contains the nested functions
 function_name = 'house_callbacks'
 function_names_room = ['create_menu_show_callbacks', 'create_manage_devices_callback']
