@@ -58,7 +58,6 @@ def app_layout(app, button_dict):
                 dbc.Col([dash_components.add_card_start(), dash_components.add_card_menu()], width=True)    # Menu card on the right
             ]),
             dash_components.add_modal_readme(),             # Import all components from dash_components.py
-            dash_components.add_drawer_notifications(),
             dash_components.add_modal_voltage_level(),
             dash_components.add_storage_variables(),
             dash_components.add_modal_devices(),
@@ -69,6 +68,8 @@ def app_layout(app, button_dict):
             dcc.Interval(id='interval_refresh', interval=100, max_intervals=1),
             dcc.Interval(id='interval_backup', interval=10000),
             dex.EventListener(id='key_event_listener', events=[{'event': 'keydown', 'props': ["key"]}]),
+            dmc.Drawer(title="Nachrichten:", id='drawer_notifications', padding="md", children=[], position='left'),
+            dmc.Drawer(title="Hilfe:", id='drawer_help', padding="md", children=[], position='right')
         ], width=True),
         # dmc.Card(["Tutorial"], id='card_tutorial', withBorder=True, shadow="sm", radius="md"),
         html.Div(id='notification_container')

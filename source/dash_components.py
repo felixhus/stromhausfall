@@ -79,7 +79,9 @@ def add_storage_variables():
                      # Changed if an enter press is detected. Is then resetted with None in the save-callbacks
                      dcc.Store(id='store_save_by_enter', data=None),
                      # Store dictionary containing all own devices and their properties
-                     dcc.Store(id='store_own_device_dict', data={}, storage_type='session')])
+                     dcc.Store(id='store_own_device_dict', data={}, storage_type='session'),
+                     # Store dictionary containing all own devices and their properties
+                     dcc.Store(id='store_tutorial', data=None, storage_type='session')])
                      # Store elements of the menu of a room
                      # dcc.Store(id='store_menu_elements_house', storage_type='session')])
 
@@ -1325,26 +1327,25 @@ def add_modal_load_configuration():
     )
 
 
-def add_drawer_notifications():
-    """
-    Returns the drawer where the app notifications are shown.
-
-    :return: DMC Drawer
-    """
-    return dmc.Drawer(title="Nachrichten:", id='drawer_notifications', padding="md", children=[])
-
-
 def add_tutorial():
+    """
+    DBC Row containing the tutorial card with pagination and help ActionItem.
+
+    :return: DBC Row
+    """
+
     return dbc.Row([
         dmc.Space(h=20),
         dmc.Card([
             dmc.CardSection(children=[
                 html.Div("Tutorial - Schritt 1"),
                 html.Div("Jede Funktion der App wird im Tutorial erklärt.")
-            ], inheritPadding=True, withBorder=True, pb='sm', pt='xs'),
+            ], id='card_tutorial_content', inheritPadding=True, withBorder=True, pb='sm', pt='xs'),
             dmc.CardSection(children=[
-                dbc.Row(justify='end', children=[
-                    dmc.Pagination(total=10, siblings=1, page=3)])],
+                dmc.Group(position='apart', children=[
+                    dmc.ActionIcon(id='help_tutorial', color='blue', variant='filled',
+                                   children=DashIconify(icon='material-symbols:help-outline-rounded')),
+                    dmc.Pagination(id='pagination_tutorial', total=1, siblings=1, page=1)])],
                 inheritPadding=True, pb='xs', pt='xs')],
             id='card_tutorial', style={'display': 'none'},
             withBorder=True, shadow="sm", radius="md"

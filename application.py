@@ -29,7 +29,7 @@ house_callbacks(app)                        # Include House callbacks
 room_callbacks(app, button_dict, rooms)     # Include room callbacks
 
 # Debug callback for development. Can be used to inspect all sort of states.
-# Input is the debug button (has to be commentet in in dash_components) and by choosing states one can
+# Input is the debug button (has to be commented in in dash_components) and by choosing states one can
 # Inspect objects at all time.
 # @app.callback(Output('graph_modal', 'figure'),
 #               Output('modal_graph', 'opened'),
@@ -43,5 +43,5 @@ room_callbacks(app, button_dict, rooms)     # Include room callbacks
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)     # Run app
+    app.run_server(debug=True)     # Run app
 

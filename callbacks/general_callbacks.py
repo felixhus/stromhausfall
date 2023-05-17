@@ -6,12 +6,15 @@ import base64
 import json
 
 import dash_mantine_components as dmc
-from dash import Input, Output, State, ctx, no_update
+from dash import Input, Output, State, ctx, no_update, html, dcc
 from dash.exceptions import PreventUpdate
 from dash_iconify import DashIconify
 
 import source.dash_components as dash_components
 import source.modules as modules
+
+# root_path = '/home/stromhausfall/mysite/'
+root_path = ''
 
 
 def general_callbacks(app):
@@ -575,22 +578,67 @@ def general_callbacks(app):
             raise PreventUpdate
 
     @app.callback(Output('card_tutorial', 'style'),
+                  Output('store_tutorial', 'data'),
+                  Output('pagination_tutorial', 'total'),
+                  Output('card_tutorial_content', 'children'),
                   Input('button_tutorial', 'n_clicks'),
+                  Input('pagination_tutorial', 'page'),
                   State('card_tutorial', 'style'),
+                  State('store_tutorial', 'data'),
                   prevent_initial_call=True)
-    def control_tutorial(btn, style):
+    def control_tutorial(btn, page, style, tutorial_steps):
         """
         Opens or closes the tutorial on button click.
 
         :param btn: [Input] "Tutorial" button
+        :param page: [Input] Pagination selection of tutorial step
         :param style: [State] Opening status stored in the style property
+        :param tutorial_steps: [State] List of tutorial steps and help
         :return: card_tutorial > style
+        :return: store_tutorial > data
+        :return: pagination_tutorial > total
+        :return: card_tutorial_content > children
         """
 
-        if style['display'] == 'none':
-            return {'display': 'block'}
+        triggered_id = ctx.triggered_id
+        if triggered_id == 'button_tutorial':
+            if style['display'] == 'none':
+                if tutorial_steps is None:
+                    tutorial_steps = modules.extract_tutorial_steps(root_path + 'docs/tutorial.md')
+                heading = "Tutorial - " + tutorial_steps[page - 1][0]
+                body = tutorial_steps[page - 1][1]
+                content = [html.B(heading), html.Div(body)]
+                return {'display': 'block'}, tutorial_steps, len(tutorial_steps), content
+            else:
+                return {'display': 'none'}, no_update, no_update, no_update
+        elif triggered_id == 'pagination_tutorial':
+            heading = "Tutorial - " + tutorial_steps[page-1][0]
+            body = tutorial_steps[page-1][1]
+            content = [html.B(heading), html.Div(body)]
+            return no_update, no_update, no_update, content
+        elif triggered_id == 'help_tutorial':
+            raise PreventUpdate
         else:
-            return {'display': 'none'}
+            raise PreventUpdate
+
+    @app.callback(Output('drawer_help', 'opened'),
+                  Output('drawer_help', 'children'),
+                  Input('help_tutorial', 'n_clicks'),
+                  State('store_tutorial', 'data'),
+                  State('pagination_tutorial', 'page'),
+                  prevent_initial_call=True)
+    def help_tutorial(btn, tutorial_steps, page):
+        """
+        Opens the help drawer and loads the help of the current tutorial step into it.
+
+        :param btn: [Input] Help button
+        :param tutorial_steps: [State] List of tutorial steps and help
+        :param page: [State] Selected page/step of the tutorial
+        :return:
+        """
+
+        if btn is not None:
+            return True, dcc.Markdown(tutorial_steps[page-1][2])
 
     @app.callback(Output('notification_container', 'children'),
                   Output('drawer_notifications', 'children'),

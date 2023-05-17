@@ -16,6 +16,7 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import requests
+import re
 from scipy import interpolate
 
 import source.objects as objects
@@ -935,3 +936,25 @@ def get_icon_url(icon_name: str):
     icon_url = f"{base_url}/{icon_name}.svg"
     response = requests.get(icon_url)
     return response.url
+
+
+def extract_tutorial_steps(file_path):
+    """
+    Takes a markdown-file as the input and extracts all headings (level 2 - ##) with the content and help below it into
+    a list of lists.
+
+    :param file_path: Path of the markdown file
+    :type file_path: str
+    :return: list of lists with headings and content
+    :rtype: list
+    """
+
+    with open(file_path, 'r') as file:
+        content = file.read()
+
+    pattern = r'## (.+?)\n### Aufgabe:\n(.+?)\n### Hilfe:\n(.+?)(?=\n## |\Z)'
+    matches = re.findall(pattern, content, re.DOTALL)
+
+    steps = [(heading.strip(), task.strip(), help_text.strip()) for heading, task, help_text in matches]
+    return steps
+
