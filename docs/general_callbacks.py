@@ -51,7 +51,7 @@ It removes all tab panels and creates the new one to show.
 :return: menu_parent_tabs > value
 :return: active_switch_grid > style
 :return: active_switch_house > style
-:return: store_notification > data]
+:return: store_notification > data
 """
     pass
 
@@ -155,7 +155,7 @@ Updates all components with the new settings.
 :param year: [State] Input year
 :return: store_device_dict > data
 :return: store_grid_object_dict > data
-:return: store_notification > data]
+:return: store_notification > data
 """
     pass
 
@@ -207,6 +207,32 @@ Listen to Enter events and change store_save_by_enter to trigger save action.
 :param key_n: [Input] Key event listener n_events
 :param key_event: [State] Key event listener event
 :return: store_save_by_enter > data
+"""
+    pass
+
+def control_tutorial(btn, page, style, tutorial_steps):
+    """
+Opens or closes the tutorial on button click.
+
+:param btn: [Input] "Tutorial" button
+:param page: [Input] Pagination selection of tutorial step
+:param style: [State] Opening status stored in the style property
+:param tutorial_steps: [State] List of tutorial steps and help
+:return: card_tutorial > style
+:return: store_tutorial > data
+:return: pagination_tutorial > total
+:return: card_tutorial_content > children
+"""
+    pass
+
+def help_tutorial(btn, tutorial_steps, page):
+    """
+Opens the help drawer and loads the help of the current tutorial step into it.
+
+:param btn: [Input] Help button
+:param tutorial_steps: [State] List of tutorial steps and help
+:param page: [State] Selected page/step of the tutorial
+:return:
 """
     pass
 

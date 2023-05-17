@@ -76,7 +76,7 @@ def get_nested_function_docstrings_room(filename, output_file_name, function_nam
 
 
 # Replace with the path to your source Python file
-filename = "general_callbacks.py"
+filename = "../callbacks/general_callbacks.py"
 # Replace with the name of the function that contains the nested functions
 function_name = 'general_callbacks'
 function_names_room = ['create_menu_show_callbacks', 'create_manage_devices_callback']
