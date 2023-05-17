@@ -18,7 +18,9 @@ import source.modules as modules
 import source.sql_modules as sql_modules
 from source.modules import days
 
-root_path = '/home/stromhausfall/mysite/'
+# root_path = '/home/stromhausfall/mysite/'
+root_path = ''
+
 
 def house_callbacks(app):
     @app.callback(Output('cyto_bathroom', 'elements', allow_duplicate=True),

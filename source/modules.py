@@ -22,7 +22,8 @@ import source.objects as objects
 import source.plot as plot
 import source.sql_modules as sql_modules
 
-root_path = '/home/stromhausfall/mysite/'
+# root_path = '/home/stromhausfall/mysite/'
+root_path = ''
 
 # Dict to get the number of the day from the string-id of the day
 days = {'mo': 0, 'tu': 1, 'wd': 2, 'th': 3, 'fr': 4, 'sa': 5, 'su': 6}

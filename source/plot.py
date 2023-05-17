@@ -25,6 +25,7 @@ def plot_device_timeseries(timesteps, load, color):
         x=timesteps,
         y=load,
         stackgroup='one',
+        line_shape='hv',
         fillcolor=color,
         mode='none'  # this remove the lines
     ))
@@ -85,6 +86,7 @@ def plot_house_timeseries(power, color):
         x=timesteps,
         y=power,
         stackgroup='one',
+        line_shape='hv',
         fillcolor=color,
         mode='none'  # this remove the lines
     ))

@@ -82,9 +82,11 @@ The following columns exist in the table ``load_1min``:
    "day", "INT", "No", "Day in month"
    "profile_4", "INT", "No", "First household profile"
    "...", "...", "...", "A total of 27 profiles, not each id is exisiting"
-   "profile_73", "TEXT", "No", "Last household profile"
+   "profile_73", "INT", "No", "Last household profile"
 
-The profiles contain one year of power in Watts in 1 minute resolution. They are a selection from a dataset provided by the Institute for Future Energy Systems (IZES). The dataset and its documentation can be found `here`_.
+The profiles contain one year of power in Watts in 1 minute resolution. They are a selection from a dataset provided by the Institute for Future Energy Systems (IZES). The dataset and its documentation can be found `here`_. The following list of profiles is included in the reduced dataset:
+
+``4, 7, 9, 14, 15, 16, 17, 18, 19, 20, 22, 23, 27, 28, 32, 33, 39, 41, 46, 73, 42, 45, 47, 58, 61, 62, 65``
 
 .. _here: https://solar.htw-berlin.de/elektrische-lastprofile-fuer-wohngebaeude/
 

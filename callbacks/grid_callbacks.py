@@ -16,7 +16,8 @@ from source.modules import (calculate_power_flow, connection_allowed,
                             get_icon_url, get_last_id,
                             get_monday_sunday_from_week)
 
-root_path = '/home/stromhausfall/mysite/'
+# root_path = '/home/stromhausfall/mysite/'
+root_path = ''
 
 # Button Ids and rotations for compass buttons PV
 compass_buttons = {'button_north': 0,

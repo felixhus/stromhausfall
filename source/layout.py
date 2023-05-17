@@ -10,7 +10,8 @@ from dash import dcc, html
 
 import source.dash_components as dash_components
 
-root_path = '/home/stromhausfall/mysite/'
+# root_path = '/home/stromhausfall/mysite/'
+root_path = ''
 
 # This list defines the buttons to add components to the grid. Structure:
 # [dash button-id, iconify icon name, boolean if enabled or disabled, name for tooltip]
