@@ -43,5 +43,5 @@ room_callbacks(app, button_dict, rooms)     # Include room callbacks
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)     # Run app
+    app.run_server(debug=False)     # Run app
 

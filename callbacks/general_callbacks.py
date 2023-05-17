@@ -574,6 +574,24 @@ def general_callbacks(app):
         else:
             raise PreventUpdate
 
+    @app.callback(Output('card_tutorial', 'style'),
+                  Input('button_tutorial', 'n_clicks'),
+                  State('card_tutorial', 'style'),
+                  prevent_initial_call=True)
+    def control_tutorial(btn, style):
+        """
+        Opens or closes the tutorial on button click.
+
+        :param btn: [Input] "Tutorial" button
+        :param style: [State] Opening status stored in the style property
+        :return: card_tutorial > style
+        """
+
+        if style['display'] == 'none':
+            return {'display': 'block'}
+        else:
+            return {'display': 'none'}
+
     @app.callback(Output('notification_container', 'children'),
                   Output('drawer_notifications', 'children'),
                   Output('badge_notifications', 'children'),

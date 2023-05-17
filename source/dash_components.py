@@ -379,6 +379,9 @@ def dash_navbar():
                 ], trigger='hover', openDelay=100, closeDelay=200, transition="rotate-right", transitionDuration=150),
                 # dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
                 #            gradient={"from": "grape", "to": "pink", "deg": 35})
+                dmc.Button("Tutorial", id='button_tutorial', variant="gradient",
+                           leftIcon=DashIconify(icon='ph:graduation-cap'),
+                           gradient={"from": "grape", "to": "pink", "deg": 35})
             ], spacing=10
             ),
         ]), color="dark", dark=True
@@ -1329,3 +1332,21 @@ def add_drawer_notifications():
     :return: DMC Drawer
     """
     return dmc.Drawer(title="Nachrichten:", id='drawer_notifications', padding="md", children=[])
+
+
+def add_tutorial():
+    return dbc.Row([
+        dmc.Space(h=20),
+        dmc.Card([
+            dmc.CardSection(children=[
+                html.Div("Tutorial - Schritt 1"),
+                html.Div("Jede Funktion der App wird im Tutorial erklärt.")
+            ], inheritPadding=True, withBorder=True, pb='sm', pt='xs'),
+            dmc.CardSection(children=[
+                dbc.Row(justify='end', children=[
+                    dmc.Pagination(total=10, siblings=1, page=3)])],
+                inheritPadding=True, pb='xs', pt='xs')],
+            id='card_tutorial', style={'display': 'none'},
+            withBorder=True, shadow="sm", radius="md"
+        )
+    ])

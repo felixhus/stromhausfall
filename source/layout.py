@@ -64,10 +64,12 @@ def app_layout(app, button_dict):
             dash_components.add_modal_devices(),
             dash_components.add_modal_load_configuration(),
             dash_components.add_modal_graph(),
+            dash_components.add_tutorial(),
             dcc.Download(id='download_json'),               # Create downloads, intervals, event listeners etc.
             dcc.Interval(id='interval_refresh', interval=100, max_intervals=1),
             dcc.Interval(id='interval_backup', interval=10000),
             dex.EventListener(id='key_event_listener', events=[{'event': 'keydown', 'props': ["key"]}]),
-            html.P(id='init')], width=True),
+        ], width=True),
+        # dmc.Card(["Tutorial"], id='card_tutorial', withBorder=True, shadow="sm", radius="md"),
         html.Div(id='notification_container')
     ], id='main_container'))
