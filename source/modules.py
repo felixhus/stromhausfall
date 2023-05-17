@@ -96,6 +96,8 @@ def generate_grid_object(object_type, object_id, node_id):
 
     if object_type == "button_house":
         return objects.create_HouseObject(object_id, node_id)
+    elif object_type == "button_business":
+        return objects.create_BusinessObject(object_id, node_id)
     elif object_type == "button_transformer":
         return objects.create_TransformerObject(object_id, node_id)
     elif object_type == "button_externalgrid":

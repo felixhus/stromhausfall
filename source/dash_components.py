@@ -624,6 +624,34 @@ def add_menu_tab_panel(tab_value: str, selected_element=None, element_dict=None)
                       style={'width': '100%'}),
             dmc.Space(h=20)
         ], value=tab_value)
+    elif tab_value == 'business':
+        return dmc.TabsPanel([
+            dmc.TextInput(
+                id='name_input',
+                style={"width": 200},
+                value=element_dict[selected_element]['name'],
+                icon=DashIconify(icon="emojione-monotone:name-badge"),
+            ),
+            dmc.Space(h=20),
+            dmc.Alert("In der Entwicklung...", title="Info", color="violet"),
+            dmc.Space(h=20),
+            dmc.Select(
+                label=["Art des Geschäftes:"],
+                placeholder="Auswahl",
+                id='shop_select',
+                value=element_dict[selected_element]['business_type'],
+                data=[],
+                disabled=True
+            ),
+            dmc.Space(h=20),
+            dmc.Group([
+                dmc.Button("Löschen", color='red', variant='outline', id='edit_delete_button',
+                           leftIcon=DashIconify(icon="material-symbols:delete-outline")),
+                dmc.Button("Speichern", color='green', variant='outline', id='edit_save_button',
+                           leftIcon=DashIconify(icon="material-symbols:save-outline"))
+            ], position='right'),
+            dmc.Space(h=20),
+        ], value=tab_value)
     elif tab_value == 'pv':     # Tab panel for solar module
         postcode = element_dict[selected_element]['location'][0]    # Get saved postcode
         if postcode is None:

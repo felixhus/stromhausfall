@@ -31,6 +31,32 @@ def create_HouseObject(object_id, node_id):
     }
 
 
+def create_BusinessObject(object_id, node_id):
+    """
+    Create a dictionary with properties of a business object
+
+    :param object_id: unique id of the object
+    :type object_id: str
+    :param node_id: id of the linked cytoscape node
+    :type node_id: str
+    :return: Dictionary with object properties
+    """
+
+    return {
+        'id': object_id,
+        'linkedNode': node_id,
+        'power': [0] * 7 * 24 * 60,
+        'voltage': 400,
+        'object_type': 'business',
+        'name': "Geschäft",
+        'icon': 'fluent:building-shop-24-regular',
+        'ui_color': '#6a93b0',
+        'allowed_types_to_connect': ["transformer", "switch_cabinet", "battery", "pv", "smart_meter"],
+        'active': True,
+        'business_type': None
+    }
+
+
 def create_TransformerObject(object_id, node_id):
     """
     Create a dictionary with properties of a transformer object
@@ -53,7 +79,8 @@ def create_TransformerObject(object_id, node_id):
         'name': "Transformator",
         'icon': 'icon_transformer.png',
         'ui_color': '#9cb6ca',
-        'allowed_types_to_connect': ["house", "switch_cabinet", "battery", "pv", "smartmeter", "externalgrid"],
+        'allowed_types_to_connect': ["house", "switch_cabinet", "battery", "pv", "smartmeter",
+                                     "externalgrid", "business"],
         'active': True
     }
 
@@ -182,7 +209,8 @@ def create_SwitchCabinetObject(object_id, node_id):
         'name': "Verteilerkasten",
         'icon': 'icon-park-outline:connection-point',
         'ui_color': '#9cb6ca',
-        'allowed_types_to_connect': ["transformer", "house", "battery", "pv", "smartmeter", "switch_cabinet"],
+        'allowed_types_to_connect': ["transformer", "house", "battery", "pv", "smartmeter",
+                                     "switch_cabinet", "business"],
         'active': True
     }
 
