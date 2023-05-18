@@ -11,6 +11,7 @@ from dash.exceptions import PreventUpdate
 import source.objects as objects
 import source.stylesheets as stylesheets
 from source.layout import menu_objects
+from source.plot import plot_grid_results
 from source.modules import (calculate_power_flow, connection_allowed,
                             generate_grid_object, get_connected_edges,
                             get_icon_url, get_last_id,
@@ -34,6 +35,7 @@ weekdays = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"
 
 def grid_callbacks(app):
     @app.callback(Output('store_flow_data', 'data'),
+                  Output('store_power_grid', 'data'),
                   Output('tabs_menu', 'value'),
                   Output('result_parent_tabs', 'value', allow_duplicate=True),
                   Output('cyto_grid', 'stylesheet'),
@@ -55,6 +57,7 @@ def grid_callbacks(app):
         :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
         :param tabs_main: [State] Tab value of main tab, whether grid, house or settings mode is shown
         :return: store_flow_data > data
+        :return: store_power_grid > data
         :return: tabs_menu > value
         :return: result_parent_tabs > value
         :return: cyto_grid > stylesheet
@@ -66,20 +69,21 @@ def grid_callbacks(app):
 
         try:
             if tabs_main == 'grid':     # If button was clicked in grid mode, start calculation
-                df_flow, labels = calculate_power_flow(elements, gridObject_dict)
+                df_flow, df_sum_power, labels = calculate_power_flow(elements, gridObject_dict)
                 # Create labels for cytoscape edges/electrical lines and round numbers for better display
                 labels = {k: round(v, 1) for k, v in labels.items()}
                 # Convert to json to store in dcc store object
                 df_flow_json = df_flow.to_json(orient='index')
+                df_power_json = df_sum_power.to_json(orient='index')
                 # Return calculation results and show 'result' tab. Activate edge labels by stylesheet
-                return df_flow_json, 'results', 'grid', \
+                return df_flow_json, df_power_json, 'results', 'grid', \
                        stylesheets.cyto_stylesheet_calculated, elements, len(df_flow.index), labels, no_update
             else:
                 raise PreventUpdate
         except PreventUpdate:
-            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
         except Exception as err:
-            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
+            return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('alert_externalgrid', 'children'),
                   Output('store_edge_labels', 'data', allow_duplicate=True),
@@ -518,3 +522,20 @@ def grid_callbacks(app):
             raise PreventUpdate
         else:
             return triggered_id
+
+    @app.callback(Output('graph_grid', 'figure'),
+                  Input('store_power_grid', 'data'),
+                  Input('pagination_results_grid', 'value'),
+                  State('tabs_main', 'value'),
+                  prevent_initial_call=True)
+    def update_grid_graph(data, day, tab_value):
+        """
+
+
+        :param data:
+        :return:
+        """
+
+        df_data = pd.read_json(data, orient='index')
+        figure = plot_grid_results(df_data)
+        return figure

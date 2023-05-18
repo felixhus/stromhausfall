@@ -553,8 +553,9 @@ def power_flow_statemachine(state, data):
             if data['grid_objects'][node]['object_type'] == 'pv':
                 generator_nodes.append(data['grid_objects'][node]['id'])
             else:
-                # Write all other notes (except the external grid) to another list
-                if data['grid_objects'][node]['object_type'] != 'externalgrid':
+                # Write all other notes (except the external grid and lines) to another list
+                if data['grid_objects'][node]['object_type'] != 'externalgrid' and \
+                        data['grid_objects'][node]['object_type'] != 'line':
                     non_generator_nodes.append(data['grid_objects'][node]['id'])
         df_sum_power = pd.DataFrame({'generator': data['df_power'][generator_nodes].sum(axis=1),
                                      'non_generator': data['df_power'][non_generator_nodes].sum(axis=1)})
@@ -585,7 +586,7 @@ def calculate_power_flow(elements, grid_object_dict):
         # print(state)
         state, data, ready = power_flow_statemachine(state, data)
         # print("Done")
-    return data['df_flow'], data['labels']
+    return data['df_flow'], data['df_sum_power'], data['labels']
 
 
 def calculate_house(device_dict, timesteps):

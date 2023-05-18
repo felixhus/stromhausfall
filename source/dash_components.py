@@ -563,11 +563,24 @@ def add_result_tab_panel(tab_value):
     elif tab_value == 'grid':   # Tabs panel for the results of the grid calculation
         return dmc.TabsPanel([
             dmc.Space(h=20),
+            dcc.Graph(id='graph_grid', style={'width': '100%'}),
+            dmc.Space(h=20),
+            dmc.SegmentedControl(
+                id='pagination_results_grid',
+                value='tot',
+                fullWidth=320,
+                data=[
+                    {'value': 'mo', 'label': 'MO'}, {'value': 'tu', 'label': 'DI'}, {'value': 'wd', 'label': 'MI'},
+                    {'value': 'th', 'label': 'DO'}, {'value': 'fr', 'label': 'FR'}, {'value': 'sa', 'label': 'SA'},
+                    {'value': 'su', 'label': 'SO'}, {'value': 'tot', 'label': 'TOT'}
+                ], style={'width': '100%'}
+            ),
+            dmc.Space(h=20),
             dmc.Alert(children="Bitte einen Zeitpunkt mit dem Slider auswählen",
-                      id="alert_externalgrid", color='primary', hide=False),
+                      id="alert_externalgrid", color='primary', hide=False, style={'width': '100%'}),
             dmc.Space(h=10),
             dmc.Alert(children="Bitte einen Zeitpunkt mit dem Slider auswählen",
-                      id="alert_time", color='primary', hide=False)
+                      id="alert_time", color='primary', hide=False, style={'width': '100%'})
         ], value=tab_value)
 
 

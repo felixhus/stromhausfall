@@ -106,6 +106,63 @@ def plot_house_timeseries(power, color):
     return fig
 
 
+def plot_grid_results(df_power):
+    """
+    Creates the figure to plot the power profile of a house.
+
+    :param power: Timeseries of house power
+    :type power: list[int]
+    :param color: Color of plot
+    :type color: color
+    :return: Figure
+    """
+
+    tick_text = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
+    tick_values = [720, 2160, 3600, 5040, 6480, 7920, 9360]
+    timesteps = np.linspace(0, len(df_power['generator']), num=len(df_power['generator']), endpoint=False)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        name="P",
+        x=timesteps,
+        y=df_power['non_generator'],
+        fillcolor='rgba(64, 130, 109, 1)',
+        fill='tozeroy',
+        mode='none'  # this remove the lines
+    ))
+    fig.add_trace(go.Scatter(
+        name="P",
+        x=timesteps,
+        y=-df_power['generator'],
+        fillcolor='rgba(255, 248, 94, 0.7)',
+        fill='tozeroy',
+        mode='none'  # this remove the lines
+    ))
+    fig.update_layout(template='plotly_white', margin=dict(l=0, r=0, b=0, t=0), height=200)
+    fig.update_layout(xaxis=dict(tickmode='array', tickvals=tick_values, ticktext=tick_text))
+    fig.update_xaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True)
+    fig.update_yaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True,
+                     rangemode='nonnegative')
+
+    fig.update_layout(
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=-0.1,
+            xanchor="center",
+            x=0.5,
+            bgcolor="white",
+            bordercolor="gray",
+            borderwidth=1,
+            itemwidth=30,  # set the width of each legend item
+            font={'size': 8},
+        ),
+        showlegend=True
+    )
+
+    return fig
+
+
+
 def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
     """
     Creates plots from the results of the house calculation.

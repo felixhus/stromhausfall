@@ -56,8 +56,9 @@ def app_layout(app, button_dict):
                     ], id='grid_buttons', style={'display': 'block'}, withBorder=True, shadow="sm", radius="md"),
                 ], width=1),
                 dbc.Col([dash_components.add_main_card_layout(button_dict)], width=7),  # Main Card in the middle
-                dbc.Col([dash_components.add_card_start(), dash_components.add_card_menu()], width=True)    # Menu card on the right
+                dbc.Col([dash_components.add_card_menu()], width=4)    # Menu card on the right
             ]),
+            dash_components.add_card_start(),
             dash_components.add_modal_readme(),             # Import all components from dash_components.py
             dash_components.add_modal_voltage_level(),
             dash_components.add_storage_variables(),
