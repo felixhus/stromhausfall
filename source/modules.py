@@ -559,6 +559,7 @@ def power_flow_statemachine(state, data):
                     non_generator_nodes.append(data['grid_objects'][node]['id'])
         df_sum_power = pd.DataFrame({'generator': data['df_power'][generator_nodes].sum(axis=1),
                                      'non_generator': data['df_power'][non_generator_nodes].sum(axis=1)})
+        df_sum_power['residual'] = df_sum_power['non_generator'] + df_sum_power['generator']
         data['df_sum_power'] = df_sum_power
         return 'set_edge_labels', data, False
     elif state == 'set_edge_labels':

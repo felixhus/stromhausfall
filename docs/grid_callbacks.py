@@ -13,6 +13,7 @@ Starts the calculation of the grid and calls all necessary functions.
 :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
 :param tabs_main: [State] Tab value of main tab, whether grid, house or settings mode is shown
 :return: store_flow_data > data
+:return: store_power_grid > data
 :return: tabs_menu > value
 :return: result_parent_tabs > value
 :return: cyto_grid > stylesheet
@@ -23,7 +24,7 @@ Starts the calculation of the grid and calls all necessary functions.
 """
     pass
 
-def update_labels(slider, flow):
+def update_labels(slider, flow, figure):
     """
 If flow was calculated and the slider set to a new timestep, this function generates the cytoscape edge labels
 for this timestep from the flow results. It rounds them and get the power, which is taken or given to the
@@ -31,8 +32,10 @@ external grid. This is then shown on the alert components in the grid result sec
 
 :param slider: [Input] Timestep set by slider
 :param flow: [State] The calculated flow data
+:param figure: [State] Figure of grid result graph
 :return: alert_externalgrid > children
 :return: store_edge_labels > data
+:return: graph_grid > figure
 :return: store_notification > data
 """
     pass
@@ -161,5 +164,19 @@ then triggers another callback to add the object.
 
 :param args: [Input] Add grid object buttons
 :return: store_add_node > data
+"""
+    pass
+
+def update_grid_graph(data, day, tab_value, figure):
+    """
+Updates the grid result graph and defines the x axis range.
+
+:param data: [Input] Power calculation results
+:param day: [Input] Selected day in the pagination
+:param tab_value: [State] Tab value of main tab, whether grid, house or settings mode is shown
+:param figure: [State] Figure of grid result graph
+:return: graph_grid > figure
+:return: graph_modal > figure
+:return: modal_graph > opened
 """
     pass

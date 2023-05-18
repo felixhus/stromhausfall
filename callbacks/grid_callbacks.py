@@ -2,7 +2,7 @@
 grid_callbacks.py contains all dash callbacks for grid functions of the app.
 """
 
-import datetime
+import datetime, copy
 
 import pandas as pd
 from dash import Input, Output, State, ctx, no_update
@@ -12,6 +12,7 @@ import source.objects as objects
 import source.stylesheets as stylesheets
 from source.layout import menu_objects
 from source.plot import plot_grid_results
+from source.modules import days
 from source.modules import (calculate_power_flow, connection_allowed,
                             generate_grid_object, get_connected_edges,
                             get_icon_url, get_last_id,
@@ -87,11 +88,13 @@ def grid_callbacks(app):
 
     @app.callback(Output('alert_externalgrid', 'children'),
                   Output('store_edge_labels', 'data', allow_duplicate=True),
+                  Output('graph_grid', 'figure', allow_duplicate=True),
                   Output('store_notification', 'data', allow_duplicate=True),
                   Input('timestep_slider', 'value'),
                   State('store_flow_data', 'data'),
+                  State('graph_grid', 'figure'),
                   prevent_initial_call=True)
-    def update_labels(slider, flow):
+    def update_labels(slider, flow, figure):
         """
         If flow was calculated and the slider set to a new timestep, this function generates the cytoscape edge labels
         for this timestep from the flow results. It rounds them and get the power, which is taken or given to the
@@ -99,8 +102,10 @@ def grid_callbacks(app):
 
         :param slider: [Input] Timestep set by slider
         :param flow: [State] The calculated flow data
+        :param figure: [State] Figure of grid result graph
         :return: alert_externalgrid > children
         :return: store_edge_labels > data
+        :return: graph_grid > figure
         :return: store_notification > data
         """
 
@@ -115,13 +120,15 @@ def grid_callbacks(app):
                     text_alert = "Es werden " + str(abs(external_grid_value)) + " W an das Netz abgegeben."
                 else:
                     text_alert = "Es werden " + str(abs(external_grid_value)) + " W aus dem Netz bezogen."
-                return text_alert, labels, no_update
+                figure['layout']['shapes'][0]['x0'] = slider        # Move marker in graph
+                figure['layout']['shapes'][0]['x1'] = slider
+                return text_alert, labels, figure, no_update
             else:
                 raise PreventUpdate
         except PreventUpdate:
-            return no_update, no_update, no_update
+            return no_update, no_update, no_update, no_update
         except Exception as err:
-            return no_update, no_update, err.args[0]
+            return no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('cyto_grid', 'elements'),
                   Output('store_grid_object_dict', 'data'),
@@ -524,18 +531,53 @@ def grid_callbacks(app):
             return triggered_id
 
     @app.callback(Output('graph_grid', 'figure'),
+                  Output('graph_modal', 'figure', allow_duplicate=True),
+                  Output('modal_graph', 'opened', allow_duplicate=True),
                   Input('store_power_grid', 'data'),
                   Input('pagination_results_grid', 'value'),
                   State('tabs_main', 'value'),
+                  State('graph_grid', 'figure'),
                   prevent_initial_call=True)
-    def update_grid_graph(data, day, tab_value):
+    def update_grid_graph(data, day, tab_value, figure):
+        """
+        Updates the grid result graph and defines the x axis range.
+
+        :param data: [Input] Power calculation results
+        :param day: [Input] Selected day in the pagination
+        :param tab_value: [State] Tab value of main tab, whether grid, house or settings mode is shown
+        :param figure: [State] Figure of grid result graph
+        :return: graph_grid > figure
+        :return: graph_modal > figure
+        :return: modal_graph > opened
         """
 
-
-        :param data:
-        :return:
-        """
-
-        df_data = pd.read_json(data, orient='index')
-        figure = plot_grid_results(df_data)
-        return figure
+        triggered_id = ctx.triggered_id
+        if triggered_id == 'store_power_grid':
+            df_data = pd.read_json(data, orient='index')
+            figure = plot_grid_results(df_data)
+            return figure, no_update, no_update
+        elif triggered_id == 'pagination_results_grid':
+            if day == 'tot':  # Set total range if selected
+                index_start = 0
+                index_stop = 7 * 24 * 60  # Select full week
+                tick_text = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
+                tick_values = [720, 2160, 3600, 5040, 6480, 7920, 9360]
+                figure['layout']['xaxis']['ticktext'] = tick_text
+                figure['layout']['xaxis']['tickvals'] = tick_values
+                figure['layout']['xaxis']['range'] = [index_start, index_stop]  # Set x-axis of graph
+                figure_big = copy.deepcopy(figure)  # Get copy of small figure for the big modal
+                figure_big['layout']['height'] = None  # Set size of big figure to full size
+                figure_big['layout']['width'] = None
+                return figure, figure_big, True
+            else:  # Set range for one day
+                day_ind = days[day]
+                index_start = day_ind * 24 * 60
+                index_stop = index_start + 24 * 60
+                tick_text = [*range(0, 24, 4)]
+                tick_values = [*range(index_start, index_start + 1440, 240)]
+                figure['layout']['xaxis']['ticktext'] = tick_text
+                figure['layout']['xaxis']['tickvals'] = tick_values
+                figure['layout']['xaxis']['range'] = (index_start, index_stop)  # Set x-axis of graph
+                return figure, no_update, no_update
+        else:
+            raise PreventUpdate

@@ -108,12 +108,10 @@ def plot_house_timeseries(power, color):
 
 def plot_grid_results(df_power):
     """
-    Creates the figure to plot the power profile of a house.
+    Creates the figure to plot the power results of the grid.
 
-    :param power: Timeseries of house power
-    :type power: list[int]
-    :param color: Color of plot
-    :type color: color
+    :param df_power: Timeseries of house power
+    :type df_power: list[int]
     :return: Figure
     """
 
@@ -122,7 +120,7 @@ def plot_grid_results(df_power):
     timesteps = np.linspace(0, len(df_power['generator']), num=len(df_power['generator']), endpoint=False)
     fig = go.Figure()
     fig.add_trace(go.Scatter(
-        name="P",
+        name="Last",
         x=timesteps,
         y=df_power['non_generator'],
         fillcolor='rgba(64, 130, 109, 1)',
@@ -130,24 +128,35 @@ def plot_grid_results(df_power):
         mode='none'  # this remove the lines
     ))
     fig.add_trace(go.Scatter(
-        name="P",
+        name="PV",
         x=timesteps,
         y=-df_power['generator'],
         fillcolor='rgba(255, 248, 94, 0.7)',
         fill='tozeroy',
         mode='none'  # this remove the lines
     ))
+    fig.add_trace(go.Scatter(
+        name="Residual",
+        x=timesteps,
+        y=df_power['residual'],
+        line=dict(color="#ff0000", width=0.75),
+        visible='legendonly'
+    ))
+    fig.add_shape(type="line",
+                  x0=0, y0=0, x1=0, y1=df_power.max().max(),
+                  line=dict(color="RoyalBlue", width=1)
+                  )
+    fig.update_layout(xaxis_range=[0, len(df_power['generator'])])
     fig.update_layout(template='plotly_white', margin=dict(l=0, r=0, b=0, t=0), height=200)
     fig.update_layout(xaxis=dict(tickmode='array', tickvals=tick_values, ticktext=tick_text))
     fig.update_xaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True)
-    fig.update_yaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True,
-                     rangemode='nonnegative')
+    fig.update_yaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True)
 
     fig.update_layout(
         legend=dict(
             orientation="h",
             yanchor="top",
-            y=-0.1,
+            y=-0.15,
             xanchor="center",
             x=0.5,
             bgcolor="white",
@@ -183,7 +192,7 @@ def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
 
     tick_text = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
     tick_values = [720, 2160, 3600, 5040, 6480, 7920, 9360]
-    fig = go.Figure()   # Crate scatter plot
+    fig = go.Figure()   # Create scatter plot
     color_index = 0
     for index, row in df_devices.iterrows():
         fig.add_trace(go.Scatter(
