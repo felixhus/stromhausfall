@@ -4,7 +4,7 @@ the callbacks are included and the app is started.
 """
 
 import dash_bootstrap_components as dbc
-from dash import Dash
+from dash import Dash, Input, Output, State
 
 from callbacks.general_callbacks import general_callbacks
 from callbacks.grid_callbacks import grid_callbacks
@@ -28,18 +28,16 @@ general_callbacks(app)                      # Include general callbacks
 house_callbacks(app)                        # Include House callbacks
 room_callbacks(app, button_dict, rooms)     # Include room callbacks
 
+
 # Debug callback for development. Can be used to inspect all sort of states.
 # Input is the debug button (has to be commented in in dash_components) and by choosing states one can
 # Inspect objects at all time.
-# @app.callback(Output('graph_modal', 'figure'),
-#               Output('modal_graph', 'opened'),
-#               Input('debug_button', 'n_clicks'),
-#               State('graph_power_house', 'figure'),
-#               prevent_initial_call=True)
-# def debug(btn, figure):
-#     figure['layout']['height'] = None
-#     figure['layout']['width'] = None
-#     return figure, True
+@app.callback(Output('debug_button', 'n_clicks'),
+              Input('debug_button', 'n_clicks'),
+              State('store_flow_data', 'data'),
+              prevent_initial_call=True)
+def debug(btn, flow):
+    return 0
 
 
 if __name__ == '__main__':

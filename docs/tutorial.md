@@ -1,13 +1,14 @@
-# Getting Started
+# Los gehts!
 
-Welcome to the tutorial on getting started with Python.
+Lass uns gemeinsam Schritt für Schritt ein Stromnetz bauen und lernen, wie viel Strom in deinem Haushalt verbraucht wird!
 
-## Step 1: Installation
+## Schritt 1: 
 
 ### Aufgabe:
-Mach hier irgendwas.
+Beispiel Setup laden
 ### Hilfe:
 Hier ist die Hilfe dazu.
+![](./pics_tutorial/step1.png)
 
 ## Step 2: Setting up the Environment
 

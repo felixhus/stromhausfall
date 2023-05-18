@@ -546,6 +546,19 @@ def power_flow_statemachine(state, data):
         for step, row in data['df_power'].iterrows():   # Solve power flow for each timestep (=row) in df_power
             df_flow.loc[step] = solve_flow(data['A'], row)
         data['df_flow'] = df_flow
+        return 'calc_total_powers', data, False
+    elif state == 'calc_total_powers':
+        generator_nodes, non_generator_nodes = [], []
+        for node in data['grid_objects']:   # Find all PV objects in the grid and add them to a list
+            if data['grid_objects'][node]['object_type'] == 'pv':
+                generator_nodes.append(data['grid_objects'][node]['id'])
+            else:
+                # Write all other notes (except the external grid) to another list
+                if data['grid_objects'][node]['object_type'] != 'externalgrid':
+                    non_generator_nodes.append(data['grid_objects'][node]['id'])
+        df_sum_power = pd.DataFrame({'generator': data['df_power'][generator_nodes].sum(axis=1),
+                                     'non_generator': data['df_power'][non_generator_nodes].sum(axis=1)})
+        data['df_sum_power'] = df_sum_power
         return 'set_edge_labels', data, False
     elif state == 'set_edge_labels':
         # Set the direction of cytoscape edges to point in the right direction and set labels with power in timestep

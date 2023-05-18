@@ -5,7 +5,15 @@ plot.py contains different functions to plot data in different graph types.
 import numpy as np
 import plotly.graph_objects as go
 
-colors = ['rgb(245, 149, 178)', 'rgb(255, 179, 179)', 'rgb(255, 241, 186)', 'rgb(190, 227, 237)', 'rgb(175, 173, 222)']
+# colors = ['rgb(245, 149, 178)', 'rgb(255, 179, 179)', 'rgb(255, 241, 186)', 'rgb(190, 227, 237)', 'rgb(175, 173, 222)',
+colors = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']
+
+# colors = ['rgb(255, 179, 202)', 'rgb(255, 204, 204)', 'rgb(255, 255, 204)', 'rgb(204, 234, 255)', 'rgb(204, 202, 255)',
+#           'rgb(255, 101, 80)', 'rgb(255, 187, 51)', 'rgb(255, 204, 0)', 'rgb(255, 153, 51)', 'rgb(255, 80, 101)']
+          # 'rgb(221, 108, 130)', 'rgb(204, 85, 85)', 'rgb(218, 183, 123)', 'rgb(129, 181, 201)', 'rgb(126, 124, 185)']
+# colors = ['RGB(255, 99, 71)', 'RGB(124, 252, 0)', 'RGB(70, 130, 180)', 'RGB(240, 128, 128)', 'RGB(0, 255, 127)',
+#           'RGB(255, 215, 0)', 'RGB(173, 216, 230)', 'RGB(240, 230, 140)', 'RGB(144, 238, 144)', 'RGB(255, 165, 0)',
+#           'RGB(176, 224, 230)', 'RGB(218, 112, 214)']
 
 
 def plot_device_timeseries(timesteps, load, color):
@@ -163,24 +171,30 @@ def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
 
     # TODO: Use same colors in sunburst for devices as in scatter plot
     # Create labels, parents and values for sunburst plot
-    sunburst_labels, sunburst_parents, sunburst_values = [], [], []
+    color_index = 0
+    sunburst_labels, sunburst_parents, sunburst_values, sunburst_colors = [], [], [], []
     sunburst_labels.append('Mein Haus')
     sunburst_parents.append('')
     sunburst_values.append(df_energy.loc['house1']['energy'])
+    sunburst_colors.append('#ffffff')
     for room in device_dict['rooms']:
         sunburst_labels.append(device_dict['rooms'][room]['name'])
         sunburst_parents.append('Mein Haus')
         sunburst_values.append(df_energy.loc[room]['energy'])
+        sunburst_colors.append('#ffffff')
         for device in device_dict['rooms'][room]['devices']:
             sunburst_labels.append(device_dict['house1'][device]['name'])
             sunburst_parents.append(device_dict['rooms'][room]['name'])
             sunburst_values.append(df_energy.loc[device]['energy'])
+            sunburst_colors.append(colors[color_index])
+            color_index += 1
 
     fig_sunburst = go.Figure(go.Sunburst(   # Create sunburst plot
         labels=sunburst_labels,
         parents=sunburst_parents,
         values=sunburst_values,
-        branchvalues='total'
+        branchvalues='total',
+        marker=dict(colors=sunburst_colors, line=dict(color='#000000'))
     ))
     # Update layout for tight margin
     # See https://plotly.com/python/creating-and-updating-figures/

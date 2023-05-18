@@ -58,6 +58,8 @@ def add_storage_variables():
                      dcc.Store(id='store_timestep'),
                      # Store result of grid flow calculation
                      dcc.Store(id='store_flow_data'),
+                     # Store total power of grid
+                     dcc.Store(id='store_power_grid'),
                      # Store the menu tab of the grid to change to. Is changed if a node/edge of the grid was clicked
                      dcc.Store(id='store_menu_change_tab_grid'),
                      # Store the menu tab of the house to change to. Is changed if a node of the house was clicked
@@ -379,8 +381,8 @@ def dash_navbar():
                                      id='menu_item_own_devices'),
                     ])
                 ], trigger='hover', openDelay=100, closeDelay=200, transition="rotate-right", transitionDuration=150),
-                # dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
-                #            gradient={"from": "grape", "to": "pink", "deg": 35})
+                dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
+                           gradient={"from": "grape", "to": "pink", "deg": 35}),
                 dmc.Button("Tutorial", id='button_tutorial', variant="gradient",
                            leftIcon=DashIconify(icon='ph:graduation-cap'),
                            gradient={"from": "grape", "to": "pink", "deg": 35})
