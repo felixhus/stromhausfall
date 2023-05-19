@@ -638,7 +638,18 @@ def general_callbacks(app):
         """
 
         if btn is not None:
-            return True, dcc.Markdown(tutorial_steps[page-1][2])
+            img_source = tutorial_steps[page - 1][3]
+            if img_source is not None:
+                img_source = root_path + 'docs' + img_source
+                with open(img_source, "rb") as image_file:
+                    img_data = base64.b64encode(image_file.read())
+                    img_data = img_data.decode()
+                    img_data = "{}{}".format("data:image/png;base64, ", img_data)
+                image = dmc.Image(src=img_data, withPlaceholder=True)
+            else:
+                image = html.Div()
+            content = [dcc.Markdown(tutorial_steps[page-1][2]), dmc.Space(h=10), image]
+            return True, content
 
     @app.callback(Output('notification_container', 'children'),
                   Output('drawer_notifications', 'children'),

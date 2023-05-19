@@ -270,6 +270,9 @@ def add_main_card_layout(button_dict: dict):
                         # TODO: Implement update button of settings
                         dmc.Button("Aktualisieren - Work in progress", disabled=True, id='button_update_settings',
                                    leftIcon=DashIconify(icon='ci:arrows-reload-01')),
+                        dmc.Space(h=20)
+                        dmc.Button("Download Start Konfiguration", disabled=False, id='button_download_start_config',
+                                   leftIcon=DashIconify(icon='material-symbols:sim-card-download-outline')),
                     ], value='settings')
                 ],
                     id='tabs_main', value='grid', color="blue", orientation="horizontal", allowTabDeactivation=True)
@@ -366,6 +369,9 @@ def dash_navbar():
             #     dmc.Code("", id='progress_text', style={'display': 'none'})
             # ]),
             dmc.Group([
+                dmc.Button("Tutorial", id='button_tutorial', variant="gradient",
+                           leftIcon=DashIconify(icon='ph:graduation-cap'),
+                           gradient={"from": "teal", "to": "lime", "deg": 105}),
                 dmc.Button("README", id='button_readme', n_clicks=0,
                            leftIcon=DashIconify(icon="mdi:file-document"), variant='gradient'),
                 dmc.Menu([
@@ -381,11 +387,8 @@ def dash_navbar():
                                      id='menu_item_own_devices'),
                     ])
                 ], trigger='hover', openDelay=100, closeDelay=200, transition="rotate-right", transitionDuration=150),
-                dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
-                           gradient={"from": "grape", "to": "pink", "deg": 35}),
-                dmc.Button("Tutorial", id='button_tutorial', variant="gradient",
-                           leftIcon=DashIconify(icon='ph:graduation-cap'),
-                           gradient={"from": "grape", "to": "pink", "deg": 35})
+                # dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
+                #            gradient={"from": "grape", "to": "pink", "deg": 35}),
             ], spacing=10
             ),
         ]), color="dark", dark=True

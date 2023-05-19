@@ -958,7 +958,7 @@ def get_icon_url(icon_name: str):
 def extract_tutorial_steps(file_path):
     """
     Takes a markdown-file as the input and extracts all headings (level 2 - ##) with the content and help below it into
-    a list of lists.
+    a list of lists. It also extracts the path of the picture.
 
     :param file_path: Path of the markdown file
     :type file_path: str
@@ -972,6 +972,17 @@ def extract_tutorial_steps(file_path):
     pattern = r'## (.+?)\n### Aufgabe:\n(.+?)\n### Hilfe:\n(.+?)(?=\n## |\Z)'
     matches = re.findall(pattern, content, re.DOTALL)
 
-    steps = [(heading.strip(), task.strip(), help_text.strip()) for heading, task, help_text in matches]
+    steps = []
+    for heading, task, help_text in matches:
+        # Extract the path from the last line of the help section
+        path_match = re.search(r'!\[.+?\]\((.+?)\)', help_text)
+        path = path_match.group(1) if path_match else None
+
+        if path_match is not None:
+            # Exclude the last line from the help section
+            help_lines = help_text.strip().split('\n')[:-1]
+            help_text = '\n'.join(help_lines)
+
+        steps.append((heading.strip(), task.strip(), help_text.strip(), path))
     return steps
 

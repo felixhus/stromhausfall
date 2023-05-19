@@ -5,10 +5,12 @@ Lass uns gemeinsam Schritt für Schritt ein Stromnetz bauen und lernen, wie viel
 ## Schritt 1: 
 
 ### Aufgabe:
-Beispiel Setup laden
+Zuerst laden wir ein schon angefangenes Netz als Startpunkt in die App. Gehe dazu auf das Menü oben links auf "Konfiguration laden".
+Den Link zur Beispieldatei findest du in der Tutorial-Hilfe (Button (?) unten).
 ### Hilfe:
-Hier ist die Hilfe dazu.
-![](./pics_tutorial/step1.png)
+Du kannst fertige Konfigurationen ganz einfach in die App laden. Dazu brauchst du eine passende Datei.
+Eine solche Datei bekommst du, wenn du in den Einstellungen auf den Button klickst oder zum [Download hier]()
+![text](/pics_tutorial/step1.png)
 
 ## Step 2: Setting up the Environment
 
