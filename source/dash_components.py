@@ -247,7 +247,7 @@ def add_main_card_layout(button_dict: dict):
                         dmc.Space(h=20),
                         dmc.NumberInput(  # Number Input for the calendar week
                             id='input_week', label="Kalenderwoche",
-                            value=1, step=1,
+                            value=25, step=1,
                             min=1, max=52, stepHoldDelay=500, stepHoldInterval=150,
                             style={"width": 250},
                         ),
@@ -270,7 +270,7 @@ def add_main_card_layout(button_dict: dict):
                         # TODO: Implement update button of settings
                         dmc.Button("Aktualisieren - Work in progress", disabled=True, id='button_update_settings',
                                    leftIcon=DashIconify(icon='ci:arrows-reload-01')),
-                        dmc.Space(h=20)
+                        dmc.Space(h=20),
                         dmc.Button("Download Start Konfiguration", disabled=False, id='button_download_start_config',
                                    leftIcon=DashIconify(icon='material-symbols:sim-card-download-outline')),
                     ], value='settings')
@@ -551,7 +551,7 @@ def add_result_tab_panel(tab_value):
             dmc.Space(h=10),
             dmc.SegmentedControl(
                 id='pagination_days_results',
-                value='tot',
+                value=None,
                 fullWidth=320,
                 data=[
                     {'value': 'mo', 'label': 'MO'}, {'value': 'tu', 'label': 'DI'}, {'value': 'wd', 'label': 'MI'},
@@ -570,7 +570,7 @@ def add_result_tab_panel(tab_value):
             dmc.Space(h=20),
             dmc.SegmentedControl(
                 id='pagination_results_grid',
-                value='tot',
+                value=None,
                 fullWidth=320,
                 data=[
                     {'value': 'mo', 'label': 'MO'}, {'value': 'tu', 'label': 'DI'}, {'value': 'wd', 'label': 'MI'},

@@ -966,7 +966,7 @@ def extract_tutorial_steps(file_path):
     :rtype: list
     """
 
-    with open(file_path, 'r') as file:
+    with open(file_path, 'r', encoding='utf-8') as file:
         content = file.read()
 
     pattern = r'## (.+?)\n### Aufgabe:\n(.+?)\n### Hilfe:\n(.+?)(?=\n## |\Z)'

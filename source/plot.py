@@ -5,15 +5,7 @@ plot.py contains different functions to plot data in different graph types.
 import numpy as np
 import plotly.graph_objects as go
 
-# colors = ['rgb(245, 149, 178)', 'rgb(255, 179, 179)', 'rgb(255, 241, 186)', 'rgb(190, 227, 237)', 'rgb(175, 173, 222)',
 colors = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']
-
-# colors = ['rgb(255, 179, 202)', 'rgb(255, 204, 204)', 'rgb(255, 255, 204)', 'rgb(204, 234, 255)', 'rgb(204, 202, 255)',
-#           'rgb(255, 101, 80)', 'rgb(255, 187, 51)', 'rgb(255, 204, 0)', 'rgb(255, 153, 51)', 'rgb(255, 80, 101)']
-          # 'rgb(221, 108, 130)', 'rgb(204, 85, 85)', 'rgb(218, 183, 123)', 'rgb(129, 181, 201)', 'rgb(126, 124, 185)']
-# colors = ['RGB(255, 99, 71)', 'RGB(124, 252, 0)', 'RGB(70, 130, 180)', 'RGB(240, 128, 128)', 'RGB(0, 255, 127)',
-#           'RGB(255, 215, 0)', 'RGB(173, 216, 230)', 'RGB(240, 230, 140)', 'RGB(144, 238, 144)', 'RGB(255, 165, 0)',
-#           'RGB(176, 224, 230)', 'RGB(218, 112, 214)']
 
 
 def plot_device_timeseries(timesteps, load, color):

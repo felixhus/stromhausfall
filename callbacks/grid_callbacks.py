@@ -401,7 +401,7 @@ def grid_callbacks(app):
             reverse = label < 0  # If power over edge is negative -> Reverse
             for ele in elements:
                 if edge == ele['data']['id']:
-                    ele['data']['label'] = str(abs(label))  # Set absolute value of power as label
+                    ele['data']['label'] = str(abs(label)) + ' W'  # Set absolute value of power as label
                     if reverse:
                         ele['classes'] = 'line_style_reverse'
                     else:
