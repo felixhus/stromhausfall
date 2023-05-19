@@ -17,6 +17,8 @@ from source.modules import get_icon_url
 # root_path = '/home/stromhausfall/mysite/'
 root_path = ''
 
+start_price_kwh = 46.9  # Mean electricity price Germany April 2023
+
 # URLs of the background pictures of the rooms
 # TODO: Change these to open source, in best case to dynamically loaded pictures (like iconify)
 urls = {'cyto_bathroom': 'url(/assets/background_bathroom.png)',
@@ -260,8 +262,8 @@ def add_main_card_layout(button_dict: dict):
                         ),
                         dmc.Space(h=20),
                         dmc.NumberInput(  # Number Input for the electrical energy costs in ct/kWh
-                            id='input_cost_kwh', label="Stromkosten pro kWh in ct",
-                            value=30, step=0.1,
+                            id='input_cost_kwh', label="Stromkosten in ct pro kWh",
+                            value=start_price_kwh, step=0.1, decimalSeparator=',', precision=1,
                             min=0, max=300, stepHoldDelay=500, stepHoldInterval=100,
                             style={"width": 250}
                         ),

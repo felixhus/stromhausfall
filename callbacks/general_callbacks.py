@@ -475,12 +475,14 @@ def general_callbacks(app):
             for obj in gridObject_dict:
                 modules.update_settings(dict_temp, obj, year, week)
             # Update settings of house components
-            device_costs = modules.calculate_costs(data_energy, cost_kwh, device_dict)
-            cost_children = dash_components.add_device_costs(device_costs)  # Get dash components
-
+            if data_energy is not None:
+                device_costs = modules.calculate_costs(data_energy, cost_kwh, device_dict)
+                cost_children = dash_components.add_device_costs(device_costs)  # Get dash components
+            else:
+                cost_children = html.Div()
             return no_update, dict_temp, 'empty', cost_children, no_update
         except Exception as err:
-            return no_update, no_update, no_update, err.args[0]
+            return no_update, no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('store_backup', 'data'),
                   Input('interval_backup', 'n_intervals'),
