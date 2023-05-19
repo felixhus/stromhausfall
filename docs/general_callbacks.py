@@ -145,7 +145,7 @@ Shows the filename of an uploaded file below the upload area to show the user th
 """
     pass
 
-def update_settings(btn_update, gridObject_dict, week, year):
+def update_settings(btn_update, gridObject_dict, week, year, data_energy, cost_kwh, device_dict):
     """
 Updates all components with the new settings.
 
@@ -153,8 +153,13 @@ Updates all components with the new settings.
 :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
 :param week: [State] Input week of year
 :param year: [State] Input year
+:param data_energy: [State] Energy result data of house calculation
+:param cost_kwh: [State] Cost of 1 kWh of electrical energy, from settings
+:param device_dict: [State] Dictionary containing all devices in the custom house
 :return: store_device_dict > data
 :return: store_grid_object_dict > data
+:return: menu_parent_tabs > value
+:return: cost_tab > children
 :return: store_notification > data
 """
     pass
@@ -232,7 +237,18 @@ Opens the help drawer and loads the help of the current tutorial step into it.
 :param btn: [Input] Help button
 :param tutorial_steps: [State] List of tutorial steps and help
 :param page: [State] Selected page/step of the tutorial
-:return:
+:return: drawer_help > opened
+:return: drawer_help > children
+"""
+    pass
+
+def download_start_config(btn):
+    """
+With the button the user can download a start grid configuration. The function reads the file in the assets
+folder and gives it to the download component.
+
+:param btn: [Input] Download Start Configuration button in settings
+:return: download_json > data
 """
     pass
 

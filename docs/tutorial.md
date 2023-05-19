@@ -85,7 +85,7 @@ Für ein Haus ist ein typischer Wert 5 kWp.
 
 Du wirst sehen, dass die Anlage nicht jeden Tag gleich viel Energie produziert. Das liegt am unterschiedlichen Wetter der verschiedenen Tage.
 
-Wenn du möchtest, kannst du bei den Einstellungen die Kalenderwoche verändern und ausprobieren, wie die Solaranlage sich im Winter, Sommer oder Herbst verhält (jedes Mal Speichern nicht vergessen)
+Wenn du möchtest, kannst du bei den Einstellungen die Kalenderwoche verändern und ausprobieren, wie die Solaranlage sich im Winter, Sommer oder Herbst verhält (Aktualisieren nicht vergessen!)
 
 Das Menü sollte nach dem Speichern so aussehen:
 ![text](./pics_tutorial/step8.png)

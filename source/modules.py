@@ -851,8 +851,6 @@ def update_settings(gridObject_dict, selected_element, year, week):
     :return: Updated gridObject_dict
     :rtype: dict
     """
-    # TODO: Implement update of settings properly.
-    # Does not work yet, not in use, button_update_settings is disabled
 
     date_start, date_stop = get_monday_sunday_from_week(week, year)
     if gridObject_dict[selected_element]['object_type'] == 'house':
@@ -915,6 +913,31 @@ def get_monday_sunday_from_week(week_num, year):
     monday = monday_first_week + timedelta(weeks=week_num-2)    # calculate the date of the Monday of the given week
     sunday = monday + timedelta(days=6)     # calculate the date of the Sunday of the given week
     return monday.date(), sunday.date()
+
+
+def calculate_costs(data, cost_kwh, device_dict):
+    """
+    Takes the energy data of each device and the kwh price and calculated the yearly costs of every device.
+    Returns a list of tuples containing the name, the cost and the icon of the device.
+
+    :param data: Energy result data of house calculation
+    :param cost_kwh: Cost of 1 kWh of electrical energy, from settings
+    :param device_dict: Dictionary containing all devices in the custom house
+    :return: List of tuples of costs of devices
+    :rtype: list
+    """
+
+    data = json.loads(data)  # Get calculated energy per device
+    device_costs = []
+    for element in data:  # Filter rooms out of data, store device energy with the device id
+        if data[element]['type'] == 'device':
+            cost = data[element]['energy'] * cost_kwh * 52  # Calculate yearly energy consumption from monthly
+            name = device_dict['house1'][element]['name']  # Get name of device
+            icon = device_dict['house1'][element]['icon']  # Get icon of device
+            device_costs.append((name, cost, icon))
+            # Sort devices by their cost, the highest first
+    device_costs = sorted(device_costs, key=lambda energy: energy[1], reverse=True)
+    return device_costs
 
 
 def get_button_dict():

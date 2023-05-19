@@ -3,6 +3,7 @@ general_callbacks.py contains all dash callbacks for general functions of the ap
 """
 
 import base64
+import copy
 import json
 
 import dash_mantine_components as dmc
@@ -439,13 +440,18 @@ def general_callbacks(app):
 
     @app.callback(Output('store_device_dict', 'data', allow_duplicate=True),
                   Output('store_grid_object_dict', 'data', allow_duplicate=True),
+                  Output('menu_parent_tabs', 'value', allow_duplicate=True),
+                  Output('cost_tab', 'children', allow_duplicate=True),
                   Output('store_notification', 'data', allow_duplicate=True),
                   Input('button_update_settings', 'n_clicks'),
                   State('store_grid_object_dict', 'data'),
                   State('input_week', 'value'),
                   State('input_year', 'value'),
+                  State('store_results_house_energy', 'data'),
+                  State('input_cost_kwh', 'value'),
+                  State('store_device_dict', 'data'),
                   prevent_initial_call=True)
-    def update_settings(btn_update, gridObject_dict, week, year):
+    def update_settings(btn_update, gridObject_dict, week, year, data_energy, cost_kwh, device_dict):
         """
         Updates all components with the new settings.
 
@@ -453,20 +459,28 @@ def general_callbacks(app):
         :param gridObject_dict: [State] Dictionary containing all grid objects and their properties
         :param week: [State] Input week of year
         :param year: [State] Input year
+        :param data_energy: [State] Energy result data of house calculation
+        :param cost_kwh: [State] Cost of 1 kWh of electrical energy, from settings
+        :param device_dict: [State] Dictionary containing all devices in the custom house
         :return: store_device_dict > data
         :return: store_grid_object_dict > data
+        :return: menu_parent_tabs > value
+        :return: cost_tab > children
         :return: store_notification > data
         """
-        # TODO: Implement update of settings properly. Also see modules>update_settings
-        # Does not work yet, not in use, button_update_settings is disabled
 
         try:
-            dict_temp = gridObject_dict
+            # Update settings of grid components
+            dict_temp = copy.deepcopy(gridObject_dict)
             for obj in gridObject_dict:
                 modules.update_settings(dict_temp, obj, year, week)
-            return no_update, dict_temp, no_update
+            # Update settings of house components
+            device_costs = modules.calculate_costs(data_energy, cost_kwh, device_dict)
+            cost_children = dash_components.add_device_costs(device_costs)  # Get dash components
+
+            return no_update, dict_temp, 'empty', cost_children, no_update
         except Exception as err:
-            return no_update, no_update, err.args[0]
+            return no_update, no_update, no_update, err.args[0]
 
     @app.callback(Output('store_backup', 'data'),
                   Input('interval_backup', 'n_intervals'),

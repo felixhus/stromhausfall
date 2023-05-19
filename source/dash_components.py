@@ -266,9 +266,8 @@ def add_main_card_layout(button_dict: dict):
                             style={"width": 250}
                         ),
                         dmc.Space(h=15),
-                        # Button to update all settings. Disabled because not implemented yet
-                        # TODO: Implement update button of settings
-                        dmc.Button("Aktualisieren - Work in progress", disabled=True, id='button_update_settings',
+                        # Button to update all settings
+                        dmc.Button("Aktualisieren", disabled=False, id='button_update_settings',
                                    leftIcon=DashIconify(icon='ci:arrows-reload-01')),
                         dmc.Space(h=20),
                         dmc.Button("Download Start Konfiguration", disabled=False, id='button_download_start_config',

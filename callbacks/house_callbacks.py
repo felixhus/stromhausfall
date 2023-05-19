@@ -199,16 +199,7 @@ def house_callbacks(app):
         """
 
         try:
-            data = json.loads(data)  # Get calculated energy per device
-            device_costs = []
-            for element in data:  # Filter rooms out of data, store device energy with the device id
-                if data[element]['type'] == 'device':
-                    cost = data[element]['energy'] * cost_kwh * 52  # Calculate yearly energy consumption from monthly
-                    name = device_dict['house1'][element]['name']  # Get name of device
-                    icon = device_dict['house1'][element]['icon']  # Get icon of device
-                    device_costs.append((name, cost, icon))
-                    # Sort devices by their cost, highest first
-            device_costs = sorted(device_costs, key=lambda energy: energy[1], reverse=True)
+            device_costs = modules.calculate_costs(data, cost_kwh, device_dict)
             children = dash_components.add_device_costs(device_costs)  # Get dash components
             return children, no_update
         except PreventUpdate:

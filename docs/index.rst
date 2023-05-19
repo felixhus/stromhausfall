@@ -6,7 +6,7 @@ Welcome to Stromhausfall's documentation!
    :caption: General:
    
    start
-   tutorial
+   tutorial_page
    support
 
 .. toctree::
