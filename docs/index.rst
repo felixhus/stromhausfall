@@ -2,12 +2,14 @@ Welcome to Stromhausfall's documentation!
 =========================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: General:
    
    start
    tutorial_page
+   devices
    support
+   references
 
 .. toctree::
    :maxdepth: 2

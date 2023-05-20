@@ -151,7 +151,7 @@ Tracebase Dataset
 
 "The tracebase data set is a collection of power consumption traces which can be used in energy analytics research. Traces have been collected from individual electrical appliances, at an average reporting rate of one sample per second." - Readme of Tracebase
 
-You can find the documentation and data in the |github-icon| `Tracebase Github repsitory`_.
+You can find the documentation and data in the |github-icon| `Tracebase Github repsitory`_. The complete reference is given :ref:`here  <target_references>`
 
 .. _Tracebase Github repsitory: https://github.com/areinhardt/tracebase
 
