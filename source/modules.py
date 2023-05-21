@@ -486,6 +486,22 @@ def correct_cyto_edges(elements, graph):
     return elements
 
 
+def recursive_addition(graph, node, timestep):
+    successors = list(graph.successors(node))
+    total_power = 0
+    node_power = graph.nodes[node]['object']['power'][timestep]
+    if not successors:
+        return node_power
+    # node[1]['object']['object_type']
+    for successor in successors:
+        edge_data = graph.get_edge_data(node, successor)
+        power = recursive_addition(graph, successor, timestep)
+        edge_data['flowing_power'] = power
+        total_power += power
+    total_power += node_power
+    return total_power
+
+
 def power_flow_statemachine(state, data):
     """
     State machine of grid calculation. Executes all checks and steps necessary.
@@ -531,7 +547,26 @@ def power_flow_statemachine(state, data):
     elif state == 'check_power_profiles':
         # Check length of power profiles and adjust them all to the longest length.
         data['grid_graph'] = check_power_profiles(data['grid_graph'])
+        # return 'recursive_addition', data, False
+        # TODO: Hier der Split zum einfachen Addieren
         return 'gen_equations', data, False
+    elif state == 'recursive_addition':
+        source_node = False
+        for node in data['grid_graph'].nodes(data=True):  # Find the external grid as the root node
+            if node[1]['object']['object_type'] == "externalgrid":
+                source_node = node[0]  # Set external grid as source node
+        if not source_node:
+            raise "No source node found"
+        # Calculate the powerflow for every timestep
+        column_names = []
+        for edge in data['grid_graph'].edges:  # Get column names, one column name for each edge
+            column_names.append(data['grid_graph'].edges[edge]['id'])
+        column_names.append("external_grid")  # Add column name for external grid
+        df_flow = pd.DataFrame(columns=column_names)  # Create dataframe for flow results with column names
+        for step, row in data['df_power'].iterrows():  # Solve power flow for each timestep (=row) in df_power
+            df_flow.loc[step] = recursive_addition(data['grid_graph'], source_node, step, )
+        data['df_flow'] = df_flow
+        return 'calc_total_powers', data, False
     elif state == 'gen_equations':
         # Generate the equations to solve for the power flow
         data['A'], data['df_power'] = generate_equations(data['grid_graph'])

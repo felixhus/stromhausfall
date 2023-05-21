@@ -74,7 +74,7 @@ def create_TransformerObject(object_id, node_id):
         'voltage': None,
         'impedance': None,
         'rating': 250,    # rating in kVA
-        'power': [0],
+        'power': [0] * 7 * 24 * 60,
         'object_type': 'transformer',
         'name': "Transformator",
         'icon': 'icon_transformer.png',
@@ -125,7 +125,7 @@ def create_ExternalGridObject(object_id, node_id):
         'id': object_id,
         'linkedNode': node_id,
         'voltage': 20000,
-        'power': [0],
+        'power': [0] * 7 * 24 * 60,
         'object_type': 'externalgrid',
         'name': "Externes Netz",
         'icon': 'icon_powerplant.png',
@@ -150,7 +150,7 @@ def create_BatteryObject(object_id, node_id):
         'id': object_id,
         'linkedNode': node_id,
         'voltage': 400,
-        'power': [0],
+        'power': [0] * 7 * 24 * 60,
         'object_type': 'battery',
         'name': "Batteriespeicher",
         'icon': 'material-symbols:battery-charging-20-outline',
@@ -175,7 +175,7 @@ def create_PVObject(object_id, node_id):
         'id': object_id,
         'linkedNode': node_id,
         'voltage': None,
-        'power': [0]*(24*7),
+        'power': [0] * 7 * 24,
         'object_type': 'pv',
         'location': [None, None, None],     # Location consisting of postcode, lat, lon
         'orientation': 0,   # azimuth angle
@@ -204,7 +204,7 @@ def create_SwitchCabinetObject(object_id, node_id):
         'id': object_id,
         'linkedNode': node_id,
         'voltage': None,
-        'power': [0],
+        'power': [0] * 7 * 24 * 60,
         'object_type': 'switch_cabinet',
         'name': "Verteilerkasten",
         'icon': 'icon-park-outline:connection-point',
@@ -223,7 +223,7 @@ def create_TransformerHelperNodeObject():
     """
 
     return {
-        'power': 0,
+        'power': [0] * 7 * 24 * 60,
         'object_type': 'transformer_helper',
     }
 
