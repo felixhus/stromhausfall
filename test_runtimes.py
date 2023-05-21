@@ -38,6 +38,6 @@ with open('test_grid_runtime.json') as file:
 
     stopwatch = measure_time()
 
-    modules.calculate_power_flow(data['cyto_grid'], calculate_input)
+    df_flow, df_sum, labels = modules.calculate_power_flow(data['cyto_grid'], calculate_input)
 
     measure_time(stopwatch)
