@@ -280,8 +280,6 @@ def generate_grid_graph(df_nodes, df_edges):
         if node[1]['object']['object_type'] == 'transformer':
             node_id = "transformer_" + node[0]
             node_object = objects.create_TransformerHelperNodeObject()
-            # Cut length of power profile to length of transformer power profile
-            node_object['power'] = node_object['power'][:len(node[1]['object']['power'])]
             graph.add_node(node_id, object=node_object)
             graph.add_edge(node[0], node_id, impedance=12, id='transformer_edge_' + node_id[16:])
     # Reconnect the edged which are connected to the transformer
@@ -570,8 +568,7 @@ def power_flow_statemachine(state, data):
     elif state == 'gen_equations':
         # Generate the equations to solve for the power flow
         data['A'], data['df_power'] = generate_equations(data['grid_graph'])
-        # if data['is_tree']:     # If the graph is a tree, use the faster recursive algorithm
-        if False:
+        if data['is_tree']:     # If the graph is a tree, use the faster recursive algorithm
             return 'recursive_addition', data, False
         else:
             return 'calc_flow', data, False
@@ -847,7 +844,6 @@ def save_settings_pv(children, gridObject_dict, selected_element, year, week):
     :return: Updated gridObject_dict
     :return: Notification
     """
-    # TODO: Changes here also have to be done in update_settings module
 
     # TODO: FETCHING SOLAR DATA IS LIMITED TO 50/hour. CHANGE TO FETCH FROM OWN DATABASE
     # The modules from renewables.ninja to calculate electrical power from solar power can be used.
