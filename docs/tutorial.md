@@ -47,7 +47,7 @@ Die Fehlermeldung sieht so aus:
 
 ### Aufgabe:
 Wenn du auf das Haus klickst, öffnet sich ein Fenster, in dem du es bearbeiten kannst. Du kannst dem Haus einen Namen geben.
-Nachdem du auf Speichern geklickt hast, wird der Name gespeichert.
+Nachdem du auf Speichern geklickt hast, wird der Name gespeichert. Außerdem wird ein zufälliges Lastprofil geladen.
 ### Hilfe:
 Jedes Objekt hat das **Eigenschaften** Fenster auf der rechten Seite, in welchem du verschiedene Dinge einstellen kannst. 
 Das Haus lädt sich in seiner Grundeinstellung beim Speichern selbstständig ein Lastprofil, da musst du dich um nichts kümmern.
@@ -115,3 +115,103 @@ Mit dem Slider unter dem Netz kannst du einzelne Zeitpunkte auswählen. Du siehs
 und der blaue Strich in dem Ergebnis-Graphen zeigt dir den Zeitpunkt an.
 ### Hilfe:
 Zusätzlich wird die aktuell aus dem Netz bezogene bzw. eingespeiste Leistung genannt.
+
+## Schritt 11: Ein Haus selbst basteln
+
+### Aufgabe:
+Jetzt kommen wir zu deinem eigenen Haushalt! In deinem Netz kannst du ein Haus selbst zusammenbasteln. Mehr als eins sind nicht möglich.
+Wir starten, indem du auf das gewünschte Haus klickst, ihm einen Namen gibst und dann im Menü "Selbst basteln" auswählst. Das Haus öffnet sich automatisch.
+### Hilfe:
+Du kannst immer nur ein Haus gleichzeitig im Detail konfigurieren. Möchtest du das Haus wechseln, kannst du das alte Haus wieder auf "Fertiges Profil" stellen. Danach kannst du ein neues auswählen.
+
+![text](./pics_tutorial/step11.png)
+
+## Schritt 12: Der Haushalt
+
+### Aufgabe:
+Dein Haushalt besteht aus vier Räumen. In jedem Raum gibt es eine Steckdosenleiste und eine schon angeschlossene Lampe.
+Wenn du auf die Lampe klickst, öffnet sich wieder das Menü.
+### Hilfe:
+Das Menü sieht so aus:
+
+![text](./pics_tutorial/step12.png)
+
+## Schritt 13: Die Lampen
+
+### Aufgabe:
+Jetzt kannst du eins der hinterlegten Lastprofile für die Lampe auswählen. Wenn du es speicherst, wird es dir für den ausgewählten Wochentag angezeigt.
+Um die verschiedenen Lastprofile auszuwählen, kannst du in jedem Raum ein anderes Profil einstellen.
+### Hilfe:
+Das Menü sieht mit Lastprofil 2 so aus:
+
+![text](./pics_tutorial/step13.png)
+
+## Schritt 14: Geräte hinzufügen
+
+### Aufgabe:
+Jetzt fügen wir neue Geräte hinzu, wir starten in der Küche. Klicke auf das + in der Steckdosenleiste und wähle den Kühlschrank aus. Füge dann noch einen zweiten Kühlschrank hinzu.
+### Hilfe:
+Die Liste, welche sich öffnet, enthält für den jeweiligen Raum typische Geräte. Wie du andere Geräte hinzufügen kannst, lernen wir später.
+
+Die Küche sieht mit den neuen Kühlschränken jetzt so aus:
+
+![text](./pics_tutorial/step14.png)
+
+## Schritt 15: Kühlschränke einstellen
+
+### Aufgabe:
+Der Kühlschrank ist den ganzen Tag angeschaltet. Du kannst den Typ des Kühlschranks in seinem Menü auswählen, wenn du draufklickst.
+Wähle für den einen Kühlschrank ein altes Modell und für den anderen ein neues aus.
+### Hilfe:
+Das Lastprofil des Kühlschranks in jeden Tag gleich. Du kannst es nur durch die Auswahl des Gerätetyps ändern, aber nicht, wann der Kühlschrank ausgeschaltet ist.
+Das ist so für alle Geräte, die dauerhaft angeschaltet sind.
+
+## Schritt 16: Gerät an- und ausschalten
+
+### Aufgabe:
+Du kannst Geräte ganz einfach an- und ausschalten ohne sie zu löschen. Dazu klickst du einfach auf die Steckdose, die mit dem Gerät verbunden ist.
+Das Gleiche passiert, wenn du im Menü unten rechts den Schalter betätigst.
+### Hilfe:
+Das An- und Ausschalten kann praktisch sein, wenn du verschiedene Geräte vergleichen willst. Du kannst sie alle hinzufügen und immer nur eines anschalten.
+Über die Farbe der Steckdosen siehst du sofort, welches Gerät angeschaltet ist:
+
+![text](./pics_tutorial/step16.png)
+
+## Schritt 17: Waschmaschine hinzufügen
+
+### Aufgabe:
+Jetzt wollen wir ein Gerät zur Küche hinzufügen, das nicht in der Liste beim + ist. Dazu klicken wir nach dem + auf "Weitere".
+In der Liste sind alle Geräte, die es in der App gibt. Wähle die Waschmaschine aus und klicke auf "Hinzufügen".
+### Hilfe:
+Du kannst hier auch auf der rechten Seite den Raum auswählen, in dem das Gerät hinzugefügt werden soll.
+
+![text](./pics_tutorial/step17.png)
+
+## Schritt 18: Waschgänge festlegen
+
+### Aufgabe:
+Die Waschmaschine ist nicht den ganzen Tag angeschaltet. Du kannst selbst festlegen, wann sie läuft.
+Dazu wählst du wieder ein Lastprofil aus. Dann wählst du den Wochentag, an dem die Waschmaschine laufen soll.
+Nachdem du die Uhrzeit eingegeben hast, speicherst du.
+Füge so einen Waschgang am Montag um 15:30 Uhr und am Donnerstag um 07:00 Uhr hinzu.
+### Hilfe:
+Hier siehst du das Lastprofil der Waschmaschine, am Anfang wird viel Strom gebraucht, um das Wasser aufzuheizen. 
+Am Ende geht die Leistung beim Schleudern noch ein paar mal hoch.
+
+![text](./pics_tutorial/step18.png)
+
+## Schritt 19: 
+
+### Aufgabe:
+Jetzt wollen wir Berechnen, wo im Haus wie viel Strom verbraucht wird. Klicke dazu auf "Berechnen". 
+### Hilfe:
+
+![text](./pics_tutorial/step19.png)
+
+## Schritt 19: 
+
+### Aufgabe:
+
+### Hilfe:
+
+![text](./pics_tutorial/step20.png)

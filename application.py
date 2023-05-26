@@ -32,11 +32,12 @@ room_callbacks(app, button_dict, rooms)     # Include room callbacks
 # Debug callback for development. Can be used to inspect all sort of states.
 # Input is the debug button (has to be commented in in dash_components) and by choosing states one can
 # Inspect objects at all time.
-@app.callback(Output('debug_button', 'n_clicks'),
+@app.callback(Output('button_readme', 'n_clicks'),
               Input('debug_button', 'n_clicks'),
-              State('store_flow_data', 'data'),
+              State('store_own_device_dict', 'data'),
               prevent_initial_call=True)
-def debug(btn, flow):
+def debug(btn, own_devices):
+    print('Debug')
     return 0
 
 

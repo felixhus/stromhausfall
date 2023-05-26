@@ -355,7 +355,7 @@ def dash_navbar():
                             color="primary",
                             className="position-relative",
                         )),
-                        dbc.Col(dbc.NavbarBrand("PowerHouse", className="ms-2"))
+                        dbc.Col(dbc.NavbarBrand("StromHausFall", className="ms-2"))
                     ],
                     align="center",
                     className="g-0",
@@ -388,8 +388,8 @@ def dash_navbar():
                                      id='menu_item_own_devices'),
                     ])
                 ], trigger='hover', openDelay=100, closeDelay=200, transition="rotate-right", transitionDuration=150),
-                # dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
-                #            gradient={"from": "grape", "to": "pink", "deg": 35}),
+                dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
+                           gradient={"from": "grape", "to": "pink", "deg": 35}),
             ], spacing=10
             ),
         ]), color="dark", dark=True

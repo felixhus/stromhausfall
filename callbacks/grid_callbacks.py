@@ -97,7 +97,7 @@ def grid_callbacks(app):
     def update_labels(slider, flow, figure):
         """
         If flow was calculated and the slider set to a new timestep, this function generates the cytoscape edge labels
-        for this timestep from the flow results. It rounds them and get the power, which is taken or given to the
+        for this timestep from the flow results. It rounds them and gets the power, which is taken or given to the
         external grid. This is then shown on the alert components in the grid result section.
 
         :param slider: [Input] Timestep set by slider
