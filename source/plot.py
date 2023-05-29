@@ -227,7 +227,8 @@ def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
         showlegend=False
     )
 
-    # TODO: Use same colors in sunburst for devices as in scatter plot
+    # Set multiplicator for sunburst plot to get yearly consumption from week
+    multiplicator_kwh = 52
     # Create labels, parents and values for sunburst plot
     color_index = 0
     sunburst_labels, sunburst_parents, sunburst_values, sunburst_colors = [], [], [], []
@@ -246,6 +247,9 @@ def plot_all_devices_room(df_devices, df_sum, df_energy, device_dict):
             sunburst_values.append(df_energy.loc[device]['energy'])
             sunburst_colors.append(colors[color_index])
             color_index += 1
+
+    # Multiply each value with the multiplicator
+    sunburst_values = [value * multiplicator_kwh for value in sunburst_values]
 
     fig_sunburst = go.Figure(go.Sunburst(   # Create sunburst plot
         labels=sunburst_labels,

@@ -200,18 +200,60 @@ Am Ende geht die Leistung beim Schleudern noch ein paar mal hoch.
 
 ![text](./pics_tutorial/step18.png)
 
-## Schritt 19: 
+## Schritt 19: Vollständiges Lastprofil
 
 ### Aufgabe:
-Jetzt wollen wir Berechnen, wo im Haus wie viel Strom verbraucht wird. Klicke dazu auf "Berechnen". 
+Jetzt wollen wir Berechnen, wo im Haus wie viel Strom verbraucht wird. Klicke dazu auf "Berechnen".
+Nach kurzer Zeit erscheint ein Graph, in dem du siehst, welches Gerät wie viel Strom verbraucht.
 ### Hilfe:
+Wenn du auf "Legende anzeigen" klickst, siehst du welche Farbe zu welchem Gerät gehört. Du kannst durch einen Doppelklick auf eine Farbe in der Legende alle anderen ausblenden.
+Willst du den Graphen in groß sehen? Dann klick auf "Tot", du kannst hier auch zoomen!
 
 ![text](./pics_tutorial/step19.png)
 
-## Schritt 19: 
+## Schritt 20: Genutzte Energie
 
-### Aufgabe:
+### Aufgabe: 
+Die Darstellung unter dem Lastprofil zeigt an, welcher Raum und welches Gerät wie viel Energie genutzt hat.
+Du kannst so zum Beispiel verschiedene Arten von Geräten vergleichen. Der Plot kann bei dir anders aussehen, je nachdem wie du deine Geräte eingestellt hast.
+
+### Hilfe:
+Wenn du über einen Bereich des Plots fährst, siehst du, wie viele kWh das Gerät im Jahr verbraucht, wenn es immer so wie in der nachgestellten Woche genutzt wird.
+
+![text](./pics_tutorial/step20.png)
+
+## Schritt 21: Stromkosten der Geräte
+
+### Aufgabe: 
+Unter dem Reiter "Kosten" kannst du sehen, wie viel der Stromverbrauch von jedem einzelnen Gerät im Jahr kostet, wenn du es so benutzt wie in der nachgestellten Woche.
+Den Strompreis kannst du in den Einstellungen anpassen, je nachdem wie er für deinen Haushalt ist.
 
 ### Hilfe:
 
-![text](./pics_tutorial/step20.png)
+![text](./pics_tutorial/step21.png)
+
+## Schritt 22: Zurück zum Netz
+
+### Aufgabe: 
+Geh jetzt zurück zum Netz. Wenn du auf dein Haus klickst siehst du, dass es jetzt das von den einzelnen Geräten gebildete Lastprofil hat.
+Du erkennst dein Haus daran, dass es keine abgerundeten Ecken hat.
+
+### Hilfe:
+
+## Schritt 23: Aktuellen Stand speichern
+
+### Aufgabe: 
+Du kannst dein erstelltes Netz und Haus speichern. Dazu klickst du im Menü oben rechts auf "Konfiguration speichern". Du kannst dann einen Dateinamen und einen Speicherort auswählen.
+Diese Datei kannst du beim nächsten Mal wieder laden. Das ist in Schritt 1 beschrieben.
+
+### Hilfe:
+
+![text](./pics_tutorial/step23.png)
+
+## Schritt 24: Geschafft!
+
+### Aufgabe: 
+Du hast es geschafft und kennst jetzt die grundlegenden Funktionen. Viel Spaß beim erkunden!
+Die nächsten Schritte beschreiben, wie du ein neues Gerät mit einem eigenen Lastprofil erstellst. Wenn du das nicht brauchst, kannst du das Tutorial schließen.
+
+### Hilfe:
