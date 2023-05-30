@@ -260,10 +260,73 @@ Die nächsten Schritte beschreiben, wie du ein neues Gerät mit einem eigenen La
 
 ### Hilfe:
 
+
 ## Schritt 25: Eigenes Gerät hinzufügen
 
 ### Aufgabe:
-Um ein eigenes Gerät hinzuzufügen, brauchst du das Lastprofil in einer CSV oder XLSX Datei. Wie diese formatiert sein muss, findest du in der Hilfe unten:
+Um ein eigenes Gerät hinzuzufügen, klickst du auf das + einer Steckdosenleiste und dann auf "Weitere". Jetzt wechselst du in den Reiter "Neues Hinzufügen".
 
 ### Hilfe:
-Eine Beispieldatei mit zwei Lastprofilen für eine Kaffeemaschine kannst du [hier herunterladen](https://github.com/felixhus/stromhausfall/blob/main/assets/start_konfiguration.json)
+Du siehst dieses Fenster:
+
+![text](./pics_tutorial/step25.png)
+
+## Schritt 26: Eigenes Gerät hinzufügen
+
+### Aufgabe:
+Gib dem Gerät einen eindeutigen Namen und wähle aus, ob es ein konstantes Lastprofil hat, das jeden Tag gleich ist, oder du die Einschaltpunkte variabel einstellen möchtest.
+
+Außerdem kannst du über den Link ein Icon auswählen, seine ID kopieren und einfügen.
+
+### Hilfe:
+Ein Gerät mit einem konstanten Lastprofil hat ein Profil das genau einen Tag (1440 Minuten) lang ist. Dieses wiederholt sich jeden Tag.
+
+Ein Gerät mit einem variablen Lastprofil hat ein kürzeres Profil, bei dem du beliebig viele Einschaltzeitpunkte festlegen kannst.
+
+
+## Schritt 27: Eigenes Gerät hinzufügen
+
+### Aufgabe:
+Du brauchst das Lastprofil in einer CSV oder XLSX Datei. Wie diese formatiert sein muss, findest du in der Hilfe unten:
+
+Lade die Datei in dem Dialogfeld hoch.
+
+### Hilfe:
+Eine Beispieldatei mit zwei Lastprofilen für eine Kaffeemaschine kannst du [hier herunterladen](https://github.com/felixhus/stromhausfall/blob/main/assets/Kaffeemaschine_Lastprofile.xlsx).
+Deine Datei muss so formatiert sein wie das Beispiel unten zeigt. Dabei kannst du so viele Profile wie du möchtest hinzufügen.
+
+Wenn die Profile nicht die gleichen Zeitschritte haben, kannst du wie in der Beispieldatei zusätzliche Seiten in der XLSX Datei nutzen.
+
+|   time   | Profil 1 | Profil 2 |
+|:--------:|:--------:|:--------:|
+| 07:01:00 |   100    |    75    |
+| 07:02:00 |   100    |   100    |
+| 07:02:30 |   100    |   125    |
+| 07:03:00 |   100    |   150    |
+| 07:05:00 |    0     |   125    |
+| 07:20:00 |    50    |   100    |
+
+## Schritt 28: Eigenes Gerät hinzufügen
+
+### Aufgabe:
+Jetzt klickst du auf "Erstellen", wenn das erfolgreich war bekommst du eine Benachrichtigung.
+
+Du kannst das Gerät jetzt über den Reiter "Eigene" auswählen, einen Raum bestimmen und zum Haus hinzufügen.
+
+### Hilfe:
+
+![text](./pics_tutorial/step28.png)
+
+## Schritt 29: Eigene Geräte herunterladen
+
+### Aufgabe:
+Wenn du viele eigene Geräte hast, ist das hinzufügen bei jeder Nutzung der App mühsam. Du kannst alle Geräte zusammen in einer Datei im Menü oben rechts unter "Download eigene Geräte" herunterladen.
+
+Beim nächsten Start der App musst du nur diese eine Datei im Reiter "Eigene" bei den weiteren Geräten hochladen.
+
+### Hilfe:
+Zum wieder Hochladen gehst du bevor du neue Geräte erstellst auf das + der Steckdosenleiste, auf "Weitere" un dann auf den Reiter "Eigene". Hier kannst du deine zuvor heruntergeladene Datei jetzt einfügen.
+
+![text](./pics_tutorial/step29.png)
+
+
