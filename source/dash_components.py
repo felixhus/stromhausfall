@@ -342,7 +342,7 @@ def dash_navbar():
                     [
                         dbc.Col(dmc.Button(
                             [
-                                "Notifications",
+                                "Nachrichten",
                                 dbc.Badge(
                                     id='badge_notifications',
                                     color="danger",

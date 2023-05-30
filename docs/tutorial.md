@@ -205,6 +205,7 @@ Am Ende geht die Leistung beim Schleudern noch ein paar mal hoch.
 ### Aufgabe:
 Jetzt wollen wir Berechnen, wo im Haus wie viel Strom verbraucht wird. Klicke dazu auf "Berechnen".
 Nach kurzer Zeit erscheint ein Graph, in dem du siehst, welches Gerät wie viel Strom verbraucht.
+
 ### Hilfe:
 Wenn du auf "Legende anzeigen" klickst, siehst du welche Farbe zu welchem Gerät gehört. Du kannst durch einen Doppelklick auf eine Farbe in der Legende alle anderen ausblenden.
 Willst du den Graphen in groß sehen? Dann klick auf "Tot", du kannst hier auch zoomen!
@@ -213,7 +214,7 @@ Willst du den Graphen in groß sehen? Dann klick auf "Tot", du kannst hier auch 
 
 ## Schritt 20: Genutzte Energie
 
-### Aufgabe: 
+### Aufgabe:
 Die Darstellung unter dem Lastprofil zeigt an, welcher Raum und welches Gerät wie viel Energie genutzt hat.
 Du kannst so zum Beispiel verschiedene Arten von Geräten vergleichen. Der Plot kann bei dir anders aussehen, je nachdem wie du deine Geräte eingestellt hast.
 
@@ -224,7 +225,7 @@ Wenn du über einen Bereich des Plots fährst, siehst du, wie viele kWh das Ger�
 
 ## Schritt 21: Stromkosten der Geräte
 
-### Aufgabe: 
+### Aufgabe:
 Unter dem Reiter "Kosten" kannst du sehen, wie viel der Stromverbrauch von jedem einzelnen Gerät im Jahr kostet, wenn du es so benutzt wie in der nachgestellten Woche.
 Den Strompreis kannst du in den Einstellungen anpassen, je nachdem wie er für deinen Haushalt ist.
 
@@ -234,15 +235,16 @@ Den Strompreis kannst du in den Einstellungen anpassen, je nachdem wie er für d
 
 ## Schritt 22: Zurück zum Netz
 
-### Aufgabe: 
+### Aufgabe:
 Geh jetzt zurück zum Netz. Wenn du auf dein Haus klickst siehst du, dass es jetzt das von den einzelnen Geräten gebildete Lastprofil hat.
 Du erkennst dein Haus daran, dass es keine abgerundeten Ecken hat.
 
 ### Hilfe:
 
+
 ## Schritt 23: Aktuellen Stand speichern
 
-### Aufgabe: 
+### Aufgabe:
 Du kannst dein erstelltes Netz und Haus speichern. Dazu klickst du im Menü oben rechts auf "Konfiguration speichern". Du kannst dann einen Dateinamen und einen Speicherort auswählen.
 Diese Datei kannst du beim nächsten Mal wieder laden. Das ist in Schritt 1 beschrieben.
 
@@ -252,8 +254,16 @@ Diese Datei kannst du beim nächsten Mal wieder laden. Das ist in Schritt 1 besc
 
 ## Schritt 24: Geschafft!
 
-### Aufgabe: 
+### Aufgabe:
 Du hast es geschafft und kennst jetzt die grundlegenden Funktionen. Viel Spaß beim erkunden!
 Die nächsten Schritte beschreiben, wie du ein neues Gerät mit einem eigenen Lastprofil erstellst. Wenn du das nicht brauchst, kannst du das Tutorial schließen.
 
 ### Hilfe:
+
+## Schritt 25: Eigenes Gerät hinzufügen
+
+### Aufgabe:
+Um ein eigenes Gerät hinzuzufügen, brauchst du das Lastprofil in einer CSV oder XLSX Datei. Wie diese formatiert sein muss, findest du in der Hilfe unten:
+
+### Hilfe:
+Eine Beispieldatei mit zwei Lastprofilen für eine Kaffeemaschine kannst du [hier herunterladen](https://github.com/felixhus/stromhausfall/blob/main/assets/start_konfiguration.json)

@@ -655,10 +655,10 @@ def general_callbacks(app):
         """
 
         if btn is not None:
-            img_source = tutorial_steps[page - 1][3]    # Cut dot at beginning of path
+            img_source = tutorial_steps[page - 1][3]
             if img_source is not None:
 
-                img_source = root_path + 'docs' + img_source[1:]
+                img_source = root_path + 'docs' + img_source[1:]    # Cut dot at beginning of path
                 with open(img_source, "rb") as image_file:
                     img_data = base64.b64encode(image_file.read())
                     img_data = img_data.decode()
