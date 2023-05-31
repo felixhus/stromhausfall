@@ -386,13 +386,15 @@ def generate_equations(graph):
     df_power = pd.DataFrame()
     for node in graph.nodes(data=True):     # Get power profile from each node
         df_power[node[0]] = node[1]['object']['power']
-    inc = nx.incidence_matrix(graph, oriented=True).toarray()   # Generate incidence matrix
+    inc_neg = nx.incidence_matrix(graph, oriented=True)   # Generate incidence matrix
+    # Negate all elements in incidence matrix because of different definition in NetworkX than in this project
+    inc = np.negative(inc_neg).toarray()
     idx, idx_ext = 0, 0
     for node in graph.nodes(data=True):     # Find position of external grid node
         if node[1]['object']['object_type'] == 'externalgrid':
             idx_ext = idx
         idx += 1
-    # Create new column for external grid to make incidence matrix quadratical
+    # Create new column for external grid to make incidence matrix quadratic
     new_column = np.array([np.zeros(np.shape(inc)[0])])
     new_column[0][idx_ext] = -1
     inc = np.append(inc, np.transpose(new_column), axis=1)
@@ -568,7 +570,8 @@ def power_flow_statemachine(state, data):
     elif state == 'gen_equations':
         # Generate the equations to solve for the power flow
         data['A'], data['df_power'] = generate_equations(data['grid_graph'])
-        if data['is_tree']:     # If the graph is a tree, use the faster recursive algorithm
+        # if data['is_tree']:     # If the graph is a tree, use the faster recursive algorithm
+        if False:
             return 'recursive_addition', data, False
         else:
             return 'calc_flow', data, False
@@ -599,7 +602,8 @@ def power_flow_statemachine(state, data):
         column_names.append("external_grid")    # Add column name for external grid
         df_flow = pd.DataFrame(columns=column_names)    # Create dataframe for flow results with column names
         for step, row in data['df_power'].iterrows():   # Solve power flow for each timestep (=row) in df_power
-            df_flow.loc[step] = solve_flow(data['A'], row)
+            # Use negative values of row because the solver needs A*x=b and the row is b in A*x+b=0
+            df_flow.loc[step] = solve_flow(data['A'], -row)
         data['df_flow'] = df_flow
         return 'calc_total_powers', data, False
     elif state == 'calc_total_powers':
