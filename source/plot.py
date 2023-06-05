@@ -4,6 +4,7 @@ plot.py contains different functions to plot data in different graph types.
 
 import numpy as np
 import plotly.graph_objects as go
+import plotly.io as pio
 
 colors = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']
 
@@ -95,6 +96,7 @@ def plot_house_timeseries(power, color):
     fig.update_xaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True)
     fig.update_yaxes(showline=True, linewidth=1, linecolor='rgb(173, 174, 179)', mirror=True,
                      rangemode='nonnegative')
+    # pic = pio.to_image(fig, format='png')
     return fig
 
 

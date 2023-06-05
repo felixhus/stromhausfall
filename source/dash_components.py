@@ -86,6 +86,8 @@ def add_storage_variables():
                      dcc.Store(id='store_own_device_dict', data={}, storage_type='session'),
                      # Store dictionary containing all own devices and their properties
                      dcc.Store(id='store_tutorial', data=None, storage_type='session')])
+                     # Store results of house energy calculation
+                     dcc.Store(id='store_export'),
                      # Store elements of the menu of a room
                      # dcc.Store(id='store_menu_elements_house', storage_type='session')])
 
@@ -390,6 +392,8 @@ def dash_navbar():
                 ], trigger='hover', openDelay=100, closeDelay=200, transition="rotate-right", transitionDuration=150),
                 # dmc.Button("Debug", id='debug_button', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
                 #            gradient={"from": "grape", "to": "pink", "deg": 35}),
+                dmc.Button("Export", id='button_export', variant="gradient", leftIcon=DashIconify(icon='gg:debug'),
+                           gradient={"from": "grape", "to": "pink", "deg": 35}),
             ], spacing=10
             ),
         ]), color="dark", dark=True

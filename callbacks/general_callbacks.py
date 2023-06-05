@@ -5,6 +5,10 @@ general_callbacks.py contains all dash callbacks for general functions of the ap
 import base64
 import copy
 import json
+import tempfile
+import shutil
+import os
+import time
 
 import dash_mantine_components as dmc
 from dash import Input, Output, State, ctx, no_update, html, dcc
@@ -686,6 +690,63 @@ def general_callbacks(app):
             file = open(root_path + 'assets/start_konfiguration.json')   # Opening JSON file
             data = json.load(file)
             return dict(content=json.dumps(data), filename="start_konfiguration.json")
+
+    @app.callback(Output('tabs_main', 'value'),
+                  Output('cyto_grid', 'generateImage'),
+                  Output('cyto_bathroom', 'generateImage'),
+                  Output('cyto_livingroom', 'generateImage'),
+                  Output('cyto_kitchen', 'generateImage'),
+                  Output('cyto_office', 'generateImage'),
+                  Output('store_export', 'data'),
+                  Input('button_export', 'n_clicks'),
+                  Input('cyto_bathroom', 'imageData'),
+                  Input('cyto_livingroom', 'imageData'),
+                  Input('cyto_kitchen', 'imageData'),
+                  Input('cyto_office', 'imageData'),
+                  State('tabs_main', 'value'),
+                  prevent_initial_call=True)
+    def trigger_cyto_image_generation(btn_export, image_bathroom, image_livingroom, image_kitchen, image_office, tab):
+        triggered_id = ctx.triggered_id
+        command = {'type': 'png', 'action': 'store'}
+        if triggered_id == 'button_export':
+            if tab == 'house1':
+                return no_update, no_update, command, no_update, no_update, no_update, no_update
+            else:
+                return 'house1', no_update, no_update, no_update, no_update, no_update, 'bathroom'
+        elif triggered_id == 'cyto_bathroom':
+            return no_update, no_update, no_update, command, no_update, no_update
+        elif triggered_id == 'cyto_livingroom':
+            return no_update, no_update, no_update, no_update, command, no_update
+        elif triggered_id == 'cyto_kitchen':
+            return no_update, no_update, no_update, no_update, no_update, command
+        elif triggered_id == 'cyto_office':
+            return no_update, command, no_update, no_update, no_update, no_update
+
+    @app.callback(Output('download_json', 'data', allow_duplicate=True),
+                  Input('cyto_grid', 'imageData'),
+                  State('cyto_bathroom', 'imageData'),
+                  State('cyto_livingroom', 'imageData'),
+                  State('cyto_kitchen', 'imageData'),
+                  State('cyto_office', 'imageData'),
+                  prevent_initial_call=True)
+    def export_images(image_grid, image_bathroom, image_livingroom, image_kitchen, image_office):
+        temp_dir = tempfile.mkdtemp()  # Create a temporary directory
+
+        cyto_image_list = [image_grid, image_bathroom, image_livingroom, image_kitchen, image_office]
+        cyto_filename_list = ['netz', 'badezimmer', 'wohnzimmer', 'kueche', 'buero']
+        for cyto_image, filename in zip(cyto_image_list, cyto_filename_list):
+            with open(os.path.join(temp_dir, filename + '.png'), 'wb') as file:
+                image = cyto_image.replace("data:image/png;base64,", "")
+                image_decoded = base64.b64decode(image)
+                file.write(image_decoded)
+
+        # Create a ZIP archive containing the files
+        shutil.make_archive(temp_dir, "zip", temp_dir)
+        # Read the ZIP archive as binary data
+        with open(temp_dir + ".zip", "rb") as f:
+            zip_data = f.read()
+        # Return the ZIP archive data for download
+        return dcc.send_bytes(zip_data, filename="export_stromhausfall.zip")
 
     @app.callback(Output('notification_container', 'children'),
                   Output('drawer_notifications', 'children'),

@@ -1,40 +1,53 @@
-import networkx as nx
+import plotly.io as pio
+import plotly.graph_objs as go
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+from dash.dependencies import Output, Input
+import tempfile
+import os
 
-# Create an example power grid tree graph
-power_grid = nx.DiGraph()
-power_grid.add_edges_from([(1, 2), (1, 3), (2, 4), (2, 5), (3, 6), (5, 7)])
-# power_grid.nodes[1]['type'] = 'generator'
-# power_grid.nodes[2]['type'] = 'load'
-# power_grid.nodes[3]['type'] = 'load'
-# power_grid.nodes[4]['type'] = 'load'
-# power_grid.nodes[5]['type'] = 'load'
-# power_grid.nodes[6]['type'] = 'load'
-power_grid.nodes[1]['power'] = 0  # Load power value
-power_grid.nodes[2]['power'] = 10  # Load power value
-power_grid.nodes[3]['power'] = 15  # Load power value
-power_grid.nodes[4]['power'] = 8   # Load power value
-power_grid.nodes[5]['power'] = 12  # Load power value
-power_grid.nodes[6]['power'] = 6   # Load power value
-power_grid.nodes[7]['power'] = 3   # Load power value
+# Create the three Plotly figures
+fig1 = go.Figure(data=go.Scatter(x=[1, 2, 3], y=[4, 5, 6]))
+fig2 = go.Figure(data=go.Bar(x=[1, 2, 3], y=[4, 5, 6]))
+fig3 = go.Figure(data=go.Pie(labels=['A', 'B', 'C'], values=[1, 2, 3]))
 
-# Function to calculate and assign flowing power on edges
-def calculate_flowing_power(graph, node):
-    successors = list(graph.successors(node))
-    total_power = 0
-    if not successors:
-        return graph.nodes[node]['power']
-    for successor in successors:
-        edge_data = graph.get_edge_data(node, successor)
-        power = calculate_flowing_power(graph, successor)
-        edge_data['flowing_power'] = power
-        total_power += power
-    total_power += graph.nodes[node]['power']
-    return total_power
+# Define the PDF file path
+output_file = 'output.pdf'
 
-# Add loads and calculate flowing power
-calculate_flowing_power(power_grid, 1)
+# Define the titles for each plot
+titles = ['Plot 1', 'Plot 2', 'Plot 3']
 
-# Print edge data with flowing power
-for edge in power_grid.edges:
-    edge_data = power_grid.get_edge_data(*edge)
-    print(f"Edge {edge}: Flowing Power = {edge_data['flowing_power']}")
+# Create a temporary directory to store the plot images
+temp_dir = tempfile.mkdtemp()
+
+# Export the figures to PDF
+for fig, title in zip([fig1, fig2, fig3], titles):
+    # Save the figure as an image file
+    image_file = os.path.join(temp_dir, f'{title.lower().replace(" ", "_")}.png')
+    pio.write_image(fig, image_file)
+
+# Convert the images to a single PDF file
+pio.images_to_pdf([os.path.join(temp_dir, f'{title.lower().replace(" ", "_")}.png') for title in titles], output_file)
+
+# Remove the temporary directory
+os.rmdir(temp_dir)
+
+
+# Create the Dash app
+app = dash.Dash(__name__)
+
+# Define the app layout
+app.layout = html.Div([
+    html.H1('Download PDF'),
+    html.A('Download', id='download-link', download='output.pdf', href='', target='_blank')
+])
+
+# Define the callback to update the download link
+@app.callback(Output('download-link', 'href'), [Input('download-link', 'id')])
+def update_download_link(value):
+    return '/' + output_file
+
+# Run the app
+if __name__ == '__main__':
+    app.run_server(debug=True)
