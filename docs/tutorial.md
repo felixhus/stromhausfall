@@ -250,18 +250,25 @@ Diese Datei kannst du beim nächsten Mal wieder laden. Das ist in Schritt 1 besc
 
 ### Hilfe:
 
-![text](./pics_tutorial/step23.png)
-
-## Schritt 24: Geschafft!
+## Schritt 24: Ergebnisse herunterladen
 
 ### Aufgabe:
-Du hast es geschafft und kennst jetzt die grundlegenden Funktionen. Viel Spaß beim erkunden!
+Um mehrere Berechnungen zu vergleichen, kannst du auch deine Ergebnisse herunterladen. Gehe dazu im Menü auf "Ergebnisse exportieren".
+Nach ein paar Sekunden öffnet sich ein Fenster in dem du festlegen kannst, wo die Bilder der Ergebnisse gespeichert werden sollen. Guck sie dir danach doch einfach mal an!
+
+### Hilfe:
+
+
+## Schritt 25: Geschafft!
+
+### Aufgabe:
+Du hast es geschafft und kennst jetzt die grundlegenden Funktionen. Viel Spaß beim Erkunden!
 Die nächsten Schritte beschreiben, wie du ein neues Gerät mit einem eigenen Lastprofil erstellst. Wenn du das nicht brauchst, kannst du das Tutorial schließen.
 
 ### Hilfe:
 
 
-## Schritt 25: Eigenes Gerät hinzufügen
+## Schritt 26: Eigenes Gerät hinzufügen
 
 ### Aufgabe:
 Um ein eigenes Gerät hinzuzufügen, klickst du auf das + einer Steckdosenleiste und dann auf "Weitere". Jetzt wechselst du in den Reiter "Neues Hinzufügen".
@@ -269,9 +276,9 @@ Um ein eigenes Gerät hinzuzufügen, klickst du auf das + einer Steckdosenleiste
 ### Hilfe:
 Du siehst dieses Fenster:
 
-![text](./pics_tutorial/step25.png)
+![text](./pics_tutorial/step26.png)
 
-## Schritt 26: Eigenes Gerät hinzufügen
+## Schritt 27: Eigenes Gerät hinzufügen
 
 ### Aufgabe:
 Gib dem Gerät einen eindeutigen Namen und wähle aus, ob es ein konstantes Lastprofil hat, das jeden Tag gleich ist, oder du die Einschaltpunkte variabel einstellen möchtest.
@@ -284,7 +291,7 @@ Ein Gerät mit einem konstanten Lastprofil hat ein Profil das genau einen Tag (1
 Ein Gerät mit einem variablen Lastprofil hat ein kürzeres Profil, bei dem du beliebig viele Einschaltzeitpunkte festlegen kannst.
 
 
-## Schritt 27: Eigenes Gerät hinzufügen
+## Schritt 28: Eigenes Gerät hinzufügen
 
 ### Aufgabe:
 Du brauchst das Lastprofil in einer CSV oder XLSX Datei. Wie diese formatiert sein muss, findest du in der Hilfe unten:
@@ -306,7 +313,7 @@ Wenn die Profile nicht die gleichen Zeitschritte haben, kannst du wie in der Bei
 | 07:05:00 |    0     |   125    |
 | 07:20:00 |    50    |   100    |
 
-## Schritt 28: Eigenes Gerät hinzufügen
+## Schritt 29: Eigenes Gerät hinzufügen
 
 ### Aufgabe:
 Jetzt klickst du auf "Erstellen", wenn das erfolgreich war bekommst du eine Benachrichtigung.
@@ -315,9 +322,9 @@ Du kannst das Gerät jetzt über den Reiter "Eigene" auswählen, einen Raum best
 
 ### Hilfe:
 
-![text](./pics_tutorial/step28.png)
+![text](./pics_tutorial/step29.png)
 
-## Schritt 29: Eigene Geräte herunterladen
+## Schritt 30: Eigene Geräte herunterladen
 
 ### Aufgabe:
 Wenn du viele eigene Geräte hast, ist das hinzufügen bei jeder Nutzung der App mühsam. Du kannst alle Geräte zusammen in einer Datei im Menü oben rechts unter "Download eigene Geräte" herunterladen.
@@ -327,6 +334,6 @@ Beim nächsten Start der App musst du nur diese eine Datei im Reiter "Eigene" be
 ### Hilfe:
 Zum wieder Hochladen gehst du bevor du neue Geräte erstellst auf das + der Steckdosenleiste, auf "Weitere" un dann auf den Reiter "Eigene". Hier kannst du deine zuvor heruntergeladene Datei jetzt einfügen.
 
-![text](./pics_tutorial/step29.png)
+![text](./pics_tutorial/step30.png)
 
 

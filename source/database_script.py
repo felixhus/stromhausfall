@@ -83,7 +83,7 @@ def izes_csv_to_sqlite():
     conn.close()
 
 
-def write_part_profile_to_database(database, start_index, end_index, values, series_id, standby):
+def write_part_profile_to_database(start_index, end_index, values, series_id, standby):
     # Connect to the database
     conn = sqlite3.connect('database_profiles.db')
     cursor = conn.cursor()
@@ -105,13 +105,13 @@ def write_part_profile_to_database(database, start_index, end_index, values, ser
 
 
 print("Start")
-filepath = r"C:\Users\felix\Documents\HOME\Uni\02_Master\05_Masterthesis\03_Daten\Tracebase Profiles\complete\TV-LCD\dev_B81116_2011.09.02.csv"
+filepath = r"C:\Users\felix\Documents\HOME\Uni\02_Master\05_Masterthesis\03_Daten\Tracebase Profiles\complete\Washingmachine\dev_D3230E_2012.01.09.csv"
 df = pd.read_csv(filepath, header=None, delimiter=";", names=["datetime", "value1", "value2"])
 df["datetime"] = pd.to_datetime(df.iloc[:, 0])
 df.set_index("datetime", inplace=True)
 df_resampled = df.resample('1T').mean()
 
 values = df_resampled['value2'].tolist()
-write_part_profile_to_database(1055, 1175, values, 'tv_lcd_2h', 0)
+write_part_profile_to_database(711, 861, values, 'washing_machine_60', 0)
 # write_to_database('database_profiles.db', values, 'desktop_pc_12h')
 print("Done")

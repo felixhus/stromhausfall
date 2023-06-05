@@ -32,14 +32,14 @@ room_callbacks(app, button_dict, rooms)     # Include room callbacks
 # Debug callback for development. Can be used to inspect all sort of states.
 # Input is the debug button (has to be commented in in dash_components) and by choosing states one can
 # Inspect objects at all time.
-# @app.callback(Output('cyto_grid', 'generateImage'),
-#               Input('debug_button', 'n_clicks'),
-#               prevent_initial_call=True)
-# def debug(btn):
-#     print('Debug')
-#     return {'type': 'png', 'action': 'download'}
+@app.callback(Output('cyto_grid', 'generateImage', allow_duplicate=True),
+              Input('debug_button', 'n_clicks'),
+              State('cyto_grid', 'elements'),
+              prevent_initial_call=True)
+def debug(btn, elements):
+    return None
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)     # Run app
+    app.run_server(debug=True)     # Run app
 
