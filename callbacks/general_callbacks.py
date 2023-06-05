@@ -14,6 +14,8 @@ import dash_mantine_components as dmc
 from dash import Input, Output, State, ctx, no_update, html, dcc
 from dash.exceptions import PreventUpdate
 from dash_iconify import DashIconify
+import plotly.graph_objects as go
+import plotly.io as pio
 
 import source.dash_components as dash_components
 import source.modules as modules
@@ -691,36 +693,74 @@ def general_callbacks(app):
             data = json.load(file)
             return dict(content=json.dumps(data), filename="start_konfiguration.json")
 
+    @app.callback(Output('tabs_main', 'value', allow_duplicate=True),
+                  Output('store_export', 'data', allow_duplicate=True),
+                  Input('menu_export', 'n_clicks'),
+                  prevent_initial_call=True)
+    def start_export(btn):
+        """
+        Start the image export by switching main tab to house mode, because only cytoscapes in active tabs can be
+        exported.
+
+        :param btn: [Input] Button to start export
+        :return: tabs_main > value
+        :return: store_export > data
+        """
+
+        if btn is not None:
+            return 'house1', 'house'
+        else:
+            raise PreventUpdate
+
     @app.callback(Output('tabs_main', 'value'),
-                  Output('cyto_grid', 'generateImage'),
                   Output('cyto_bathroom', 'generateImage'),
                   Output('cyto_livingroom', 'generateImage'),
                   Output('cyto_kitchen', 'generateImage'),
                   Output('cyto_office', 'generateImage'),
-                  Output('store_export', 'data'),
-                  Input('button_export', 'n_clicks'),
-                  Input('cyto_bathroom', 'imageData'),
-                  Input('cyto_livingroom', 'imageData'),
-                  Input('cyto_kitchen', 'imageData'),
-                  Input('cyto_office', 'imageData'),
-                  State('tabs_main', 'value'),
+                  Output('store_export', 'data', allow_duplicate=True),
+                  Input('store_export', 'data'),
                   prevent_initial_call=True)
-    def trigger_cyto_image_generation(btn_export, image_bathroom, image_livingroom, image_kitchen, image_office, tab):
-        triggered_id = ctx.triggered_id
+    def trigger_cyto_image_generation_house(step):
+        """
+        Send command to generate the images of all four room cytoscapes. Also switch to grid tab.
+
+        :param step: Step stored in store_export
+        :type step: str
+        :return: tabs_main > value
+        :return: cyto_bathroom > generateImage
+        :return: cyto_livingroom > generateImage
+        :return: cyto_kitchen > generateImage
+        :return: cyto_office > generateImage
+        :return: store_export > data
+        """
+
         command = {'type': 'png', 'action': 'store'}
-        if triggered_id == 'button_export':
-            if tab == 'house1':
-                return no_update, no_update, command, no_update, no_update, no_update, no_update
-            else:
-                return 'house1', no_update, no_update, no_update, no_update, no_update, 'bathroom'
-        elif triggered_id == 'cyto_bathroom':
-            return no_update, no_update, no_update, command, no_update, no_update
-        elif triggered_id == 'cyto_livingroom':
-            return no_update, no_update, no_update, no_update, command, no_update
-        elif triggered_id == 'cyto_kitchen':
-            return no_update, no_update, no_update, no_update, no_update, command
-        elif triggered_id == 'cyto_office':
-            return no_update, command, no_update, no_update, no_update, no_update
+        if step == 'house':
+            time.sleep(0.2)
+            return 'grid', command, command, command, command, 'grid'
+        else:
+            raise PreventUpdate
+
+    @app.callback(Output('cyto_grid', 'generateImage'),
+                  Output('store_export', 'data', allow_duplicate=True),
+                  Input('store_export', 'data'),
+                  prevent_initial_call=True)
+    def trigger_cyto_image_generation_grid(step):
+        """
+        Send command to generate the image of the grid cytoscape.
+
+        :param step: Step stored in store_export
+        :type step: str
+        :return: cyto_grid > generateImage
+        :return: store_export > data
+        """
+
+        command = {'type': 'png', 'action': 'store'}
+        if step == 'grid':
+            time.sleep(0.2)
+            return command, 'done'
+        else:
+            raise PreventUpdate
 
     @app.callback(Output('download_json', 'data', allow_duplicate=True),
                   Input('cyto_grid', 'imageData'),
@@ -728,10 +768,31 @@ def general_callbacks(app):
                   State('cyto_livingroom', 'imageData'),
                   State('cyto_kitchen', 'imageData'),
                   State('cyto_office', 'imageData'),
+                  State('graph_power_house', 'figure'),
+                  State('graph_sunburst_house', 'figure'),
+                  State('graph_grid', 'figure'),
                   prevent_initial_call=True)
-    def export_images(image_grid, image_bathroom, image_livingroom, image_kitchen, image_office):
+    def export_images(image_grid, image_bathroom, image_livingroom, image_kitchen, image_office,
+                      figure_power_house, figure_sunburst_house, figure_grid):
+        """
+        This callback creates a temporary directory and then puts in there the pictures of the cytoscapes and PDFs of
+        the plotly graphs. It gives them their filenames and then zips the directory for the download. The callback is
+        triggered by the imageData of the grid cytoscape, if this is generated, this callback is executed.
+
+        :param image_grid: [Input] String representation of the grid image, triggers the callback
+        :param image_bathroom: [State] String representation of the bathroom image
+        :param image_livingroom: [State] String representation of the livingroom image
+        :param image_kitchen: [State] String representation of the kitchen image
+        :param image_office: [State] String representation of the office image
+        :param figure_power_house: [State] Figure of the house power result graph
+        :param figure_sunburst_house: [State] Figure of the house sunburst result graph
+        :param figure_grid: [State] Figure of the grid power result graph
+        :return: download_json > data
+        """
+
         temp_dir = tempfile.mkdtemp()  # Create a temporary directory
 
+        # Save string representations of cytoscape images to temporary directory
         cyto_image_list = [image_grid, image_bathroom, image_livingroom, image_kitchen, image_office]
         cyto_filename_list = ['netz', 'badezimmer', 'wohnzimmer', 'kueche', 'buero']
         for cyto_image, filename in zip(cyto_image_list, cyto_filename_list):
@@ -739,6 +800,13 @@ def general_callbacks(app):
                 image = cyto_image.replace("data:image/png;base64,", "")
                 image_decoded = base64.b64decode(image)
                 file.write(image_decoded)
+
+        # Generate PDF files from graphs
+        graph_figure_list = [figure_grid, figure_power_house, figure_sunburst_house]
+        graph_filename_list = ['leistungen_netz', 'leistungen_haus', 'verbrauch_haus']
+        for graph_figure, filename in zip(graph_figure_list, graph_filename_list):
+            fig = go.Figure(graph_figure)
+            pio.write_image(fig, os.path.join(temp_dir, filename + '.pdf'), format='pdf', engine='orca')
 
         # Create a ZIP archive containing the files
         shutil.make_archive(temp_dir, "zip", temp_dir)
