@@ -34,10 +34,12 @@ room_callbacks(app, button_dict, rooms)     # Include room callbacks
 # Inspect objects at all time.
 @app.callback(Output('cyto_grid', 'generateImage', allow_duplicate=True),
               Input('debug_button', 'n_clicks'),
-              State('cyto_grid', 'elements'),
+              State('store_grid_object_dict', 'data'),
+              State('store_custom_house', 'data'),
               prevent_initial_call=True)
-def debug(btn, elements):
-    return None
+def debug(btn, data, house):
+    friday = data[house]['power'][5760:7200]
+    print(friday)
 
 
 if __name__ == '__main__':
