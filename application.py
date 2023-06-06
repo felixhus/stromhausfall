@@ -6,10 +6,10 @@ the callbacks are included and the app is started.
 import dash_bootstrap_components as dbc
 from dash import Dash, Input, Output, State
 
-from callbacks.general_callbacks import general_callbacks
-from callbacks.grid_callbacks import grid_callbacks
-from callbacks.house_callbacks import house_callbacks
-from callbacks.room_callbacks import room_callbacks
+from source.callbacks.general_callbacks import general_callbacks
+from source.callbacks.grid_callbacks import grid_callbacks
+from source.callbacks.house_callbacks import house_callbacks
+from source.callbacks.room_callbacks import room_callbacks
 from source.layout import app_layout
 from source.modules import get_button_dict
 
