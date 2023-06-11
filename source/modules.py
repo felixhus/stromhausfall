@@ -156,9 +156,13 @@ def create_device_object(device_id, device_type, database, own=False, own_device
     if not own:     # If it is not an own device -> It is a device from the database
         device = sql_modules.get_device(database, device_type)      # Get device properties from the database
         device = device[0]  # Get dict from result
-        json_data = device['power_options'].decode('utf-8-sig')     # Decode string with power options from database
-        json_data = json_data.replace("'", "\"")
-        device['power_options'] = json.loads(json_data)   # Decode dictionary from bytes
+        try:
+            json_data = device['power_options'].decode('utf-8-sig')     # Decode string with power options from database
+        except:                                               # Handle dictionaries saved as strings not as bytes
+            json_data = device['power_options']
+        finally:
+            json_data = json_data.replace("'", "\"")
+            device['power_options'] = json.loads(json_data)  # Decode dictionary from bytes
     else:
         device = own_devices[device_type]       # If it is an own device -> Get from dictionary
     device['active'] = True                     # Set all other properties

@@ -1,6 +1,7 @@
 import csv
 import random
 import sqlite3
+import json
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -25,17 +26,17 @@ def generate_time_series(power, timesteps, number_steps):
     return x_new, y_new
 
 
-def write_to_database(database, values, series_id):
+def write_to_database(database, values, series_id, device_type):
     # connect to the database
     conn = sqlite3.connect(database)
     c = conn.cursor()
     # values = values.tolist()
 
     # Build the SQL query to insert the row
-    query = f"INSERT INTO device_preset (series_id, {' ,'.join([f'step_{i}' for i in range(1440)])}) VALUES (?, {'?,' * 1439}?)"
+    query = f"INSERT INTO device_preset (series_id, type, {' ,'.join([f'step_{i}' for i in range(1440)])}) VALUES (?, ?, {'?,' * 1439}?)"
 
     # Execute the query with the values
-    c.execute(query, [series_id] + values)
+    c.execute(query, [series_id, device_type] + values)
 
     # commit changes and close connection
     conn.commit()
@@ -83,7 +84,7 @@ def izes_csv_to_sqlite():
     conn.close()
 
 
-def write_part_profile_to_database(start_index, end_index, values, series_id, standby):
+def write_part_profile_to_database(start_index, end_index, values, series_id, device_type, standby):
     # Connect to the database
     conn = sqlite3.connect('database_profiles.db')
     cursor = conn.cursor()
@@ -91,13 +92,30 @@ def write_part_profile_to_database(start_index, end_index, values, series_id, st
     # Build the SQL statement
     columns = ', '.join(['step_' + str(i) for i in range(end_index - start_index + 1)])
     placeholders = ', '.join(['?' for i in range(start_index, end_index + 1)])
-    query = f"INSERT INTO device_custom (series_id, standby_power, {columns}) VALUES (?, ?, {placeholders})"
+    query = f"INSERT INTO device_custom (series_id, type, standby_power, {columns}) VALUES (?, ?, ?, {placeholders})"
 
     # Get the range of values to insert
     range_of_values = values[start_index:end_index + 1]
 
     # Execute the SQL statement
-    cursor.execute(query, [series_id, standby] + range_of_values)
+    cursor.execute(query, [series_id, device_type, standby] + range_of_values)
+    conn.commit()
+
+    # Close the database connection
+    conn.close()
+
+
+def add_device_to_database(device_type, standard_room, device_name, menu_type, icon, power_options):
+    # Connect to the database
+    conn = sqlite3.connect('database_profiles.db')
+    cursor = conn.cursor()
+
+    # Build the SQL statement
+
+    query = f"INSERT INTO devices (type, standard_room, name, menu_type, icon, power_options) VALUES (?, ?, ?, ?, ?, ?)"
+
+    # Execute the SQL statement
+    cursor.execute(query, [device_type, standard_room, device_name, menu_type, icon, power_options])
     conn.commit()
 
     # Close the database connection
@@ -105,13 +123,16 @@ def write_part_profile_to_database(start_index, end_index, values, series_id, st
 
 
 print("Start")
-filepath = r"C:\Users\felix\Documents\HOME\Uni\02_Master\05_Masterthesis\03_Daten\Tracebase Profiles\complete\Washingmachine\dev_D3230E_2012.01.09.csv"
+filepath = r"C:\Users\felix\Documents\HOME\Uni\02_Master\05_Masterthesis\03_Daten\Tracebase Profiles\complete\router\dev_B7DF9D_2011.12.20.csv"
 df = pd.read_csv(filepath, header=None, delimiter=";", names=["datetime", "value1", "value2"])
 df["datetime"] = pd.to_datetime(df.iloc[:, 0])
 df.set_index("datetime", inplace=True)
 df_resampled = df.resample('1T').mean()
 
 values = df_resampled['value2'].tolist()
-write_part_profile_to_database(711, 861, values, 'washing_machine_60', 0)
-# write_to_database('database_profiles.db', values, 'desktop_pc_12h')
+power_options_device = {'Router': {'key': 'router_standard', 'icon': ''}}
+# power_options_device = json.dumps(power_options_device)
+# write_part_profile_to_database(556, 565, values, 'printer_print', 'printer', 0)
+# write_to_database('database_profiles.db', values, 'router_standard', 'router')
+add_device_to_database('router_2', 'office', 'Router', 'device_preset', 'tabler:router', power_options_device)
 print("Done")

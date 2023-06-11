@@ -414,7 +414,7 @@ def add_card_start():
         children=[
             dmc.CardSection(
                 dmc.Image(
-                    src="assets/crayon_powerhouse.png", height=250,
+                    src="assets/logo_ww.jpg", height=250,
                 )
             ),
             dmc.Group(

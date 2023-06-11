@@ -17,7 +17,7 @@ from source.modules import get_button_dict
 
 app = Dash(__name__, suppress_callback_exceptions=True,
            external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
-app.title = 'PowerHouse'    # Define title for browser tab
+app.title = 'WattWerkstatt'    # Define title for browser tab
 
 server = app.server
 
