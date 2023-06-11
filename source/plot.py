@@ -124,7 +124,7 @@ def plot_grid_results(df_power):
     fig.add_trace(go.Scatter(
         name="PV",
         x=timesteps,
-        y=-df_power['generator'],
+        y=df_power['generator'],
         fillcolor='rgba(255, 248, 94, 0.7)',
         fill='tozeroy',
         mode='none'  # this remove the lines

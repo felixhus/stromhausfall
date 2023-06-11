@@ -5,6 +5,8 @@ the callbacks are included and the app is started.
 
 import dash_bootstrap_components as dbc
 from dash import Dash, Input, Output, State
+import pandas as pd
+import json
 
 from source.callbacks.general_callbacks import general_callbacks
 from source.callbacks.grid_callbacks import grid_callbacks
@@ -32,14 +34,14 @@ room_callbacks(app, button_dict, rooms)     # Include room callbacks
 # Debug callback for development. Can be used to inspect all sort of states.
 # Input is the debug button (has to be commented in in dash_components) and by choosing states one can
 # Inspect objects at all time.
-@app.callback(Output('cyto_grid', 'generateImage', allow_duplicate=True),
-              Input('debug_button', 'n_clicks'),
-              State('store_grid_object_dict', 'data'),
-              State('store_custom_house', 'data'),
-              prevent_initial_call=True)
-def debug(btn, data, house):
-    friday = data[house]['power'][5760:7200]
-    print(friday)
+# @app.callback(Output('download_json', 'data', allow_duplicate=True),
+#               Input('debug_button', 'n_clicks'),
+#               State('store_power_grid', 'data'),
+#               prevent_initial_call=True)
+# def debug(btn, data):
+#     df_data = pd.read_json(data, orient='index')
+#     print("Done")
+#     return dict(content=json.dumps(df_data.to_dict()), filename="plot.json")
 
 
 if __name__ == '__main__':

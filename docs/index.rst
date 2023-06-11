@@ -1,4 +1,4 @@
-Welcome to Stromhausfall's documentation!
+Welcome to WattWerkstatt's documentation!
 =========================================
 
 .. toctree::
