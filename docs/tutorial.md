@@ -9,7 +9,7 @@ Zuerst laden wir ein schon angefangenes Netz als Startpunkt in die App. Gehe daz
 Den Link zur Beispieldatei findest du in der Tutorial-Hilfe (Button (?) unten).
 ### Hilfe:
 Du kannst fertige Konfigurationen ganz einfach in die App laden. Dazu brauchst du eine passende Datei.
-Eine solche Datei bekommst du, wenn du in den Einstellungen auf den Button klickst oder zum [Download hier](https://github.com/felixhus/stromhausfall/blob/main/assets/start_konfiguration.json)
+Eine solche Datei bekommst du, wenn du in den Einstellungen auf den Button "Download Start Konfiguration" klickst.
 
 Dein Netz sollte dann so aussehen:
 ![text](./pics_tutorial/step1.png)
