@@ -1,4 +1,4 @@
-[![Documentation Status](https://readthedocs.org/projects/stromhausfall/badge/?version=latest)](https://stromhausfall.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/wattwerkstatt/badge/?version=latest)](https://wattwerkstatt.readthedocs.io/en/latest/?badge=latest)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
  [![](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/)
 [![GitHub issues](https://img.shields.io/github/issues/felixhus/stromhausfall.svg)](https://GitHub.com/felixhus/stromhausfall/issues/)

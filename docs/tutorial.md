@@ -5,7 +5,7 @@ Lass uns gemeinsam Schritt für Schritt ein Stromnetz bauen und lernen, wie viel
 ## Schritt 1: Eine Datei laden
 
 ### Aufgabe:
-Zuerst laden wir ein schon angefangenes Netz als Startpunkt in die App. Gehe dazu auf das Menü oben links auf "Konfiguration laden".
+Zuerst laden wir ein schon angefangenes Netz als Startpunkt in die App. Gehe dazu auf das Menü oben rechts auf "Konfiguration laden".
 Den Link zur Beispieldatei findest du in der Tutorial-Hilfe (Button (?) unten).
 ### Hilfe:
 Du kannst fertige Konfigurationen ganz einfach in die App laden. Dazu brauchst du eine passende Datei.
@@ -65,7 +65,7 @@ Dein Netz sollte dann so aussehen:
 ## Schritt 7: Eine Solaranlage hinzufügen
 
 ### Aufgabe:
-Füge jetzt eine Solaranlage und ein Haus hinzu und verbinde beide mit dem Verteiler aus Schritt 5.
+Füge jetzt eine Solaranlage und ein Haus hinzu und verbinde beide mit dem Verteiler aus Schritt 6.
 ### Hilfe:
 Dein Netz sollte dann so aussehen:
 ![text](./pics_tutorial/step7.png)
@@ -249,6 +249,7 @@ Du kannst dein erstelltes Netz und Haus speichern. Dazu klickst du im Menü oben
 Diese Datei kannst du beim nächsten Mal wieder laden. Das ist in Schritt 1 beschrieben.
 
 ### Hilfe:
+
 
 ## Schritt 24: Ergebnisse herunterladen
 

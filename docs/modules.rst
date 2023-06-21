@@ -1,3 +1,5 @@
+.. _target_modules:
+
 Additional Modules
 ==================
 

@@ -13,6 +13,6 @@ If you have questions or feedback you can either
 .. |github-icon| image:: _static/github-mark.png
    :scale: 8 %
 
-.. _Github page: https://github.com/felixhus/stromhausfall
-.. _Github: https://github.com/felixhus/stromhausfall/issues
-.. _e-mail: mailto:felix.husemann\@tum.de?subject=Stromhausfall:
+.. _Github page: https://github.com/felixhus/wattwerkstatt
+.. _Github: https://github.com/felixhus/wattwerkstatt/issues
+.. _e-mail: mailto:felix.husemann\@tum.de?subject=WattWerkstatt:

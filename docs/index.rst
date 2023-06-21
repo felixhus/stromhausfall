@@ -8,6 +8,7 @@ Welcome to WattWerkstatt's documentation!
    start
    tutorial_page
    devices
+   enhancements
    support
    references
 
@@ -15,6 +16,7 @@ Welcome to WattWerkstatt's documentation!
    :maxdepth: 2
    :caption: Code Reference:
 
+   application
    layout
    modules
    callbacks
