@@ -12,37 +12,6 @@ import sql_modules
 from scipy import interpolate
 
 
-def generate_time_series(power, timesteps, number_steps):
-    f_inter = interpolate.interp1d(timesteps, power, kind='cubic')
-
-    x_new = np.linspace(0, number_steps, num=number_steps, endpoint=True)
-    y_new = f_inter(x_new)
-
-    plt.plot(timesteps, power, 'o', label='Original')
-    plt.plot(x_new, y_new, '.-', label='Interpolated')
-    plt.legend()
-    plt.show()
-
-    return x_new, y_new
-
-
-def write_to_database(database, values, series_id, device_type):
-    # connect to the database
-    conn = sqlite3.connect(database)
-    c = conn.cursor()
-    # values = values.tolist()
-
-    # Build the SQL query to insert the row
-    query = f"INSERT INTO device_preset (series_id, type, {' ,'.join([f'step_{i}' for i in range(1440)])}) VALUES (?, ?, {'?,' * 1439}?)"
-
-    # Execute the query with the values
-    c.execute(query, [series_id, device_type] + values)
-
-    # commit changes and close connection
-    conn.commit()
-    conn.close()
-
-
 def izes_csv_to_sqlite():
     p1_csv_path = "C:/Users/felix/Documents/HOME/Uni/02_Master/05_Masterthesis/03_Daten/IZES_Profile/CSV_74_Loadprofiles_1min_W_var/PL1.csv"
     p2_csv_path = "C:/Users/felix/Documents/HOME/Uni/02_Master/05_Masterthesis/03_Daten/IZES_Profile/CSV_74_Loadprofiles_1min_W_var/PL2.csv"
@@ -84,7 +53,56 @@ def izes_csv_to_sqlite():
     conn.close()
 
 
+def write_to_database(database, values, series_id, device_type):
+    """
+    Module to write a preset device load profile to the corresponding database.
+
+    :param database: Database name
+    :type database: str
+    :param values: List of power values, 1440 steps
+    :type values: list[int]
+    :param series_id: Unique series_id of the profile
+    :type series_id: str
+    :param device_type: Type of device which can use this profile
+    :type device_type: str
+    :return: None
+    """
+
+    # connect to the database
+    conn = sqlite3.connect(database)
+    c = conn.cursor()
+    # values = values.tolist()
+
+    # Build the SQL query to insert the row
+    query = f"INSERT INTO device_preset (series_id, type, {' ,'.join([f'step_{i}' for i in range(1440)])}) VALUES (?, ?, {'?,' * 1439}?)"
+
+    # Execute the query with the values
+    c.execute(query, [series_id, device_type] + values)
+
+    # commit changes and close connection
+    conn.commit()
+    conn.close()
+
+
 def write_part_profile_to_database(start_index, end_index, values, series_id, device_type, standby):
+    """
+    Module to write a custom device load profile to the corresponding database.
+
+    :param start_index: Minute of the day on which the profile snippet starts (corresponding to the input file)
+    :type start_index: int
+    :param end_index: Minute of the day on which the profile snippet ends (corresponding to the input file)
+    :type end_index: int
+    :param values: Complete load profile as
+    :type values: list[int]
+    :param series_id: Unique series_id of the profile
+    :type series_id: str
+    :param device_type: Type of device which can use this profile
+    :type device_type: str
+    :param standby: Standby power of the device for times outside the used profile snippet
+    :type standby: int
+    :return: None
+    """
+
     # Connect to the database
     conn = sqlite3.connect('database_profiles.db')
     cursor = conn.cursor()
@@ -106,6 +124,24 @@ def write_part_profile_to_database(start_index, end_index, values, series_id, de
 
 
 def add_device_to_database(device_type, standard_room, device_name, menu_type, icon, power_options):
+    """
+    Module to add a new device to the sql database.
+
+    :param device_type: Unique type of device which should be added
+    :type device_type: str
+    :param standard_room: The standard room of the device, where it automatically appears in the menu
+    :type standard_room: str
+    :param device_name: Displayed Device name
+    :type device_name: str
+    :param menu_type: Type of device, 'device_preset' or 'device_custom'
+    :type menu_type: str
+    :param icon: Iconify icon name reference
+    :type icon: str
+    :param power_options: Dictionary of options for power profiles
+    :type power_options: dict
+    :return: None
+    """
+
     # Connect to the database
     conn = sqlite3.connect('database_profiles.db')
     cursor = conn.cursor()
@@ -122,17 +158,19 @@ def add_device_to_database(device_type, standard_room, device_name, menu_type, i
     conn.close()
 
 
-print("Start")
-filepath = r"C:\Users\felix\Documents\HOME\Uni\02_Master\05_Masterthesis\03_Daten\Tracebase Profiles\complete\router\dev_B7DF9D_2011.12.20.csv"
-df = pd.read_csv(filepath, header=None, delimiter=";", names=["datetime", "value1", "value2"])
-df["datetime"] = pd.to_datetime(df.iloc[:, 0])
-df.set_index("datetime", inplace=True)
-df_resampled = df.resample('1T').mean()
-
-values = df_resampled['value2'].tolist()
-power_options_device = {'Router': {'key': 'router_standard', 'icon': ''}}
-# power_options_device = json.dumps(power_options_device)
-# write_part_profile_to_database(556, 565, values, 'printer_print', 'printer', 0)
-# write_to_database('database_profiles.db', values, 'router_standard', 'router')
-add_device_to_database('router_2', 'office', 'Router', 'device_preset', 'tabler:router', power_options_device)
-print("Done")
+# print("Start")
+# filepath = r""
+# # Read values from csv-file, formatted for tracebase dataset
+# df = pd.read_csv(filepath, header=None, delimiter=";", names=["datetime", "value1", "value2"])
+# df["datetime"] = pd.to_datetime(df.iloc[:, 0])
+# df.set_index("datetime", inplace=True)
+# df_resampled = df.resample('1T').mean()
+#
+# # Take second value column
+# values = df_resampled['value2'].tolist()
+# power_options_device = {'Router': {'key': 'router_standard', 'icon': ''}}
+# # power_options_device = json.dumps(power_options_device)
+# # write_part_profile_to_database(556, 565, values, 'printer_print', 'printer', 0)
+# # write_to_database('database_profiles.db', values, 'router_standard', 'router')
+# add_device_to_database('router_2', 'office', 'Router', 'device_preset', 'tabler:router', power_options_device)
+# print("Done")

@@ -1,5 +1,7 @@
 Start
 =====
 
-.. note:: Work in progress...
+This is the 
+
+:ref:`Support page  <target_support>`
 

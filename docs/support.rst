@@ -3,7 +3,7 @@
 Support
 =======
 
-To get the code of the project go to the |github-icon| `Github page`_ of Stromhausfall.
+To get the code of the project go to the |github-icon| `Github page`_ of WattWerkstatt.
 
 If you have questions or feedback you can either
 

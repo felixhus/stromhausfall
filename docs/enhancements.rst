@@ -3,7 +3,7 @@
 Enhancements
 ============
 
-.. note:: This page contains possible enhancements and a list of problems of the app. These are results of feedback from users, mostly a test with a school class of the Gymnasium Geretsried on the 12.06.2023. More ideas of future functions and enhancements can be found in the *Ausblick* chapter of the thesis.
+.. note:: This page contains possible enhancements and a list of problems of the app. These are results of feedback from users, mostly a test with a school class of the Gymnasium Geretsried on the 12. June 2023. More ideas of future functions and enhancements can be found in the *Ausblick* chapter of the thesis.
 
 .. warning:: Technical bugs are not documented here, they can be found and handled in the |github-icon| `Github Issues`_
 

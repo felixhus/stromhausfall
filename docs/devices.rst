@@ -23,3 +23,8 @@ If you think you have an interesting device with a power profile which should be
    "Wasserkocher", "kettle", "kitchen", "Tracebase"
 
 ``As of June 2023``
+
+The file ``database_script.py`` contains a few modules to manipulate the sql databases. They can help to add different types of profiles or create new devices in the database.
+
+.. automodule:: database_script
+   :members:
