@@ -12,6 +12,7 @@ Du kannst fertige Konfigurationen ganz einfach in die App laden. Dazu brauchst d
 Eine solche Datei bekommst du, wenn du in den Einstellungen auf den Button "Download Start Konfiguration" klickst.
 
 Dein Netz sollte dann so aussehen:
+
 ![text](./pics_tutorial/step1.png)
 
 ## Schritt 2: Ein Haus hinzufügen
@@ -22,6 +23,7 @@ Klick auf das Haus-Symbol in der linken Spalte, um ein neues Haus hinzuzufügen.
 Mit den Buttons in der linken Spalte kannst du neue Objekte zum Netz hinzufügen. Du kannst diese dann mit der Maus auf der Oberfläche verschieben.
 
 Dein Netz sollte dann so aussehen:
+
 ![text](./pics_tutorial/step2.png)
 
 ## Schritt 3: Das Haus mit dem Netz verbinden
@@ -32,6 +34,7 @@ Um das Haus mit dem Netz zu verbinden, klicke auf den untersten Button der linke
 Der Leitungs-Modus bleibt aktiv, bis du ihn durch erneutes Klicken des Buttons oder mit der "ESC"-Taste beendest.
 
 Dein Netz sollte dann so aussehen:
+
 ![text](./pics_tutorial/step3.png)
 
 ## Schritt 4: Eine falsche Leitung ziehen
@@ -41,6 +44,7 @@ Versuch doch mal, zwei Häuse direkt miteinander zu verbinden. Das wird nicht kl
 manche Objekte kann man wie in der echten Welt nicht direkt miteinander verbinden.
 ### Hilfe:
 Die Fehlermeldung sieht so aus:
+
 ![text](./pics_tutorial/step4.png)
 
 ## Schritt 5: Namen des Hauses ändern
@@ -60,6 +64,7 @@ Füge nun einen Verteiler hinzu (vorletztes Element in der linken Spalte) und ve
 Der Verteiler hat keinen eigenen elektrischen Verbrauch, er ist wie eine Mehrfachsteckdose. Du kannst alle möglichen Dinge mit ihm verbinden.
 
 Dein Netz sollte dann so aussehen:
+
 ![text](./pics_tutorial/step6.png)
 
 ## Schritt 7: Eine Solaranlage hinzufügen
@@ -68,6 +73,7 @@ Dein Netz sollte dann so aussehen:
 Füge jetzt eine Solaranlage und ein Haus hinzu und verbinde beide mit dem Verteiler aus Schritt 6.
 ### Hilfe:
 Dein Netz sollte dann so aussehen:
+
 ![text](./pics_tutorial/step7.png)
 
 ## Schritt 8: Die Solaranlage konfigurieren
@@ -88,6 +94,7 @@ Du wirst sehen, dass die Anlage nicht jeden Tag gleich viel Energie produziert. 
 Wenn du möchtest, kannst du bei den Einstellungen die Kalenderwoche verändern und ausprobieren, wie die Solaranlage sich im Winter, Sommer oder Herbst verhält (Aktualisieren nicht vergessen!)
 
 Das Menü sollte nach dem Speichern so aussehen:
+
 ![text](./pics_tutorial/step8.png)
 
 ## Schritt 9: Das Netz berechnen
